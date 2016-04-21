@@ -32,15 +32,14 @@ setup(
     package_data={'phonemizer': ['share/*.*']},
 
     # define the command-line script to use
-    entry_points={
-        'console_scripts': ['phonemize = phonemizer.main:main']},
+    entry_points={'console_scripts': ['phonemize = phonemizer.main:main']},
 
     # metadata for upload to PyPI
     author='Mathieu Bernard',
     author_email='mmathieubernardd@gmail.com',
     description='Simple phonemization of English text',
     license='GPL3',
-    keywords='linguistics phonemes festival TTS',
+    keywords='linguistics phoneme festival TTS',
     url='https://github.com/bootphon/phonemizer',
-    long_description=open('README.md').read(),
+    long_description=open('README.md').read()
 )

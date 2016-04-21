@@ -1,14 +1,14 @@
 # Phonemizer
 
 * Simple phonemization of English text, based on the
-  [festival](http://www.cstr.ed.ac.uk/projects/festival) TTS system.
+  [festival](http://www.cstr.ed.ac.uk/projects/festival) TTS system
 
-* The phoneset used is is the
-  [default US phoneset](http://www.festvox.org/bsv/c4711.html) used by
-  festival.
+* The phoneset used is is the default
+  [US phoneset](http://www.festvox.org/bsv/c4711.html) used by
+  festival
 
-* This Python package provides both the command-line tool `phonemize`
-  and the Python class `phonemizer.Phonemizer`.
+* Provides both the `phonemize` command-line tool and the Python class
+  `phonemizer.Phonemizer`
 
 ## Installation
 
@@ -16,7 +16,7 @@
   [festival](http://www.cstr.ed.ac.uk/projects/festival) on your
   system. Visit
   [this link](http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation)
-  for detailed installation guidelines. On Debian/Ubuntu simply run:
+  for installation guidelines. On Debian/Ubuntu simply run:
 
         $ sudo apt-get install festival
 
@@ -27,6 +27,8 @@
         $ cd phonemizer
         $ python setup.py build
         $ [sudo] python setup.py install
+
+  The `phonemizer` command should be in your `$PATH`.
 
 ## Command-line examples
 
@@ -44,6 +46,9 @@
             $ echo "hello world" | phonemize --strip
             hh-ax-l|ow w-er-l-d
 
+            $ echo "hello world" | phonemize -p ' ' -s ';esyll ' -w ';eword '
+            hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
+
     * from file to stdout
 
             $ echo "hello world" > hello.txt
@@ -55,11 +60,6 @@
             $ phonemize hello.txt -o hello.phon --strip
             $ cat hello.phon
             hh-ax-l|ow w-er-l-d
-
-    * custom token separators
-
-            $ echo "hello world" | phonemize -p ' ' -s ';esyll ' -w ';eword '
-            hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
 
 ## Licence
 

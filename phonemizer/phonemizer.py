@@ -25,7 +25,7 @@ import lispy
 
 
 Separator = collections.namedtuple('Separator', ['word', 'syllable', 'phone'])
-"""A named tuple of token (word, syllable and phone) separators"""
+"""A named tuple of word, syllable and phone separators"""
 
 
 class Phonemizer(object):

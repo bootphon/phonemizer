@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
-"""Phonemization of English text utterances using festival"""
+"""Phonemization of English text utterances using festival and a US phoneset"""
 
 import argparse
 import logging
@@ -27,42 +27,37 @@ def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument(
-        'input', default=sys.stdin, nargs='?',
+        'input', default=sys.stdin, nargs='?', metavar='<file>',
         help='input text file to phonemize, if not specified read from stdin')
 
     parser.add_argument(
-        '-o', '--output', default=sys.stdout,
+        '-o', '--output', default=sys.stdout, metavar='<file>',
         help='output text file to write, if not specified write to stdout')
+
+    parser.add_argument(
+        '-v', '--verbose', action='store_true',
+        help='write some log messages to stderr')
 
     group = parser.add_argument_group('separators')
 
     group.add_argument(
-        '-w', '--word-separator',
+        '-w', '--word-separator', metavar='<str>',
         default=Phonemizer.default_separator.word,
         help='word separator, default is "%(default)s"')
 
     group.add_argument(
-        '-s', '--syllable-separator',
+        '-s', '--syllable-separator', metavar='<str>',
         default=Phonemizer.default_separator.syllable,
         help='syllable separator, default is "%(default)s"')
 
     group.add_argument(
-        '-p', '--phone-separator',
+        '-p', '--phone-separator', metavar='<str>',
         default=Phonemizer.default_separator.phone,
         help='phone separator, default is "%(default)s"')
 
     group.add_argument(
         '--strip', action='store_true',
         help='removes the end separators in phonemized tokens')
-
-    # parser.add_argument(
-    #     '-s', '--script', default=Phonemizer.default_script(),
-    #     help='festival script to be launched on background (default is {})'
-    #     .format(Phonemizer.default_script()))
-
-    parser.add_argument(
-        '-v', '--verbose', action='store_true',
-        help='write some log messages to stderr')
 
     return parser.parse_args()
 
@@ -71,7 +66,9 @@ def main():
     """Compute the phonologization of an input text through festival"""
     args = parse_args()
 
-    # configure logging according to --verbose option
+    # configure logging according to --verbose option. If verbose,
+    # init a logger to output on stderr. Else init a logger going to
+    # the void.
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     if args.verbose:
@@ -81,19 +78,19 @@ def main():
         handler = logging.NullHandler()
     logger.addHandler(handler)
 
-    # configure input
+    # configure input as a readable stream
     streamin = args.input
     if isinstance(streamin, str):
         streamin = open(streamin, 'r')
     logger.debug('reading from %s', streamin.name)
 
-    # configure output
+    # configure output as a writable stream
     streamout = args.output
     if isinstance(streamout, str):
         streamout = open(streamout, 'w')
     logger.debug('writing to %s', streamout.name)
 
-    # configure phonemizer
+    # configure the phonemizer
     p = Phonemizer(logger=logger)
     p.separator = Separator(
         args.word_separator,
@@ -101,11 +98,10 @@ def main():
         args.phone_separator)
     p.strip_separator = args.strip
 
-    # do the phonemization
+    # do the phonemization and output it
     out = '\n'.join(p.phonemize(streamin.read()))
     if len(out):
-        out += '\n'
-    streamout.write(out)
+        streamout.write(out + '\n')
 
 
 if __name__ == '__main__':
