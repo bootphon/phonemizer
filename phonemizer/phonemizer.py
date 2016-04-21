@@ -166,8 +166,13 @@ class Phonemizer(object):
     def _postprocess_line(self, line):
         """Parse a line from festival to phonemized output"""
         sep = self.separator.word
-        out = sep.join(self._postprocess_word(word)
-                       for word in lispy.parse(line))
+        out = []
+        for word in lispy.parse(line):
+            word = self._postprocess_word(word)
+            if word != '':
+                out.append(word)
+        out = sep.join(out)
+
         return out if self.strip_separator else out + sep
 
     def _postprocess(self, tree):
@@ -207,4 +212,5 @@ class Phonemizer(object):
         """
         a = self._preprocess(text)
         b = self._process(a)
-        return self._postprocess(b)
+        c = self._postprocess(b)
+        return '\n'.join(line for line in c if line.strip() != '')

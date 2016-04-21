@@ -99,7 +99,7 @@ def main():
     p.strip_separator = args.strip
 
     # do the phonemization and output it
-    out = '\n'.join(p.phonemize(streamin.read()))
+    out = p.phonemize(streamin.read())
     if len(out):
         streamout.write(out + '\n')
 
