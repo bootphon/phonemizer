@@ -28,7 +28,7 @@ Separator = collections.namedtuple('Separator', ['word', 'syllable', 'phone'])
 
 
 class Phonemizer(object):
-    """Phonologization of English text with festival
+    """Phonemization of English text with festival
 
     This class is a wrapper on festival, a text to speech program,
     allowing simple phonemization of some English text.
