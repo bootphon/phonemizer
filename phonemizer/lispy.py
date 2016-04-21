@@ -12,7 +12,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
-"""Parsing Scheme expression.
+"""Parse a Scheme expression as a nested list
+
+The main function of this module is lispy.parse, other ones should be
+considered private.
 
 From http://www.norvig.com/lispy.html
 
@@ -20,34 +23,44 @@ From http://www.norvig.com/lispy.html
 
 
 def parse(program):
-    "Read a Scheme expression from a string."
-    return read_from_tokens(tokenize(program))
+    """Read a Scheme expression from a string
+
+    Return a nested list
+
+    Raises an IndexError if the expression is not valid scheme
+    (unbalanced parenthesis).
+
+    >>> parse('(+ 2 (* 5 2))')
+    ['+', '2', ['*', '5', '2']]
+
+    """
+    return _read_from_tokens(_tokenize(program))
 
 
-def tokenize(chars):
+def _tokenize(chars):
     "Convert a string of characters into a list of tokens."
     return chars.replace('(', ' ( ').replace(')', ' ) ').split()
 
 
-def read_from_tokens(tokens):
-    "Read an expression from a sequence of tokens."
+def _read_from_tokens(tokens):
+    "Read an expression from a sequence of tokens"
     if len(tokens) == 0:
         raise SyntaxError('unexpected EOF while reading')
     token = tokens.pop(0)
     if '(' == token:
         L = []
         while tokens[0] != ')':
-            L.append(read_from_tokens(tokens))
+            L.append(_read_from_tokens(tokens))
         tokens.pop(0)  # pop off ')'
         return L
     elif ')' == token:
         raise SyntaxError('unexpected )')
     else:
-        return token  # was atom(token)
+        return token  # was _atom(token)
 
 
-def atom(token):
-    "Numbers become numbers; every other token are not processed."
+def _atom(token):
+    "Numbers become numbers, every other token are not processed"
     try:
         return int(token)
     except ValueError:

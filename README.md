@@ -1,32 +1,34 @@
 # Phonemizer
 
-Simple phonemization of English text utterances, based on
-[festival](http://www.cstr.ed.ac.uk/projects/festival) TTS system.
+* Simple phonemization of English text, based on the
+  [festival](http://www.cstr.ed.ac.uk/projects/festival) TTS system.
+
+* The phoneset used is is the
+  [default US phoneset](http://www.festvox.org/bsv/c4711.html) used by
+  festival.
+
+* This Python package provides both the command-line tool `phonemize`
+  and the Python class `phonemizer.Phonemizer`.
 
 ## Installation
 
-### Festival
+* First you need to install
+  [festival](http://www.cstr.ed.ac.uk/projects/festival) on your
+  system. Visit
+  [this link](http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation)
+  for detailed installation guidelines. On Debian/Ubuntu simply run:
 
-First you need to install
-[festival](http://www.cstr.ed.ac.uk/projects/festival) on your
-system. On Debian/Ubuntu simply run::
+        $ sudo apt-get install festival
 
-    sudo apt-get install festival
+* Then download and install the `phonemizer` from
+[github](https://github.com/bootphon/phonemizer) with:
 
-Visit
-[this link](http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation)
-for detailed installation guidelines.
+        $ git clone git@github.com:bootphon/phonemizer.git
+        $ cd phonemizer
+        $ python setup.py build
+        $ [sudo] python setup.py install
 
-### Phonemizer
-
-After have cloned this repository, install it from the `phonemizer`
-directory with
-
-    $ python setup.py build
-    $ python setup.py install
-
-
-## Examples
+## Command-line examples
 
 * First, have a
 
@@ -34,29 +36,30 @@ directory with
 
 * Here are few basic examples
 
-        $ echo "hello world" | ./phonemize
-        hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
+    * from stdin to stdout:
 
-        $ echo "hello world" > hello.txt
-        $ ./phonemize hello.txt
-        hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
+            $ echo "hello world" | phonemize
+            hh-ax-l-|ow-| w-er-l-d-|
 
-        $ ./phonemize hello.txt -o hello.phon
-        $ cat hello.phon
-        hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
+            $ echo "hello world" | phonemize --strip
+            hh-ax-l|ow w-er-l-d
 
+    * from file to stdout
 
-## Potential issues
+            $ echo "hello world" > hello.txt
+            $ phonemize hello.txt --strip
+            hh-ax-l|ow w-er-l-d
 
-The program may print on stderr something like:
+    * from file to file
 
-    UniSyn: using default diphone ax-ax for y-pau
+            $ phonemize hello.txt -o hello.phon --strip
+            $ cat hello.phon
+            hh-ax-l|ow w-er-l-d
 
-This is related to wave synthesis (done by festival during
-phonologization). It should be useful to overload this configuration
-if the phonologization takes too long (I began this but it seems a bit
-tricky and time consuming).
+    * custom token separators
 
+            $ echo "hello world" | phonemize -p ' ' -s ';esyll ' -w ';eword '
+            hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
 
 ## Licence
 

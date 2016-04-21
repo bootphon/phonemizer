@@ -25,6 +25,7 @@ import lispy
 
 
 Separator = collections.namedtuple('Separator', ['word', 'syllable', 'phone'])
+"""A named tuple of token (word, syllable and phone) separators"""
 
 
 class Phonemizer(object):
@@ -33,14 +34,42 @@ class Phonemizer(object):
     This class is a wrapper on festival, a text to speech program,
     allowing simple phonemization of some English text.
 
-    The US phoneset we use is described at
-    http://www.festvox.org/bsv/c4711.html
+    The US phoneset we use is the default one in festival, as
+    described at http://www.festvox.org/bsv/c4711.html
+
+    Arguments
+    ---------
+
+    script (str): the festival script to be executed on input text. By
+      default use Phonemizer.default_script().
+
+    logger (logging.Logger): the logging instance where to send
+      messages. If not specified, don't log any messages.
+
+    Attributes
+    ----------
+
+    separator (Separator): the namedtuple specifying token separation
+      strings at 3 levels: word, syllable and phone. Default is
+      Phonemizer.default_separator.
+
+    strip_separator (bool): if True, remove the end separator of
+      phonemized tokens. Default is False.
+
+    Methods
+    -------
+
+    The central method of the Phonemizer is phonemize(text), which
+    output that input text in a US English phonologized form.
 
     Exceptions
     ----------
 
     Instanciate this class with no 'festival' in your PATH raises a
     RuntimeError
+
+    Parsing a ill-formed Scheme expression during post-processing
+    (typically with unbalanced parenthesis) raises an IndexError
 
     """
 
@@ -52,28 +81,34 @@ class Phonemizer(object):
             raise RuntimeError('festival not installed on your system')
 
         self.separator = self.default_separator
+        self.strip_separator = False
 
-        self._script = self.default_script() if script is None else script
         self._log = logger
+        self._script = self.default_script() if script is None else script
 
-        self._log.debug(
-            'loading festival script from {}'.format(self._script))
+        if self._log:
+            self._log.debug('loading {}'.format(self._script))
 
     @staticmethod
     def _double_quoted(line):
-        """Return `line` surrounded by double quotes"""
+        """Return the string `line` surrounded by double quotes"""
         return '"' + line + '"'
+
+    @staticmethod
+    def _cleaned(line):
+        """Remove 'forbidden' characters from the line"""
+        return line.replace('"', "'").replace('(', '').replace(')', '')
 
     def _preprocess(self, text):
         """Returns the contents of `text` formatted for festival input
 
-        This function adds double quotes to begining and end of each line
-        in text, if not already presents. The returned result is a
-        multiline string.
+        This function adds double quotes to begining and end of each
+        line in text, if not already presents. The returned result is
+        a multiline string. Empty lines in inputs are ignored.
 
         """
         return '\n'.join(
-            [self._double_quoted(line)
+            [self._double_quoted(self._cleaned(line))
              for line in text.split('\n') if line != ''])
 
     def _process(self, text):
@@ -83,13 +118,14 @@ class Phonemizer(object):
         syllabic structure extraction.
 
         Return a string containing the "SylStructure" relation tree of
-        the text.
+        the text, as a scheme expression.
 
         """
-        with tempfile.NamedTemporaryFile('w+', delete=False) as tmpdata:
-            # save the text as a tempfile
-            tmpdata.write(text)
-            tmpdata.close()
+        try:
+            with tempfile.NamedTemporaryFile('w+', delete=False) as tmpdata:
+                # save the text as a tempfile
+                tmpdata.write(text)
+                tmpdata.close()
 
             # the Scheme script to be send to festival
             scm_script = open(self._script, 'r').read().format(tmpdata.name)
@@ -97,28 +133,42 @@ class Phonemizer(object):
             with tempfile.NamedTemporaryFile('w+', delete=False) as tmpscm:
                 tmpscm.write(scm_script)
                 tmpscm.close()
-                cmd = 'festival -b ' + tmpscm.name
+
+            cmd = 'festival -b {}'.format(tmpscm.name)
+            if self._log:
                 self._log.debug('running %s', cmd)
-                res = subprocess.check_output(shlex.split(cmd))
 
-        os.remove(tmpdata.name)
-        os.remove(tmpscm.name)
-
-        # festival seems to use latin1 and not utf8
-        return res.decode('latin1')
+            # festival seems to use latin1 and not utf8, moreover it
+            # may print on stderr that are redirected to
+            # /dev/null. Messages are something like: "UniSyn: using
+            # default diphone ax-ax for y-pau". This is related to
+            # wave synthesis (done by festival during phonemization).
+            return subprocess.check_output(
+                shlex.split(cmd),
+                stderr=open(os.devnull, 'w')).decode('latin1')
+        finally:
+            for tmp in (tmpdata, tmpscm):
+                os.remove(tmp.name)
 
     def _postprocess_syll(self, syll):
+        """Parse a syllable from festival to phonemized output"""
+        sep = self.separator.phone
         out = (phone[0][0].replace('"', '') for phone in syll[1:])
-        return self.separator.phone.join(
-            (o for o in out if o != ''))
+        out = sep.join(o for o in out if o != '')
+        return out if self.strip_separator else out + sep
 
     def _postprocess_word(self, word):
-        return (self.separator.syllable.join(
-            (self._postprocess_syll(syll) for syll in word[1:])))
+        """Parse a word from festival to phonemized output"""
+        sep = self.separator.syllable
+        out = sep.join(self._postprocess_syll(syll) for syll in word[1:])
+        return out if self.strip_separator else out + sep
 
     def _postprocess_line(self, line):
-        return (self.separator.word.join(
-            (self._postprocess_word(word) for word in lispy.parse(line))))
+        """Parse a line from festival to phonemized output"""
+        sep = self.separator.word
+        out = sep.join(self._postprocess_word(word)
+                       for word in lispy.parse(line))
+        return out if self.strip_separator else out + sep
 
     def _postprocess(self, tree):
         """Conversion from festival syllable tree to desired format"""
@@ -145,7 +195,14 @@ class Phonemizer(object):
     def phonemize(self, text):
         """Return a phonemized version of a text
 
-        `text` is a string to be phonologized, can be multiline.
+        `text` is a string to be phonologized, can be multiline. Any
+        empty line will be ignored. Any opening and closing
+        parenthesis are removed, as they interfer with the Scheme
+        expression syntax. Moreover double quotes are replaced by
+        simple quotes because double quotes denotes utterances
+        boundaries in festival.
+
+        The returned result is a multiline string as well.
 
         """
         a = self._preprocess(text)
