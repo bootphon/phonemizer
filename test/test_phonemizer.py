@@ -38,3 +38,9 @@ class TestPhonemizer(object):
     def test_quote(self):
         assert self.p.phonemize("here a 'quote") == 'hh-ih-r ax k-w-ow-t'
         assert self.p.phonemize('here a "quote') == 'hh-ih-r ax k-w-ow-t'
+
+    def test_its(self):
+        assert self.p.phonemize("it's") == 'ih-t-s'
+        assert self.p.phonemize("its") == 'ih-t-s'
+        assert self.p.phonemize("it s") == 'ih-t eh-s'
+        assert self.p.phonemize('it "s') == 'ih-t eh-s'
