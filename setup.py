@@ -20,7 +20,7 @@ import os
 from setuptools import setup, find_packages
 
 SETUP_DIR = os.path.dirname(os.path.abspath(__file__))
-VERSION = '0.1'
+VERSION = '0.2'
 
 setup(
     name='phonemizer',
@@ -33,7 +33,7 @@ setup(
 
     # define the command-line script to use
     entry_points={
-        'console_scripts': ['phonemizer = phonemizer.main:main']},
+        'console_scripts': ['phonemize = phonemizer.main:main']},
 
     # metadata for upload to PyPI
     author='Mathieu Bernard',

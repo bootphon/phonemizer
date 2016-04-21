@@ -35,18 +35,25 @@ def parse_args():
         help='output text file to write, if not specified write to stdout')
 
     group = parser.add_argument_group('separators')
+
     group.add_argument(
         '-w', '--word-separator',
         default=Phonemizer.default_separator.word,
         help='word separator, default is "%(default)s"')
+
     group.add_argument(
         '-s', '--syllable-separator',
         default=Phonemizer.default_separator.syllable,
         help='syllable separator, default is "%(default)s"')
+
     group.add_argument(
         '-p', '--phone-separator',
         default=Phonemizer.default_separator.phone,
         help='phone separator, default is "%(default)s"')
+
+    group.add_argument(
+        '--strip', action='store_true',
+        help='removes the end separators in phonemized tokens')
 
     # parser.add_argument(
     #     '-s', '--script', default=Phonemizer.default_script(),
@@ -92,6 +99,7 @@ def main():
         args.word_separator,
         args.syllable_separator,
         args.phone_separator)
+    p.strip_separator = args.strip
 
     # do the phonemization
     out = '\n'.join(p.phonemize(streamin.read()))
