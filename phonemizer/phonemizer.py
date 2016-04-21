@@ -122,19 +122,19 @@ class Phonemizer(object):
 
         """
         try:
-            with tempfile.NamedTemporaryFile('w+', delete=False) as tmpdata:
+            with tempfile.NamedTemporaryFile('w+', delete=False) as data:
                 # save the text as a tempfile
-                tmpdata.write(text)
-                tmpdata.close()
+                data.write(text)
+                data.close()
 
-            # the Scheme script to be send to festival
-            scm_script = open(self._script, 'r').read().format(tmpdata.name)
+                # the Scheme script to be send to festival
+                scm_script = open(self._script, 'r').read().format(data.name)
 
-            with tempfile.NamedTemporaryFile('w+', delete=False) as tmpscm:
-                tmpscm.write(scm_script)
-                tmpscm.close()
+            with tempfile.NamedTemporaryFile('w+', delete=False) as scm:
+                scm.write(scm_script)
+                scm.close()
 
-            cmd = 'festival -b {}'.format(tmpscm.name)
+            cmd = 'festival -b {}'.format(scm.name)
             if self._log:
                 self._log.debug('running %s', cmd)
 
@@ -147,7 +147,7 @@ class Phonemizer(object):
                 shlex.split(cmd),
                 stderr=open(os.devnull, 'w')).decode('latin1')
         finally:
-            for tmp in (tmpdata, tmpscm):
+            for tmp in (data, scm):
                 os.remove(tmp.name)
 
     def _postprocess_syll(self, syll):
@@ -195,7 +195,7 @@ class Phonemizer(object):
         """Return the default festival script from abkhazia share directory"""
         return pkg_resources.resource_filename(
             pkg_resources.Requirement.parse('phonemizer'),
-            'share/phonemize.scm')
+            'phonemizer/share/phonemize.scm')
 
     def phonemize(self, text):
         """Return a phonemized version of a text

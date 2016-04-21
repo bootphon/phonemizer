@@ -29,7 +29,7 @@ setup(
     zip_safe=True,
 
     # include any files in phonemizer/share
-    package_data={'phonemizer': ['share/*.*']},
+    package_data={'phonemizer': ['share/phonemize.scm']},
 
     # define the command-line script to use
     entry_points={'console_scripts': ['phonemize = phonemizer.main:main']},

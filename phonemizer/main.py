@@ -17,6 +17,7 @@
 
 import argparse
 import logging
+import pkg_resources
 import sys
 
 from phonemizer import Phonemizer, Separator
@@ -107,6 +108,6 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except RuntimeError as err:
-        print >> sys.stderr, 'fatal error: {}'.format(err)
+    except (RuntimeError, pkg_resources.DistributionNotFound) as err:
+        print('fatal error: {}'.format(err))
         sys.exit(1)
