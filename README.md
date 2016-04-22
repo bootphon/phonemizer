@@ -3,9 +3,9 @@
 * Simple phonemization of English text, based on the
   [festival](http://www.cstr.ed.ac.uk/projects/festival) TTS system
 
-        *s-ih-m-p|ax-l f-ax-n|ih-m|ih-z|ey-sh|ax-n ax-v ih-ng-g|l-ax-sh
-        t-eh-k-s-t b-ey-s-t aa-n dh-ax f-eh-s|t-ax-v|ax-l t-iy t-iy eh-s
-        s-ih-s|t-ax-m*
+    *s-ih-m-p|ax-l f-ax-n|ih-m|ih-z|ey-sh|ax-n ax-v ih-ng-g|l-ax-sh
+    t-eh-k-s-t b-ey-s-t aa-n dh-ax f-eh-s|t-ax-v|ax-l t-iy t-iy eh-s
+    s-ih-s|t-ax-m*
 
 * The phoneset used is is the default
   [US phoneset](http://www.festvox.org/bsv/c4711.html) used by
@@ -32,38 +32,35 @@
         $ python setup.py build
         $ [sudo] python setup.py install
 
-  The `phonemizer` command should be in your `$PATH`.
-
-## Command-line examples
-
-* First, have a
+* The `phonemizer` command should be in your `$PATH`. Test it by
+  running
 
         $ phonemize --help
 
-* Here are few basic examples
+## Command-line examples
 
-    * from stdin to stdout:
+* from stdin to stdout:
 
-            $ echo "hello world" | phonemize
-            hh-ax-l-|ow-| w-er-l-d-|
+        $ echo "hello world" | phonemize
+        hh-ax-l-|ow-| w-er-l-d-|
 
-            $ echo "hello world" | phonemize --strip
-            hh-ax-l|ow w-er-l-d
+        $ echo "hello world" | phonemize --strip
+        hh-ax-l|ow w-er-l-d
 
-            $ echo "hello world" | phonemize -p ' ' -s ';esyll ' -w ';eword '
-            hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
+        $ echo "hello world" | phonemize -p ' ' -s ';esyll ' -w ';eword '
+        hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
 
-    * from file to stdout
+* from file to stdout
 
-            $ echo "hello world" > hello.txt
-            $ phonemize hello.txt --strip
-            hh-ax-l|ow w-er-l-d
+        $ echo "hello world" > hello.txt
+        $ phonemize hello.txt --strip
+        hh-ax-l|ow w-er-l-d
 
-    * from file to file
+* from file to file
 
-            $ phonemize hello.txt -o hello.phon --strip
-            $ cat hello.phon
-            hh-ax-l|ow w-er-l-d
+        $ phonemize hello.txt -o hello.phon --strip
+        $ cat hello.phon
+        hh-ax-l|ow w-er-l-d
 
 ## Licence
 
