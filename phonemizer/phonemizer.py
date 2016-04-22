@@ -121,34 +121,30 @@ class Phonemizer(object):
         the text, as a scheme expression.
 
         """
-        try:
-            with tempfile.NamedTemporaryFile('w+', delete=False) as data:
-                # save the text as a tempfile
-                data.write(text)
-                data.close()
+        with tempfile.NamedTemporaryFile('w+') as data:
+            # save the text as a tempfile
+            data.write(text)
+            data.seek(0)
 
-                # the Scheme script to be send to festival
-                scm_script = open(self._script, 'r').read().format(data.name)
+            # the Scheme script to be send to festival
+            scm_script = open(self._script, 'r').read().format(data.name)
 
-            with tempfile.NamedTemporaryFile('w+', delete=False) as scm:
+            with tempfile.NamedTemporaryFile('rw+') as scm:
                 scm.write(scm_script)
-                scm.close()
+                scm.seek(0)
 
-            cmd = 'festival -b {}'.format(scm.name)
-            if self._log:
-                self._log.debug('running %s', cmd)
+                cmd = 'festival -b {}'.format(scm.name)
+                if self._log:
+                    self._log.debug('running %s', cmd)
 
-            # festival seems to use latin1 and not utf8, moreover it
-            # may print on stderr that are redirected to
-            # /dev/null. Messages are something like: "UniSyn: using
-            # default diphone ax-ax for y-pau". This is related to
-            # wave synthesis (done by festival during phonemization).
-            return subprocess.check_output(
-                shlex.split(cmd),
-                stderr=open(os.devnull, 'w')).decode('latin1')
-        finally:
-            for tmp in (data, scm):
-                os.remove(tmp.name)
+                # festival seems to use latin1 and not utf8, moreover it
+                # may print on stderr that are redirected to
+                # /dev/null. Messages are something like: "UniSyn: using
+                # default diphone ax-ax for y-pau". This is related to
+                # wave synthesis (done by festival during phonemization).
+                return subprocess.check_output(
+                    shlex.split(cmd),
+                    stderr=open(os.devnull, 'w')).decode('latin1')
 
     def _postprocess_syll(self, syll):
         """Parse a syllable from festival to phonemized output"""

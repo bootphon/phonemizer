@@ -23,7 +23,7 @@ import sys
 from phonemizer import Phonemizer, Separator
 
 
-def parse_args():
+def parse_args(argv):
     """Argument parser for the phonemization script"""
     parser = argparse.ArgumentParser(description=__doc__)
 
@@ -60,12 +60,12 @@ def parse_args():
         '--strip', action='store_true',
         help='removes the end separators in phonemized tokens')
 
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main():
+def main(argv=sys.argv[1:]):
     """Compute the phonologization of an input text through festival"""
-    args = parse_args()
+    args = parse_args(argv)
 
     # configure logging according to --verbose option. If verbose,
     # init a logger to output on stderr. Else init a logger going to
