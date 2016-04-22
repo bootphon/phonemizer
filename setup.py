@@ -28,6 +28,9 @@ setup(
     packages=find_packages(),
     zip_safe=True,
 
+    # python package dependancies
+    install_requires=['joblib'],
+
     # include any files in phonemizer/share
     package_data={'phonemizer': ['share/phonemize.scm']},
 

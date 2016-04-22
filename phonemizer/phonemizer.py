@@ -15,6 +15,7 @@
 """Provides the Phonemizer class"""
 
 import collections
+import itertools
 import os
 import pkg_resources
 import shlex
@@ -22,6 +23,15 @@ import subprocess
 import tempfile
 
 import lispy
+import joblib
+
+
+def _str2list(s):
+    return s.strip().split('\n') if isinstance(s, str) else s
+
+
+def _list2str(s):
+    return '\n'.join(s) if not isinstance(s, str) else s
 
 
 Separator = collections.namedtuple('Separator', ['word', 'syllable', 'phone'])
@@ -60,7 +70,8 @@ class Phonemizer(object):
     -------
 
     The central method of the Phonemizer is phonemize(text), which
-    output that input text in a US English phonologized form.
+    output that input text in a US English phonologized form. The text
+    can be a (multiline) string or a list of strings.
 
     Exceptions
     ----------
@@ -177,6 +188,22 @@ class Phonemizer(object):
                 for line in tree.split('\n')
                 if line not in ['', '(nil nil nil)']]
 
+    def _phonemize(self, text):
+        """Return a phonemized version of a text
+
+        This method is called from self.phonemize, either in a mono or
+        parallel context. The input `text` is a string, the returned
+        value is a list.
+
+        """
+        a = self._preprocess(text)
+        b = self._process(a)
+        c = self._postprocess(b)
+        return [line for line in c if line.strip() != '']
+
+    def __call__(self, text):
+        return self._phonemize(text)
+
     @staticmethod
     def festival_is_here():
         """Return True is the festival binary is in the PATH"""
@@ -193,20 +220,57 @@ class Phonemizer(object):
             pkg_resources.Requirement.parse('phonemizer'),
             'phonemizer/share/phonemize.scm')
 
-    def phonemize(self, text):
-        """Return a phonemized version of a text
+    @staticmethod
+    def _chunks(text, n):
+        """Return `n` equally sized chunks of a `text`
 
-        `text` is a string to be phonologized, can be multiline. Any
-        empty line will be ignored. Any opening and closing
-        parenthesis are removed, as they interfer with the Scheme
-        expression syntax. Moreover double quotes are replaced by
-        simple quotes because double quotes denotes utterances
-        boundaries in festival.
-
-        The returned result is a multiline string as well.
+        Only the n-1 first chunks have equal size. The last chunk can
+        be longer. The input `text` can be a list or a string. Return
+        a list of `n` strings.
 
         """
-        a = self._preprocess(text)
-        b = self._process(a)
-        c = self._postprocess(b)
-        return '\n'.join(line for line in c if line.strip() != '')
+        text = _str2list(text)
+        size = max(1, len(text)/n)
+        return [_list2str(text[i:i+size]) for i in range(0, len(text), size)]
+
+    def phonemize(self, text, njobs=1):
+        """Return a phonemized version of a text
+
+        `text` is a string (or a list of string) to be phonologized,
+        can be multiline. Any empty line will be ignored. Any opening
+        and closing parenthesis are removed, as they interfer with the
+        Scheme expression syntax. Moreover double quotes are replaced
+        by simple quotes because double quotes denotes utterances
+        boundaries in festival.
+
+        `njobs` is an int specifying the number of festival instances
+        to lanch. The input text is split in `njobs` parts, phonemized
+        on parallel instances of festival and the output is collapsed.
+
+        Return a string if `text` is a string, else return a list of
+        strings.
+
+        """
+        if self._log:
+            self._log.info('phonemizing {} words'.format(len(text.split())))
+
+        if njobs == 1:
+            # phonemize the text forced as a string
+            out = self._phonemize(_list2str(text))
+        else:
+            # If using parallel jobs, disable the log as stderr is not
+            # picklable.
+            self._log.debug(
+                'running festival on {} jobs'.format(njobs))
+            self._log = None
+
+            # we have here a list of phonemized chunks
+            out = joblib.Parallel(n_jobs=njobs)(
+                joblib.delayed(self)(c) for c in self._chunks(text, njobs))
+
+            # flatten them in a single list
+            out = itertools.chain(*out)
+
+        # output the result formatted as a string or a list of strings
+        # according to type(text)
+        return _list2str(out) if isinstance(text, str) else out

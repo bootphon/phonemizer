@@ -22,25 +22,38 @@ class TestPhonemizer(object):
         self.p = phonemizer.Phonemizer()
         self.p.strip_separator = True
 
+        # just a name shortcut
+        self.p = self.p.phonemize
+
     def test_hello(self):
-        assert self.p.phonemize('hello world') == 'hh-ax-l|ow w-er-l-d'
-        assert self.p.phonemize('hello\nworld') == 'hh-ax-l|ow\nw-er-l-d'
+        assert self.p('hello world') == 'hh-ax-l|ow w-er-l-d'
+        assert self.p('hello\nworld') == 'hh-ax-l|ow\nw-er-l-d'
+        assert self.p('hello\nworld\n') == 'hh-ax-l|ow\nw-er-l-d'
 
     def test_empty(self):
-        assert self.p.phonemize('') == ''
-        assert self.p.phonemize(' ') == ''
-        assert self.p.phonemize('  ') == ''
-        assert self.p.phonemize('(') == ''
-        assert self.p.phonemize('()') == ''
-        assert self.p.phonemize('"') == ''
-        assert self.p.phonemize("'") == ''
+        assert self.p('') == ''
+        assert self.p(' ') == ''
+        assert self.p('  ') == ''
+        assert self.p('(') == ''
+        assert self.p('()') == ''
+        assert self.p('"') == ''
+        assert self.p("'") == ''
 
     def test_quote(self):
-        assert self.p.phonemize("here a 'quote") == 'hh-ih-r ax k-w-ow-t'
-        assert self.p.phonemize('here a "quote') == 'hh-ih-r ax k-w-ow-t'
+        assert self.p("here a 'quote") == 'hh-ih-r ax k-w-ow-t'
+        assert self.p('here a "quote') == 'hh-ih-r ax k-w-ow-t'
 
     def test_its(self):
-        assert self.p.phonemize("it's") == 'ih-t-s'
-        assert self.p.phonemize("its") == 'ih-t-s'
-        assert self.p.phonemize("it s") == 'ih-t eh-s'
-        assert self.p.phonemize('it "s') == 'ih-t eh-s'
+        assert self.p("it's") == 'ih-t-s'
+        assert self.p("its") == 'ih-t-s'
+        assert self.p("it s") == 'ih-t eh-s'
+        assert self.p('it "s') == 'ih-t eh-s'
+
+    def test_list(self):
+        assert self.p(['hello world']) == ['hh-ax-l|ow w-er-l-d']
+        assert self.p(['hello\nworld']) == ['hh-ax-l|ow', 'w-er-l-d']
+        assert self.p(['hello', 'world']) == ['hh-ax-l|ow', 'w-er-l-d']
+
+    def test_tuple(self):
+        # this is out of specifications
+        assert self.p(('hello', 'world')) == ['hh-ax-l|ow', 'w-er-l-d']

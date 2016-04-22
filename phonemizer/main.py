@@ -27,17 +27,24 @@ def parse_args(argv):
     """Argument parser for the phonemization script"""
     parser = argparse.ArgumentParser(description=__doc__)
 
-    parser.add_argument(
-        'input', default=sys.stdin, nargs='?', metavar='<file>',
-        help='input text file to phonemize, if not specified read from stdin')
-
-    parser.add_argument(
-        '-o', '--output', default=sys.stdout, metavar='<file>',
-        help='output text file to write, if not specified write to stdout')
-
+    # general arguments
     parser.add_argument(
         '-v', '--verbose', action='store_true',
         help='write some log messages to stderr')
+
+    parser.add_argument(
+        '-j', '--njobs', type=int, metavar='<int>', default=1,
+        help='number of parallel jobs, default is %(default)s')
+
+    # input/output arguments
+    group = parser.add_argument_group('input/output')
+    group.add_argument(
+        'input', default=sys.stdin, nargs='?', metavar='<file>',
+        help='input text file to phonemize, if not specified read from stdin')
+
+    group.add_argument(
+        '-o', '--output', default=sys.stdout, metavar='<file>',
+        help='output text file to write, if not specified write to stdout')
 
     group = parser.add_argument_group('separators')
 
@@ -100,7 +107,7 @@ def main(argv=sys.argv[1:]):
     p.strip_separator = args.strip
 
     # do the phonemization and output it
-    out = p.phonemize(streamin.read())
+    out = p.phonemize(streamin.read(), njobs=args.njobs)
     if len(out):
         streamout.write(out + '\n')
 

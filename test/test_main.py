@@ -39,18 +39,16 @@ class TestPhonemizerMain(object):
         with pytest.raises(SystemExit):
             main('-h'.split())
 
-    def test_readme1(self):
-        input = ('Simple phonemization of English text, '
-                 'based on the festival TTS system')
-        output = ('s-ih-m-p|ax-l f-ax-n|ih-m|ih-z|ey-sh|ax-n ax-v '
-                  'ih-ng-g|l-ax-sh t-eh-k-s-t b-ey-s-t aa-n dh-ax '
-                  'f-eh-s|t-ax-v|ax-l t-iy t-iy eh-s s-ih-s|t-ax-m')
-        self._test(input, output, '--strip')
-
-    def test_readme2(self):
+    def test_readme(self):
         self._test('hello world', 'hh-ax-l-|ow-| w-er-l-d-| ')
         self._test('hello world', 'hh-ax-l|ow w-er-l-d', '--strip')
-        self._test(
-            'hello world',
-            'hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword ',
-            "-p ' ' -s ';esyll ' -w ';eword '")
+        self._test('hello world',
+                   'hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword ',
+                   "-p ' ' -s ';esyll ' -w ';eword '")
+
+    def test_njobs(self):
+        for njobs in range(1, 4):
+            self._test(
+                'hello world\ngoodbye\nthird line\nyet another',
+                'hh-ax-l|ow w-er-l-d\ng-uh-d|b-ay\nth-er-d l-ay'
+                '-n\ny-eh-t ax-n|ah-dh|er', '--strip -j {}'.format(njobs))

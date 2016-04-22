@@ -3,10 +3,6 @@
 * Simple phonemization of English text, based on the
   [festival](http://www.cstr.ed.ac.uk/projects/festival) TTS system
 
-        *s-ih-m-p|ax-l f-ax-n|ih-m|ih-z|ey-sh|ax-n ax-v ih-ng-g|l-ax-sh
-        t-eh-k-s-t b-ey-s-t aa-n dh-ax f-eh-s|t-ax-v|ax-l t-iy t-iy eh-s
-        s-ih-s|t-ax-m*
-
 * The phoneset used is is the default
   [US phoneset](http://www.festvox.org/bsv/c4711.html) used by
   festival
