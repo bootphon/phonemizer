@@ -251,9 +251,6 @@ class Phonemizer(object):
         strings.
 
         """
-        if self._log:
-            self._log.info('phonemizing {} words'.format(len(text.split())))
-
         if njobs == 1:
             # phonemize the text forced as a string
             out = self._phonemize(_list2str(text))
