@@ -132,7 +132,7 @@ class Phonemizer(object):
         the text, as a scheme expression.
 
         """
-        with tempfile.NamedTemporaryFile('w+') as data:
+        with tempfile.NamedTemporaryFile() as data:
             # save the text as a tempfile
             data.write(text)
             data.seek(0)
@@ -140,7 +140,7 @@ class Phonemizer(object):
             # the Scheme script to be send to festival
             scm_script = open(self._script, 'r').read().format(data.name)
 
-            with tempfile.NamedTemporaryFile('rw+') as scm:
+            with tempfile.NamedTemporaryFile() as scm:
                 scm.write(scm_script)
                 scm.seek(0)
 
