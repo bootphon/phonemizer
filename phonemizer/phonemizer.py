@@ -80,7 +80,7 @@ class Phonemizer(object):
     RuntimeError
 
     Parsing a ill-formed Scheme expression during post-processing
-    (typically with unbalanced parenthesis) raises an IndexError
+    (typically with unbalanced parenthesis) raises an IndexError.
 
     """
 
@@ -244,7 +244,7 @@ class Phonemizer(object):
         boundaries in festival.
 
         `njobs` is an int specifying the number of festival instances
-        to lanch. The input text is split in `njobs` parts, phonemized
+        to launch. The input text is split in `njobs` parts, phonemized
         on parallel instances of festival and the output is collapsed.
 
         Return a string if `text` is a string, else return a list of
@@ -259,6 +259,7 @@ class Phonemizer(object):
             # picklable.
             self._log.debug(
                 'running festival on {} jobs'.format(njobs))
+            log_storage = self._log
             self._log = None
 
             # we have here a list of phonemized chunks
@@ -267,6 +268,7 @@ class Phonemizer(object):
 
             # flatten them in a single list
             out = itertools.chain(*out)
+            self._log = log_storage
 
         # output the result formatted as a string or a list of strings
         # according to type(text)
