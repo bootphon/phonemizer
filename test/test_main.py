@@ -30,7 +30,7 @@ class TestPhonemizerMain(object):
             finput.write(input)
             finput.seek(0)
 
-            with tempfile.NamedTemporaryFile('rw') as foutput:
+            with tempfile.NamedTemporaryFile('w+') as foutput:
                 main(shlex.split('{} -o {} {}'.format(
                     finput.name, foutput.name, args)))
                 assert foutput.read() == output + '\n'

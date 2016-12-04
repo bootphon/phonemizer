@@ -16,11 +16,9 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Setup script for the phonemizer package"""
 
-import os
 from setuptools import setup, find_packages
 
-SETUP_DIR = os.path.dirname(os.path.abspath(__file__))
-VERSION = '0.2'
+VERSION = '0.3'
 
 setup(
     name='phonemizer',

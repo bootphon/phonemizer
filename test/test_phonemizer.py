@@ -14,7 +14,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the phonemizer.Phonemizer class"""
 
-import phonemizer
+import phonemizer.phonemizer as phonemizer
 
 
 class TestPhonemizer(object):

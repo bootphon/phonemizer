@@ -22,8 +22,9 @@ import shlex
 import subprocess
 import tempfile
 
-import lispy
 import joblib
+
+from . import lispy
 
 
 def _str2list(s):
@@ -132,7 +133,7 @@ class Phonemizer(object):
         the text, as a scheme expression.
 
         """
-        with tempfile.NamedTemporaryFile() as data:
+        with tempfile.NamedTemporaryFile('w+') as data:
             # save the text as a tempfile
             data.write(text)
             data.seek(0)
@@ -140,7 +141,7 @@ class Phonemizer(object):
             # the Scheme script to be send to festival
             scm_script = open(self._script, 'r').read().format(data.name)
 
-            with tempfile.NamedTemporaryFile() as scm:
+            with tempfile.NamedTemporaryFile('w+') as scm:
                 scm.write(scm_script)
                 scm.seek(0)
 
@@ -215,7 +216,7 @@ class Phonemizer(object):
 
     @staticmethod
     def default_script():
-        """Return the default festival script from abkhazia share directory"""
+        """Return the default festival script from share directory"""
         return pkg_resources.resource_filename(
             pkg_resources.Requirement.parse('phonemizer'),
             'phonemizer/share/phonemize.scm')
@@ -230,13 +231,13 @@ class Phonemizer(object):
 
         """
         text = _str2list(text)
-        size = max(1, len(text)/n)
+        size = int(max(1, len(text)/n))
         return [_list2str(text[i:i+size]) for i in range(0, len(text), size)]
 
     def phonemize(self, text, njobs=1):
         """Return a phonemized version of a text
 
-        `text` is a string (or a list of string) to be phonologized,
+        `text` is a string (or a list of strings) to be phonologized,
         can be multiline. Any empty line will be ignored. Any opening
         and closing parenthesis are removed, as they interfer with the
         Scheme expression syntax. Moreover double quotes are replaced
