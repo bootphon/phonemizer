@@ -14,12 +14,12 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the phonemizer.Phonemizer class"""
 
-import phonemizer.phonemizer as phonemizer
+import phonemizer.festival as phonemizer
 
 
 class TestPhonemizer(object):
     def setup(self):
-        self.p = phonemizer.Phonemizer()
+        self.p = phonemizer.FestivalPhonemizer()
         self.p.strip_separator = True
 
         # just a name shortcut

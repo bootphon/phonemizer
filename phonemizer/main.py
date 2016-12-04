@@ -20,7 +20,7 @@ import logging
 import pkg_resources
 import sys
 
-from . import phonemizer
+from . import festival, phonemizer
 
 
 def parse_args(argv):
@@ -50,17 +50,17 @@ def parse_args(argv):
 
     group.add_argument(
         '-w', '--word-separator', metavar='<str>',
-        default=phonemizer.Phonemizer.default_separator.word,
+        default=phonemizer.DEFAULT_SEPARATOR.word,
         help='word separator, default is "%(default)s"')
 
     group.add_argument(
         '-s', '--syllable-separator', metavar='<str>',
-        default=phonemizer.Phonemizer.default_separator.syllable,
+        default=phonemizer.DEFAULT_SEPARATOR.syllable,
         help='syllable separator, default is "%(default)s"')
 
     group.add_argument(
         '-p', '--phone-separator', metavar='<str>',
-        default=phonemizer.Phonemizer.default_separator.phone,
+        default=phonemizer.DEFAULT_SEPARATOR.phone,
         help='phone separator, default is "%(default)s"')
 
     group.add_argument(
@@ -99,7 +99,7 @@ def main(argv=sys.argv[1:]):
     logger.debug('writing to %s', streamout.name)
 
     # configure the phonemizer
-    p = phonemizer.Phonemizer(logger=logger)
+    p = festival.FestivalPhonemizer(logger=logger)
     p.separator = phonemizer.Separator(
         args.word_separator,
         args.syllable_separator,
