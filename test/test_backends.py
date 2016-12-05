@@ -14,16 +14,15 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the phonemizer.Phonemizer class"""
 
-import phonemizer.festival as phonemizer
+from phonemizer import phonemize, separator
 
 
-class TestPhonemizer(object):
+class TestFestival(object):
     def setup(self):
-        self.p = phonemizer.FestivalPhonemizer()
-        self.p.strip_separator = True
-
         # just a name shortcut
-        self.p = self.p.phonemize
+        self.p = lambda text: phonemize(
+            text, language='en-us', backend='festival', strip=True,
+            separator=separator.Separator(' ', '|', '-'))
 
     def test_hello(self):
         assert self.p('hello world') == 'hh-ax-l|ow w-er-l-d'

@@ -13,9 +13,10 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 
+;; This script is executed by festival for English text phonemization.
 (define (phonemize line)
   "(phonemize LINE)
-Extract the phonemes of the string LINE as a tree an write it to stdout."
+Extract the phonemes of the string LINE as a tree and write it to stdout."
   (set! utterance (eval (list 'Utterance 'Text line)))
   (utt.synth utterance)
   ;; Use of print instead of pprintf to have each utterance on one line

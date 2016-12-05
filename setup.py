@@ -40,7 +40,7 @@ setup(
     author_email='mmathieubernardd@gmail.com',
     description='Simple phonemization of English text',
     license='GPL3',
-    keywords='linguistics phoneme festival TTS',
+    keywords='linguistics phoneme festival espeak TTS',
     url='https://github.com/bootphon/phonemizer',
     long_description=open('README.md').read()
 )

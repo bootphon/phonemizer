@@ -1,24 +1,30 @@
-# Phonemizer -- *f-ax-n|ih-m|ay-z|er*
+# Phonemizer -- *foʊnmaɪzɚ*
 
-* Simple phonemization of English text, based on the
-  [festival](http://www.cstr.ed.ac.uk/projects/festival) TTS system
+* Simple text to phonemes converter for multiple languages, based on
+  [festival](http://www.cstr.ed.ac.uk/projects/festival) and
+  [espeak](http://espeak.sourceforge.net/) TTS systems.
 
-* The phoneset used is is the default
-  [US phoneset](http://www.festvox.org/bsv/c4711.html) used by
-  festival
+* Provides both the `phonemize` command-line tool and the Python function
+  `phonemizer.phonemize`
 
-* Provides both the `phonemize` command-line tool and the Python class
-  `phonemizer.Phonemizer`
+* Festival provides US English phonemization with syllable
+  tokenization, espeak endows multiple languages but without syllable
+  boundaries.
+
+* The phoneset used is
+  [IPA](https://en.wikipedia.org/wiki/International_Phonetic_Alphabet)
+  for the espeak backend whereas festival use its default
+  [US phoneset](http://www.festvox.org/bsv/c4711.html)
+
 
 ## Installation
 
-* First you need to install
-  [festival](http://www.cstr.ed.ac.uk/projects/festival) on your
-  system. Visit
-  [this link](http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation)
+* First you need to install festival and espeak on your system. Visit
+  [this festival link](http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation)
+  and [that espeak one](http://espeak.sourceforge.net/download.html)
   for installation guidelines. On Debian/Ubuntu simply run:
 
-        $ sudo apt-get install festival
+        $ sudo apt-get install festival espeak
 
 * Then download and install the `phonemizer` from
 [github](https://github.com/bootphon/phonemizer) with:
@@ -28,38 +34,137 @@
         $ python setup.py build
         $ [sudo] python setup.py install
 
-  The `phonemizer` command should be in your `$PATH`.
+  The `phonemize` command should be in your `$PATH`.
 
-## Command-line examples
+## Command-line exemples
 
 * First, have a
 
         $ phonemize --help
 
-* Here are few basic examples
+* Input/output exemples
 
     * from stdin to stdout:
 
             $ echo "hello world" | phonemize
-            hh-ax-l-|ow-| w-er-l-d-|
-
-            $ echo "hello world" | phonemize --strip
-            hh-ax-l|ow w-er-l-d
-
-            $ echo "hello world" | phonemize -p ' ' -s ';esyll ' -w ';eword '
-            hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
+            hhaxlow werld
 
     * from file to stdout
 
             $ echo "hello world" > hello.txt
-            $ phonemize hello.txt --strip
-            hh-ax-l|ow w-er-l-d
+            $ phonemize hello.txt
+            hhaxlow werld
 
     * from file to file
 
             $ phonemize hello.txt -o hello.phon --strip
             $ cat hello.phon
-            hh-ax-l|ow w-er-l-d
+            hhaxlow werld
+
+* Token separators
+
+        $ echo "hello world" | phonemize -p '-' -s '|'
+        hh-ax-l-|ow-| w-er-l-d-|
+
+        $ echo "hello world" | phonemize -p '-' -s '|' --strip
+        hh-ax-l|ow w-er-l-d
+
+        $ echo "hello world" | phonemize -p ' ' -s ';esyll ' -w ';eword '
+        hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
+
+* Languages
+
+    Festival US English is the default
+
+        $ echo "hello world" | phonemize -l en-us-festival
+        hhaxlow werld
+
+    This uses espeak instead
+
+        $ echo "hello world" | phonemize -l en-us
+        həloʊ wɜːld
+
+    In French
+
+        $ echo "bonjour le monde" | phonemize -l fr-fr
+        bɔ̃ʒuʁ lə- mɔ̃d
+
+    Languages supported by festival are:
+
+        en-us-festival	->	english-us
+
+    Languages supported by espeak are:
+
+        af	->	afrikaans
+	    an	->	aragonese
+	    bg	->	bulgarian
+	    bs	->	bosnian
+	    ca	->	catalan
+	    cs	->	czech
+	    cy	->	welsh
+	    da	->	danish
+	    de	->	german
+	    el	->	greek
+	    en	->	default
+	    en-gb	->	english
+	    en-sc	->	en-scottish
+	    en-uk-north	->	english-north
+	    en-uk-rp	->	english_rp
+	    en-uk-wmids	->	english_wmids
+	    en-us	->	english-us
+	    en-wi	->	en-westindies
+	    eo	->	esperanto
+	    es	->	spanish
+	    es-la	->	spanish-latin-am
+	    et	->	estonian
+	    fa	->	persian
+	    fa-pin	->	persian-pinglish
+	    fi	->	finnish
+	    fr-be	->	french-Belgium
+	    fr-fr	->	french
+	    ga	->	irish-gaeilge
+	    grc	->	greek-ancient
+	    hi	->	hindi
+	    hr	->	croatian
+	    hu	->	hungarian
+	    hy	->	armenian
+	    hy-west	->	armenian-west
+	    id	->	indonesian
+	    is	->	icelandic
+	    it	->	italian
+	    jbo	->	lojban
+	    ka	->	georgian
+	    kn	->	kannada
+	    ku	->	kurdish
+	    la	->	latin
+	    lfn	->	lingua_franca_nova
+	    lt	->	lithuanian
+	    lv	->	latvian
+	    mk	->	macedonian
+	    ml	->	malayalam
+	    ms	->	malay
+	    ne	->	nepali
+	    nl	->	dutch
+	    no	->	norwegian
+	    pa	->	punjabi
+	    pl	->	polish
+	    pt-br	->	brazil
+	    pt-pt	->	portugal
+	    ro	->	romanian
+	    ru	->	russian
+	    sk	->	slovak
+	    sq	->	albanian
+	    sr	->	serbian
+	    sv	->	swedish
+	    sw	->	swahili-test
+	    ta	->	tamil
+	    tr	->	turkish
+	    vi	->	vietnam
+	    vi-hue	->	vietnam_hue
+	    vi-sgn	->	vietnam_sgn
+	    zh	->	Mandarin
+	    zh-yue	->	cantonese
+
 
 ## Licence
 

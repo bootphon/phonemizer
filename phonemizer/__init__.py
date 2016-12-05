@@ -12,4 +12,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
-"""Phonemization of English text utterances using festival and a US phoneset"""
+"""Multilingual text to phonemes converter"""
+
+from .phonemize import phonemize
