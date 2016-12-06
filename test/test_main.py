@@ -28,13 +28,13 @@ class TestPhonemizerMain(object):
         pass
 
     def _test(self, input, output, args=''):
-        with tempfile.NamedTemporaryFile('w') as finput:
+        with tempfile.NamedTemporaryFile('w', delete=False) as finput:
             finput.write(input)
             finput.seek(0)
 
-            with tempfile.NamedTemporaryFile('w+') as foutput:
-                main(shlex.split('{} -o {} {}'.format(
-                    finput.name, foutput.name, args)))
+            with tempfile.NamedTemporaryFile('w+', delete=False) as foutput:
+                opts = '{} -o {} {}'.format(finput.name, foutput.name, args)
+                main(shlex.split(opts))
                 assert foutput.read() == output + '\n'
 
     def test_help(self):
