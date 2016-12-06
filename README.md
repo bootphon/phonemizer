@@ -26,6 +26,9 @@
 
         $ sudo apt-get install festival espeak
 
+  This program has been developed with **festival-2.1** and
+  **espeak-1.48.03** installed from the Debian packages.
+
 * Then download and install the `phonemizer` from
 [github](https://github.com/bootphon/phonemizer) with:
 
