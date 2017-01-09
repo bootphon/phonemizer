@@ -32,7 +32,7 @@
 * Then download and install the `phonemizer` from
 [github](https://github.com/bootphon/phonemizer) with:
 
-        $ git clone git@github.com:bootphon/phonemizer.git
+        $ git clone https://github.com/bootphon/phonemizer 
         $ cd phonemizer
         $ python setup.py build
         $ [sudo] python setup.py install
