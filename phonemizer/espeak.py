@@ -55,7 +55,7 @@ def phonemize(text, language='en-us', separator=default_separator,
             data.seek(0)
 
             # generate the espeak command to run
-            command = 'espeak -v{} --ipa=3 -q -f {}'.format(
+            command = 'espeak -v{} --ipa=3 -q -f {} --sep=_'.format(
                 language, data.name)
             if logger:
                 logger.debug('running %s', command)
