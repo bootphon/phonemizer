@@ -28,6 +28,12 @@ import tempfile
 from .separator import default_separator
 
 
+def espeak_version():
+    """Return the version of espeak as a string"""
+    return subprocess.check_output(
+        shlex.split('espeak --version')).decode('utf8').split(' ')[2]
+
+
 def supported_languages():
     """Return a dict of language codes -> name supported by espeak"""
     # retrieve the languages from a call to 'espeak --voices'
@@ -47,6 +53,8 @@ def phonemize(text, language='en-us', separator=default_separator,
     """
     assert language in supported_languages()
 
+    sep = '--sep=_' if espeak_version() != '1.48.03' else ''
+
     output = []
     for line in text.split('\n'):
         with tempfile.NamedTemporaryFile('w+') as data:
@@ -55,8 +63,9 @@ def phonemize(text, language='en-us', separator=default_separator,
             data.seek(0)
 
             # generate the espeak command to run
-            command = 'espeak -v{} --ipa=3 -q -f {} --sep=_'.format(
-                language, data.name)
+            command = 'espeak -v{} --ipa=3 -q -f {} {}'.format(
+                language, data.name, sep)
+
             if logger:
                 logger.debug('running %s', command)
 
