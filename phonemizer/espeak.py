@@ -75,7 +75,7 @@ def phonemize(text, language='en-us', separator=default_separator,
                 l = ''
                 for word in line.split(u' '):
                     # remove the stresses on phonemes
-                    w = word.strip().replace(u"ˈ", u"")
+                    w = word.strip().replace(u"ˈ", u'').replace(u'ˌ', u'')
                     if not strip:
                         w += '_'
                     w = w.replace('_', separator.phone)
