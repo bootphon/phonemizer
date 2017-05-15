@@ -21,6 +21,7 @@ should not be used directly.
 
 import os
 import pkg_resources
+import re
 import shlex
 import subprocess
 import tempfile
@@ -126,9 +127,9 @@ def _process(text, script, logger):
             # /dev/null. Messages are something like: "UniSyn: using
             # default diphone ax-ax for y-pau". This is related to
             # wave synthesis (done by festival during phonemization).
-            return subprocess.check_output(
+            return re.sub(' +', ' ', subprocess.check_output(
                 shlex.split(cmd),
-                stderr=open(os.devnull, 'w')).decode('latin1')
+                stderr=open(os.devnull, 'w')).decode('latin1'))
 
 
 def _postprocess_syll(syll, separator, strip):
