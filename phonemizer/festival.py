@@ -45,7 +45,7 @@ def default_script():
 def festival_version():
     """Return a string describing the festival version"""
     return subprocess.check_output(
-        ['festival', '--version']).decode('latin1').split(':')[2].strip()
+        ['festival', '--version']).decode('latin1').strip()
 
 
 def phonemize(text, language='en-us', separator=default_separator,

@@ -31,7 +31,7 @@ from .separator import default_separator
 def espeak_version():
     """Return the version of espeak as a string"""
     return subprocess.check_output(
-        shlex.split('espeak --version')).decode('utf8').split(' ')[2]
+        shlex.split('espeak --help')).decode('utf8').split('\n')[1]
 
 
 def supported_languages():

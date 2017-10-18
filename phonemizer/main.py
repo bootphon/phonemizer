@@ -133,12 +133,11 @@ Exemples:
 def version():
     """Return version information for front and backends"""
     # phonemize
-    version = ('phonemizer-'
-               + pkg_resources.get_distribution('phonemizer').version
-               + '\nfestival-' + festival.festival_version()
-               + '\nespeak-' + espeak.espeak_version())
+    version = ('phonemizer: '
+               + pkg_resources.get_distribution('phonemizer').version)
 
-    return version
+    return '\n'.join(
+        (version, festival.festival_version(), espeak.espeak_version()))
 
 
 def main(argv=sys.argv[1:]):
