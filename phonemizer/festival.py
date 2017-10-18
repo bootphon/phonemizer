@@ -42,6 +42,12 @@ def default_script():
         'phonemizer/share/phonemize.scm')
 
 
+def festival_version():
+    """Return a string describing the festival version"""
+    return subprocess.check_output(
+        ['festival', '--version']).decode('latin1').split(':')[2].strip()
+
+
 def phonemize(text, language='en-us', separator=default_separator,
               strip=False, logger=None):
     """Return a phonemized version of `text` with festival

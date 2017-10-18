@@ -74,6 +74,10 @@ Exemples:
 
     # general arguments
     parser.add_argument(
+        '--version', action='store_true',
+        help='show version information and exit')
+
+    parser.add_argument(
         '-v', '--verbose', action='store_true',
         help='write some log messages to stderr')
 
@@ -126,9 +130,24 @@ Exemples:
     return parser.parse_args(argv)
 
 
+def version():
+    """Return version information for front and backends"""
+    # phonemize
+    version = ('phonemizer-'
+               + pkg_resources.get_distribution('phonemizer').version
+               + '\nfestival-' + festival.festival_version()
+               + '\nespeak-' + espeak.espeak_version())
+
+    return version
+
+
 def main(argv=sys.argv[1:]):
     """Phonemize a text from command-line arguments"""
     args = parse_args(argv)
+
+    if args.version:
+        print(version())
+        return
 
     # configure logging according to --verbose option. If verbose,
     # init a logger to output on stderr. Else init a logger going to

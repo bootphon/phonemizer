@@ -18,7 +18,7 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '0.3'
+VERSION = open('VERSION', 'r').read().strip()
 
 setup(
     name='phonemizer',
