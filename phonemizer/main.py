@@ -69,7 +69,7 @@ Exemples:
         '''.format(
             '\n'.join('\t{}-festival\t->\t{}'.format(k, v) for k, v in
                       sorted(festival.supported_languages().items())),
-            '\n'.join('\t{}\t->\t{}'.format(k, v) for k, v in
+            '\n'.join('\t{}\t->\t{}'.format(k, v.encode('utf8')) for k, v in
                       sorted(espeak.supported_languages().items()))))
 
     # general arguments
