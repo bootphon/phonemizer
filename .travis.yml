@@ -14,7 +14,7 @@ matrix:
 addons:
   apt:
     packages:
-      - festival festvox-us1 festlex-cmu espeak
+      - festival festvox-us1 festlex-cmu festlex-poslex espeak
 
 install:
   - pip install --upgrade pip
@@ -23,6 +23,7 @@ install:
   - python setup.py install
 
 script:
+  - echo "This is a test." | festival --tts
   - phonemize --version
   - pytest ./test -v
 

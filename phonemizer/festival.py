@@ -143,9 +143,10 @@ def _process(text, script, logger):
 
                 except subprocess.CalledProcessError as err:
                     fstderr.seek(0)
-                    sys.stderr.write(
-                        'Command "{}" returned exit status {}, output is "{}"'
+                    raise RuntimeError(
+                        'Command "{}" returned exit status {}, output is:\n{}'
                         .format(cmd, err.returncode, fstderr.read()))
+
 
 def _postprocess_syll(syll, separator, strip):
     """Parse a syllable from festival to phonemized output"""
