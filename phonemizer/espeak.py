@@ -21,6 +21,7 @@ should not be used directly.
 
 """
 
+import re
 import shlex
 import subprocess
 import tempfile
@@ -32,6 +33,11 @@ def espeak_version():
     """Return the version of espeak as a string"""
     return subprocess.check_output(
         shlex.split('espeak --help')).decode('utf8').split('\n')[1]
+
+
+def espeak_version_short():
+    """Return the short version (numbers only) of espeak as a string"""
+    return re.match('.*([0-9]+\.[0-9]+\.[0-9]+)', espeak_version()).group(1)
 
 
 def supported_languages():
@@ -53,7 +59,12 @@ def phonemize(text, language='en-us', separator=default_separator,
     """
     assert language in supported_languages()
 
-    sep = '--sep=_' if espeak_version() != '1.48.03' else ''
+    sep = '--sep=_'
+
+    # old espeak versions don't support --sep
+    version = espeak_version_short()
+    if version == '1.48.03' or int(version.split('.')[1]) <= 47:
+        sep = ''
 
     output = []
     for line in text.split('\n'):
@@ -71,6 +82,7 @@ def phonemize(text, language='en-us', separator=default_separator,
 
             raw_output = subprocess.check_output(
                 shlex.split(command)).decode('utf8')
+
             for line in (l.strip() for l in raw_output.split('\n') if l):
                 l = ''
                 for word in line.split(u' '):
