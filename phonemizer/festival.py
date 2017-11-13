@@ -24,6 +24,7 @@ import pkg_resources
 import re
 import shlex
 import subprocess
+import sys
 import tempfile
 
 from . import lispy
@@ -133,9 +134,16 @@ def _process(text, script, logger):
             # /dev/null. Messages are something like: "UniSyn: using
             # default diphone ax-ax for y-pau". This is related to
             # wave synthesis (done by festival during phonemization).
-            return re.sub(' +', ' ', subprocess.check_output(
-                shlex.split(cmd),
-                stderr=open(os.devnull, 'w')).decode('latin1'))
+            try:
+                raw_output = subprocess.check_output(
+                    shlex.split(cmd),
+                    stderr=open(os.devnull, 'w')).decode('latin1')
+            except CalledProcessError as err:
+                sys.stderr.write(
+                    'Command "{}" returned exit status {}, output is "{}"'
+                    .format(cmd, err.returncode, err.output))
+
+            return re.sub(' +', ' ', raw_output)
 
 
 def _postprocess_syll(syll, separator, strip):
