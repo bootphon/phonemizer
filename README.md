@@ -1,11 +1,11 @@
-!https://travis-ci.org/bootphon/phonemizer.svg?branch=master!:https://travis-ci.org/bootphon/phonemizer
-[![DOI](https://zenodo.org/badge/56728069.svg)](https://zenodo.org/badge/latestdoi/56728069)
+[![travis](https://travis-ci.org/bootphon/phonemizer.svg?branch=master)](https://travis-ci.org/bootphon/phonemizer) [![DOI](https://zenodo.org/badge/56728069.svg)](https://zenodo.org/badge/latestdoi/56728069)
 
 # Phonemizer -- *foʊnmaɪzɚ*
 
-* Simple text to phonemes converter for multiple languages, based on
-  [festival](http://www.cstr.ed.ac.uk/projects/festival) and
-  [espeak](http://espeak.sourceforge.net/) TTS systems.
+* Simple text to phonemes converter for multiple languages, based
+  on [festival](http://www.cstr.ed.ac.uk/projects/festival) and
+  [espeak](http://espeak.sourceforge.net/)/[espeak-ng](https://github.com/espeak-ng/espeak-ng/)
+  Text-to-Speech systems.
 
 * Provides both the `phonemize` command-line tool and the Python function
   `phonemizer.phonemize`
@@ -29,8 +29,9 @@
 
         $ sudo apt-get install festival espeak
 
-  This program has been developed with **festival-2.1** and
-  **espeak-1.48.03** installed from the Debian packages.
+  Alternatively you may want to use espeak-ng (Next Generation)
+  instead of espeak. Install it from
+  github [here](https://github.com/espeak-ng/espeak-ng/).
 
 * Then download and install the `phonemizer` from
 [github](https://github.com/bootphon/phonemizer) with:
@@ -99,7 +100,7 @@
 
         en-us-festival	->	english-us
 
-    Languages supported by espeak are:
+    Languages supported by espeak are (espeak-ng supports even more of them):
 
         af	->	afrikaans
 	    an	->	aragonese
