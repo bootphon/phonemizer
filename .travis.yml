@@ -12,7 +12,7 @@ matrix:
 addons:
   apt:
     packages:
-      - festival festival-voice espeak
+      - festival festival-us1 espeak
 
 install:
   - pip install --upgrade pip
