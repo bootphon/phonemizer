@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/56728069.svg)](https://zenodo.org/badge/latestdoi/56728069)
+
 # Phonemizer -- *foʊnmaɪzɚ*
 
 * Simple text to phonemes converter for multiple languages, based on
@@ -171,7 +173,7 @@
 
 ## Licence
 
-**Copyright 2015, 2016 Mathieu Bernard**
+**Copyright 2015 - 2017 Mathieu Bernard**
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
