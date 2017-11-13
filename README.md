@@ -1,3 +1,4 @@
+!https://travis-ci.org/bootphon/phonemizer.svg?branch=master!:https://travis-ci.org/bootphon/phonemizer
 [![DOI](https://zenodo.org/badge/56728069.svg)](https://zenodo.org/badge/latestdoi/56728069)
 
 # Phonemizer -- *foʊnmaɪzɚ*
@@ -34,7 +35,7 @@
 * Then download and install the `phonemizer` from
 [github](https://github.com/bootphon/phonemizer) with:
 
-        $ git clone https://github.com/bootphon/phonemizer 
+        $ git clone https://github.com/bootphon/phonemizer
         $ cd phonemizer
         $ python setup.py build
         $ [sudo] python setup.py install
