@@ -14,7 +14,7 @@ matrix:
 addons:
   apt:
     packages:
-      - festival festvox-us1 espeak
+      - festival festvox-us1 festlex-cmu espeak
 
 install:
   - pip install --upgrade pip
