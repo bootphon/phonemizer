@@ -51,14 +51,14 @@ class TestPhonemizerMain(object):
     def test_njobs(self):
         for njobs in range(1, 4):
             self._test(
-                'hello world\ngoodbye\nthird line\nyet another',
-                'hh-ax-l|ow w-er-l-d\ng-uh-d|b-ay\nth-er-d l-ay'
-                '-n\ny-eh-t ax-n|ah-dh|er',
-                '--strip -j {} -p "-" -s "|" -w " "'.format(njobs))
+                u'hello world\ngoodbye\nthird line\nyet another',
+                u'hh-ax-l|ow w-er-l-d\ng-uh-d|b-ay\nth-er-d l-ay-n\n'
+                u'y-eh-t ax-n|ah-dh|er',
+                u'--strip -j {} -p "-" -s "|" -w " "'.format(njobs))
 
     def test_espeak(self):
         for njobs in range(1, 4):
             self._test(
-                'hello world\ngoodbye\nthird line\nyet another',
-                'həloʊ wɜːld\nɡʊdbaɪ\nθɜːd laɪn\njɛt ɐnʌðɚ',
-                '--strip -j {} -l en-us'.format(njobs))
+                u'hello world\ngoodbye\nthird line\nyet another',
+                u'həloʊ wɜːld\nɡʊdbaɪ\nθɜːd laɪn\njɛt ɐnʌðɚ',
+                u'--strip -j {} -l en-us'.format(njobs))
