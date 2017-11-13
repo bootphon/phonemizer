@@ -129,21 +129,22 @@ def _process(text, script, logger):
             if logger:
                 logger.debug('running %s', cmd)
 
-            # festival seems to use latin1 and not utf8, moreover it
-            # may print on stderr that are redirected to
-            # /dev/null. Messages are something like: "UniSyn: using
+            # redirect stderr to a tempfile and displaying it only
+            # on errors. Messages are something like: "UniSyn: using
             # default diphone ax-ax for y-pau". This is related to
             # wave synthesis (done by festival during phonemization).
-            try:
-                raw_output = subprocess.check_output(
-                    shlex.split(cmd),
-                    stderr=open(os.devnull, 'w')).decode('latin1')
-            except CalledProcessError as err:
-                sys.stderr.write(
-                    'Command "{}" returned exit status {}, output is "{}"'
-                    .format(cmd, err.returncode, err.output))
+            with tempfile.TemporaryFile('w+') as fstderr:
+                try:
+                    raw_output = subprocess.check_output(
+                        shlex.split(cmd), stderr=fstderr)
+                except subprocess.CalledProcessError as err:
+                    fstderr.seek(0)
+                    sys.stderr.write(
+                        'Command "{}" returned exit status {}, output is "{}"'
+                        .format(cmd, err.returncode, fstderr.read()))
 
-            return re.sub(' +', ' ', raw_output)
+            # festival seems to use latin1 and not utf8
+            return re.sub(' +', ' ', raw_output.decode('latin1'))
 
 
 def _postprocess_syll(syll, separator, strip):
