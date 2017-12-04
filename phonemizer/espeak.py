@@ -84,6 +84,13 @@ def phonemize(text, language='en-us', separator=default_separator,
                 shlex.split(command)).decode('utf8')
 
             for line in (l.strip() for l in raw_output.split('\n') if l):
+                # remove the prefix/suffix in output (if any, this
+                # occurs on russian at least, output lines are
+                # surrounded by "(en)...(ru)")
+                match = re.match('^\(.*\)(.*)\(.*\)$', line)
+                if match:
+                    line = match.group(1)
+
                 l = ''
                 for word in line.split(u' '):
                     # remove the stresses on phonemes
