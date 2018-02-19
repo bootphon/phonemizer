@@ -16,6 +16,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Setup script for the phonemizer package"""
 
+import codecs
 from setuptools import setup, find_packages
 
 VERSION = open('VERSION', 'r').read().strip()
@@ -42,5 +43,5 @@ setup(
     license='GPL3',
     keywords='linguistics G2P phoneme festival espeak TTS',
     url='https://github.com/bootphon/phonemizer',
-    long_description=open('README.md', encoding='utf-8').read()
+    long_description=codecs.open('README.md', encoding='utf-8').read()
 )
