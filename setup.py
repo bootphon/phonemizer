@@ -42,5 +42,5 @@ setup(
     license='GPL3',
     keywords='linguistics G2P phoneme festival espeak TTS',
     url='https://github.com/bootphon/phonemizer',
-    long_description=open('README.md').read()
+    long_description=open('README.md', encoding='utf-8').read()
 )
