@@ -39,7 +39,7 @@ setup(
     # metadata for upload to PyPI
     author='Mathieu Bernard',
     author_email='mmathieubernardd@gmail.com',
-    description='Simple phonemization of English text',
+    description=' Simple text to phonemes converter for multiple languages',
     license='GPL3',
     keywords='linguistics G2P phoneme festival espeak TTS',
     url='https://github.com/bootphon/phonemizer',
