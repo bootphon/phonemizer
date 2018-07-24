@@ -59,12 +59,17 @@ def phonemize(text, language='en-us', separator=default_separator,
     """
     assert language in supported_languages()
 
-    sep = '--sep=_'
-
     # old espeak versions don't support --sep
     version = espeak_version_short()
+    logger.debug('espeak version is: {}'.format(version))
+
+    sep = '--sep=_'
     if version == '1.48.03' or int(version.split('.')[1]) <= 47:
         sep = ''
+
+    ipa = '--ipa=3'
+    if version == '1.49.2':  # espeak-ng
+        ipa = '-x --ipa'
 
     output = []
     for line in text.split('\n'):
@@ -74,8 +79,8 @@ def phonemize(text, language='en-us', separator=default_separator,
             data.seek(0)
 
             # generate the espeak command to run
-            command = 'espeak -v{} --ipa=3 -q -f {} {}'.format(
-                language, data.name, sep)
+            command = 'espeak -v{} {} -q -f {} {}'.format(
+                language, ipa, data.name, sep)
 
             if logger:
                 logger.debug('running %s', command)
