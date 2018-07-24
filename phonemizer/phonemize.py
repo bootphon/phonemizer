@@ -110,7 +110,7 @@ def phonemize(text, language='en-us', backend='festival',
         # phonemize the text forced as a string
         out = backend_module.phonemize(
             _list2str(text), language=language,
-            separator=separator, strip=strip)
+            separator=separator, strip=strip, logger=logger)
     else:
         # If using parallel jobs, disable the log as stderr is not
         # picklable.
@@ -123,7 +123,7 @@ def phonemize(text, language='en-us', backend='festival',
         # we have here a list of phonemized chunks
         out = joblib.Parallel(n_jobs=njobs)(
             joblib.delayed(backend_module.phonemize)
-            (t, language=language, separator=separator, strip=strip)
+            (t, language=language, separator=separator, strip=strip, logger=logger)
             for t in chunks(text, njobs))
 
         # flatten them in a single list
