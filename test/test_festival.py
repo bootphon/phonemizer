@@ -14,6 +14,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the phonemizer.Phonemizer class"""
 
+import pytest
 from phonemizer import phonemize, separator
 
 
@@ -27,14 +28,10 @@ def test_hello():
     assert _test('hello\nworld') == 'hh-ax-l|ow\nw-er-l-d'
     assert _test('hello\nworld\n') == 'hh-ax-l|ow\nw-er-l-d'
 
-def test_empty():
-    assert _test('') == ''
-    assert _test(' ') == ''
-    assert _test('  ') == ''
-    assert _test('(') == ''
-    assert _test('()') == ''
-    assert _test('"') == ''
-    assert _test("'") == ''
+
+@pytest.mark.parametrize('text', ['', ' ', '  ', '(', '()', '"', "'"])
+def test_empty(text):
+    assert _test(text) == ''
 
 def test_quote():
     assert _test("here a 'quote") == 'hh-ih-r ax k-w-ow-t'

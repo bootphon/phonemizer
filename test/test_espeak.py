@@ -19,9 +19,17 @@
 import pytest
 
 import phonemizer.espeak as espeak
+import phonemizer.separator as separator
 
 
-def test_espeak():
+def test_english():
     text = u'hello world\ngoodbye\nthird line\nyet another'
     out = '\n'.join(espeak.phonemize(text, strip=True))
     assert out == u'həloʊ wɜːld\nɡʊdbaɪ\nθɜːd laɪn\njɛt ɐnʌðɚ'
+
+def test_french():
+    text = u'bonjour le monde'
+    sep = separator.Separator(word=';eword ', syllable=None, phone=' ')
+    expected = [u'b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword ']
+    out = espeak.phonemize(text, language='fr-fr', separator=sep, strip=False)
+    assert out == expected
