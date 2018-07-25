@@ -61,7 +61,8 @@ def phonemize(text, language='en-us', separator=default_separator,
 
     # old espeak versions don't support --sep
     version = espeak_version_short()
-    logger.debug('espeak version is: {}'.format(version))
+    if logger:
+        logger.debug('espeak version is: {}'.format(version))
 
     sep = '--sep=_'
     if version == '1.48.03' or int(version.split('.')[1]) <= 47:
