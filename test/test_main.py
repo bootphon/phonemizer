@@ -20,7 +20,7 @@ import pytest
 import tempfile
 import shlex
 
-from phonemizer.main import main
+from phonemizer import main, festival
 
 
 def _test(input, output, args=''):
@@ -30,24 +30,33 @@ def _test(input, output, args=''):
 
         with tempfile.NamedTemporaryFile('w+', delete=False) as foutput:
             opts = '{} -o {} {}'.format(finput.name, foutput.name, args)
-            main(shlex.split(opts))
+            main.main(shlex.split(opts))
             assert foutput.read() == output + '\n'
 
 def test_help():
     with pytest.raises(SystemExit):
-        main('-h'.split())
+        main.main('-h'.split())
 
 def test_readme():
     _test(u'hello world', u'hhaxlow werld ')
     _test(u'hello world', u'hhaxlow werld', '--strip')
+    _test(u'hello world', u'həloʊ wɜːld ', '-l en-us')
+    _test(u'bonjour le monde', u'bɔ̃ʒuʁ lə- mɔ̃d ', '-l fr-fr')
+    _test(u'bonjour le monde', u'b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword ',
+          '-l fr-fr -p " " -w ";eword "')
+
+@pytest.mark.skipif(
+    '2.1' in festival.festival_version(),
+    reason='festival-2.1 gives different results than further versions '
+    'for syllable boundaries')
+def test_readme_festival_syll():
     _test(u'hello world',
-          u'hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword ',
+          u'hh ax ;esyll l ow ;esyll ;eword w er l d ;esyll ;eword ',
           u"-p ' ' -s ';esyll ' -w ';eword '")
 
 def test_njobs():
     for njobs in range(1, 4):
         _test(
             u'hello world\ngoodbye\nthird line\nyet another',
-            u'hh-ax-l|ow w-er-l-d\ng-uh-d|b-ay\nth-er-d l-ay-n\n'
-            u'y-eh-t ax-n|ah-dh|er',
-            u'--strip -j {} -p "-" -s "|" -w " "'.format(njobs))
+            u'h-ə-l-oʊ w-ɜː-l-d\nɡ-ʊ-d-b-aɪ\nθ-ɜː-d l-aɪ-n\nj-ɛ-t ɐ-n-ʌ-ð-ɚ',
+            u'--strip -j {} -l en-us -p "-" -s "|" -w " "'.format(njobs))

@@ -74,6 +74,8 @@ def phonemize(text, language='en-us', separator=default_separator,
         logger.debug('loading {}'.format(script))
 
     a = _preprocess(text)
+    if len(a) == 0:
+        return []
     b = _process(a, script, logger)
     c = _postprocess(b, separator, strip)
 
@@ -87,7 +89,8 @@ def _double_quoted(line):
 
 def _cleaned(line):
     """Remove 'forbidden' characters from the line"""
-    return line.replace('"', "'").replace('(', '').replace(')', '')
+    return line.replace('"', '').replace("'", '').replace(
+        '(', '').replace(')', '').strip()
 
 
 def _preprocess(text):
@@ -98,9 +101,10 @@ def _preprocess(text):
     a multiline string. Empty lines in inputs are ignored.
 
     """
+    cleaned_text = (
+        _cleaned(line) for line in text.split('\n') if line != '')
     return '\n'.join(
-        [_double_quoted(_cleaned(line))
-         for line in text.split('\n') if line != ''])
+        _double_quoted(line) for line in cleaned_text if line != '')
 
 
 def _process(text, script, logger):

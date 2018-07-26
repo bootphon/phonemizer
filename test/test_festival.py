@@ -15,39 +15,33 @@
 """Test of the phonemizer.Phonemizer class"""
 
 import pytest
-from phonemizer import phonemize, separator
+from phonemizer import festival, separator
 
 
 def _test(text):
-    return phonemize(
-        text, language='en-us', backend='festival', strip=True,
+    return festival.phonemize(
+        text, language='en-us', strip=True,
         separator=separator.Separator(' ', '|', '-'))
 
+@pytest.mark.skipif(
+    '2.1' in festival.festival_version(),
+    reason='festival-2.1 gives different results than further versions '
+    'for syllable boundaries')
 def test_hello():
-    assert _test('hello world') == 'hh-ax-l|ow w-er-l-d'
-    assert _test('hello\nworld') == 'hh-ax-l|ow\nw-er-l-d'
-    assert _test('hello\nworld\n') == 'hh-ax-l|ow\nw-er-l-d'
-
+    assert _test('hello world') == ['hh-ax|l-ow w-er-l-d']
+    assert _test('hello\nworld') == ['hh-ax|l-ow', 'w-er-l-d']
+    assert _test('hello\nworld\n') == ['hh-ax|l-ow', 'w-er-l-d']
 
 @pytest.mark.parametrize('text', ['', ' ', '  ', '(', '()', '"', "'"])
-def test_empty(text):
-    assert _test(text) == ''
+def test_bad_input(text):
+    assert _test(text) == []
 
 def test_quote():
-    assert _test("here a 'quote") == 'hh-ih-r ax k-w-ow-t'
-    assert _test('here a "quote') == 'hh-ih-r ax k-w-ow-t'
+    assert _test("here a 'quote") == ['hh-ih-r ax k-w-ow-t']
+    assert _test('here a "quote') == ['hh-ih-r ax k-w-ow-t']
 
 def test_its():
-    assert _test("it's") == 'ih-t-s'
-    assert _test("its") == 'ih-t-s'
-    assert _test("it s") == 'ih-t eh-s'
-    assert _test('it "s') == 'ih-t eh-s'
-
-def test_list():
-    assert _test(['hello world']) == ['hh-ax-l|ow w-er-l-d']
-    assert _test(['hello\nworld']) == ['hh-ax-l|ow', 'w-er-l-d']
-    assert _test(['hello', 'world']) == ['hh-ax-l|ow', 'w-er-l-d']
-
-def test_tuple():
-    # this is out of specifications
-    assert _test(('hello', 'world')) == ['hh-ax-l|ow', 'w-er-l-d']
+    assert _test("it's") == ['ih-t-s']
+    assert _test("its") == ['ih-t-s']
+    assert _test("it s") == ['ih-t eh-s']
+    assert _test('it "s') == ['ih-t eh-s']
