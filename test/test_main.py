@@ -16,6 +16,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the phonemizer.Phonemizer class"""
 
+import codecs
 import pytest
 import tempfile
 import shlex
@@ -23,7 +24,7 @@ import shlex
 from phonemizer import main, festival
 
 
-def _test(input, output, args=''):
+def _test(input, expected_output, args=''):
     with tempfile.NamedTemporaryFile('w', delete=False) as finput:
         finput.write(input)
         finput.seek(0)
@@ -31,7 +32,12 @@ def _test(input, output, args=''):
         with tempfile.NamedTemporaryFile('w+', delete=False) as foutput:
             opts = '{} -o {} {}'.format(finput.name, foutput.name, args)
             main.main(shlex.split(opts))
-            assert foutput.read() == output + '\n'
+            output = foutput.read()
+            try:  # python2 needs additional utf8 decoding
+                output = output.decode('utf8')
+            except AttributeError:  # python3 is OK
+                pass
+            assert output == expected_output + '\n'
 
 def test_help():
     with pytest.raises(SystemExit):
