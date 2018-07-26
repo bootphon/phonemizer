@@ -36,7 +36,7 @@
   [here](https://github.com/espeak-ng/espeak-ng/).
 
 * Then download and install the `phonemizer` from
-[github](https://github.com/bootphon/phonemizer) with:
+  [github](https://github.com/bootphon/phonemizer) with:
 
         $ git clone https://github.com/bootphon/phonemizer
         $ cd phonemizer
@@ -49,17 +49,21 @@
   setuptools` during installation, refeer to [issue
   11](https://github.com/bootphon/phonemizer/issues/11).
 
-* Alternatively you can run the phonemizer within docker, using the
-  provided `Dockerfile`. To build the docker image, have a:
+## Docker image
 
-        sudo docker build -t phonemizer .
+Alternatively you can run the phonemizer within docker, using the
+provided `Dockerfile`.
 
-  Then run an interactive session with:
+To build the docker image, have a:
 
-        sudo docker run -it phonemizer /bin/bash
+    sudo docker build -t phonemizer .
+
+Then run an interactive session with:
+
+    sudo docker run -it phonemizer /bin/bash
 
 
-## Command-line exemples
+## Command-line examples
 
 For a complete list of available options, have a:
 
