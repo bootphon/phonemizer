@@ -29,9 +29,11 @@
 
         $ sudo apt-get install festival espeak
 
-  Alternatively you may want to use espeak-ng (Next Generation)
-  instead of espeak. Install it from
-  github [here](https://github.com/espeak-ng/espeak-ng/).
+  Alternatively you may want to use `espeak-ng` (Next Generation)
+  instead of espeak. It supports more languages and significant
+  improvements over the original espeak, but requires a manual
+  installation. Install it from github
+  [here](https://github.com/espeak-ng/espeak-ng/).
 
 * Then download and install the `phonemizer` from
 [github](https://github.com/bootphon/phonemizer) with:
@@ -43,139 +45,163 @@
 
   The `phonemize` command should be in your `$PATH`.
 
+* If you experiment an error such as `ImportError: No module named
+  setuptools` during installation, refeer to [issue
+  11](https://github.com/bootphon/phonemizer/issues/11).
+
+* Alternatively you can run the phonemizer within docker, using the
+  provided `Dockerfile`. To build the docker image, have a:
+
+        sudo docker build -t phonemizer .
+
+  Then run an interactive session with:
+
+        sudo docker run -it phonemizer /bin/bash
+
+
 ## Command-line exemples
 
-* First, have a
+For a complete list of available options, have a:
 
-        $ phonemize --help
+    phonemize --help
 
-* Input/output exemples
 
-    * from stdin to stdout:
+### Input/output exemples
 
-            $ echo "hello world" | phonemize
-            hhaxlow werld
+* from stdin to stdout:
 
-    * from file to stdout
+        $ echo "hello world" | phonemize
+        hhaxlow werld
 
-            $ echo "hello world" > hello.txt
-            $ phonemize hello.txt
-            hhaxlow werld
+* from file to stdout
 
-    * from file to file
+        $ echo "hello world" > hello.txt
+        $ phonemize hello.txt
+        hhaxlow werld
 
-            $ phonemize hello.txt -o hello.phon --strip
-            $ cat hello.phon
-            hhaxlow werld
+* from file to file
 
-* Token separators
+        $ phonemize hello.txt -o hello.phon --strip
+        $ cat hello.phon
+        hhaxlow werld
 
-        $ echo "hello world" | phonemize -p '-' -s '|'
-        hh-ax-l-|ow-| w-er-l-d-|
 
-        $ echo "hello world" | phonemize -p '-' -s '|' --strip
-        hh-ax-l|ow w-er-l-d
+### Token separators
 
-        $ echo "hello world" | phonemize -p ' ' -s ';esyll ' -w ';eword '
-        hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
+You can specify separators for phonemes, syllables (festival only) and
+words.
 
-* Languages
+    $ echo "hello world" | phonemize -p '-' -s '|'
+    hh-ax-l-|ow-| w-er-l-d-|
 
-    Festival US English is the default
+    $ echo "hello world" | phonemize -p '-' -s '|' --strip
+    hh-ax-l|ow w-er-l-d
+
+    $ echo "hello world" | phonemize -p ' ' -s ';esyll ' -w ';eword '
+    hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
+
+
+### Languages
+
+* Festival US English is the default
 
         $ echo "hello world" | phonemize -l en-us-festival
         hhaxlow werld
 
-    This uses espeak instead
+* This uses espeak instead
 
         $ echo "hello world" | phonemize -l en-us
         həloʊ wɜːld
 
-    In French
+* In French
 
         $ echo "bonjour le monde" | phonemize -l fr-fr
         bɔ̃ʒuʁ lə- mɔ̃d
 
-    Languages supported by festival are:
+        $ echo "bonjour le monde" | phonemize -l fr-fr -p ' ' -w ';eword '
+        b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword
+
+* Languages supported by festival are:
 
         en-us-festival	->	english-us
 
-    Languages supported by espeak are (espeak-ng supports even more of them):
+* Languages supported by espeak are (espeak-ng supports even more of
+  them), type `phonemize --help` for an exhaustive list:
 
         af	->	afrikaans
-	    an	->	aragonese
-	    bg	->	bulgarian
-	    bs	->	bosnian
-	    ca	->	catalan
-	    cs	->	czech
-	    cy	->	welsh
-	    da	->	danish
-	    de	->	german
-	    el	->	greek
-	    en	->	default
-	    en-gb	->	english
-	    en-sc	->	en-scottish
-	    en-uk-north	->	english-north
-	    en-uk-rp	->	english_rp
-	    en-uk-wmids	->	english_wmids
-	    en-us	->	english-us
-	    en-wi	->	en-westindies
-	    eo	->	esperanto
-	    es	->	spanish
-	    es-la	->	spanish-latin-am
-	    et	->	estonian
-	    fa	->	persian
-	    fa-pin	->	persian-pinglish
-	    fi	->	finnish
-	    fr-be	->	french-Belgium
-	    fr-fr	->	french
-	    ga	->	irish-gaeilge
-	    grc	->	greek-ancient
-	    hi	->	hindi
-	    hr	->	croatian
-	    hu	->	hungarian
-	    hy	->	armenian
-	    hy-west	->	armenian-west
-	    id	->	indonesian
-	    is	->	icelandic
-	    it	->	italian
-	    jbo	->	lojban
-	    ka	->	georgian
-	    kn	->	kannada
-	    ku	->	kurdish
-	    la	->	latin
-	    lfn	->	lingua_franca_nova
-	    lt	->	lithuanian
-	    lv	->	latvian
-	    mk	->	macedonian
-	    ml	->	malayalam
-	    ms	->	malay
-	    ne	->	nepali
-	    nl	->	dutch
-	    no	->	norwegian
-	    pa	->	punjabi
-	    pl	->	polish
-	    pt-br	->	brazil
-	    pt-pt	->	portugal
-	    ro	->	romanian
-	    ru	->	russian
-	    sk	->	slovak
-	    sq	->	albanian
-	    sr	->	serbian
-	    sv	->	swedish
-	    sw	->	swahili-test
-	    ta	->	tamil
-	    tr	->	turkish
-	    vi	->	vietnam
-	    vi-hue	->	vietnam_hue
-	    vi-sgn	->	vietnam_sgn
-	    zh	->	Mandarin
-	    zh-yue	->	cantonese
+        an	->	aragonese
+        bg	->	bulgarian
+        bs	->	bosnian
+        ca	->	catalan
+        cs	->	czech
+        cy	->	welsh
+        da	->	danish
+        de	->	german
+        el	->	greek
+        en	->	default
+        en-gb	->	english
+        en-sc	->	en-scottish
+        en-uk-north	->	english-north
+        en-uk-rp	->	english_rp
+        en-uk-wmids	->	english_wmids
+        en-us	->	english-us
+        en-wi	->	en-westindies
+        eo	->	esperanto
+        es	->	spanish
+        es-la	->	spanish-latin-am
+        et	->	estonian
+        fa	->	persian
+        fa-pin	->	persian-pinglish
+        fi	->	finnish
+        fr-be	->	french-Belgium
+        fr-fr	->	french
+        ga	->	irish-gaeilge
+        grc	->	greek-ancient
+        hi	->	hindi
+        hr	->	croatian
+        hu	->	hungarian
+        hy	->	armenian
+        hy-west	->	armenian-west
+        id	->	indonesian
+        is	->	icelandic
+        it	->	italian
+        jbo	->	lojban
+        ka	->	georgian
+        kn	->	kannada
+        ku	->	kurdish
+        la	->	latin
+        lfn	->	lingua_franca_nova
+        lt	->	lithuanian
+        lv	->	latvian
+        mk	->	macedonian
+        ml	->	malayalam
+        ms	->	malay
+        ne	->	nepali
+        nl	->	dutch
+        no	->	norwegian
+        pa	->	punjabi
+        pl	->	polish
+        pt-br	->	brazil
+        pt-pt	->	portugal
+        ro	->	romanian
+        ru	->	russian
+        sk	->	slovak
+        sq	->	albanian
+        sr	->	serbian
+        sv	->	swedish
+        sw	->	swahili-test
+        ta	->	tamil
+        tr	->	turkish
+        vi	->	vietnam
+        vi-hue	->	vietnam_hue
+        vi-sgn	->	vietnam_sgn
+        zh	->	Mandarin
+        zh-yue	->	cantonese
 
 
 ## Licence
 
-**Copyright 2015 - 2017 Mathieu Bernard**
+**Copyright 2015 - 2018 Mathieu Bernard**
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
