@@ -89,8 +89,13 @@ def _double_quoted(line):
 
 def _cleaned(line):
     """Remove 'forbidden' characters from the line"""
-    return line.replace('"', '').replace("'", '').replace(
-        '(', '').replace(')', '').strip()
+    # special case (very unlikely) where a line is only made of '
+    if len(set(line) - set("'")) == 0:
+        line = ''
+
+    # remove forbidden characters (reserved for scheme, ie festival
+    # scripting language)
+    return line.replace('"', '').replace('(', '').replace(')', '').strip()
 
 
 def _preprocess(text):

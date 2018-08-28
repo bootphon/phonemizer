@@ -18,10 +18,10 @@ import pytest
 from phonemizer import festival, separator
 
 
-def _test(text):
+def _test(text, separator=separator.Separator(' ', '|', '-')):
     return festival.phonemize(
         text, language='en-us', strip=True,
-        separator=separator.Separator(' ', '|', '-'))
+        separator=separator)
 
 @pytest.mark.skipif(
     '2.1' in festival.festival_version(),
@@ -45,3 +45,10 @@ def test_its():
     assert _test("its") == ['ih-t-s']
     assert _test("it s") == ['ih-t eh-s']
     assert _test('it "s') == ['ih-t eh-s']
+
+def test_im():
+    sep = separator.Separator(' ', '', '')
+    assert _test("I'm looking for an image", sep) \
+        == ['aym luhkaxng faor axn ihmaxjh']
+    assert _test("Im looking for an image", sep) \
+        == ['ihm luhkaxng faor axn ihmaxjh']
