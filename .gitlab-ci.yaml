@@ -1,0 +1,33 @@
+before_script:
+  # load the requested modules on oberon
+  - module load python-anaconda
+  - module load espeak
+  - module load festival
+
+phonemizer-build:
+  stage: build
+  script:
+    # create a Python virtual environment dedicated to the test (if not existing)
+    - conda create --name phonemizer-ci python=3 joblib pytest 2> /dev/null || true
+    - source activate phonemizer-ci
+
+    # install the phonemizer
+    - python setup.py build
+    - python setup.py install
+
+phonemizer-test:
+  stage: test
+  script:
+    # run the unit tests within the CI environment
+    - source activate wordseg-ci
+    - pytest -v test
+
+phonemizer-deploy:
+  # install wordseg in the "wordseg" virtual environment on oberon (users just
+  # have to type "source activate wordseg" to use it)
+  stage: deploy
+  script:
+    - source activate wordseg
+    - cd /cm/shared/apps/wordseg/phonemizer
+    - git pull origin master
+    - python setup.py install
