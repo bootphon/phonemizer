@@ -13,3 +13,5 @@
 
         module load python-anaconda
         source activate wordseg
+
+  Note the phonemizer is installed on the *wordseg* virtual environment.
