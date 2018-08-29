@@ -21,5 +21,5 @@ Separator = collections.namedtuple('Separator', ['word', 'syllable', 'phone'])
 """A tuple of word, syllable and phone separators"""
 
 
-default_separator = Separator(' ', '', '')
+default_separator = Separator(' ', '', '_')
 """The default separation characters for phonemes, syllables and words"""

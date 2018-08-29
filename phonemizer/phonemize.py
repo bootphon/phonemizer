@@ -51,8 +51,8 @@ BACKENDS = {'festival': festival,
 """The backends supported by the phonemizer"""
 
 
-def phonemize(text, language='en-us', backend='festival',
-              separator=default_separator, strip=False,
+def phonemize(text, language='hi', backend='espeak',
+              separator=default_separator, strip=True,
               njobs=1, logger=None):
     """Multilingual text to phonemes converter
 
