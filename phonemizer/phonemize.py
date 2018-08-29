@@ -52,7 +52,7 @@ BACKENDS = {'festival': festival,
 
 
 def phonemize(text, language='hi', backend='espeak',
-              separator=default_separator, strip=False,
+              separator=default_separator, strip=True,
               njobs=1, logger=None):
     """Multilingual text to phonemes converter
 

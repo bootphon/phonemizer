@@ -37,7 +37,7 @@ def espeak_version():
 
 def espeak_version_short():
     """Return the short version (numbers only) of espeak as a string"""
-    return re.match('.*([0-9]+\.[0-9]+\.[0-9]+)', espeak_version()).group(1)
+    return re.search(r'([0-9]+\.[0-9]+\.[0-9]+)', espeak_version()).group()
 
 
 def supported_languages():
@@ -100,7 +100,7 @@ def phonemize(text, language='en-us', separator=default_separator,
                 l = ''
                 for word in line.split(u' '):
                     # remove the stresses on phonemes
-                    w = word.strip().replace(u"ˈ", u'').replace(u'ˌ', u'')
+                    w = word.strip().strip('_').replace(u"ˈ", u'').replace(u'ˌ', u'')
                     if not strip:
                         w += '_'
                     w = w.replace('_', separator.phone)
