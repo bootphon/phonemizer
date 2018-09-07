@@ -1,9 +1,9 @@
-# Notes on the phonemizer's "oberon" branch
+# Notes on the phonemizer's "master-oberon" branch
 
 * This branch is devoted to the testing and deployment of *phonemizer*
   on the CoML cluster (called oberon).
 
-* Simply do a merge request from `master` to `oberon`.
+* Simply do a merge request from `master` to `master-oberon`.
 
 * The merge will trigger the build/test/deployment of phonemizer on
   oberon (as defined in the `.gitlab-ci.yml` file).
