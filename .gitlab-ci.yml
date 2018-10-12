@@ -1,6 +1,6 @@
 before_script:
   # load the requested modules on oberon
-  - module load anaconda3 espeak festival
+  - module load anaconda/3 espeak/1.49.2 festival/2.4
 
 phonemizer-build:
   stage: build
