@@ -1,8 +1,6 @@
 before_script:
   # load the requested modules on oberon
-  - module load python-anaconda
-  - module load espeak
-  - module load festival
+  - module load anaconda3 espeak festival
 
 phonemizer-build:
   stage: build
@@ -23,11 +21,11 @@ phonemizer-test:
     - pytest -v test
 
 phonemizer-deploy:
-  # install wordseg in the "wordseg" virtual environment on oberon (users just
-  # have to type "source activate wordseg" to use it)
+  # install phonemizer in the "wordseg" virtual environment on oberon (users just
+  # have to type "conda activate wordseg" to use it)
   stage: deploy
   script:
-    - source activate wordseg
-    - cd /cm/shared/apps/wordseg/phonemizer
+    - conda activate wordseg
+    - cd /shared/apps/phonemizer
     - git pull origin master
     - python setup.py install
