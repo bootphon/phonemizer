@@ -56,11 +56,13 @@ provided `Dockerfile`.
 
 To build the docker image, have a:
 
-    sudo docker build -t phonemizer .
+    $ git clone https://github.com/bootphon/phonemizer
+    $ cd phonemizer
+    $ sudo docker build -t phonemizer .
 
 Then run an interactive session with:
 
-    sudo docker run -it phonemizer /bin/bash
+    $ sudo docker run -it phonemizer /bin/bash
 
 
 ## Command-line examples

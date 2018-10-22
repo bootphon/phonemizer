@@ -30,8 +30,6 @@ def _list2str(s):
     return '\n'.join(s) if not isinstance(s, str) else s
 
 
-# def __call__(self, text):
-#     return self._phonemize(text)
 def chunks(text, n):
 
     """Return `n` equally sized chunks of a `text`
@@ -123,7 +121,8 @@ def phonemize(text, language='en-us', backend='festival',
         # we have here a list of phonemized chunks
         out = joblib.Parallel(n_jobs=njobs)(
             joblib.delayed(backend_module.phonemize)
-            (t, language=language, separator=separator, strip=strip, logger=logger)
+            (t, language=language, separator=separator,
+             strip=strip, logger=logger)
             for t in chunks(text, njobs))
 
         # flatten them in a single list
