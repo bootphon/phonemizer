@@ -29,6 +29,9 @@ import tempfile
 from .separator import default_separator
 
 
+_ESPEAK_VERSION_RE = r'.*: ([0-9]+\.[0-9]+\.[0-9]+)'
+
+
 def espeak_version():
     """Return the version of espeak as a string"""
     return subprocess.check_output(
@@ -37,7 +40,7 @@ def espeak_version():
 
 def espeak_version_short():
     """Return the short version (numbers only) of espeak as a string"""
-    return re.match('.*([0-9]+\.[0-9]+\.[0-9]+)', espeak_version()).group(1)
+    return re.match(_ESPEAK_VERSION_RE, espeak_version()).group(1)
 
 
 def supported_languages():
@@ -93,21 +96,21 @@ def phonemize(text, language='en-us', separator=default_separator,
                 # remove the prefix/suffix in output (if any, this
                 # occurs on russian at least, output lines are
                 # surrounded by "(en)...(ru)")
-                match = re.match('^\(.*\)(.*)\(.*\)$', line)
+                match = re.match(r'^(.*)(.*)(.*)$', line)
                 if match:
                     line = match.group(1)
 
-                l = ''
+                out_line = ''
                 for word in line.split(u' '):
                     # remove the stresses on phonemes
                     w = word.strip().replace(u"ˈ", u'').replace(u'ˌ', u'')
                     if not strip:
                         w += '_'
                     w = w.replace('_', separator.phone)
-                    l += w + separator.word
+                    out_line += w + separator.word
 
                 if strip:
-                    l = l[:-len(separator.word)]
-                output.append(l)
+                    out_line = out_line[:-len(separator.word)]
+                output.append(out_line)
 
     return output
