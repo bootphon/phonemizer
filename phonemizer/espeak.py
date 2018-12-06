@@ -49,7 +49,7 @@ def supported_languages():
     voices = subprocess.check_output(
         shlex.split('espeak --voices')).decode('utf8').split('\n')[1:-1]
     voices = [v.split() for v in voices]
-    return {v[1]: v[3] for v in voices}
+    return {v[1]: v[3].replace('_', ' ') for v in voices}
 
 
 def phonemize(text, language='en-us', separator=default_separator,
