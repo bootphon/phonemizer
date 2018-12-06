@@ -23,6 +23,7 @@ def _test(text, separator=separator.Separator(' ', '|', '-')):
         text, language='en-us', strip=True,
         separator=separator)
 
+
 @pytest.mark.skipif(
     '2.1' in festival.festival_version(),
     reason='festival-2.1 gives different results than further versions '
@@ -32,19 +33,23 @@ def test_hello():
     assert _test('hello\nworld') == ['hh-ax|l-ow', 'w-er-l-d']
     assert _test('hello\nworld\n') == ['hh-ax|l-ow', 'w-er-l-d']
 
+
 @pytest.mark.parametrize('text', ['', ' ', '  ', '(', '()', '"', "'"])
 def test_bad_input(text):
     assert _test(text) == []
 
+
 def test_quote():
     assert _test("here a 'quote") == ['hh-ih-r ax k-w-ow-t']
     assert _test('here a "quote') == ['hh-ih-r ax k-w-ow-t']
+
 
 def test_its():
     assert _test("it's") == ['ih-t-s']
     assert _test("its") == ['ih-t-s']
     assert _test("it s") == ['ih-t eh-s']
     assert _test('it "s') == ['ih-t eh-s']
+
 
 def test_im():
     sep = separator.Separator(' ', '', '')

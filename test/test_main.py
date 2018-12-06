@@ -16,7 +16,6 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the phonemizer.Phonemizer class"""
 
-import codecs
 import pytest
 import tempfile
 import shlex
@@ -39,9 +38,11 @@ def _test(input, expected_output, args=''):
                 pass
             assert output == expected_output + '\n'
 
+
 def test_help():
     with pytest.raises(SystemExit):
         main.main('-h'.split())
+
 
 def test_readme():
     _test(u'hello world', u'hhaxlow werld ')
@@ -51,6 +52,7 @@ def test_readme():
     _test(u'bonjour le monde', u'b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword ',
           '-l fr-fr -p " " -w ";eword "')
 
+
 @pytest.mark.skipif(
     '2.1' in festival.festival_version(),
     reason='festival-2.1 gives different results than further versions '
@@ -59,6 +61,7 @@ def test_readme_festival_syll():
     _test(u'hello world',
           u'hh ax ;esyll l ow ;esyll ;eword w er l d ;esyll ;eword ',
           u"-p ' ' -s ';esyll ' -w ';eword '")
+
 
 def test_njobs():
     for njobs in range(1, 4):

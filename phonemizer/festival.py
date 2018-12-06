@@ -19,12 +19,10 @@ should not be used directly.
 
 """
 
-import os
 import pkg_resources
 import re
 import shlex
 import subprocess
-import sys
 import tempfile
 
 from . import lispy
