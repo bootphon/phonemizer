@@ -163,7 +163,7 @@ def main(argv=sys.argv[1:]):
     # configure input as a readable stream
     streamin = args.input
     if isinstance(streamin, str):
-        streamin = open(streamin, 'r')
+        streamin = codecs.open(streamin, 'r', encoding='utf8')
     logger.debug('reading from %s', streamin.name)
 
     # configure output as a writable stream
