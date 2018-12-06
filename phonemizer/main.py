@@ -26,6 +26,49 @@ import sys
 from . import phonemize, espeak, festival, separator
 
 
+class CatchExceptions(object):
+    """Decorator wrapping a function in a try/except block
+
+    When an exception occurs, display a user friendly message on
+    standard output before exiting with error code 1.
+
+    The detected exceptions are ValueError, OSError, RuntimeError,
+    AssertionError, KeyboardInterrupt and
+    pkg_resources.DistributionNotFound.
+
+    Parameters
+    ----------
+    function :
+        The function to wrap in a try/except block
+
+    """
+    def __init__(self, function):
+        self.function = function
+
+    def __call__(self):
+        """Executes the wrapped function and catch common exceptions"""
+        try:
+            self.function()
+
+        except (IOError, ValueError, OSError,
+                RuntimeError, AssertionError) as err:
+            self.exit('fatal error: {}'.format(err))
+
+        except pkg_resources.DistributionNotFound:
+            self.exit(
+                'fatal error: phonemizer package not found\n'
+                'please install phonemizer on your system')
+
+        except KeyboardInterrupt:
+            self.exit('keyboard interruption, exiting')
+
+    @staticmethod
+    def exit(msg):
+        """Write `msg` on stderr and exit with error code 1"""
+        sys.stderr.write(msg.strip() + '\n')
+        sys.exit(1)
+
+
 def parse_args(argv):
     """Argument parser for the phonemization script"""
     parser = argparse.ArgumentParser(
@@ -140,6 +183,7 @@ def version():
         (version, festival.festival_version(), espeak.espeak_version()))
 
 
+@CatchExceptions
 def main(argv=sys.argv[1:]):
     """Phonemize a text from command-line arguments"""
     args = parse_args(argv)
@@ -196,11 +240,4 @@ def main(argv=sys.argv[1:]):
 
 
 if __name__ == '__main__':
-    try:
         main()
-    except (RuntimeError, IndexError, pkg_resources.DistributionNotFound) as e:
-        print('fatal error: {}'.format(e))
-        sys.exit(-1)
-    except KeyboardInterrupt:
-        print('keybord interruption, exiting')
-        sys.exit(-1)
