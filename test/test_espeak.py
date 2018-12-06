@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2017 Mathieu Bernard
+# Copyright 2017-2018 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as

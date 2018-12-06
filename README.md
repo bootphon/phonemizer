@@ -207,7 +207,7 @@ words.
 
 ## Licence
 
-**Copyright 2015 - 2018 Mathieu Bernard**
+**Copyright 2015-2018 Mathieu Bernard**
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
