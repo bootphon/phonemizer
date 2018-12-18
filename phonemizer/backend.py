@@ -280,7 +280,7 @@ class FestivalBackend(BaseBackend):
             ['festival', '--version']).decode('latin1').strip()
 
         # extract the version number with a regular expression
-        festival_version_re = r'.* ([0-9]+\.[0-9]+\.[0-9]+):'
+        festival_version_re = r'.* ([0-9\.]+[0-9]):'
         return re.match(festival_version_re, long_version).group(1)
 
     @staticmethod
