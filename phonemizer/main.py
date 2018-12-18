@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Copyright 2015, 2016 Mathieu Bernard
+# Copyright 2015-2018 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -23,54 +23,130 @@ import logging
 import pkg_resources
 import sys
 
-from . import phonemize, espeak, festival, separator
+from phonemizer import phonemize, separator
+from phonemizer.backend import (
+    EspeakBackend, FestivalBackend, SegmentsBackend)
 
 
-def parse_args(argv):
+class CatchExceptions(object):
+    """Decorator wrapping a function in a try/except block
+
+    When an exception occurs, display a user friendly message on
+    standard output before exiting with error code 1.
+
+    The detected exceptions are ValueError, OSError, RuntimeError,
+    AssertionError, KeyboardInterrupt and
+    pkg_resources.DistributionNotFound.
+
+    Parameters
+    ----------
+    function :
+        The function to wrap in a try/except block
+
+    """
+    def __init__(self, function):
+        self.function = function
+
+    def __call__(self):
+        """Executes the wrapped function and catch common exceptions"""
+        try:
+            self.function()
+
+        except (IOError, ValueError, OSError,
+                RuntimeError, AssertionError) as err:
+            self.exit('fatal error: {}'.format(err))
+
+        except pkg_resources.DistributionNotFound:
+            self.exit(
+                'fatal error: phonemizer package not found\n'
+                'please install phonemizer on your system')
+
+        except KeyboardInterrupt:
+            self.exit('keyboard interruption, exiting')
+
+    @staticmethod
+    def exit(msg):
+        """Write `msg` on stderr and exit with error code 1"""
+        sys.stderr.write(msg.strip() + '\n')
+        sys.exit(1)
+
+
+def parse_args():
     """Argument parser for the phonemization script"""
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description='''Multilingual text to phonemes converter
 
-The 'phonemize' program allows simple phonemisation of words and texts
-in many language. It is a wrapper on the text to speech softwares
-'festival' and 'espeak'. The 'espeak' backend support the
-International Phonetic Alphabet, whereas the 'festival' backend uses a
-custom phoneset (http://www.festvox.org/bsv/c4711.html).
+The 'phonemize' program allows simple phonemization of words and texts
+in many language using three backends: espeak, festival and segments.
+
+- espeak is a text-to-speech software supporting multiple languages
+  and IPA (Internatinal Phonetic Alphabet) output. See
+  http://espeak.sourceforge.net or
+  https://github.com/espeak-ng/espeak-ng
+
+- festival is also a text-to-speech software. Currently only American
+  English is supported and festival uses a custom phoneset
+  (http://www.festvox.org/bsv/c4711.html), but festival is the only
+  backend supporting tokenization at the syllable
+  level. See http://www.cstr.ed.ac.uk/projects/festival
+
+- segments is a Unicode tokenizer that build a phonemization from a
+  grapheme to phoneme mapping provided as a file by the user. See
+  https://github.com/cldf/segments.
+
+See the '--language' option below for details on the languages
+supported by each backend.
+
 ''',
         epilog='''
-   Languages supported by festival are:
-   {}
+   Languages supported by the festival backend are:
+   {festival}
 
-   Languages supported by espeak are:
-   {}
+   Languages supported by the segments backend are:
+   {segments}
+   Instead of a language you can also provide a file specifying a
+   grapheme to phoneme mapping (see the files above for exemples).
+
+   Languages supported by the espeak backend are:
+   {espeak}
 
 
 Exemples:
 
 * Phonemize a US English text with espeak
 
-   $ echo 'hello world' | phonemize -l en-us
+   $ echo 'hello world' | phonemize -l en-us -b espeak
    həloʊ wɜːld
 
 * Phonemize a US English text with festival
 
-   $ echo 'hello world' | phonemize -l en-us-festival
+   $ echo 'hello world' | phonemize -l en-us -b festival
    hhaxlow werld
+
+* Phonemize a Japanese text with segments
+
+  $ echo 'konnichiwa tsekai' | phonemize -l japanese -b segments
+  konnitʃiwa t͡sekai
 
 * Add a separator between phones
 
-  $ echo 'hello world' | phonemize -l en-us-festival -p '-' --strip
+  $ echo 'hello world' | phonemize -l en-us -b festival -p '-' --strip
   hh-ax-l-ow w-er-l-d
 
-* Phonemize some French text file
+* Phonemize some French text file using espeak
 
-  $ phonemize -l fr-fr text.txt -o phones.txt
+  $ phonemize -l fr-fr -b espeak text.txt -o phones.txt
         '''.format(
-            '\n'.join('\t{}-festival\t->\t{}'.format(k, v) for k, v in
-                      sorted(festival.supported_languages().items())),
-            '\n'.join('\t{}\t->\t{}'.format(k, v.encode('utf8')) for k, v in
-                      sorted(espeak.supported_languages().items()))))
+            festival='\n'.join(
+                '\t{}\t->\t{}'.format(k, v) for k, v in
+                sorted(FestivalBackend.supported_languages().items())),
+            segments='\n'.join(
+                '\t{}\t->\t{}'.format(k, v) for k, v in
+                sorted(SegmentsBackend.supported_languages().items())),
+            espeak='\n'.join(
+                '\t{}\t->\t{}'.format(k, v) for k, v in
+                sorted(EspeakBackend.supported_languages().items()))))
 
     # general arguments
     parser.add_argument(
@@ -96,7 +172,6 @@ Exemples:
         help='output text file to write, if not specified write to stdout')
 
     group = parser.add_argument_group('separators')
-
     group.add_argument(
         '-p', '--phone-separator', metavar='<str>',
         default=separator.default_separator.phone,
@@ -111,7 +186,7 @@ Exemples:
         '-s', '--syllable-separator', metavar='<str>',
         default=separator.default_separator.syllable,
         help='''syllable separator is available only for the festival backend,
-        this option has no effect if espeak is used.
+        this option has no effect if espeak or segments is used.
         Default is "%(default)s"''')
 
     group.add_argument(
@@ -121,28 +196,38 @@ Exemples:
     group = parser.add_argument_group('language')
 
     group.add_argument(
-        '-l', '--language', metavar='<str>', default='en-us-festival',
+        '-b', '--backend', metavar='<str>', default='espeak',
+        choices=['espeak', 'festival', 'segments'],
+        help="""the phonemization backend, must be 'espeak', 'festival' or
+        'segments'. Default is %(default)s""")
+
+    group.add_argument(
+        '-l', '--language', metavar='<str|file>', default='en-us',
         help='''the language code of the input text, see below for a list of
         supported languages. According to the language code you
-        specify, the appropriate backend (espeak or festival) will be
-        called in background. Default is %(default)s''')
+        specify, the appropriate backend (segments, espeak or
+        festival) will be called in background. Default is
+        %(default)s''')
 
-    return parser.parse_args(argv)
+    return parser.parse_args()
 
 
 def version():
     """Return version information for front and backends"""
-    # phonemize
-    version = ('phonemizer: '
+    version = ('phonemizer-'
                + pkg_resources.get_distribution('phonemizer').version)
 
-    return '\n'.join(
-        (version, festival.festival_version(), espeak.espeak_version()))
+    return version + '\navailable backends: ' + ', '.join(
+        ('festival-' + FestivalBackend.version(),
+         ('espeak-' + ('ng-' if EspeakBackend.is_espeak_ng() else '')
+          + EspeakBackend.version()),
+         'segments-' + SegmentsBackend.version()))
 
 
-def main(argv=sys.argv[1:]):
+@CatchExceptions
+def main():
     """Phonemize a text from command-line arguments"""
-    args = parse_args(argv)
+    args = parse_args()
 
     if args.version:
         print(version())
@@ -152,6 +237,7 @@ def main(argv=sys.argv[1:]):
     # init a logger to output on stderr. Else init a logger going to
     # the void.
     logger = logging.getLogger()
+    logger.handlers = []
     logger.setLevel(logging.DEBUG)
     if args.verbose:
         handler = logging.StreamHandler(sys.stderr)
@@ -163,7 +249,7 @@ def main(argv=sys.argv[1:]):
     # configure input as a readable stream
     streamin = args.input
     if isinstance(streamin, str):
-        streamin = open(streamin, 'r')
+        streamin = codecs.open(streamin, 'r', encoding='utf8')
     logger.debug('reading from %s', streamin.name)
 
     # configure output as a writable stream
@@ -174,21 +260,21 @@ def main(argv=sys.argv[1:]):
 
     # configure the separator for phonemes, syllables and words.
     sep = separator.Separator(
-        args.word_separator,
-        args.syllable_separator,
-        args.phone_separator)
+        phone=args.phone_separator,
+        syllable=args.syllable_separator,
+        word=args.word_separator)
+    logger.debug('separator is %s', sep)
 
-    # setup backend and language code
-    if 'festival' in args.language:
-        backend = 'festival'
-        language = args.language.replace('-festival', '')
-    else:
-        backend = 'espeak'
-        language = args.language
+    # load the input text (python2 optionnally needs an extra decode)
+    text = streamin.read()
+    try:
+        text = text.decode('utf8')
+    except (AttributeError, UnicodeEncodeError):
+        pass
 
     # phonemize the input text
-    out = phonemize(
-        streamin.read(), language=language, backend=backend,
+    out = phonemize.phonemize(
+        text, language=args.language, backend=args.backend,
         separator=sep, strip=args.strip, njobs=args.njobs, logger=logger)
 
     if len(out):
@@ -196,11 +282,4 @@ def main(argv=sys.argv[1:]):
 
 
 if __name__ == '__main__':
-    try:
         main()
-    except (RuntimeError, IndexError, pkg_resources.DistributionNotFound) as e:
-        print('fatal error: {}'.format(e))
-        sys.exit(-1)
-    except KeyboardInterrupt:
-        print('keybord interruption, exiting')
-        sys.exit(-1)

@@ -1,4 +1,4 @@
-# Copyright 2015, 2016 Mathieu Bernard
+# Copyright 2015-2018 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -14,12 +14,42 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Provides the Separator tuple and its default value"""
 
-import collections
+
+class Separator(object):
+    """Defines phone, syllable and word boundary tokens"""
+    def __init__(self, word=' ', syllable=None, phone=None):
+        # check we have different separators, None excluded
+        g1 = list(sep for sep in (phone, syllable, word) if sep)
+        g2 = set(sep for sep in (phone, syllable, word) if sep)
+        if len(g1) != len(g2):
+            raise ValueError(
+                'illegal separator with word="{}", syllable="{}" and '
+                'phone="{}", must be all differents if not None'
+                .format(phone, syllable, word))
+
+        self._phone = str(phone) if phone else ''
+        self._syllable = str(syllable) if syllable else ''
+        self._word = str(word) if word else ''
+
+    def __str__(self):
+        def format(s):
+            return '"{}"'.format(s)
+
+        return '(phone: {}, syllable: {}, word: {})'.format(
+            format(self.phone), format(self.syllable), format(self.word))
+
+    @property
+    def phone(self):
+        return self._phone
+
+    @property
+    def syllable(self):
+        return self._syllable
+
+    @property
+    def word(self):
+        return self._word
 
 
-Separator = collections.namedtuple('Separator', ['word', 'syllable', 'phone'])
-"""A tuple of word, syllable and phone separators"""
-
-
-default_separator = Separator(' ', '', '')
+default_separator = Separator(phone='', syllable='', word=' ')
 """The default separation characters for phonemes, syllables and words"""

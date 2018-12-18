@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2017 Mathieu Bernard
+# Copyright 2017-2018 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -14,14 +14,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
-"""Test of the phonemizer.espeak module"""
+"""Test of the espeak backend"""
 
 
 import re
 import pytest
 
-import phonemizer.espeak as espeak
 import phonemizer.separator as separator
+from phonemizer.backend import EspeakBackend
 
 
 @pytest.mark.parametrize(
@@ -33,18 +33,22 @@ import phonemizer.separator as separator
      'eSpeak NG text-to-speech: 1.49.2  Data at: /usr/lib/espeak-ng-data'])
 def test_versions(version):
     expected = '1.49.2' if 'NG' in version else '1.48.03'
-    assert re.match(espeak._ESPEAK_VERSION_RE, version).group(1) == expected
+    version_re = EspeakBackend.espeak_version_re
+    assert re.match(version_re, version).group(1) == expected
 
 
 def test_english():
+    backend = EspeakBackend('en-us')
     text = u'hello world\ngoodbye\nthird line\nyet another'
-    out = '\n'.join(espeak.phonemize(text, strip=True))
+    out = '\n'.join(backend._phonemize_aux(
+        text, separator.default_separator, True))
     assert out == u'həloʊ wɜːld\nɡʊdbaɪ\nθɜːd laɪn\njɛt ɐnʌðɚ'
 
 
 def test_french():
+    backend = EspeakBackend('fr-fr')
     text = u'bonjour le monde'
     sep = separator.Separator(word=';eword ', syllable=None, phone=' ')
     expected = [u'b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword ']
-    out = espeak.phonemize(text, language='fr-fr', separator=sep, strip=False)
+    out = backend._phonemize_aux(text, sep, False)
     assert out == expected

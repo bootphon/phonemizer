@@ -1,4 +1,4 @@
-# Copyright 2015, 2016 Mathieu Bernard
+# Copyright 2015-2018 Mathieu Bernard
 #
 # This file is part of phonologizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -14,4 +14,4 @@
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
 """Multilingual text to phonemes converter"""
 
-from .phonemize import phonemize
+__version__ = 1.0
