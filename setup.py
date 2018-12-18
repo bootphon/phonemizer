@@ -17,28 +17,27 @@
 """Setup script for the phonemizer package"""
 
 import codecs
-from setuptools import setup, find_packages
+import setuptools
+import phonemizer
 
-VERSION = open('VERSION', 'r').read().strip()
-
-setup(
+setuptools.setup(
     name='phonemizer',
-    version=VERSION,
-    packages=find_packages(),
+    version=phonemizer.__version__,
+    packages=setuptools.find_packages(),
     zip_safe=True,
 
     # python package dependancies
-    install_requires=['joblib'],
+    install_requires=['joblib', 'segments'],
 
     # include any files in phonemizer/share
-    package_data={'phonemizer': ['share/phonemize.scm']},
+    package_data={'phonemizer': ['share/*']},
 
     # define the command-line script to use
     entry_points={'console_scripts': ['phonemize = phonemizer.main:main']},
 
     # metadata for upload to PyPI
     author='Mathieu Bernard',
-    author_email='mmathieubernardd@gmail.com',
+    author_email='mathieu.a.bernard@inria.fr',
     description=' Simple text to phonemes converter for multiple languages',
     license='GPL3',
     keywords='linguistics G2P phoneme festival espeak TTS',

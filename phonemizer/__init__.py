@@ -14,4 +14,4 @@
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
 """Multilingual text to phonemes converter"""
 
-from .phonemize import phonemize
+__version__ = 1.0

@@ -12,125 +12,83 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
-"""Provides the phonemize function"""
+"""Provides the phonemize function
 
-import distutils.spawn
-import itertools
-import joblib
+To use it in your own code, type:
 
-from . import festival, espeak
-from .separator import default_separator
+    from phonemizer.phonemize import phonemize
 
+"""
 
-def _str2list(s):
-    return s.strip().split('\n') if isinstance(s, str) else s
+import logging
 
-
-def _list2str(s):
-    return '\n'.join(s) if not isinstance(s, str) else s
-
-
-def chunks(text, n):
-
-    """Return `n` equally sized chunks of a `text`
-
-    Only the n-1 first chunks have equal size. The last chunk can
-    be longer. The input `text` can be a list or a string. Return
-    a list of `n` strings.
-
-    """
-    text = _str2list(text)
-    size = int(max(1, len(text)/n))
-    return [_list2str(text[i:i+size]) for i in range(0, len(text), size)]
-
-
-BACKENDS = {'festival': festival,
-            'espeak': espeak}
-"""The backends supported by the phonemizer"""
+from phonemizer.separator import default_separator
+from phonemizer.backend import (
+    EspeakBackend, FestivalBackend, SegmentsBackend)
 
 
 def phonemize(text, language='en-us', backend='festival',
               separator=default_separator, strip=False,
-              njobs=1, logger=None):
+              njobs=1, logger=logging.getLogger()):
     """Multilingual text to phonemes converter
 
     Return a phonemized version of an input `text`, given its
     `language` and a phonemization `backend`.
 
-    Arguments
-    ---------
-
+    Parameters
+    ----------
     text (str or list of str): The text to be phonemized. Any empty
-       line will be ignored. If text is a list, each element is
-       considered as a separated line.
+       line will be ignored. If `text` is an str, it can be multiline
+       (lines being separated by \n). If `text` is a list, each
+       element is considered as a separated line. Each line is
+       considered as a text utterance.
 
     language (str): The language code of the input text, must be
-      supported by the backend.
+      supported by the backend. If `backend` is 'segments', the
+      language can be a file with a grapheme to phoneme mapping.
 
     backend (str): The software backend to use for phonemization, must
-      be 'festival' (US English only is supported, coded 'en-us') or
-      'espeak'.
+      be 'festival' (US English only is supported, coded 'en-us'),
+      'espeak' or 'segments'.
 
     separator (Separator): string separators between phonemes,
       syllables and words, default to separator.default_separator.
 
-    strip (bool): If True, don't output end of word
-      separators, default to False.
+    strip (bool): If True, don't output the last word and phone
+      separators of a token, default to False.
 
     njobs (int): The number of parallel jobs to launch. The input text
       is split in `njobs` parts, phonemized on parallel instances of
-      the backend and the outputs are fianally collapsed.
+      the backend and the outputs are finally collapsed.
 
     logger (logging.Logger): the logging instance where to send
-      messages. If not specified, don't log any messages.
+      messages. If not specified, use the default system logger.
+
+    Returns
+    -------
+    phonemized text (str or list of str) : The input `text` phonemized
+      for the given `language` and `backend`. The returned value has
+      the same type of the input text (either a list or a string).
+
+    Raises
+    ------
+    RuntimeError
+      If the `backend` is not valid or is valid but not installed, if
+      the `language` is not supported by the `backend`.
 
     """
-    # ensure the backend is either espeak or festival
-    try:
-        backend_module = BACKENDS[backend]
-    except KeyError:
+    # ensure the backend is either espeak, festival or segments
+    if backend not in ('espeak', 'festival', 'segments'):
         raise RuntimeError(
             '{} is not a supported backend, choose in {}.'
-            .format(', '.join(BACKENDS.keys())))
+            .format(backend, ', '.join(('espeak', 'festival', 'segments'))))
 
-    # ensure the backend is installed on the system
-    if not distutils.spawn.find_executable(backend):
-        raise RuntimeError(
-            '{} not installed on your system'.format(backend))
+    # instanciate the requested backend for the given language (raises
+    # a RuntimeError if the language is not supported).
+    backends = {b.name(): b for b in (
+        EspeakBackend, FestivalBackend, SegmentsBackend)}
+    backend = backends[backend](language, logger=logger)
 
-    # ensure the backend support the requested language
-    if language not in backend_module.supported_languages():
-        raise RuntimeError(
-            'language "{}" is not supported by the {} backend'
-            .format(language, backend))
-
-    if njobs == 1:
-        # phonemize the text forced as a string
-        out = backend_module.phonemize(
-            _list2str(text), language=language,
-            separator=separator, strip=strip, logger=logger)
-    else:
-        # If using parallel jobs, disable the log as stderr is not
-        # picklable.
-        if logger:
-            logger.debug(
-                'running {} on {} jobs'.format(backend, njobs))
-        log_storage = logger
-        logger = None
-
-        # we have here a list of phonemized chunks
-        out = joblib.Parallel(n_jobs=njobs)(
-            joblib.delayed(backend_module.phonemize)
-            (t, language=language, separator=separator,
-             strip=strip, logger=logger)
-            for t in chunks(text, njobs))
-
-        # flatten them in a single list
-        out = list(itertools.chain(*out))
-
-        # restore the log as it was before parallel processing
-        logger = log_storage
-
-    # output the result formatted as a string or a list of strings
-    # according to type(text)
-    return _list2str(out) if isinstance(text, str) else out
+    # phonemize the input text with the backend
+    return backend.phonemize(
+        text, separator=separator, strip=strip, njobs=njobs)

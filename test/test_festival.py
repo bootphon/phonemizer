@@ -12,20 +12,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
-"""Test of the phonemizer.Phonemizer class"""
+"""Test of the festival backend"""
 
 import pytest
-from phonemizer import festival, separator
+from phonemizer import separator
+from phonemizer.backend import FestivalBackend
 
 
-def _test(text, separator=separator.Separator(' ', '|', '-')):
-    return festival.phonemize(
-        text, language='en-us', strip=True,
-        separator=separator)
+def _test(text, separator=separator.Separator(
+        word=' ', syllable='|', phone='-')):
+    backend = FestivalBackend('en-us')
+    return backend._phonemize_aux(text, separator, True)
 
 
 @pytest.mark.skipif(
-    '2.1' in festival.festival_version(),
+    '2.1' in FestivalBackend.version(),
     reason='festival-2.1 gives different results than further versions '
     'for syllable boundaries')
 def test_hello():
@@ -52,7 +53,7 @@ def test_its():
 
 
 def test_im():
-    sep = separator.Separator(' ', '', '')
+    sep = separator.Separator(word=' ', syllable='', phone='')
     assert _test("I'm looking for an image", sep) \
         == ['aym luhkaxng faor axn ihmaxjh']
     assert _test("Im looking for an image", sep) \

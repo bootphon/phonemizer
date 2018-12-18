@@ -2,22 +2,29 @@
 
 # Phonemizer -- *foʊnmaɪzɚ*
 
-* Simple text to phonemes converter for multiple languages, based
-  on [festival](http://www.cstr.ed.ac.uk/projects/festival) and
-  [espeak](http://espeak.sourceforge.net/)/[espeak-ng](https://github.com/espeak-ng/espeak-ng/)
-  Text-to-Speech systems.
+* Simple text to phonemes converter for multiple languages, based on
+  [festival](http://www.cstr.ed.ac.uk/projects/festival),
+  [espeak](http://espeak.sourceforge.net/)/
+  [espeak-ng](https://github.com/espeak-ng/espeak-ng/)
+  and [segments](https://github.com/cldf/segments).
 
 * Provides both the `phonemize` command-line tool and the Python function
   `phonemizer.phonemize`
 
-* Festival provides US English phonemization with syllable
-  tokenization, espeak endows multiple languages but without syllable
-  boundaries.
+* **espeak** is a text-to-speech software supporting multiple
+  languages and IPA (Internatinal Phonetic Alphabet) output. See
+  http://espeak.sourceforge.net or
+  https://github.com/espeak-ng/espeak-ng.
 
-* The phoneset used is
-  [IPA](https://en.wikipedia.org/wiki/International_Phonetic_Alphabet)
-  for the espeak backend whereas festival use its default
-  [US phoneset](http://www.festvox.org/bsv/c4711.html)
+* **festival** is also a text-to-speech software. Currently only
+  American English is supported and festival uses a custom phoneset
+  (http://www.festvox.org/bsv/c4711.html), but festival is the only
+  backend supporting tokenization at the syllable level. See
+  http://www.cstr.ed.ac.uk/projects/festival.
+
+* **segments** is a Unicode tokenizer that build a phonemization from
+  a grapheme to phoneme mapping provided as a file by the user. See
+  https://github.com/cldf/segments.
 
 
 ## Installation
@@ -49,6 +56,7 @@
   setuptools` during installation, refeer to [issue
   11](https://github.com/bootphon/phonemizer/issues/11).
 
+
 ## Docker image
 
 Alternatively you can run the phonemizer within docker, using the
@@ -77,19 +85,19 @@ For a complete list of available options, have a:
 * from stdin to stdout:
 
         $ echo "hello world" | phonemize
-        hhaxlow werld
+        həloʊ wɜːld
 
 * from file to stdout
 
         $ echo "hello world" > hello.txt
         $ phonemize hello.txt
-        hhaxlow werld
+        həloʊ wɜːld
 
 * from file to file
 
         $ phonemize hello.txt -o hello.phon --strip
         $ cat hello.phon
-        hhaxlow werld
+        həloʊ wɜːld
 
 
 ### Token separators
@@ -97,39 +105,59 @@ For a complete list of available options, have a:
 You can specify separators for phonemes, syllables (festival only) and
 words.
 
-    $ echo "hello world" | phonemize -p '-' -s '|'
+    $ echo "hello world" | phonemize -b festival -p '-' -s '|'
     hh-ax-l-|ow-| w-er-l-d-|
 
-    $ echo "hello world" | phonemize -p '-' -s '|' --strip
+    $ echo "hello world" | phonemize -b festival -p '-' -s '|' --strip
     hh-ax-l|ow w-er-l-d
 
-    $ echo "hello world" | phonemize -p ' ' -s ';esyll ' -w ';eword '
+    $ echo "hello world" | phonemize -b festival -p ' ' -s ';esyll ' -w ';eword '
     hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
 
 
 ### Languages
 
-* Festival US English is the default
+* Espeak us-english is the default
 
-        $ echo "hello world" | phonemize -l en-us-festival
-        hhaxlow werld
-
-* This uses espeak instead
-
-        $ echo "hello world" | phonemize -l en-us
+        $ echo "hello world" | phonemize
         həloʊ wɜːld
 
-* In French
+* use Festival US English instead
 
-        $ echo "bonjour le monde" | phonemize -l fr-fr
+        $ echo "hello world" | phonemize -l en-us -b festival
+        hhaxlow werld
+
+* In French, using espeak
+
+        $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr
         bɔ̃ʒuʁ lə- mɔ̃d
 
-        $ echo "bonjour le monde" | phonemize -l fr-fr -p ' ' -w ';eword '
+        $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr -p ' ' -w ';eword '
         b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword
+
+* In Japanese, using segments
+
+        $ echo 'konnichiwa' | phonemize -b segments -l japanese
+        konnitʃiwa
+
+        $ echo 'konnichiwa' | phonemize -b segments -l ./phonemizer/share/japanese.g2p
+        konnitʃiwa
 
 * Languages supported by festival are:
 
-        en-us-festival	->	english-us
+        en-us	->	english-us
+
+* Languages supported by the segments backend are:
+
+        chintang  -> ./phonemizer/share/chintang.g2p
+	    cree	  -> ./phonemizer/share/cree.g2p
+	    inuktitut -> ./phonemizer/share/inuktitut.g2p
+	    japanese  -> ./phonemizer/share/japanese.g2p
+	    sesotho	  -> ./phonemizer/share/sesotho.g2p
+	    yucatec	  -> ./phonemizer/share/yucatec.g2p
+
+  Instead of a language you can also provide a file specifying a
+  grapheme to phoneme mapping (see the files above for exemples).
 
 * Languages supported by espeak are (espeak-ng supports even more of
   them), type `phonemize --help` for an exhaustive list:
