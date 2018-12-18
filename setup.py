@@ -27,7 +27,7 @@ setuptools.setup(
     zip_safe=True,
 
     # python package dependancies
-    install_requires=['joblib', 'segments'],
+    install_requires=['joblib', 'segments', 'attrs>=18.1'],
     extras_require={'test': ['pytest']},
 
     # include any files in phonemizer/share
