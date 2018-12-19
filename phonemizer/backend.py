@@ -185,8 +185,8 @@ class EspeakBackend(BaseBackend):
 
     @staticmethod
     def long_version():
-        return subprocess.check_output(
-            shlex.split('espeak --help')).decode('utf8').split('\n')[1]
+        return subprocess.check_output(shlex.split(
+            'espeak --help', posix=False)).decode('utf8').split('\n')[1]
 
     @classmethod
     def is_espeak_ng(cls):
@@ -205,8 +205,8 @@ class EspeakBackend(BaseBackend):
     @staticmethod
     def supported_languages():
         # retrieve the languages from a call to 'espeak --voices'
-        voices = subprocess.check_output(
-            shlex.split('espeak --voices')).decode('utf8').split('\n')[1:-1]
+        voices = subprocess.check_output(shlex.split(
+            'espeak --voices', posix=False)).decode('utf8').split('\n')[1:-1]
         voices = [v.split() for v in voices]
 
         # u'å' cause a bug in python2
@@ -229,7 +229,7 @@ class EspeakBackend(BaseBackend):
                     self.logger.debug('running %s', command)
 
                 raw_output = subprocess.check_output(
-                    shlex.split(command)).decode('utf8')
+                    shlex.split(command, posix=False)).decode('utf8')
 
                 for line in (l.strip() for l in raw_output.split('\n') if l):
                     # remove the prefix/suffix in output (if any, this
@@ -377,7 +377,7 @@ class FestivalBackend(BaseBackend):
                 with tempfile.TemporaryFile('w+') as fstderr:
                     try:
                         raw_output = subprocess.check_output(
-                            shlex.split(cmd), stderr=fstderr)
+                            shlex.split(cmd, posix=False), stderr=fstderr)
 
                         # festival seems to use latin1 and not utf8
                         return re.sub(' +', ' ', raw_output.decode('latin1'))
