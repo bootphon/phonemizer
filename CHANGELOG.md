@@ -3,6 +3,12 @@
 Version numbers follow [semantic versioning](https://semver.org)
 
 
+## not yet released
+
+* bugfix when calling *festival* or *espeak* subprocesses on Windows,
+  see [#17](https://github.com/bootphon/phonemizer/issues/17).
+
+
 ## phonemizer-1.0
 
 * **incompabile changes**
