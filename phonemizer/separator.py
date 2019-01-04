@@ -24,7 +24,7 @@ class Separator(object):
         if len(g1) != len(g2):
             raise ValueError(
                 'illegal separator with word="{}", syllable="{}" and '
-                'phone="{}", must be all differents if not None'
+                'phone="{}", must be all differents if not empty'
                 .format(phone, syllable, word))
 
         self._phone = str(phone) if phone else ''

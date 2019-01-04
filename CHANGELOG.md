@@ -8,6 +8,9 @@ Version numbers follow [semantic versioning](https://semver.org)
 * bugfix when calling *festival* or *espeak* subprocesses on Windows,
   see [#17](https://github.com/bootphon/phonemizer/issues/17).
 
+* bugfix in detecting recent versions of *espeak-ng*, see
+  [#18](https://github.com/bootphon/phonemizer/issues/18).
+
 
 ## phonemizer-1.0
 

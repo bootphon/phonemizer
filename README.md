@@ -105,6 +105,12 @@ For a complete list of available options, have a:
 You can specify separators for phonemes, syllables (festival only) and
 words.
 
+    $ echo "hello world" | phonemize -b festival -w ' ' -p ''
+    hhaxlow werld
+
+    $ echo "hello world" | phonemize -b festival -p ' ' -w ''
+    hh ax l ow w er l d
+
     $ echo "hello world" | phonemize -b festival -p '-' -s '|'
     hh-ax-l-|ow-| w-er-l-d-|
 
@@ -113,6 +119,13 @@ words.
 
     $ echo "hello world" | phonemize -b festival -p ' ' -s ';esyll ' -w ';eword '
     hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
+
+You cannot specify the same separator for several tokens (for instance
+a space for both phones and words):
+
+    $ echo "hello world" | phonemize -b festival -p ' ' -w ' '
+    fatal error: illegal separator with word=" ", syllable="" and phone=" ",
+    must be all differents if not empty
 
 
 ### Languages

@@ -172,7 +172,7 @@ class EspeakBackend(BaseBackend):
             self.sep = ''
 
         self.ipa = '--ipa=3'
-        if version == '1.49.2':  # this is espeak-ng
+        if self.is_espeak_ng():  # this is espeak-ng
             self.ipa = '-x --ipa'
 
     @staticmethod
