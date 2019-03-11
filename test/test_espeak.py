@@ -53,6 +53,10 @@ def test_french():
     out = backend._phonemize_aux(text, sep, False)
     assert out == expected
 
+
+@pytest.skipif(
+    not EspeakBackend.is_espeak_ng(),
+    reason='Arabic is only supported by espeak-ng')
 def test_arabic():
     backend = EspeakBackend('ar')
     text = u'السلام عليكم'
