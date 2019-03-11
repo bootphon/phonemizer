@@ -218,7 +218,10 @@ class EspeakBackend(BaseBackend):
         for line in text.split('\n'):
             with tempfile.NamedTemporaryFile('w+') as data:
                 # save the text as a tempfile
-                data.write(line)
+                try:  # python2
+                    data.write(line.encode('utf8'))
+                except TypeError:  # python3
+                    data.write(line)
                 data.seek(0)
 
                 # generate the espeak command to run

@@ -52,3 +52,11 @@ def test_french():
     expected = [u'b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword ']
     out = backend._phonemize_aux(text, sep, False)
     assert out == expected
+
+def test_arabic():
+    backend = EspeakBackend('ar')
+    text = u'السلام عليكم'
+    sep = separator.Separator()
+    expected = [u'ʔassalaam ʕaliijkum ']
+    out = backend._phonemize_aux(text, sep, False)
+    assert out == expected
