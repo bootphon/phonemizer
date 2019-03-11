@@ -54,7 +54,7 @@ def test_french():
     assert out == expected
 
 
-@pytest.skipif(
+@pytest.mark.skipif(
     not EspeakBackend.is_espeak_ng(),
     reason='Arabic is only supported by espeak-ng')
 def test_arabic():
