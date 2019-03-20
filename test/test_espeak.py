@@ -61,6 +61,10 @@ def test_arabic():
     backend = EspeakBackend('ar')
     text = u'السلام عليكم'
     sep = separator.Separator()
-    expected = [u'ʔassalaam ʕaliijkum ']
+    # Arabic seems to have changed starting at espeak-ng-1.49.3
+    if tuple(EspeakBackend.version().split('.')) >= ('1', '49', '3'):
+        expected = [u'ʔassalaːm ʕliːkm ']
+    else:
+        expected = [u'ʔassalaam ʕaliijkum ']
     out = backend._phonemize_aux(text, sep, False)
     assert out == expected
