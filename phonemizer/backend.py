@@ -180,13 +180,21 @@ class EspeakBackend(BaseBackend):
         return 'espeak'
 
     @staticmethod
-    def is_available():
-        return distutils.spawn.find_executable('espeak')
+    def espeak_exe():
+        espeak = distutils.spawn.find_executable('espeak-ng')
+        if not espeak:
+            espeak = distutils.spawn.find_executable('espeak')
+        return espeak
 
-    @staticmethod
-    def long_version():
+    @classmethod
+    def is_available(cls):
+        return True if cls.espeak_exe() else False
+
+    @classmethod
+    def long_version(cls):
         return subprocess.check_output(shlex.split(
-            'espeak --help', posix=False)).decode('utf8').split('\n')[1]
+            '{} --help'.format(cls.espeak_exe()), posix=False)).decode(
+                'utf8').split('\n')[1]
 
     @classmethod
     def is_espeak_ng(cls):
@@ -202,11 +210,12 @@ class EspeakBackend(BaseBackend):
         # extract the version number with a regular expression
         return re.match(EspeakBackend.espeak_version_re, long_version).group(1)
 
-    @staticmethod
-    def supported_languages():
+    @classmethod
+    def supported_languages(cls):
         # retrieve the languages from a call to 'espeak --voices'
         voices = subprocess.check_output(shlex.split(
-            'espeak --voices', posix=False)).decode('utf8').split('\n')[1:-1]
+            '{} --voices'.format(cls.espeak_exe()), posix=False)).decode(
+                'utf8').split('\n')[1:-1]
         voices = [v.split() for v in voices]
 
         # u'å' cause a bug in python2
@@ -222,8 +231,9 @@ class EspeakBackend(BaseBackend):
                 data.seek(0)
 
                 # generate the espeak command to run
-                command = 'espeak -v{} {} -q -f {} {}'.format(
-                    self.language, self.ipa, data.name, self.sep)
+                command = '{} -v{} {} -q -f {} {}'.format(
+                    self.espeak_exe(), self.language, self.ipa,
+                    data.name, self.sep)
 
                 if self.logger:
                     self.logger.debug('running %s', command)
