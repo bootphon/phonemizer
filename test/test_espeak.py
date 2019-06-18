@@ -52,3 +52,19 @@ def test_french():
     expected = [u'b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword ']
     out = backend._phonemize_aux(text, sep, False)
     assert out == expected
+
+
+@pytest.mark.skipif(
+    not EspeakBackend.is_espeak_ng(),
+    reason='Arabic is only supported by espeak-ng')
+def test_arabic():
+    backend = EspeakBackend('ar')
+    text = u'السلام عليكم'
+    sep = separator.Separator()
+    # Arabic seems to have changed starting at espeak-ng-1.49.3
+    if tuple(EspeakBackend.version().split('.')) >= ('1', '49', '3'):
+        expected = [u'ʔassalaːm ʕliːkm ']
+    else:
+        expected = [u'ʔassalaam ʕaliijkum ']
+    out = backend._phonemize_aux(text, sep, False)
+    assert out == expected

@@ -3,13 +3,16 @@
 Version numbers follow [semantic versioning](https://semver.org)
 
 
-## not yet released
+## phonemizer-1.0.1
 
 * bugfix when calling *festival* or *espeak* subprocesses on Windows,
   see [#17](https://github.com/bootphon/phonemizer/issues/17).
 
 * bugfix in detecting recent versions of *espeak-ng*, see
   [#18](https://github.com/bootphon/phonemizer/issues/18).
+
+* bugfix when using utf8 input on *espeak* backend (python2), see
+  [#19](https://github.com/bootphon/phonemizer/issues/19).
 
 
 ## phonemizer-1.0
