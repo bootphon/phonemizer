@@ -2,6 +2,13 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+## not yet released
+
+* bugfix in a test with `espeak>=1.49.3`.
+
+* bugfix using `NamedTemporaryFile` on windows, see
+  [#21](https://github.com/bootphon/phonemizer/issues/21).
+
 
 ## phonemizer-1.0.1
 
