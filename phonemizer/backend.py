@@ -54,7 +54,7 @@ class BaseBackend(object):
         # ensure the backend is installed on the system
         if not self.is_available():
             raise RuntimeError(
-                '{} not installed on your system'.format(self.name))
+                '{} not installed on your system'.format(self.name()))
 
         self.logger = logger
         self.logger.info(
@@ -225,24 +225,27 @@ class EspeakBackend(BaseBackend):
     def _phonemize_aux(self, text, separator, strip):
         output = []
         for line in text.split('\n'):
-            with tempfile.NamedTemporaryFile('w+') as data:
-                # save the text as a tempfile
-                try:  # python2
-                    data.write(line.encode('utf8'))
-                except TypeError:  # python3
-                    data.write(line)
-                data.seek(0)
+            with tempfile.NamedTemporaryFile('w+', delete=False) as data:
+                try:
+                    # save the text as a tempfile
+                    try:  # python2
+                        data.write(line.encode('utf8'))
+                    except TypeError:  # python3
+                        data.write(line)
+                    data.close()
 
-                # generate the espeak command to run
-                command = '{} -v{} {} -q -f {} {}'.format(
-                    self.espeak_exe(), self.language, self.ipa,
-                    data.name, self.sep)
+                    # generate the espeak command to run
+                    command = '{} -v{} {} -q -f {} {}'.format(
+                        self.espeak_exe(), self.language, self.ipa,
+                        data.name, self.sep)
 
-                if self.logger:
-                    self.logger.debug('running %s', command)
+                    if self.logger:
+                        self.logger.debug('running %s', command)
 
-                raw_output = subprocess.check_output(
-                    shlex.split(command, posix=False)).decode('utf8')
+                    raw_output = subprocess.check_output(
+                        shlex.split(command, posix=False)).decode('utf8')
+                finally:
+                    os.remove(data.name)
 
                 for line in (l.strip() for l in raw_output.split('\n') if l):
                     # remove the prefix/suffix in output (if any, this
@@ -367,40 +370,49 @@ class FestivalBackend(BaseBackend):
         the text, as a scheme expression.
 
         """
-        with tempfile.NamedTemporaryFile('w+') as data:
-            # save the text as a tempfile
-            data.write(text)
-            data.seek(0)
+        with tempfile.NamedTemporaryFile('w+', delete=False) as data:
+            try:
+                # save the text as a tempfile
+                data.write(text)
+                data.close()
 
-            # the Scheme script to be send to festival
-            scm_script = open(self.script, 'r').read().format(data.name)
+                # the Scheme script to be send to festival
+                scm_script = open(self.script, 'r').read().format(data.name)
 
-            with tempfile.NamedTemporaryFile('w+') as scm:
-                scm.write(scm_script)
-                scm.seek(0)
-
-                cmd = 'festival -b {}'.format(scm.name)
-                if self.logger:
-                    self.logger.debug('running %s', cmd)
-
-                # redirect stderr to a tempfile and displaying it only
-                # on errors. Messages are something like: "UniSyn: using
-                # default diphone ax-ax for y-pau". This is related to
-                # wave synthesis (done by festival during phonemization).
-                with tempfile.TemporaryFile('w+') as fstderr:
+                with tempfile.NamedTemporaryFile('w+', delete=False) as scm:
                     try:
-                        raw_output = subprocess.check_output(
-                            shlex.split(cmd, posix=False), stderr=fstderr)
+                        scm.write(scm_script)
+                        scm.close()
 
-                        # festival seems to use latin1 and not utf8
-                        return re.sub(' +', ' ', raw_output.decode('latin1'))
+                        cmd = 'festival -b {}'.format(scm.name)
+                        if self.logger:
+                            self.logger.debug('running %s', cmd)
 
-                    except subprocess.CalledProcessError as err:
-                        fstderr.seek(0)
-                        raise RuntimeError(
-                            'Command "{}" returned exit status {}, '
-                            'output is:\n{}'
-                            .format(cmd, err.returncode, fstderr.read()))
+                        # redirect stderr to a tempfile and displaying it only
+                        # on errors. Messages are something like: "UniSyn:
+                        # using default diphone ax-ax for y-pau". This is
+                        # related to wave synthesis (done by festival during
+                        # phonemization).
+                        with tempfile.TemporaryFile('w+') as fstderr:
+                            try:
+                                raw_output = subprocess.check_output(
+                                    shlex.split(cmd, posix=False),
+                                    stderr=fstderr)
+
+                                # festival seems to use latin1 and not utf8
+                                return re.sub(
+                                    ' +', ' ', raw_output.decode('latin1'))
+
+                            except subprocess.CalledProcessError as err:
+                                fstderr.seek(0)
+                                raise RuntimeError(
+                                    'Command "{}" returned exit status {}, '
+                                    'output is:\n{}'.format(
+                                        cmd, err.returncode, fstderr.read()))
+                    finally:
+                        os.remove(scm.name)
+            finally:
+                os.remove(data.name)
 
     @staticmethod
     def _postprocess_syll(syll, separator, strip):
