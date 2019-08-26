@@ -151,63 +151,69 @@ Exemples:
     # general arguments
     parser.add_argument(
         '--version', action='store_true',
-        help='show version information and exit')
+        help='show version information and exit.')
 
     parser.add_argument(
         '-v', '--verbose', action='store_true',
-        help='write some log messages to stderr')
+        help='write some log messages to stderr.')
 
     parser.add_argument(
         '-j', '--njobs', type=int, metavar='<int>', default=1,
-        help='number of parallel jobs, default is %(default)s')
+        help='number of parallel jobs, default is %(default)s.')
 
     # input/output arguments
     group = parser.add_argument_group('input/output')
     group.add_argument(
         'input', default=sys.stdin, nargs='?', metavar='<file>',
-        help='input text file to phonemize, if not specified read from stdin')
+        help='input text file to phonemize, if not specified read from stdin.')
 
     group.add_argument(
         '-o', '--output', default=sys.stdout, metavar='<file>',
-        help='output text file to write, if not specified write to stdout')
+        help='output text file to write, if not specified write to stdout.')
 
     group = parser.add_argument_group('separators')
     group.add_argument(
         '-p', '--phone-separator', metavar='<str>',
         default=separator.default_separator.phone,
-        help='phone separator, default is "%(default)s"')
+        help='phone separator, default is "%(default)s".')
 
     group.add_argument(
         '-w', '--word-separator', metavar='<str>',
         default=separator.default_separator.word,
-        help='word separator, default is "%(default)s"')
+        help='word separator, default is "%(default)s".')
 
     group.add_argument(
         '-s', '--syllable-separator', metavar='<str>',
         default=separator.default_separator.syllable,
-        help='''syllable separator is available only for the festival backend,
+        help='''syllable separator, only valid for festival backend,
         this option has no effect if espeak or segments is used.
-        Default is "%(default)s"''')
+        Default is "%(default)s".''')
 
     group.add_argument(
         '--strip', action='store_true',
-        help='removes the end separators in phonemized tokens')
+        help='removes the end separators in phonemized tokens.')
 
-    group = parser.add_argument_group('language')
-
+    group = parser.add_argument_group('backends')
     group.add_argument(
         '-b', '--backend', metavar='<str>', default='espeak',
         choices=['espeak', 'festival', 'segments'],
         help="""the phonemization backend, must be 'espeak', 'festival' or
-        'segments'. Default is %(default)s""")
+        'segments'. Default is %(default)s.""")
 
+    group.add_argument(
+        '--sampa', action='store_true',
+        help='''only valid for espeak-ng backend, use the "sampa" (Speech
+        Assessment Methods Phonetic Alphabet) alphabet instead of "ipa"
+        (International Phonetic Alphabet).''')
+
+    group = parser.add_argument_group('language')
     group.add_argument(
         '-l', '--language', metavar='<str|file>', default='en-us',
         help='''the language code of the input text, see below for a list of
         supported languages. According to the language code you
         specify, the appropriate backend (segments, espeak or
         festival) will be called in background. Default is
-        %(default)s''')
+        %(default)s.''')
 
     return parser.parse_args()
 
@@ -275,11 +281,12 @@ def main():
     # phonemize the input text
     out = phonemize.phonemize(
         text, language=args.language, backend=args.backend,
-        separator=sep, strip=args.strip, njobs=args.njobs, logger=logger)
+        separator=sep, strip=args.strip, use_sampa=args.sampa,
+        njobs=args.njobs, logger=logger)
 
     if len(out):
         streamout.write(out + '\n')
 
 
 if __name__ == '__main__':
-        main()
+    main()

@@ -2,7 +2,10 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-## not yet released
+## phonemizer-1.1
+
+* new `--sampa` option to output phonemes in SAMPA alphabet instead of IPA,
+  available for espeak-ng only.
 
 * bugfix in a test with `espeak>=1.49.3`.
 

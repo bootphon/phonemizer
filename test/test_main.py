@@ -57,6 +57,7 @@ def test_version():
 
 def test_readme():
     _test(u'hello world', u'həloʊ wɜːld ')
+    _test(u'hello world', u'h@loU w3:ld ', '--sampa')
     _test(u'hello world', u'hhaxlow werld', '-b festival --strip')
     _test(u'hello world', u'həloʊ wɜːld ', '-l en-us')
     _test(u'bonjour le monde', u'bɔ̃ʒuʁ lə- mɔ̃d ', '-l fr-fr')

@@ -133,6 +133,13 @@ a space for both phones and words):
 
         $ echo "hello world" | phonemize
         həloʊ wɜːld
+        $ echo "hello world" | phonemize -l en-us -b espeak
+        həloʊ wɜːld
+
+* Espeak can output SAMPA phonemes instead of IPA ones
+
+        $ echo "hello world" | phonemize -l en-us -b espeak --sampa
+        h@loU w3:ld
 
 * use Festival US English instead
 

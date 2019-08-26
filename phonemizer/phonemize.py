@@ -29,7 +29,7 @@ from phonemizer.backend import (
 
 def phonemize(text, language='en-us', backend='festival',
               separator=default_separator, strip=False,
-              njobs=1, logger=logging.getLogger()):
+              use_sampa=False, njobs=1, logger=logging.getLogger()):
     """Multilingual text to phonemes converter
 
     Return a phonemized version of an input `text`, given its
@@ -57,6 +57,11 @@ def phonemize(text, language='en-us', backend='festival',
     strip (bool): If True, don't output the last word and phone
       separators of a token, default to False.
 
+    use_sampa (bool): use the 'sampa' phonetic alphabet (Speech Assessment
+      Methods Phonetic Alphabet) instead of 'ipa' (International Phonetic
+      Alphabet). This option is only valid for the 'espeak-ng' backend. Default
+      to False.
+
     njobs (int): The number of parallel jobs to launch. The input text
       is split in `njobs` parts, phonemized on parallel instances of
       the backend and the outputs are finally collapsed.
@@ -73,8 +78,9 @@ def phonemize(text, language='en-us', backend='festival',
     Raises
     ------
     RuntimeError
-      If the `backend` is not valid or is valid but not installed, if
-      the `language` is not supported by the `backend`.
+      If the `backend` is not valid or is valid but not installed, if the
+      `language` is not supported by the `backend`, if `use_sampa` is set to
+      True but the backend is not 'espeak-ng'.
 
     """
     # ensure the backend is either espeak, festival or segments
@@ -83,12 +89,27 @@ def phonemize(text, language='en-us', backend='festival',
             '{} is not a supported backend, choose in {}.'
             .format(backend, ', '.join(('espeak', 'festival', 'segments'))))
 
+    # ensure the phonetic alphabet is valid
+    if use_sampa is True:
+        if backend == 'espeak' and not EspeakBackend.is_espeak_ng():
+            raise RuntimeError(
+                'sampa alphabet is not supported by espeak, '
+                'please install espeak-ng')
+        if backend != 'espeak':
+            raise RuntimeError(
+                'sampa alphabet is only supported by espeak backend')
+
     # instanciate the requested backend for the given language (raises
     # a RuntimeError if the language is not supported).
     backends = {b.name(): b for b in (
         EspeakBackend, FestivalBackend, SegmentsBackend)}
-    backend = backends[backend](language, logger=logger)
+
+    if backend == 'espeak':
+        phonemizer = backends[backend](
+            language, use_sampa=use_sampa, logger=logger)
+    else:
+        phonemizer = backends[backend](language, logger=logger)
 
     # phonemize the input text with the backend
-    return backend.phonemize(
+    return phonemizer.phonemize(
         text, separator=separator, strip=strip, njobs=njobs)

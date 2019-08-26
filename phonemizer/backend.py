@@ -161,12 +161,13 @@ class EspeakBackend(BaseBackend):
 
     espeak_version_re = r'.*: ([0-9]+\.[0-9]+\.[0-9]+)'
 
-    def __init__(self, language, logger=logging.getLogger()):
+    def __init__(self, language, use_sampa=False, logger=logging.getLogger()):
         super(self.__class__, self).__init__(language, logger=logger)
 
         # adapt some command line option to the espeak version (for
         # phoneme separation and IPA output)
         version = self.version()
+
         self.sep = '--sep=_'
         if version == '1.48.03' or int(version.split('.')[1]) <= 47:
             self.sep = ''
@@ -174,6 +175,13 @@ class EspeakBackend(BaseBackend):
         self.ipa = '--ipa=3'
         if self.is_espeak_ng():  # this is espeak-ng
             self.ipa = '-x --ipa'
+
+        if use_sampa is True:
+            if not self.is_espeak_ng():
+                raise RuntimeError(
+                    'sampa alphabet is only supported by espeak-ng backend, '
+                    'please install it instead of espeak')
+            self.ipa = '-x --pho'
 
     @staticmethod
     def name():
@@ -201,14 +209,14 @@ class EspeakBackend(BaseBackend):
         """Returns True if using espeak-ng, False otherwise"""
         return 'eSpeak NG' in cls.long_version()
 
-    @staticmethod
-    def version():
+    @classmethod
+    def version(cls):
         # the full version version string includes extra information
         # we don't need
-        long_version = EspeakBackend.long_version()
+        long_version = cls.long_version()
 
         # extract the version number with a regular expression
-        return re.match(EspeakBackend.espeak_version_re, long_version).group(1)
+        return re.match(cls.espeak_version_re, long_version).group(1)
 
     @classmethod
     def supported_languages(cls):
@@ -258,7 +266,8 @@ class EspeakBackend(BaseBackend):
                     out_line = ''
                     for word in line.split(u' '):
                         # remove the stresses on phonemes
-                        w = word.strip().replace(u"ˈ", u'').replace(u'ˌ', u'')
+                        w = word.strip().replace(u"ˈ", u'').replace(
+                            u'ˌ', u'').replace(u"'", u'')
                         if not strip:
                             w += '_'
                         w = w.replace('_', separator.phone)
