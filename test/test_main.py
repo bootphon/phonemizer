@@ -61,7 +61,7 @@ def test_readme():
     if backend.EspeakBackend.is_espeak_ng():
         _test(u'hello world', u'h@loU w3:ld ', '--sampa')
     else:  # sampa only supported by espeak-ng
-        with pytest.raises(RuntimeError):
+        with pytest.raises(SystemExit):
             _test(u'hello world', u'h@loU w3:ld ', '--sampa')
 
     _test(u'hello world', u'hhaxlow werld', '-b festival --strip')
