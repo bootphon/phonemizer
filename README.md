@@ -76,7 +76,13 @@ Then run an interactive session with:
 
 For a complete list of available options, have a:
 
-    phonemize --help
+    $ phonemize --help
+
+See the installed backends with the `--version` option:
+
+    $ phonemize --version
+    phonemizer-1.0.1
+    available backends: festival-2.5.0, espeak-ng-1.49.3, segments-2.0.1
 
 
 ### Input/output exemples
