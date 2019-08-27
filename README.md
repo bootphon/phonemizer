@@ -136,7 +136,8 @@ a space for both phones and words):
         $ echo "hello world" | phonemize -l en-us -b espeak
         həloʊ wɜːld
 
-* Espeak can output SAMPA phonemes instead of IPA ones
+* Espeak can output SAMPA phonemes instead of IPA ones (this is only supported
+  by espeak-ng, not by the original espeak)
 
         $ echo "hello world" | phonemize -l en-us -b espeak --sampa
         h@loU w3:ld
