@@ -21,9 +21,6 @@ install:
   - pip install .[test]
 
 script:
-  - festival --version
-  - espeak --version
-  - python -c 'import segments; print("segments-{}".format(segments.__version__))'
   - phonemize --version
   - pytest ./test -v
 
