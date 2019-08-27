@@ -1,12 +1,12 @@
 matrix:
   include:
     - os: linux
-      dist: trusty
+      dist: bionic
       language: python
       python: "2.7"
       sudo: false
     - os: linux
-      dist: trusty
+      dist: bionic
       language: python
       python: "3.6"
       sudo: false
@@ -14,7 +14,7 @@ matrix:
 addons:
   apt:
     packages:
-      - festival festvox-us1 festlex-cmu festlex-poslex espeak
+      - festival festvox-us1 festlex-cmu festlex-poslex espeak-ng
 
 install:
   - pip install --upgrade pip
