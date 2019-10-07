@@ -21,7 +21,7 @@ import logging
 import pkg_resources
 import sys
 
-from phonemizer import phonemize, separator
+from phonemizer import phonemize, separator, version
 from phonemizer.backend import (
     EspeakBackend, FestivalBackend, SegmentsBackend)
 
@@ -216,25 +216,13 @@ Exemples:
     return parser.parse_args()
 
 
-def version():
-    """Return version information for front and backends"""
-    version = ('phonemizer-'
-               + pkg_resources.get_distribution('phonemizer').version)
-
-    return version + '\navailable backends: ' + ', '.join(
-        ('festival-' + FestivalBackend.version(),
-         ('espeak-' + ('ng-' if EspeakBackend.is_espeak_ng() else '')
-          + EspeakBackend.version()),
-         'segments-' + SegmentsBackend.version()))
-
-
 @CatchExceptions
 def main():
     """Phonemize a text from command-line arguments"""
     args = parse_args()
 
     if args.version:
-        print(version())
+        print(version.version())
         return
 
     # configure logging according to --verbose option. If verbose,

@@ -2,6 +2,19 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+**Important:** python2 compatibility will end with the next minor or major
+version (1.3 or 2.0). https://pythonclock.org.
+
+## phonemizer-1.2
+
+* improved code organization:
+
+  * backends are now implemented in the ``backend`` submodule
+    as separated source files
+
+  * improved version string (displays uninstalled backends, moved outside of
+    main for use from Python)
+
 ## phonemizer-1.1
 
 * new `--sampa` option to output phonemes in SAMPA alphabet instead of IPA,
