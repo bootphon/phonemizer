@@ -1,6 +1,4 @@
-# coding: utf-8
-
-# Copyright 2016-2018 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
+# Copyright 2016-2019 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
