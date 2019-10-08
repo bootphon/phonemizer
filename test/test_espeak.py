@@ -43,6 +43,16 @@ def test_english():
     assert out == u'həloʊ wɜːld\nɡʊdbaɪ\nθɜːd laɪn\njɛt ɐnʌðɚ'
 
 
+def test_stress():
+    backend = EspeakBackend('en-us', with_stress=False)
+    assert u'həloʊ wɜːld' == backend._phonemize_aux(
+        u'hello world', separator.default_separator, True)[0]
+
+    backend = EspeakBackend('en-us', with_stress=True)
+    assert u'həlˈoʊ wˈɜːld' == backend._phonemize_aux(
+        u'hello world', separator.default_separator, True)[0]
+
+
 def test_french():
     backend = EspeakBackend('fr-fr')
     text = u'bonjour le monde'
@@ -59,6 +69,7 @@ def test_arabic():
     backend = EspeakBackend('ar')
     text = u'السلام عليكم'
     sep = separator.Separator()
+
     # Arabic seems to have changed starting at espeak-ng-1.49.3
     if tuple(EspeakBackend.version().split('.')) >= ('1', '49', '3'):
         expected = [u'ʔassalaːm ʕliːkm ']

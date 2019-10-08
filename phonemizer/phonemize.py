@@ -28,7 +28,7 @@ from phonemizer.backend import (
 
 
 def phonemize(text, language='en-us', backend='festival',
-              separator=default_separator, strip=False,
+              separator=default_separator, strip=False, with_stress=False,
               use_sampa=False, njobs=1, logger=logging.getLogger()):
     """Multilingual text to phonemes converter
 
@@ -57,7 +57,11 @@ def phonemize(text, language='en-us', backend='festival',
     strip (bool): If True, don't output the last word and phone
       separators of a token, default to False.
 
-    use_sampa (bool): use the 'sampa' phonetic alphabet (Speech Assessment
+    with_stress (bool): This option is only valid for the espeak/espeak-ng
+      backend. When True the stresses on phonemes are present (stresses
+      characters are ˈ'ˌ). When False stresses are removed. Default to False.
+
+    use_sampa (bool): Use the 'sampa' phonetic alphabet (Speech Assessment
       Methods Phonetic Alphabet) instead of 'ipa' (International Phonetic
       Alphabet). This option is only valid for the 'espeak-ng' backend. Default
       to False.
@@ -99,6 +103,12 @@ def phonemize(text, language='en-us', backend='festival',
             raise RuntimeError(
                 'sampa alphabet is only supported by espeak backend')
 
+    # with_stress option only valid for espeak
+    if with_stress and backend != 'espeak':
+        raise RuntimeError(
+            'the "with_stress" option is available for espeak backend only, '
+            'but you are using {} backend'.format(backend))
+
     # instanciate the requested backend for the given language (raises
     # a RuntimeError if the language is not supported).
     backends = {b.name(): b for b in (
@@ -106,7 +116,8 @@ def phonemize(text, language='en-us', backend='festival',
 
     if backend == 'espeak':
         phonemizer = backends[backend](
-            language, use_sampa=use_sampa, logger=logger)
+            language, with_stress=with_stress,
+            use_sampa=use_sampa, logger=logger)
     else:
         phonemizer = backends[backend](language, logger=logger)
 

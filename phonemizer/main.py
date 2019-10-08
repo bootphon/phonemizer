@@ -198,11 +198,16 @@ Exemples:
         help="""the phonemization backend, must be 'espeak', 'festival' or
         'segments'. Default is %(default)s.""")
 
+    group = parser.add_argument_group('specific to espeak backend')
+    group.add_argument(
+        '--with-stress', action='store_true',
+        help='''when the option is set, the stresses on phonemes are present
+        (stresses characters are ˈ'ˌ). By default stresses are removed.''')
     group.add_argument(
         '--sampa', action='store_true',
-        help='''only valid for espeak-ng backend, use the "sampa" (Speech
-        Assessment Methods Phonetic Alphabet) alphabet instead of "ipa"
-        (International Phonetic Alphabet).''')
+        help='''only valid for espeak-ng and NOT supported for espeak, use the
+        "sampa" (Speech Assessment Methods Phonetic Alphabet) alphabet instead
+        of "ipa" (International Phonetic Alphabet).''')
 
     group = parser.add_argument_group('language')
     group.add_argument(
@@ -266,9 +271,15 @@ def main():
 
     # phonemize the input text
     out = phonemize.phonemize(
-        text, language=args.language, backend=args.backend,
-        separator=sep, strip=args.strip, use_sampa=args.sampa,
-        njobs=args.njobs, logger=logger)
+        text,
+        language=args.language,
+        backend=args.backend,
+        separator=sep,
+        strip=args.strip,
+        with_stress=args.with_stress,
+        use_sampa=args.sampa,
+        njobs=args.njobs,
+        logger=logger)
 
     if len(out):
         streamout.write(out + '\n')

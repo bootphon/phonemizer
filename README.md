@@ -148,6 +148,12 @@ a space for both phones and words):
         $ echo "hello world" | phonemize -l en-us -b espeak --sampa
         h@loU w3:ld
 
+* Espeak can output the stresses on phonemes (this is not supported by festival
+  or segments backends)
+
+        $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
+        həlˈoʊ wˈɜːld
+
 * use Festival US English instead
 
         $ echo "hello world" | phonemize -l en-us -b festival

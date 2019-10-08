@@ -31,7 +31,7 @@ class EspeakBackend(BaseBackend):
     espeak_version_re = r'.*: ([0-9]+\.[0-9]+\.[0-9]+)'
 
     def __init__(self, language, use_sampa=False, lang_switch='ignore',
-                 logger=logging.getLogger()):
+                 with_stress=False, logger=logging.getLogger()):
         super(self.__class__, self).__init__(language, logger=logger)
 
         # adapt some command line option to the espeak version (for
@@ -61,6 +61,8 @@ class EspeakBackend(BaseBackend):
                 f'lang_switch argument "{lang_switch}" invalid, '
                 f'must be in {", ".join(valid_lang_switch)}')
         self._lang_swith = lang_switch
+
+        self._with_stress = with_stress
 
     @staticmethod
     def name():
@@ -159,9 +161,14 @@ class EspeakBackend(BaseBackend):
 
                     out_line = ''
                     for word in line.split(u' '):
+                        w = word.strip()
+
                         # remove the stresses on phonemes
-                        w = word.strip().replace(u"ˈ", u'').replace(
-                            u'ˌ', u'').replace(u"'", u'')
+                        if not self._with_stress:
+                            w = w.replace(u"ˈ", u'')
+                            w = w.replace(u'ˌ', u'')
+                            w = w.replace(u"'", u'')
+
                         if not strip:
                             w += '_'
                         w = w.replace('_', separator.phone)
