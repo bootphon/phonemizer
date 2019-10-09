@@ -56,6 +56,7 @@ def test_version():
 def test_readme():
     _test(u'hello world', u'həloʊ wɜːld ')
     _test(u'hello world', u'həloʊ wɜːld ', '--verbose')
+    _test(u'hello world', u'həloʊ wɜːld ', '--quiet')
 
     if backend.EspeakBackend.is_espeak_ng():
         _test(u'hello world', u'h@loU w3:ld ', '--sampa')

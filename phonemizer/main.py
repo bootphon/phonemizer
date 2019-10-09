@@ -151,9 +151,14 @@ Exemples:
         '--version', action='store_true',
         help='show version information and exit.')
 
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         '-v', '--verbose', action='store_true',
-        help='write some log messages to stderr.')
+        help='write all log messages to stderr '
+        '(displays only warnings by default).')
+    group.add_argument(
+        '-q', '--quiet', action='store_true',
+        help='do not display any log message, even warnings.')
 
     parser.add_argument(
         '-j', '--njobs', type=int, metavar='<int>', default=1,
@@ -230,17 +235,18 @@ def main():
         print(version.version())
         return
 
-    # configure logging according to --verbose option. If verbose,
-    # init a logger to output on stderr. Else init a logger going to
-    # the void.
+    # configure logging according to --verbose option. Init a logger to output
+    # on stderr. By default log only warnings, if verbose log all messages, if
+    # quiet do not log anything.
     logger = logging.getLogger()
     logger.handlers = []
-    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler(sys.stderr)
+    logger.setLevel(logging.WARNING)
     if args.verbose:
-        handler = logging.StreamHandler(sys.stderr)
-        handler.setFormatter(logging.Formatter('%(message)s'))
-    else:
+        logger.setLevel(logging.DEBUG)
+    if args.quiet:
         handler = logging.NullHandler()
+    handler.setFormatter(logging.Formatter('[%(levelname)s] %(message)s'))
     logger.addHandler(handler)
 
     # configure input as a readable stream

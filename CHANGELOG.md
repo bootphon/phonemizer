@@ -7,6 +7,18 @@ version (1.3 or 2.0). https://pythonclock.org.
 
 ## phonemizer-1.2
 
+* new ``--with-stress`` option to use with ``espeak`` backend to not remove the
+  stresses on phonemized output. For instance:
+
+        $ echo "hello world" | phonemize
+        həloʊ wɜːld
+        $ echo "hello world" | phonemize --with-stress
+        həlˈoʊ wˈɜːld
+
+* improved logging: by default only warnings are displayed, use the new
+  ``--quiet`` option to inhibate all log messages or ``--verbose`` to see all of
+  them. Log messages now display level name (debug/info/warning).
+
 * improved code organization:
 
   * backends are now implemented in the ``backend`` submodule
