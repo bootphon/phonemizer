@@ -1,4 +1,4 @@
-# Copyright 2015-2018 Mathieu Bernard
+# Copyright 2015-2019 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -29,6 +29,8 @@ from phonemizer.backend import (
 
 def phonemize(text, language='en-us', backend='festival',
               separator=default_separator, strip=False,
+              with_stress=False, use_sampa=False,
+              language_switch='remove-flags',
               njobs=1, logger=logging.getLogger()):
     """Multilingual text to phonemes converter
 
@@ -57,6 +59,24 @@ def phonemize(text, language='en-us', backend='festival',
     strip (bool): If True, don't output the last word and phone
       separators of a token, default to False.
 
+    with_stress (bool): This option is only valid for the espeak/espeak-ng
+      backend. When True the stresses on phonemes are present (stresses
+      characters are ˈ'ˌ). When False stresses are removed. Default to False.
+
+    use_sampa (bool): Use the 'sampa' phonetic alphabet (Speech Assessment
+      Methods Phonetic Alphabet) instead of 'ipa' (International Phonetic
+      Alphabet). This option is only valid for the 'espeak-ng' backend. Default
+      to False.
+
+    language_switch (str) : espeak can pronounce some words in another language
+      (typically English) when phonemizing a text. This option setups the
+      policy to use when such a language switch occurs. Three values are
+      available: 'keep-flags', 'remove-flags' (the default) or
+      'remove-utterance'. The 'keep-flags' policy keeps the language switching
+      flags, for example (en) or (jp), in the output. The 'remove-flags' policy
+      removes them and the 'remove-utterance' policy removes the whole line of
+      text including a language switch.
+
     njobs (int): The number of parallel jobs to launch. The input text
       is split in `njobs` parts, phonemized on parallel instances of
       the backend and the outputs are finally collapsed.
@@ -73,8 +93,11 @@ def phonemize(text, language='en-us', backend='festival',
     Raises
     ------
     RuntimeError
-      If the `backend` is not valid or is valid but not installed, if
-      the `language` is not supported by the `backend`.
+
+      If the `backend` is not valid or is valid but not installed, if the
+      `language` is not supported by the `backend`, if `use_sampa`,
+      `with_stress` or `language_switch` are used but the backend is not
+      'espeak-ng'.
 
     """
     # ensure the backend is either espeak, festival or segments
@@ -83,12 +106,43 @@ def phonemize(text, language='en-us', backend='festival',
             '{} is not a supported backend, choose in {}.'
             .format(backend, ', '.join(('espeak', 'festival', 'segments'))))
 
+    # ensure the phonetic alphabet is valid
+    if use_sampa is True:
+        if backend == 'espeak' and not EspeakBackend.is_espeak_ng():
+            raise RuntimeError(  # pragma: nocover
+                'sampa alphabet is not supported by espeak, '
+                'please install espeak-ng')
+        if backend != 'espeak':
+            raise RuntimeError(
+                'sampa alphabet is only supported by espeak backend')
+
+    # with_stress option only valid for espeak
+    if with_stress and backend != 'espeak':
+        raise RuntimeError(
+            'the "with_stress" option is available for espeak backend only, '
+            'but you are using {} backend'.format(backend))
+
+    # language_switch option only valid for espeak
+    if language_switch != 'remove-flags' and backend != 'espeak':
+        raise RuntimeError(
+            'the "language_switch" option is available for espeak backend '
+            'only, but you are using {} backend'.format(backend))
+
     # instanciate the requested backend for the given language (raises
     # a RuntimeError if the language is not supported).
     backends = {b.name(): b for b in (
         EspeakBackend, FestivalBackend, SegmentsBackend)}
-    backend = backends[backend](language, logger=logger)
+
+    if backend == 'espeak':
+        phonemizer = backends[backend](
+            language,
+            with_stress=with_stress,
+            use_sampa=use_sampa,
+            language_switch=language_switch,
+            logger=logger)
+    else:
+        phonemizer = backends[backend](language, logger=logger)
 
     # phonemize the input text with the backend
-    return backend.phonemize(
+    return phonemizer.phonemize(
         text, separator=separator, strip=strip, njobs=njobs)

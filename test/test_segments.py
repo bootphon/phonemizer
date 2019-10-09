@@ -1,6 +1,4 @@
-# coding: utf-8
-
-# Copyright 2017-2018 Mathieu Bernard
+# Copyright 2015-2019 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,6 +14,8 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the segments backend"""
 
+import os
+import pkg_resources
 import pytest
 
 import phonemizer.separator as separator
@@ -85,3 +85,25 @@ def test_separator_5():
     assert backend.phonemize(text, separator=sep) == u'ʌ tʃ ɪ _ʌ tʃ ʊ _'
     assert backend.phonemize(text, separator=sep, strip=True) \
         == u'ʌ tʃ ɪ_ʌ tʃ ʊ'
+
+
+def test_language(tmpdir):
+    # check languages by name
+    assert SegmentsBackend.is_supported_language('cree')
+    assert not SegmentsBackend.is_supported_language('unexisting')
+
+    # check languages by g2p file
+    directory = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('phonemizer'),
+        'phonemizer/share')
+    assert SegmentsBackend.is_supported_language(
+        os.path.join(directory, 'cree.g2p'))
+    assert not SegmentsBackend.is_supported_language(
+        os.path.join(directory, 'cree'))
+    assert not SegmentsBackend.is_supported_language(
+        os.path.join(directory, 'unexisting.g2p'))
+
+    # bad syntax in g2p file
+    p = tmpdir.join('foo.g2p')
+    p.write('\n'.join(['a a', 'b b b', 'c']))
+    assert not SegmentsBackend.is_supported_language(p)

@@ -2,6 +2,56 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+**Important:** python2 compatibility will end with the next minor or major
+version (1.3 or 2.0). https://pythonclock.org.
+
+## phonemizer-1.2
+
+* new ``--with-stress`` option to use with ``espeak`` backend to not remove the
+  stresses on phonemized output. For instance:
+
+        $ echo "hello world" | phonemize
+        həloʊ wɜːld
+        $ echo "hello world" | phonemize --with-stress
+        həlˈoʊ wˈɜːld
+
+* new ``--language-switch`` option to use with ``espeak`` backend to deals with
+  language switching on phonemized output.
+
+* improved logging: by default only warnings are displayed, use the new
+  ``--quiet`` option to inhibate all log messages or ``--verbose`` to see all of
+  them. Log messages now display level name (debug/info/warning).
+
+* improved code organization:
+
+  * backends are now implemented in the ``backend`` submodule
+    as separated source files
+
+  * improved version string (displays uninstalled backends, moved outside of
+    main for use from Python)
+
+## phonemizer-1.1
+
+* new `--sampa` option to output phonemes in SAMPA alphabet instead of IPA,
+  available for espeak-ng only.
+
+* bugfix in a test with `espeak>=1.49.3`.
+
+* bugfix using `NamedTemporaryFile` on windows, see
+  [#21](https://github.com/bootphon/phonemizer/issues/21).
+
+
+## phonemizer-1.0.1
+
+* bugfix when calling *festival* or *espeak* subprocesses on Windows,
+  see [#17](https://github.com/bootphon/phonemizer/issues/17).
+
+* bugfix in detecting recent versions of *espeak-ng*, see
+  [#18](https://github.com/bootphon/phonemizer/issues/18).
+
+* bugfix when using utf8 input on *espeak* backend (python2), see
+  [#19](https://github.com/bootphon/phonemizer/issues/19).
+
 
 ## phonemizer-1.0
 

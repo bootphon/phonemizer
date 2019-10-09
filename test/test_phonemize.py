@@ -1,6 +1,4 @@
-# coding: utf-8
-
-# Copyright 2016-2018 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
+# Copyright 2016-2019 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,6 +17,7 @@
 import pytest
 
 from phonemizer.phonemize import phonemize
+from phonemizer.backend import EspeakBackend
 
 
 def test_bad_backend():
@@ -51,6 +50,12 @@ def test_espeak(njobs):
         text, language='en-us', backend='espeak',
         strip=True, njobs=njobs)
     assert out == [u'wʌn tuː', u'θɹiː', u'foːɹ faɪv']
+
+    if EspeakBackend.is_espeak_ng():
+        out = phonemize(
+            text, language='en-us', backend='espeak', use_sampa=True,
+            strip=True, njobs=njobs)
+        assert out == [u'wVn tu:', u'Tri:', u'fo@ faIv']
 
     out = phonemize(
         text, language='en-us', backend='espeak',
@@ -113,10 +118,33 @@ def test_festival(njobs):
     assert out == '\n'.join(['wahn tuw ', 'thriy ', 'faor fayv '])
 
 
+def test_festival_bad():
+    # cannot use options valid for espeak only
+    text = ['one two', 'three', 'four five']
+
+    with pytest.raises(RuntimeError):
+        phonemize(
+            text, language='en-us', backend='festival', use_sampa=True)
+
+    with pytest.raises(RuntimeError):
+        phonemize(
+            text, language='en-us', backend='festival', with_stress=True)
+
+    with pytest.raises(RuntimeError):
+        phonemize(
+            text, language='en-us', backend='festival',
+            language_switch='keep-flags')
+
+
 @pytest.mark.parametrize('njobs', [1, 2, 4])
 def test_segments(njobs):
     # one two three four five in Maya Yucatec
     text = [u'untuʼuleʼ kaʼapʼeʼel', u'oʼoxpʼeʼel', u'kantuʼuloʼon chincho']
+
+    with pytest.raises(RuntimeError):
+        phonemize(
+            text, language='yucatec', backend='segments',
+            use_sampa=True, strip=True, njobs=njobs)
 
     out = phonemize(
         text, language='yucatec', backend='segments',

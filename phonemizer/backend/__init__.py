@@ -14,4 +14,6 @@
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
 """Multilingual text to phonemes converter"""
 
-__version__ = '1.2'
+from .espeak import EspeakBackend
+from .festival import FestivalBackend
+from .segments import SegmentsBackend

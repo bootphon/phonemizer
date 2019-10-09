@@ -1,20 +1,26 @@
-[![travis](https://travis-ci.org/bootphon/phonemizer.svg?branch=master)](https://travis-ci.org/bootphon/phonemizer) [![DOI](https://zenodo.org/badge/56728069.svg)](https://doi.org/10.5281/zenodo.1045825)
+[![travis](https://travis-ci.org/bootphon/phonemizer.svg?branch=master)](
+https://travis-ci.org/bootphon/phonemizer)
+[![codecov](https://codecov.io/gh/bootphon/phonemizer/branch/master/graph/badge.svg)](
+https://codecov.io/gh/bootphon/phonemizer)
+[![DOI](https://zenodo.org/badge/56728069.svg)](
+https://doi.org/10.5281/zenodo.1045825)
 
 # Phonemizer -- *foʊnmaɪzɚ*
 
 * Simple text to phonemes converter for multiple languages, based on
   [festival](http://www.cstr.ed.ac.uk/projects/festival),
-  [espeak](http://espeak.sourceforge.net/)/
   [espeak-ng](https://github.com/espeak-ng/espeak-ng/)
   and [segments](https://github.com/cldf/segments).
 
 * Provides both the `phonemize` command-line tool and the Python function
   `phonemizer.phonemize`
 
-* **espeak** is a text-to-speech software supporting multiple
+* **espeak-ng** is a text-to-speech software supporting multiple
   languages and IPA (Internatinal Phonetic Alphabet) output. See
-  http://espeak.sourceforge.net or
-  https://github.com/espeak-ng/espeak-ng.
+  https://github.com/espeak-ng/espeak-ng. Alternatively you can use
+  the orginal [espeak](http://espeak.sourceforge.net/) program
+  (*espeak-ng* is a fork of *espeak* supporting much more languages
+  and significant improvements).
 
 * **festival** is also a text-to-speech software. Currently only
   American English is supported and festival uses a custom phoneset
@@ -29,18 +35,16 @@
 
 ## Installation
 
-* First you need to install festival and espeak on your system. Visit
+* First you need to install festival and espeak-ng on your system. Visit
   [this festival link](http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation)
-  and [that espeak one](http://espeak.sourceforge.net/download.html)
+  and [that espeak-ng one](https://github.com/espeak-ng/espeak-ng#espeak-ng-text-to-speech)
   for installation guidelines. On Debian/Ubuntu simply run:
 
-        $ sudo apt-get install festival espeak
+        $ sudo apt-get install festival espeak-ng
 
-  Alternatively you may want to use `espeak-ng` (Next Generation)
-  instead of espeak. It supports more languages and significant
-  improvements over the original espeak, but requires a manual
-  installation. Install it from github
-  [here](https://github.com/espeak-ng/espeak-ng/).
+  Alternatively you may want to use `espeak` instead of `espeak-ng`,
+  see [here](http://espeak.sourceforge.net/download.html) for
+  instalaltion instructions.
 
 * Then download and install the `phonemizer` from
   [github](https://github.com/bootphon/phonemizer) with:
@@ -77,7 +81,13 @@ Then run an interactive session with:
 
 For a complete list of available options, have a:
 
-    phonemize --help
+    $ phonemize --help
+
+See the installed backends with the `--version` option:
+
+    $ phonemize --version
+    phonemizer-1.0.1
+    available backends: festival-2.5.0, espeak-ng-1.49.3, segments-2.0.1
 
 
 ### Input/output exemples
@@ -105,6 +115,12 @@ For a complete list of available options, have a:
 You can specify separators for phonemes, syllables (festival only) and
 words.
 
+    $ echo "hello world" | phonemize -b festival -w ' ' -p ''
+    hhaxlow werld
+
+    $ echo "hello world" | phonemize -b festival -p ' ' -w ''
+    hh ax l ow w er l d
+
     $ echo "hello world" | phonemize -b festival -p '-' -s '|'
     hh-ax-l-|ow-| w-er-l-d-|
 
@@ -114,6 +130,13 @@ words.
     $ echo "hello world" | phonemize -b festival -p ' ' -s ';esyll ' -w ';eword '
     hh ax l ;esyll ow ;esyll ;eword w er l d ;esyll ;eword
 
+You cannot specify the same separator for several tokens (for instance
+a space for both phones and words):
+
+    $ echo "hello world" | phonemize -b festival -p ' ' -w ' '
+    fatal error: illegal separator with word=" ", syllable="" and phone=" ",
+    must be all differents if not empty
+
 
 ### Languages
 
@@ -121,6 +144,20 @@ words.
 
         $ echo "hello world" | phonemize
         həloʊ wɜːld
+        $ echo "hello world" | phonemize -l en-us -b espeak
+        həloʊ wɜːld
+
+* Espeak can output SAMPA phonemes instead of IPA ones (this is only supported
+  by espeak-ng, not by the original espeak)
+
+        $ echo "hello world" | phonemize -l en-us -b espeak --sampa
+        h@loU w3:ld
+
+* Espeak can output the stresses on phonemes (this is not supported by festival
+  or segments backends)
+
+        $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
+        həlˈoʊ wˈɜːld
 
 * use Festival US English instead
 
@@ -235,7 +272,7 @@ words.
 
 ## Licence
 
-**Copyright 2015-2018 Mathieu Bernard**
+**Copyright 2015-2019 Mathieu Bernard**
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

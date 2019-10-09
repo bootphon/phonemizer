@@ -1,4 +1,4 @@
-# Copyright 2015-2018 Mathieu Bernard
+# Copyright 2015-2019 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@ class Separator(object):
         if len(g1) != len(g2):
             raise ValueError(
                 'illegal separator with word="{}", syllable="{}" and '
-                'phone="{}", must be all differents if not None'
+                'phone="{}", must be all differents if not empty'
                 .format(phone, syllable, word))
 
         self._phone = str(phone) if phone else ''

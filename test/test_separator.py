@@ -1,6 +1,4 @@
-# coding: utf-8
-
-# Copyright 2016-2018 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
+# Copyright 2015-2019 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -44,3 +42,9 @@ def test_empty(val):
 def test_same():
     with pytest.raises(ValueError):
         Separator(word=' ', phone=' ')
+
+
+def test_str():
+    separator = Separator(word='w', syllable='s', phone='p')
+    assert str(separator) == '(phone: "p", syllable: "s", word: "w")'
+    assert str(default_separator) == '(phone: "", syllable: "", word: " ")'

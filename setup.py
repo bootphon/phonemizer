@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2015-2018 Mathieu Bernard
+# Copyright 2015-2019 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -21,16 +21,18 @@ import setuptools
 import phonemizer
 
 setuptools.setup(
+    # general description
     name='phonemizer',
+    description=' Simple text to phonemes converter for multiple languages',
     version=phonemizer.__version__,
-    packages=setuptools.find_packages(),
-    zip_safe=True,
 
     # python package dependancies
     install_requires=['joblib', 'segments', 'attrs>=18.1'],
-    extras_require={'test': ['pytest']},
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
 
-    # include any files in phonemizer/share
+    # include Python code and any files in phonemizer/share
+    packages=setuptools.find_packages(),
     package_data={'phonemizer': ['share/*']},
 
     # define the command-line script to use
@@ -39,9 +41,9 @@ setuptools.setup(
     # metadata for upload to PyPI
     author='Mathieu Bernard',
     author_email='mathieu.a.bernard@inria.fr',
-    description=' Simple text to phonemes converter for multiple languages',
     license='GPL3',
     keywords='linguistics G2P phoneme festival espeak TTS',
     url='https://github.com/bootphon/phonemizer',
-    long_description=codecs.open('README.md', encoding='utf-8').read()
+    long_description=codecs.open('README.md', encoding='utf-8').read(),
+    zip_safe=True,
 )

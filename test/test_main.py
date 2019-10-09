@@ -1,6 +1,4 @@
-# coding: utf-8
-
-# Copyright 2016-2018 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
+# Copyright 2015-2019 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -57,6 +55,15 @@ def test_version():
 
 def test_readme():
     _test(u'hello world', u'həloʊ wɜːld ')
+    _test(u'hello world', u'həloʊ wɜːld ', '--verbose')
+    _test(u'hello world', u'həloʊ wɜːld ', '--quiet')
+
+    if backend.EspeakBackend.is_espeak_ng():
+        _test(u'hello world', u'h@loU w3:ld ', '--sampa')
+    else:  # sampa only supported by espeak-ng
+        with pytest.raises(SystemExit):
+            _test(u'hello world', u'h@loU w3:ld ', '--sampa')
+
     _test(u'hello world', u'hhaxlow werld', '-b festival --strip')
     _test(u'hello world', u'həloʊ wɜːld ', '-l en-us')
     _test(u'bonjour le monde', u'bɔ̃ʒuʁ lə- mɔ̃d ', '-l fr-fr')
