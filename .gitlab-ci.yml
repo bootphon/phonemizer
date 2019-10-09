@@ -10,6 +10,7 @@ phonemizer-build:
     - conda activate phonemizer-ci
 
     # install the phonemizer
+    - pip install coverage
     - python setup.py build
     - python setup.py install
 
