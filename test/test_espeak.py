@@ -77,3 +77,37 @@ def test_arabic():
         expected = [u'ʔassalaam ʕaliijkum ']
     out = backend._phonemize_aux(text, sep, False)
     assert out == expected
+
+
+def test_language_switch():
+    text = '\n'.join([
+        "j'aime l'anglais",
+        "j'aime le football",
+        "football",
+        "surtout le real madrid",
+        "n'utilise pas google"])
+
+    backend = EspeakBackend('fr-fr', language_switch='keep-flags')
+    out = backend._phonemize_aux(text, separator.Separator(), True)
+    assert out == [
+        'ʒɛm lɑ̃ɡlɛ',
+        'ʒɛm lə- (en)fʊtbɔːl(fr)',
+        '(en)fʊtbɔːl(fr)',
+        'syʁtu lə- (en)ɹiəl(fr) madʁid',
+        'nytiliz pa (en)ɡuːɡəl(fr)']
+
+    backend = EspeakBackend('fr-fr', language_switch='remove-flags')
+    out = backend._phonemize_aux(text, separator.Separator(), True)
+    assert out == [
+        'ʒɛm lɑ̃ɡlɛ',
+        'ʒɛm lə- fʊtbɔːl',
+        'fʊtbɔːl',
+        'syʁtu lə- ɹiəl madʁid',
+        'nytiliz pa ɡuːɡəl']
+
+    backend = EspeakBackend('fr-fr', language_switch='remove-utterance')
+    out = backend._phonemize_aux(text, separator.Separator(), True)
+    assert out == ['ʒɛm lɑ̃ɡlɛ']
+
+    with pytest.raises(RuntimeError):
+        backend = EspeakBackend('fr-fr', language_switch='foo')

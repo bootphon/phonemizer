@@ -30,8 +30,9 @@ class EspeakBackend(BaseBackend):
 
     espeak_version_re = r'.*: ([0-9]+\.[0-9]+\.[0-9]+)'
 
-    def __init__(self, language, use_sampa=False, lang_switch='ignore',
-                 with_stress=False, logger=logging.getLogger()):
+    def __init__(self, language, use_sampa=False,
+                 language_switch='remove-flags', with_stress=False,
+                 logger=logging.getLogger()):
         super(self.__class__, self).__init__(language, logger=logger)
 
         # adapt some command line option to the espeak version (for
@@ -46,24 +47,23 @@ class EspeakBackend(BaseBackend):
         if self.is_espeak_ng():  # this is espeak-ng
             self.ipa = '-x --ipa'
 
+        self._with_stress = with_stress
         if use_sampa is True:
             if not self.is_espeak_ng():
-                # pragma: nocover
-                raise RuntimeError(
+                raise RuntimeError(  # pragma: nocover
                     'sampa alphabet is only supported by espeak-ng backend, '
                     'please install it instead of espeak')
             self.ipa = '-x --pho'
 
         # ensure the lang_switch argument is valid
         valid_lang_switch = [
-            'ignore', 'drop_utterance', 'drop_expression', 'unflag']
-        if lang_switch not in valid_lang_switch:
+            'keep-flags', 'remove-flags', 'remove-utterance']
+        if language_switch not in valid_lang_switch:
             raise RuntimeError(
-                f'lang_switch argument "{lang_switch}" invalid, '
-                f'must be in {", ".join(valid_lang_switch)}')
-        self._lang_swith = lang_switch
-
-        self._with_stress = with_stress
+                'lang_switch argument "{}" invalid, must be in {}'
+                .format(language_switch, ", ".join(valid_lang_switch)))
+        self._lang_switch = language_switch
+        self._lang_switch_list = []
 
     @staticmethod
     def name():
@@ -112,29 +112,35 @@ class EspeakBackend(BaseBackend):
         return {v[1]: v[3].replace(u'_', u' ').replace(u'å', u'a')
                 for v in voices}
 
-    def _process_lang_switch(self, line):
-        if self._lang_swith == 'ignore':
-            # ignore the language switch but warn if one is found
-            # TODO register the {expression : lang} TODO at the end log warning
-            return line
+    def _process_lang_switch(self, n, utt):
+        # look for language swith in the current utterance
+        flags = re.findall(r'\(.+?\)', utt)
 
-        elif self._lang_swith == 'unflag':
-            # remove all the (lang) flags in the line
-            # TODO register and log warning at the end
-            flags = set(re.findall(r'\(.+?\)', line))
-            for flag in flags:
-                line = line.replace(flag, '')
+        # no language switch, nothing to do
+        if not flags:
+            return utt
 
-        elif self._lang_swith == 'drop_utterance':
-            # TODO register and log warning at the end
+        # language switch detected, register the line number
+        self._lang_switch_list.append(n)
+
+        # ignore the language switch but warn if one is found
+        if self._lang_switch == 'keep-flags':
+            return utt
+
+        elif self._lang_switch == 'remove-flags':
+            # remove all the (lang) flags in the current utterance
+            for flag in set(flags):
+                utt = utt.replace(flag, '')
+
+        else:  # self._lang_switch == 'remove-utterances':
+            # drop the entire utterance
             return None
 
-        else:  # drop_expression
-            pass
+        return utt
 
     def _phonemize_aux(self, text, separator, strip):
         output = []
-        for line in text.split('\n'):
+        for n, line in enumerate(text.split('\n'), start=1):
             with tempfile.NamedTemporaryFile('w+', delete=False) as data:
                 try:
                     # save the text as a tempfile
@@ -158,7 +164,9 @@ class EspeakBackend(BaseBackend):
                     os.remove(data.name)
 
                 for line in (l.strip() for l in raw_output.split('\n') if l):
-                    line = self._process_lang_switch(line)
+                    line = self._process_lang_switch(n, line)
+                    if not line:
+                        continue
 
                     out_line = ''
                     for word in line.split(u' '):
@@ -178,5 +186,29 @@ class EspeakBackend(BaseBackend):
                     if strip:
                         out_line = out_line[:-len(separator.word)]
                     output.append(out_line)
+
+        # warn the user on language switches fount during phonemization
+        if self._lang_switch_list:
+            nswitches = len(self._lang_switch_list)
+            if self._lang_switch == 'remove-utterance':
+                self.logger.warning(
+                    'removed %s utterances containing language switches '
+                    '(applying "remove-utterance" policy)', nswitches)
+            else:
+                self.logger.warning(
+                    'fount %s utterances containing language switches '
+                    'on lines %s', nswitches,
+                    ', '.join(str(l) for l in self._lang_switch_list))
+                self.logger.warning(
+                    'extra phones may appear in the "%s" phoneset',
+                    self.language)
+                if self._lang_switch == "remove-flags":
+                    self.logger.warning(
+                        'language switch flags have been removed '
+                        '(applying "remove-flags" policy)')
+                else:
+                    self.logger.warning(
+                        'language switch flags have been kept '
+                        '(applying "keep-flags" policy)')
 
         return output

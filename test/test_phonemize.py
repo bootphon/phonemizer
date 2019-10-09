@@ -119,7 +119,7 @@ def test_festival(njobs):
 
 
 def test_festival_bad():
-    # use_sampa and with_stress are valid for espeak only
+    # cannot use options valid for espeak only
     text = ['one two', 'three', 'four five']
 
     with pytest.raises(RuntimeError):
@@ -129,6 +129,11 @@ def test_festival_bad():
     with pytest.raises(RuntimeError):
         phonemize(
             text, language='en-us', backend='festival', with_stress=True)
+
+    with pytest.raises(RuntimeError):
+        phonemize(
+            text, language='en-us', backend='festival',
+            language_switch='keep-flags')
 
 
 @pytest.mark.parametrize('njobs', [1, 2, 4])

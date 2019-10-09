@@ -213,6 +213,17 @@ Exemples:
         help='''only valid for espeak-ng and NOT supported for espeak, use the
         "sampa" (Speech Assessment Methods Phonetic Alphabet) alphabet instead
         of "ipa" (International Phonetic Alphabet).''')
+    group.add_argument(
+        '--language-switch', default='remove-flags',
+        choices=['keep-flags', 'remove-flags', 'remove-utterance'],
+        help="""espeak can pronounce some words in another language (typically
+        English) when phonemizing a text. This option setups the policy to use
+        when such a language switch occurs. Three values are available:
+        'keep-flags', 'remove-flags' (the default) or 'remove-utterance'. The
+        'keep-flags' policy keeps the language switching flags, for example
+        (en) or (jp), in the output. The 'remove-flags' policy removes them and
+        the 'remove-utterance' policy removes the whole line of text including
+        a language switch.""")
 
     group = parser.add_argument_group('language')
     group.add_argument(
@@ -284,6 +295,7 @@ def main():
         strip=args.strip,
         with_stress=args.with_stress,
         use_sampa=args.sampa,
+        language_switch=args.language_switch,
         njobs=args.njobs,
         logger=logger)
 

@@ -15,6 +15,9 @@ version (1.3 or 2.0). https://pythonclock.org.
         $ echo "hello world" | phonemize --with-stress
         həlˈoʊ wˈɜːld
 
+* new ``--language-switch`` option to use with ``espeak`` backend to deals with
+  language switching on phonemized output.
+
 * improved logging: by default only warnings are displayed, use the new
   ``--quiet`` option to inhibate all log messages or ``--verbose`` to see all of
   them. Log messages now display level name (debug/info/warning).
