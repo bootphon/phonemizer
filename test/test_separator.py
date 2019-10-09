@@ -42,3 +42,9 @@ def test_empty(val):
 def test_same():
     with pytest.raises(ValueError):
         Separator(word=' ', phone=' ')
+
+
+def test_str():
+    separator = Separator(word='w', syllable='s', phone='p')
+    assert str(separator) == '(phone: "p", syllable: "s", word: "w")'
+    assert str(default_separator) == '(phone: "", syllable: "", word: " ")'

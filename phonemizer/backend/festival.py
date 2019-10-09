@@ -151,25 +151,32 @@ class FestivalBackend(BaseBackend):
                         # related to wave synthesis (done by festival during
                         # phonemization).
                         with tempfile.TemporaryFile('w+') as fstderr:
-                            try:
-                                raw_output = subprocess.check_output(
-                                    shlex.split(cmd, posix=False),
-                                    stderr=fstderr)
-
-                                # festival seems to use latin1 and not utf8
-                                return re.sub(
-                                    ' +', ' ', raw_output.decode('latin1'))
-
-                            except subprocess.CalledProcessError as err:
-                                fstderr.seek(0)
-                                raise RuntimeError(
-                                    'Command "{}" returned exit status {}, '
-                                    'output is:\n{}'.format(
-                                        cmd, err.returncode, fstderr.read()))
+                            return self._run_festival(cmd, fstderr)
                     finally:
                         os.remove(scm.name)
             finally:
                 os.remove(data.name)
+
+    @staticmethod
+    def _run_festival(cmd, fstderr):
+        """Runs the festival command for phonemization
+
+        Returns the raw phonemized output (need to be postprocesses). Raises a
+        RuntimeError if festival fails.
+
+        """
+        try:
+            output = subprocess.check_output(
+                shlex.split(cmd, posix=False), stderr=fstderr)
+
+            # festival seems to use latin1 and not utf8
+            return re.sub(' +', ' ', output.decode('latin1'))
+
+        except subprocess.CalledProcessError as err:  # pragma: nocover
+            fstderr.seek(0)
+            raise RuntimeError(
+                'Command "{}" returned exit status {}, output is:\n{}'
+                .format(cmd, err.returncode, fstderr.read()))
 
     @staticmethod
     def _postprocess_syll(syll, separator, strip):

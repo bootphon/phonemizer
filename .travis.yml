@@ -18,11 +18,15 @@ addons:
 
 install:
   - pip install --upgrade pip
+  - pip install codecov
   - pip install .[test]
 
 script:
   - phonemize --version
   - pytest ./test -v
+
+after_success:
+  - codecov
 
 cache:
   - pip

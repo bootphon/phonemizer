@@ -1,4 +1,9 @@
-[![travis](https://travis-ci.org/bootphon/phonemizer.svg?branch=master)](https://travis-ci.org/bootphon/phonemizer) [![DOI](https://zenodo.org/badge/56728069.svg)](https://doi.org/10.5281/zenodo.1045825)
+[![travis](https://travis-ci.org/bootphon/phonemizer.svg?branch=master)](
+https://travis-ci.org/bootphon/phonemizer)
+[![codecov](https://codecov.io/gh/bootphon/phonemizer/branch/master/graph/badge.svg)](
+https://codecov.io/gh/bootphon/phonemizer)
+[![DOI](https://zenodo.org/badge/56728069.svg)](
+https://doi.org/10.5281/zenodo.1045825)
 
 # Phonemizer -- *foʊnmaɪzɚ*
 

@@ -45,7 +45,7 @@ def _tokenize(chars):
 
 def _read_from_tokens(tokens):
     "Read an expression from a sequence of tokens"
-    if len(tokens) == 0:
+    if len(tokens) == 0:  # pragma: nocover
         raise SyntaxError('unexpected EOF while reading')
     token = tokens.pop(0)
     if '(' == token:
@@ -54,7 +54,7 @@ def _read_from_tokens(tokens):
             L.append(_read_from_tokens(tokens))
         tokens.pop(0)  # pop off ')'
         return L
-    elif ')' == token:
+    elif ')' == token:  # pragma: nocover
         raise SyntaxError('unexpected )')
     else:
         return token  # was _atom(token)

@@ -4,3 +4,6 @@
 /.pytest_cache/
 /build/*
 /dist/*
+.coverage*
+htmlcov/*
+.eggs/*

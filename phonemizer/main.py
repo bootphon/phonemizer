@@ -26,7 +26,7 @@ from phonemizer.backend import (
     EspeakBackend, FestivalBackend, SegmentsBackend)
 
 
-class CatchExceptions(object):
+class CatchExceptions(object):  # pragma: nocover
     """Decorator wrapping a function in a try/except block
 
     When an exception occurs, display a user friendly message on
@@ -285,5 +285,5 @@ def main():
         streamout.write(out + '\n')
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: nocover
     main()

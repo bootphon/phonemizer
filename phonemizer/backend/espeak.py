@@ -40,7 +40,7 @@ class EspeakBackend(BaseBackend):
 
         self.sep = '--sep=_'
         if version == '1.48.03' or int(version.split('.')[1]) <= 47:
-            self.sep = ''
+            self.sep = ''  # pragma: nocover
 
         self.ipa = '--ipa=3'
         if self.is_espeak_ng():  # this is espeak-ng
@@ -48,6 +48,7 @@ class EspeakBackend(BaseBackend):
 
         if use_sampa is True:
             if not self.is_espeak_ng():
+                # pragma: nocover
                 raise RuntimeError(
                     'sampa alphabet is only supported by espeak-ng backend, '
                     'please install it instead of espeak')
@@ -71,7 +72,7 @@ class EspeakBackend(BaseBackend):
     @staticmethod
     def espeak_exe():
         espeak = distutils.spawn.find_executable('espeak-ng')
-        if not espeak:
+        if not espeak:  # pragma: nocover
             espeak = distutils.spawn.find_executable('espeak')
         return espeak
 

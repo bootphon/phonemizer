@@ -68,14 +68,15 @@ class SegmentsBackend(BaseBackend):
         return {f.split('.')[0]: os.path.join(directory, f)
                 for f in os.listdir(directory) if f.endswith('g2p')}
 
-    def is_supported_language(self, language):
+    @classmethod
+    def is_supported_language(cls, language):
         if os.path.isfile(language):
             try:
-                self._load_g2p_profile(language)
+                cls._load_g2p_profile(language)
                 return True
             except RuntimeError:
                 return False
-        return language in self.supported_languages().keys()
+        return language in cls.supported_languages().keys()
 
     @classmethod
     def _load_g2p_profile(cls, language):
@@ -88,7 +89,7 @@ class SegmentsBackend(BaseBackend):
                 raise RuntimeError(
                     'grapheme to phoneme file not found: {}'.format(language))
 
-        # load the mapping graphem -> phonem from the file, make sure all
+        # load the mapping grapheme -> phoneme from the file, make sure all
         # lines are well formatted
         g2p = {}
         for n, line in enumerate(codecs.open(language, 'r', encoding='utf8')):

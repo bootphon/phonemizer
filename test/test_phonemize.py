@@ -87,11 +87,6 @@ def test_espeak(njobs):
 def test_festival(njobs):
     text = ['one two', 'three', 'four five']
 
-    with pytest.raises(RuntimeError):
-        phonemize(
-            text, language='en-us', backend='festival',
-            use_sampa=True, strip=True, njobs=njobs)
-
     out = phonemize(
         text, language='en-us', backend='festival',
         strip=True, njobs=njobs)
@@ -121,6 +116,19 @@ def test_festival(njobs):
         '\n'.join(text), language='en-us', backend='festival',
         strip=False, njobs=njobs)
     assert out == '\n'.join(['wahn tuw ', 'thriy ', 'faor fayv '])
+
+
+def test_festival_bad():
+    # use_sampa and with_stress are valid for espeak only
+    text = ['one two', 'three', 'four five']
+
+    with pytest.raises(RuntimeError):
+        phonemize(
+            text, language='en-us', backend='festival', use_sampa=True)
+
+    with pytest.raises(RuntimeError):
+        phonemize(
+            text, language='en-us', backend='festival', with_stress=True)
 
 
 @pytest.mark.parametrize('njobs', [1, 2, 4])

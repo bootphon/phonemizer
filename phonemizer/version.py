@@ -34,23 +34,23 @@ def version():
         available.append(
             'espeak-' + ('ng-' if EspeakBackend.is_espeak_ng() else '')
             + EspeakBackend.version())
-    else:
+    else:  # pragma: nocover
         unavailable.append('espeak')
 
     if FestivalBackend.is_available():
         available.append('festival-' + FestivalBackend.version())
-    else:
+    else:  # pragma: nocover
         unavailable.append('festival')
 
     if SegmentsBackend.is_available():
         available.append('segments-' + SegmentsBackend.version())
-    else:
+    else:  # pragma: nocover
         unavailable.append('segments')
 
     # resumes the backends status in the final version string
     if available:
         version += '\navailable backends: ' + ', '.join(available)
-    if unavailable:
+    if unavailable:  # pragma: nocover
         version += '\nuninstalled backends: ' + ', '.join(unavailable)
 
     return version

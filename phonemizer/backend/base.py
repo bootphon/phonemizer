@@ -35,7 +35,7 @@ class BaseBackend(object):
     def __init__(self, language, logger=logging.getLogger()):
         # ensure the backend is installed on the system
         if not self.is_available():
-            raise RuntimeError(
+            raise RuntimeError(  # pragma: nocover
                 '{} not installed on your system'.format(self.name()))
 
         self.logger = logger
