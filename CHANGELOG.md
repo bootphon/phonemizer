@@ -8,6 +8,12 @@ Version numbers follow [semantic versioning](https://semver.org)
   supported. Compatibility with python2 is no more ensured nor tested.
   https://pythonclock.org.
 
+* **bugfix** **new ``--language-switch`` option to use with ``espeak`` backend
+  to deals with language switching on phonemized output. In previous version
+  there was a bug in detection of the language switching flags (sometimes
+  removed, sometimes not). Now you can choose to keep the flags, to remove them,
+  or to delete the whole utterance.
+
 * new ``--with-stress`` option to use with ``espeak`` backend to not remove the
   stresses on phonemized output. For instance:
 
@@ -15,9 +21,6 @@ Version numbers follow [semantic versioning](https://semver.org)
         həloʊ wɜːld
         $ echo "hello world" | phonemize --with-stress
         həlˈoʊ wˈɜːld
-
-* new ``--language-switch`` option to use with ``espeak`` backend to deals with
-  language switching on phonemized output.
 
 * improved logging: by default only warnings are displayed, use the new
   ``--quiet`` option to inhibate all log messages or ``--verbose`` to see all of

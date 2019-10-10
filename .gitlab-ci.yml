@@ -19,7 +19,7 @@ phonemizer-test:
   script:
     # run the unit tests within the CI environment
     - conda activate phonemizer-ci
-    - pytest -v test
+    - python setup.py test
 
 phonemizer-deploy:
   # install phonemizer in the "wordseg" virtual environment on oberon (users just

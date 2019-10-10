@@ -22,7 +22,7 @@ install:
 
 script:
   - phonemize --version
-  - pytest
+  - python setup.py test
 
 after_success:
   - codecov
