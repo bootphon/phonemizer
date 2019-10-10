@@ -1,3 +1,9 @@
+dist: bionic
+addons:
+  apt:
+    packages:
+      - festival festvox-us1 festlex-cmu festlex-poslex espeak-ng
+
 language: python
 
 # no need of git history
@@ -8,11 +14,6 @@ git:
 branches:
   only:
     - master
-
-addons:
-  apt:
-    packages:
-      - festival festvox-us1 festlex-cmu festlex-poslex espeak-ng
 
 install:
   - pip install --upgrade pip
