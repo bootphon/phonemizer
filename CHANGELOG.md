@@ -4,60 +4,61 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 ## phonemizer-2.0
 
-* **incompatible change:** starting with ``phonemizer-2.0`` only python3 is
-  supported. **Compatibility with python2 is no more ensured nor tested.**
-  https://pythonclock.org.
+* **incompatible change**
 
-* **bugfix** new ``--language-switch`` option to use with ``espeak`` backend
-  to deals with language switching on phonemized output. In previous version
-  there was a bug in detection of the language switching flags (sometimes
-  removed, sometimes not). Now you can choose to keep the flags, to remove them,
-  or to delete the whole utterance.
+  Starting with ``phonemizer-2.0`` only python3 is supported. **Compatibility
+  with python2 is no more ensured nor tested.** https://pythonclock.org.
 
-* new ``--with-stress`` option to use with ``espeak`` backend to not remove the
-  stresses on phonemized output. For instance:
+* **bugfixes**
+
+  * new ``--language-switch`` option to use with ``espeak`` backend to deals
+    with language switching on phonemized output. In previous version there was
+    a bug in detection of the language switching flags (sometimes removed,
+    sometimes not). Now you can choose to keep the flags, to remove them, or to
+    delete the whole utterance.
+
+  * bugfix in a test with `espeak>=1.49.3`.
+
+  * bugfix using `NamedTemporaryFile` on windows, see
+    [#21](https://github.com/bootphon/phonemizer/issues/21).
+
+  * bugfix when calling *festival* or *espeak* subprocesses on Windows, see
+    [#17](https://github.com/bootphon/phonemizer/issues/17).
+
+  * bugfix in detecting recent versions of *espeak-ng*, see
+    [#18](https://github.com/bootphon/phonemizer/issues/18).
+
+  * bugfix when using utf8 input on *espeak* backend (python2), see
+    [#19](https://github.com/bootphon/phonemizer/issues/19).
+
+
+* **new features and improvements**
+
+  * new `--sampa` option to output phonemes in SAMPA alphabet instead of IPA,
+    available for espeak-ng only.
+
+  * new ``--with-stress`` option to use with ``espeak`` backend to not remove the
+    stresses on phonemized output. For instance:
 
         $ echo "hello world" | phonemize
         həloʊ wɜːld
         $ echo "hello world" | phonemize --with-stress
         həlˈoʊ wˈɜːld
 
-* improved logging: by default only warnings are displayed, use the new
-  ``--quiet`` option to inhibate all log messages or ``--verbose`` to see all of
-  them. Log messages now display level name (debug/info/warning).
+  * improved logging: by default only warnings are displayed, use the new
+    ``--quiet`` option to inhibate all log messages or ``--verbose`` to see all of
+    them. Log messages now display level name (debug/info/warning).
 
-* improved code organization:
+  * improved code organization:
 
-  * backends are now implemented in the ``backend`` submodule
-    as separated source files.
+    * backends are now implemented in the ``backend`` submodule
+      as separated source files.
 
-  * improved version string (displays uninstalled backends, moved outside of
-    main for use from Python).
+    * improved version string (displays uninstalled backends, moved outside of
+      main for use from Python).
 
-  * improved logger implemented in its own module so as a call to phonemizer
-    from CLI or API yields the same log messages.
-
-## phonemizer-1.1
-
-* new `--sampa` option to output phonemes in SAMPA alphabet instead of IPA,
-  available for espeak-ng only.
-
-* bugfix in a test with `espeak>=1.49.3`.
-
-* bugfix using `NamedTemporaryFile` on windows, see
-  [#21](https://github.com/bootphon/phonemizer/issues/21).
-
-
-## phonemizer-1.0.1
-
-* bugfix when calling *festival* or *espeak* subprocesses on Windows,
-  see [#17](https://github.com/bootphon/phonemizer/issues/17).
-
-* bugfix in detecting recent versions of *espeak-ng*, see
-  [#18](https://github.com/bootphon/phonemizer/issues/18).
-
-* bugfix when using utf8 input on *espeak* backend (python2), see
-  [#19](https://github.com/bootphon/phonemizer/issues/19).
+    * improved logger implemented in its own module so as a call to phonemizer
+      from CLI or API yields the same log messages.
 
 
 ## phonemizer-1.0
