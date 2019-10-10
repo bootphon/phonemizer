@@ -4,11 +4,11 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 ## phonemizer-2.0
 
-* **incompatible change:** starting with *phonemizer-2.0* only python3 is
-  supported. Compatibility with python2 is no more ensured nor tested.
+* **incompatible change:** starting with ``phonemizer-2.0`` only python3 is
+  supported. **Compatibility with python2 is no more ensured nor tested.**
   https://pythonclock.org.
 
-* **bugfix** **new ``--language-switch`` option to use with ``espeak`` backend
+* **bugfix** new ``--language-switch`` option to use with ``espeak`` backend
   to deals with language switching on phonemized output. In previous version
   there was a bug in detection of the language switching flags (sometimes
   removed, sometimes not). Now you can choose to keep the flags, to remove them,

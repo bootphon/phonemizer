@@ -35,6 +35,10 @@ https://doi.org/10.5281/zenodo.1045825)
 
 ## Installation
 
+* **You need python3.** If you really need to use python2, use an [older
+  version](https://github.com/bootphon/phonemizer/releases/tag/v1.1) of
+  phonemizer.
+
 * First you need to install festival and espeak-ng on your system. Visit
   [this festival link](http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation)
   and [that espeak-ng one](https://github.com/espeak-ng/espeak-ng#espeak-ng-text-to-speech)
