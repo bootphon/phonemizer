@@ -133,7 +133,7 @@ def test_festival_bad():
     with pytest.raises(RuntimeError):
         phonemize(
             text, language='en-us', backend='festival',
-            language_switch='keep-flags')
+            language_switch='remove-flags')
 
 
 @pytest.mark.parametrize('njobs', [1, 2, 4])

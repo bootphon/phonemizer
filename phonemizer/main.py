@@ -213,12 +213,12 @@ Exemples:
         "sampa" (Speech Assessment Methods Phonetic Alphabet) alphabet instead
         of "ipa" (International Phonetic Alphabet).''')
     group.add_argument(
-        '--language-switch', default='remove-flags',
+        '--language-switch', default='keep-flags',
         choices=['keep-flags', 'remove-flags', 'remove-utterance'],
         help="""espeak can pronounce some words in another language (typically
         English) when phonemizing a text. This option setups the policy to use
         when such a language switch occurs. Three values are available:
-        'keep-flags', 'remove-flags' (the default) or 'remove-utterance'. The
+        'keep-flags' (the default), 'remove-flags' or 'remove-utterance'. The
         'keep-flags' policy keeps the language switching flags, for example
         (en) or (jp), in the output. The 'remove-flags' policy removes them and
         the 'remove-utterance' policy removes the whole line of text including

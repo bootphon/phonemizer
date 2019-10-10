@@ -30,7 +30,7 @@ from phonemizer.backend import (
 def phonemize(text, language='en-us', backend='festival',
               separator=default_separator, strip=False,
               with_stress=False, use_sampa=False,
-              language_switch='remove-flags',
+              language_switch='keep-flags',
               njobs=1, logger=get_logger()):
     """Multilingual text to phonemes converter
 
@@ -71,7 +71,7 @@ def phonemize(text, language='en-us', backend='festival',
     language_switch (str) : espeak can pronounce some words in another language
       (typically English) when phonemizing a text. This option setups the
       policy to use when such a language switch occurs. Three values are
-      available: 'keep-flags', 'remove-flags' (the default) or
+      available: 'keep-flags' (the default), 'remove-flags' or
       'remove-utterance'. The 'keep-flags' policy keeps the language switching
       flags, for example (en) or (jp), in the output. The 'remove-flags' policy
       removes them and the 'remove-utterance' policy removes the whole line of
@@ -123,7 +123,7 @@ def phonemize(text, language='en-us', backend='festival',
             'but you are using {} backend'.format(backend))
 
     # language_switch option only valid for espeak
-    if language_switch != 'remove-flags' and backend != 'espeak':
+    if language_switch != 'keep-flags' and backend != 'espeak':
         raise RuntimeError(
             'the "language_switch" option is available for espeak backend '
             'only, but you are using {} backend'.format(backend))
