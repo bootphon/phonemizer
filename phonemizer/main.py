@@ -17,11 +17,10 @@
 
 import argparse
 import codecs
-import logging
 import pkg_resources
 import sys
 
-from phonemizer import phonemize, separator, version
+from phonemizer import phonemize, separator, version, logger
 from phonemizer.backend import (
     EspeakBackend, FestivalBackend, SegmentsBackend)
 
@@ -246,38 +245,32 @@ def main():
         print(version.version())
         return
 
-    # configure logging according to --verbose option. Init a logger to output
-    # on stderr. By default log only warnings, if verbose log all messages, if
-    # quiet do not log anything.
-    logger = logging.getLogger()
-    logger.handlers = []
-    handler = logging.StreamHandler(sys.stderr)
-    logger.setLevel(logging.WARNING)
+    # configure logging according to --verbose/--quiet options
+    verbosity = 'normal'
     if args.verbose:
-        logger.setLevel(logging.DEBUG)
-    if args.quiet:
-        handler = logging.NullHandler()
-    handler.setFormatter(logging.Formatter('[%(levelname)s] %(message)s'))
-    logger.addHandler(handler)
+        verbosity = 'verbose'
+    elif args.quiet:
+        verbosity = 'quiet'
+    log = logger.get_logger(verbosity=verbosity)
 
     # configure input as a readable stream
     streamin = args.input
     if isinstance(streamin, str):
         streamin = codecs.open(streamin, 'r', encoding='utf8')
-    logger.debug('reading from %s', streamin.name)
+    log.debug('reading from %s', streamin.name)
 
     # configure output as a writable stream
     streamout = args.output
     if isinstance(streamout, str):
         streamout = codecs.open(streamout, 'w', 'utf8')
-    logger.debug('writing to %s', streamout.name)
+    log.debug('writing to %s', streamout.name)
 
     # configure the separator for phonemes, syllables and words.
     sep = separator.Separator(
         phone=args.phone_separator,
         syllable=args.syllable_separator,
         word=args.word_separator)
-    logger.debug('separator is %s', sep)
+    log.debug('separator is %s', sep)
 
     # load the input text (python2 optionnally needs an extra decode)
     text = streamin.read()
@@ -297,7 +290,7 @@ def main():
         use_sampa=args.sampa,
         language_switch=args.language_switch,
         njobs=args.njobs,
-        logger=logger)
+        logger=log)
 
     if len(out):
         streamout.write(out + '\n')

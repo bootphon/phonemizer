@@ -16,7 +16,6 @@
 
 
 import distutils
-import logging
 import os
 import pkg_resources
 import re
@@ -26,10 +25,11 @@ import tempfile
 
 import phonemizer.lispy as lispy
 from phonemizer.backend.base import BaseBackend
+from phonemizer.logger import get_logger
 
 
 class FestivalBackend(BaseBackend):
-    def __init__(self, language, logger=logging.getLogger()):
+    def __init__(self, language, logger=get_logger()):
         super(self.__class__, self).__init__(language, logger=logger)
 
         self.script = pkg_resources.resource_filename(

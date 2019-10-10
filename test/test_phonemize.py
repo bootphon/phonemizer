@@ -49,38 +49,38 @@ def test_espeak(njobs):
     out = phonemize(
         text, language='en-us', backend='espeak',
         strip=True, njobs=njobs)
-    assert out == [u'wʌn tuː', u'θɹiː', u'foːɹ faɪv']
+    assert out == ['wʌn tuː', 'θɹiː', 'foːɹ faɪv']
 
     if EspeakBackend.is_espeak_ng():
         out = phonemize(
             text, language='en-us', backend='espeak', use_sampa=True,
             strip=True, njobs=njobs)
-        assert out == [u'wVn tu:', u'Tri:', u'fo@ faIv']
+        assert out == ['wVn tu:', 'Tri:', 'fo@ faIv']
 
     out = phonemize(
         text, language='en-us', backend='espeak',
         strip=False, njobs=njobs)
-    assert out == [u'wʌn tuː ', u'θɹiː ', u'foːɹ faɪv ']
+    assert out == ['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv ']
 
     out = phonemize(
         ' '.join(text), language='en-us', backend='espeak',
         strip=True, njobs=njobs)
-    assert out == ' '.join([u'wʌn tuː', u'θɹiː', u'foːɹ faɪv'])
+    assert out == ' '.join(['wʌn tuː', 'θɹiː', 'foːɹ faɪv'])
 
     out = phonemize(
         ' '.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
-    assert out == ' '.join([u'wʌn tuː', u'θɹiː', u'foːɹ faɪv '])
+    assert out == ' '.join(['wʌn tuː', 'θɹiː', 'foːɹ faɪv '])
 
     out = phonemize(
         '\n'.join(text), language='en-us', backend='espeak',
         strip=True, njobs=njobs)
-    assert out == '\n'.join([u'wʌn tuː', u'θɹiː', u'foːɹ faɪv'])
+    assert out == '\n'.join(['wʌn tuː', 'θɹiː', 'foːɹ faɪv'])
 
     out = phonemize(
         '\n'.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
-    assert out == '\n'.join([u'wʌn tuː ', u'θɹiː ', u'foːɹ faɪv '])
+    assert out == '\n'.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
 
 
 @pytest.mark.parametrize('njobs', [1, 2, 4])
@@ -139,7 +139,7 @@ def test_festival_bad():
 @pytest.mark.parametrize('njobs', [1, 2, 4])
 def test_segments(njobs):
     # one two three four five in Maya Yucatec
-    text = [u'untuʼuleʼ kaʼapʼeʼel', u'oʼoxpʼeʼel', u'kantuʼuloʼon chincho']
+    text = ['untuʼuleʼ kaʼapʼeʼel', 'oʼoxpʼeʼel', 'kantuʼuloʼon chincho']
 
     with pytest.raises(RuntimeError):
         phonemize(
@@ -149,35 +149,35 @@ def test_segments(njobs):
     out = phonemize(
         text, language='yucatec', backend='segments',
         strip=True, njobs=njobs)
-    assert out == [u'untṵːlḛ ka̰ːpʼḛːl', u'o̰ːʃpʼḛːl',
-                   u'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo']
+    assert out == [
+        'untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo']
 
     out = phonemize(
         text, language='yucatec', backend='segments',
         strip=False, njobs=njobs)
-    assert out == [u'untṵːlḛ ka̰ːpʼḛːl ', u'o̰ːʃpʼḛːl ',
-                   u'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo ']
+    assert out == [
+        'untṵːlḛ ka̰ːpʼḛːl ', 'o̰ːʃpʼḛːl ', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo ']
 
     out = phonemize(
         u' '.join(text), language='yucatec', backend='segments',
         strip=True, njobs=njobs)
-    assert out == ' '.join([u'untṵːlḛ ka̰ːpʼḛːl', u'o̰ːʃpʼḛːl',
-                            u'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo'])
+    assert out == ' '.join(
+        ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo'])
 
     out = phonemize(
         u' '.join(text), language='yucatec', backend='segments',
         strip=False, njobs=njobs)
-    assert out == u' '.join([u'untṵːlḛ ka̰ːpʼḛːl', u'o̰ːʃpʼḛːl',
-                            u'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo '])
+    assert out == u' '.join(
+        ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo '])
 
     out = phonemize(
         u'\n'.join(text), language='yucatec', backend='segments',
         strip=True, njobs=njobs)
-    assert out == u'\n'.join([u'untṵːlḛ ka̰ːpʼḛːl', u'o̰ːʃpʼḛːl',
-                             u'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo'])
+    assert out == u'\n'.join(
+        ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo'])
 
     out = phonemize(
         u'\n'.join(text), language='yucatec', backend='segments',
         strip=False, njobs=njobs)
-    assert out == u'\n'.join([u'untṵːlḛ ka̰ːpʼḛːl ', u'o̰ːʃpʼḛːl ',
-                             u'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo '])
+    assert out == u'\n'.join(
+        ['untṵːlḛ ka̰ːpʼḛːl ', 'o̰ːʃpʼḛːl ', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo '])

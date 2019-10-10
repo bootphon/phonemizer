@@ -19,7 +19,7 @@ import tempfile
 import shlex
 import sys
 
-from phonemizer import main, backend
+from phonemizer import main, backend, logger
 
 
 def _test(input, expected_output, args=''):
@@ -93,3 +93,8 @@ def test_njobs():
 def test_unicode():
     _test(u'untuʼule', u'untṵːle', '-l yucatec -b segments --strip')
     _test(u'untuʼule', u'untṵːle ', '-l yucatec -b segments')
+
+
+def test_logger():
+    with pytest.raises(RuntimeError):
+        logger.get_logger(verbosity=1)
