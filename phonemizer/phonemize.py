@@ -20,8 +20,8 @@ To use it in your own code, type:
 
 """
 
-import logging
 
+from phonemizer.logger import get_logger
 from phonemizer.separator import default_separator
 from phonemizer.backend import (
     EspeakBackend, FestivalBackend, SegmentsBackend)
@@ -31,7 +31,7 @@ def phonemize(text, language='en-us', backend='festival',
               separator=default_separator, strip=False,
               with_stress=False, use_sampa=False,
               language_switch='remove-flags',
-              njobs=1, logger=logging.getLogger()):
+              njobs=1, logger=get_logger()):
     """Multilingual text to phonemes converter
 
     Return a phonemized version of an input `text`, given its

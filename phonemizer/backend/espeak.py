@@ -15,7 +15,6 @@
 """Espeak backend for the phonemizer"""
 
 import distutils.spawn
-import logging
 import os
 import re
 import shlex
@@ -23,6 +22,7 @@ import subprocess
 import tempfile
 
 from phonemizer.backend.base import BaseBackend
+from phonemizer.logger import get_logger
 
 
 class EspeakBackend(BaseBackend):
@@ -32,7 +32,7 @@ class EspeakBackend(BaseBackend):
 
     def __init__(self, language, use_sampa=False,
                  language_switch='remove-flags', with_stress=False,
-                 logger=logging.getLogger()):
+                 logger=get_logger()):
         super(self.__class__, self).__init__(language, logger=logger)
 
         # adapt some command line option to the espeak version (for

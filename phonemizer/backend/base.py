@@ -17,10 +17,10 @@
 import abc
 import itertools
 import joblib
-import logging
 import six
 
 from phonemizer import separator
+from phonemizer.logger import get_logger
 
 
 class BaseBackend(object):
@@ -32,7 +32,7 @@ class BaseBackend(object):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, language, logger=logging.getLogger()):
+    def __init__(self, language, logger=get_logger()):
         # ensure the backend is installed on the system
         if not self.is_available():
             raise RuntimeError(  # pragma: nocover
