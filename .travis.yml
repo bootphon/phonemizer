@@ -17,12 +17,12 @@ branches:
 
 install:
   - pip install --upgrade pip
-  - pip install pytest-cov coverage
+  - pip install pytest-cov codecov
   - pip install .[test]
 
 script:
   - phonemize --version
-  - pytest ./test -v
+  - pytest
 
 after_success:
   - codecov
