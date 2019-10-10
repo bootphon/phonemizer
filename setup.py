@@ -29,7 +29,7 @@ setuptools.setup(
     # python package dependancies
     install_requires=['joblib', 'segments', 'attrs>=18.1'],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    tests_require=['pytest', 'pytest-cov'],
 
     # include Python code and any files in phonemizer/share
     packages=setuptools.find_packages(),
