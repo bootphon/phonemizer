@@ -2,10 +2,11 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-**Important:** python2 compatibility will end with the next minor or major
-version (1.3 or 2.0). https://pythonclock.org.
+## phonemizer-2.0
 
-## phonemizer-1.2
+* **incompatible change:** starting with *phonemizer-2.0* only python3 is
+  supported. Compatibility with python2 is no more ensured nor tested.
+  https://pythonclock.org.
 
 * new ``--with-stress`` option to use with ``espeak`` backend to not remove the
   stresses on phonemized output. For instance:
@@ -25,10 +26,13 @@ version (1.3 or 2.0). https://pythonclock.org.
 * improved code organization:
 
   * backends are now implemented in the ``backend`` submodule
-    as separated source files
+    as separated source files.
 
   * improved version string (displays uninstalled backends, moved outside of
-    main for use from Python)
+    main for use from Python).
+
+  * improved logger implemented in its own module so as a call to phonemizer
+    from CLI or API yields the same log messages.
 
 ## phonemizer-1.1
 

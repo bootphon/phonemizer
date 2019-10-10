@@ -1,15 +1,16 @@
-matrix:
-  include:
-    - os: linux
-      dist: bionic
-      language: python
-      python: "2.7"
-      sudo: false
-    - os: linux
-      dist: bionic
-      language: python
-      python: "3.6"
-      sudo: false
+language: python
+
+# run on Travis 'new' container-based infrastructure
+sudo: false
+
+# no need of git history
+git:
+  depth: 1
+
+# test only the master branch
+branches:
+  only:
+    - master
 
 addons:
   apt:
@@ -18,7 +19,7 @@ addons:
 
 install:
   - pip install --upgrade pip
-  - pip install codecov
+  - pip install pytest-cov coverage
   - pip install .[test]
 
 script:
