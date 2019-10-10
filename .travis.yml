@@ -1,8 +1,5 @@
 language: python
 
-# run on Travis 'new' container-based infrastructure
-sudo: false
-
 # no need of git history
 git:
   depth: 1
