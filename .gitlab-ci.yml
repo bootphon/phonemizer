@@ -6,7 +6,7 @@ phonemizer-build:
   stage: build
   script:
     # create a Python virtual environment dedicated to the test (if not existing)
-    - conda create --name phonemizer-ci python=3 joblib pytest 2> /dev/null || true
+    - conda create --name phonemizer-ci python=3 2> /dev/null || true
     - conda activate phonemizer-ci
 
     # install the phonemizer
