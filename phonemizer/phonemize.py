@@ -20,6 +20,7 @@ To use it in your own code, type:
 
 """
 
+import sys
 
 from phonemizer.logger import get_logger
 from phonemizer.separator import default_separator
@@ -127,6 +128,12 @@ def phonemize(text, language='en-us', backend='festival',
         raise RuntimeError(
             'the "language_switch" option is available for espeak backend '
             'only, but you are using {} backend'.format(backend))
+
+    # python2 needs additional utf8 encoding
+    if sys.version_info[0] == 2:  # pragma: nocover
+        logger.warning(
+            'Your are using python2 but unsupported by the phonemizer, '
+            'please update to python3')
 
     # instanciate the requested backend for the given language (raises
     # a RuntimeError if the language is not supported).
