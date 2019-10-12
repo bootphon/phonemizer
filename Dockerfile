@@ -1,5 +1,5 @@
 # Use this file to build a docker image of phonemizer (using
-# festival-2.5 and espeak-ng-1.49.2):
+# festival-2.5 and espeak-ng-1.49.2 from ubuntu repo):
 #
 #    sudo docker build -t phonemizer .
 #
@@ -7,7 +7,7 @@
 #
 #    sudo docker run -it phonemizer /bin/bash
 #
-# You can then use wordseg within docker. See the docker doc for
+# You can then use phonemizer within docker. See the docker doc for
 # advanced usage.
 
 

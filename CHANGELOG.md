@@ -2,6 +2,18 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+## not yet released
+
+* **bugfix**
+
+  * ``keep-flags`` was not the default argument for ``language_switch`` in the
+    class ``EspeakBackend``.
+
+* **improvements**
+
+  * now log a warning if using ``python2``.
+
+
 ## phonemizer-2.0
 
 * **incompatible change**

@@ -142,33 +142,21 @@ a space for both phones and words):
     must be all differents if not empty
 
 
-### Languages
+### Options
 
-* Espeak us-english is the default
+* **Espeak** us-english is the default
 
         $ echo "hello world" | phonemize
         həloʊ wɜːld
         $ echo "hello world" | phonemize -l en-us -b espeak
         həloʊ wɜːld
 
-* Espeak can output SAMPA phonemes instead of IPA ones (this is only supported
-  by espeak-ng, not by the original espeak)
-
-        $ echo "hello world" | phonemize -l en-us -b espeak --sampa
-        h@loU w3:ld
-
-* Espeak can output the stresses on phonemes (this is not supported by festival
-  or segments backends)
-
-        $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
-        həlˈoʊ wˈɜːld
-
-* use Festival US English instead
+* use **Festival** US English instead
 
         $ echo "hello world" | phonemize -l en-us -b festival
         hhaxlow werld
 
-* In French, using espeak
+* In French, using **espeak**
 
         $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr
         bɔ̃ʒuʁ lə- mɔ̃d
@@ -176,13 +164,46 @@ a space for both phones and words):
         $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr -p ' ' -w ';eword '
         b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword
 
-* In Japanese, using segments
+* In Japanese, using **segments**
 
         $ echo 'konnichiwa' | phonemize -b segments -l japanese
         konnitʃiwa
 
         $ echo 'konnichiwa' | phonemize -b segments -l ./phonemizer/share/japanese.g2p
         konnitʃiwa
+
+* **Espeak** can output SAMPA phonemes instead of IPA ones (this is only supported
+  by espeak-ng, not by the original espeak)
+
+        $ echo "hello world" | phonemize -l en-us -b espeak --sampa
+        h@loU w3:ld
+
+* **Espeak** can output the stresses on phonemes (this is not supported by festival
+  or segments backends)
+
+        $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
+        həlˈoʊ wˈɜːld
+
+* **Espeak** can switch languages during phonemization (below from French to
+  English), use the ``--language-switch`` option to deal with it
+
+        $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch keep-flags
+        [WARNING] fount 1 utterances containing language switches on lines 1
+        [WARNING] extra phones may appear in the "fr-fr" phoneset
+        [WARNING] language switch flags have been kept (applying "keep-flags" policy)
+        ʒɛm lə- (en)fʊtbɔːl(fr)
+
+        $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch remove-flags
+        [WARNING] fount 1 utterances containing language switches on lines 1
+        [WARNING] extra phones may appear in the "fr-fr" phoneset
+        [WARNING] language switch flags have been removed (applying "remove-flags" policy)
+        ʒɛm lə- fʊtbɔːl
+
+        $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch remove-utterance
+        [WARNING] removed 1 utterances containing language switches (applying "remove-utterance" policy)
+
+
+### Supported languages
 
 * Languages supported by festival are:
 
