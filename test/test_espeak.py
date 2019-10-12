@@ -96,6 +96,16 @@ def test_language_switch():
         'syʁtu lə- (en)ɹiəl(fr) madʁid',
         'nytiliz pa (en)ɡuːɡəl(fr)']
 
+    # default behavior is to keep the flags
+    backend = EspeakBackend('fr-fr')
+    out = backend._phonemize_aux(text, separator.Separator(), True)
+    assert out == [
+        'ʒɛm lɑ̃ɡlɛ',
+        'ʒɛm lə- (en)fʊtbɔːl(fr)',
+        '(en)fʊtbɔːl(fr)',
+        'syʁtu lə- (en)ɹiəl(fr) madʁid',
+        'nytiliz pa (en)ɡuːɡəl(fr)']
+
     backend = EspeakBackend('fr-fr', language_switch='remove-flags')
     out = backend._phonemize_aux(text, separator.Separator(), True)
     assert out == [

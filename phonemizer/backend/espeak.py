@@ -25,13 +25,19 @@ from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 
 
+# a regular expression to find language switching flags in espeak output,
+# Switches have the following form (here a switch from English to French):
+# "something (fr) quelque chose (en) another thing".
+_ESPEAK_FLAGS_RE = re.compile(r'\(.+?\)')
+
+
 class EspeakBackend(BaseBackend):
     """Espeak backend for the phonemizer"""
 
     espeak_version_re = r'.*: ([0-9]+\.[0-9]+\.[0-9]+)'
 
     def __init__(self, language, use_sampa=False,
-                 language_switch='remove-flags', with_stress=False,
+                 language_switch='keep-flags', with_stress=False,
                  logger=get_logger()):
         super(self.__class__, self).__init__(language, logger=logger)
 
@@ -114,7 +120,7 @@ class EspeakBackend(BaseBackend):
 
     def _process_lang_switch(self, n, utt):
         # look for language swith in the current utterance
-        flags = re.findall(r'\(.+?\)', utt)
+        flags = re.findall(_ESPEAK_FLAGS_RE, utt)
 
         # no language switch, nothing to do
         if not flags:

@@ -39,7 +39,10 @@ def _test(input, expected_output, args=''):
             # python2 needs additional utf8 decoding
             if sys.version_info[0] == 2:
                 output = output.decode('utf8')
-            assert output == expected_output + '\n'
+            if expected_output == '':
+                assert output == ''
+            else:
+                assert output == expected_output + '\n'
 
 
 def test_help():
@@ -93,6 +96,20 @@ def test_njobs():
 def test_unicode():
     _test(u'untuʼule', u'untṵːle', '-l yucatec -b segments --strip')
     _test(u'untuʼule', u'untṵːle ', '-l yucatec -b segments')
+
+
+def test_language_switch():
+    _test("j'aime le football", "ʒɛm lə- (en)fʊtbɔːl(fr) ",
+          '-l fr-fr -b espeak')
+
+    _test("j'aime le football", "ʒɛm lə- (en)fʊtbɔːl(fr) ",
+          '-l fr-fr -b espeak --language-switch keep-flags')
+
+    _test("j'aime le football", "ʒɛm lə- fʊtbɔːl ",
+          '-l fr-fr -b espeak --language-switch remove-flags')
+
+    _test("j'aime le football", "",
+          '-l fr-fr -b espeak --language-switch remove-utterance')
 
 
 def test_logger():
