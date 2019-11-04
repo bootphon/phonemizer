@@ -45,5 +45,13 @@ setuptools.setup(
     keywords='linguistics G2P phoneme festival espeak TTS',
     url='https://github.com/bootphon/phonemizer',
     long_description=codecs.open('README.md', encoding='utf-8').read(),
+    long_description_content_type="text/markdown",
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: "
+        "GNU General Public License v3 or later (GPLv3+)",
+        "Operating System :: OS Independent",
+    ],
+    python_requires='>=3.6',
     zip_safe=True,
 )

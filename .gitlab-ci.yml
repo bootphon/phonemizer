@@ -21,7 +21,7 @@ phonemizer-test:
     - conda activate phonemizer-ci
     - python setup.py test
 
-phonemizer-deploy:
+phonemizer-oberon:
   # install phonemizer in the "wordseg" virtual environment on oberon (users just
   # have to type "conda activate wordseg" to use it)
   stage: deploy
@@ -30,3 +30,18 @@ phonemizer-deploy:
     - cd /shared/apps/phonemizer
     - git pull origin master
     - python setup.py install
+
+phonemizer-pypi:
+  # upload the release on PyPI
+  stage: deploy
+  variables:
+    TWINE_USERNAME: $PYPI_USERNAME
+    TWINE_PASSWORD: $PYPI_PASSWORD
+    script:
+      - conda activate phonemizer-ci
+      - pip install twine
+      - rm -rf dist
+      - python setup.py sdist
+      - twine upload dist/*
+    only:
+      - tags
