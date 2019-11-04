@@ -37,11 +37,11 @@ phonemizer-pypi:
   variables:
     TWINE_USERNAME: $PYPI_USERNAME
     TWINE_PASSWORD: $PYPI_PASSWORD
-    script:
-      - conda activate phonemizer-ci
-      - pip install twine
-      - rm -rf dist
-      - python setup.py sdist
-      - twine upload dist/*
-    only:
-      - tags
+  script:
+    - conda activate phonemizer-ci
+    - pip install twine
+    - rm -rf dist
+    - python setup.py sdist
+    - twine upload dist/*
+  only:
+    - tags
