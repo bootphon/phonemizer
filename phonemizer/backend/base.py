@@ -46,7 +46,7 @@ class BaseBackend(object):
         if not self.is_supported_language(language):
             raise RuntimeError(
                 'language "{}" is not supported by the {} backend'
-                .format(language, self.name))
+                .format(language, self.name()))
         self.language = language
 
     @staticmethod
