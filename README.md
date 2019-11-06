@@ -1,8 +1,13 @@
-![Travis (.org)](https://img.shields.io/travis/bootphon/phonemizer)
-![Codecov](https://img.shields.io/codecov/c/github/bootphon/phonemizer)
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/bootphon/phonemizer)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/phonemizer)
-[![DOI](https://zenodo.org/badge/56728069.svg)](https://doi.org/10.5281/zenodo.1045825)
+[![Travis (.org)](https://img.shields.io/travis/bootphon/phonemizer)](
+https://travis-ci.org/bootphon/phonemizer)
+[![Codecov](https://img.shields.io/codecov/c/github/bootphon/phonemizer)](
+https://codecov.io/gh/bootphon/phonemizer)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/bootphon/phonemizer)](
+https://github.com/bootphon/phonemizer/releases/latest)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/phonemizer)](
+https://pypi.org/project/phonemizer)
+[![DOI](https://zenodo.org/badge/56728069.svg)](
+https://doi.org/10.5281/zenodo.1045825)
 
 # Phonemizer -- *foʊnmaɪzɚ*
 
