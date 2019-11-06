@@ -34,22 +34,30 @@
 
 ## Installation
 
-* **You need python3.** If you really need to use python2, use an [older
-  version](https://github.com/bootphon/phonemizer/releases/tag/v1.1) of
-  phonemizer.
+**You need python3.** If you really need to use python2, use an [older
+version](https://github.com/bootphon/phonemizer/releases/tag/v1.0) of
+phonemizer.
 
-* First you need to install festival and espeak-ng on your system. Visit
+### Dependencies
+
+* You need to install festival and espeak-ng on your system. Visit
   [this festival link](http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation)
   and [that espeak-ng one](https://github.com/espeak-ng/espeak-ng#espeak-ng-text-to-speech)
   for installation guidelines. On Debian/Ubuntu simply run:
 
         $ sudo apt-get install festival espeak-ng
 
-  Alternatively you may want to use `espeak` instead of `espeak-ng`,
+* Alternatively you may want to use `espeak` instead of `espeak-ng`,
   see [here](http://espeak.sourceforge.net/download.html) for
   instalaltion instructions.
 
-* Then download and install the `phonemizer` from
+### Phonemizer
+
+* The simplest way is using pip:
+
+        $ pip install phonemizer
+
+* **Or** download and install it from
   [github](https://github.com/bootphon/phonemizer) with:
 
         $ git clone https://github.com/bootphon/phonemizer
@@ -59,12 +67,12 @@
 
   The `phonemize` command should be in your `$PATH`.
 
-* If you experiment an error such as `ImportError: No module named
+  If you experiment an error such as `ImportError: No module named
   setuptools` during installation, refeer to [issue
   11](https://github.com/bootphon/phonemizer/issues/11).
 
 
-## Docker image
+### Docker image
 
 Alternatively you can run the phonemizer within docker, using the
 provided `Dockerfile`.
