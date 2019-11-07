@@ -130,7 +130,6 @@ def test_language_switch():
         'a comma. a point.',
         'a comma,, a point.',
         'a comma, , a point.',
-        'a comma, a point,',
         'a comma? a point!']
      for s in (True, False)
      for u in (separator.Separator(), separator.Separator(word='_', phone=' '))
