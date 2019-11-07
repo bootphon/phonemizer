@@ -34,14 +34,12 @@ phonemizer-oberon:
 phonemizer-pypi:
   # upload the release on PyPI
   stage: deploy
-  variables:
-    TWINE_USERNAME: $PYPI_USERNAME
-    TWINE_PASSWORD: $PYPI_PASSWORD
   script:
     - conda activate phonemizer-ci
-    - pip install twine
+    - pip install -U twine
     - rm -rf dist
-    - python setup.py sdist
+    - python setup.py sdist bdist_wheel
+    - twine check dist/*
     - twine upload dist/*
   only:
     - tags
