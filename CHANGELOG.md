@@ -2,16 +2,19 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-## not yet released
+## phonemizer-2.0.1
 
-* **bugfix**
+* **bugfixes**
 
   * ``keep-flags`` was not the default argument for ``language_switch`` in the
     class ``EspeakBackend``.
 
+  * fixed an issue with punctuation processing in the espeak backend, see
+    [#26](https://github.com/bootphon/phonemizer/issues/26)
+
 * **improvements**
 
-  * now log a warning if using ``python2``.
+  * log a warning if using ``python2``.
 
 
 ## phonemizer-2.0
