@@ -123,14 +123,24 @@ def test_language_switch():
         backend = EspeakBackend('fr-fr', language_switch='foo')
 
 
-@pytest.mark.parametrize('text', [
-    'a comma a point',
-    'a comma. a point.',
-    'a comma,, a point.',
-    'a comma, , a point.',
-    'a comma, a point,',
-    'a comma? a point!'])
-def test_punctuation(text):
-    expected = 'ɐ kɑːmə ɐ pɔɪnt'
-    output = EspeakBackend('en-us').phonemize(text, strip=True)
+@pytest.mark.parametrize(
+    'text, strip, sep',
+    ((t, s, u) for t in [
+        'a comma a point',
+        'a comma. a point.',
+        'a comma,, a point.',
+        'a comma, , a point.',
+        'a comma, a point,',
+        'a comma? a point!']
+     for s in (True, False)
+     for u in (separator.Separator(), separator.Separator(word='_', phone=' '))
+     ))
+def test_punctuation(text, strip, sep):
+    if sep == separator.Separator():
+        expected = 'ɐ kɑːmə ɐ pɔɪnt' if strip else 'ɐ kɑːmə ɐ pɔɪnt '
+    else:
+        expected = (
+            'ɐ_k ɑː m ə_ɐ_p ɔɪ n t' if strip else 'ɐ _k ɑː m ə _ɐ _p ɔɪ n t _')
+
+    output = EspeakBackend('en-us').phonemize(text, strip=strip, separator=sep)
     assert expected == output

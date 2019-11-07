@@ -169,8 +169,7 @@ class EspeakBackend(BaseBackend):
 
                     # espeak can split an utterance into several lines because
                     # of punctuation, here we merge the lines into a single one
-                    raw_output = raw_output.strip().replace(
-                        '\n', separator.word)
+                    raw_output = raw_output.strip().replace('\n', ' ')
                 finally:
                     os.remove(data.name)
 
