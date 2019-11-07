@@ -166,6 +166,11 @@ class EspeakBackend(BaseBackend):
 
                     raw_output = subprocess.check_output(
                         shlex.split(command, posix=False)).decode('utf8')
+
+                    # espeak can split an utterance into several lines because
+                    # of punctuation, here we merge the lines into a single one
+                    raw_output = raw_output.strip().replace(
+                        '\n', separator.word)
                 finally:
                     os.remove(data.name)
 

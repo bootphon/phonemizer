@@ -121,3 +121,16 @@ def test_language_switch():
 
     with pytest.raises(RuntimeError):
         backend = EspeakBackend('fr-fr', language_switch='foo')
+
+
+@pytest.mark.parametrize('text', [
+    'a comma a point',
+    'a comma. a point.',
+    'a comma,, a point.',
+    'a comma, , a point.',
+    'a comma, a point,',
+    'a comma? a point!'])
+def test_punctuation(text):
+    expected = 'ɐ kɑːmə ɐ pɔɪnt'
+    output = EspeakBackend('en-us').phonemize(text, strip=True)
+    assert expected == output
