@@ -63,7 +63,7 @@ class EspeakBackend(BaseBackend):
 
         # ensure the lang_switch argument is valid
         valid_lang_switch = [
-            'ignore', 'remove-utterance', 'keep-flags' 'remove-flags']
+            'ignore', 'remove-utterance', 'keep-flags', 'remove-flags']
         if language_switch not in valid_lang_switch:
             raise RuntimeError(
                 'lang_switch argument "{}" invalid, must be in {}'
