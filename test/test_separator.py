@@ -48,3 +48,9 @@ def test_str():
     separator = Separator(word='w', syllable='s', phone='p')
     assert str(separator) == '(phone: "p", syllable: "s", word: "w")'
     assert str(default_separator) == '(phone: "", syllable: "", word: " ")'
+
+
+def test_equal():
+    assert Separator() == Separator()
+    assert default_separator == Separator(phone='', syllable='', word=' ')
+    assert Separator(word='  ') != default_separator
