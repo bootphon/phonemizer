@@ -37,7 +37,7 @@ class EspeakBackend(BaseBackend):
     espeak_version_re = r'.*: ([0-9]+\.[0-9]+\.[0-9]+)'
 
     def __init__(self, language, use_sampa=False,
-                 language_switch='keep-flags', with_stress=False,
+                 language_switch='ignore', with_stress=False,
                  logger=get_logger()):
         super(self.__class__, self).__init__(language, logger=logger)
 
@@ -63,7 +63,7 @@ class EspeakBackend(BaseBackend):
 
         # ensure the lang_switch argument is valid
         valid_lang_switch = [
-            'keep-flags', 'remove-flags', 'remove-utterance']
+            'ignore', 'remove-utterance', 'keep-flags' 'remove-flags']
         if language_switch not in valid_lang_switch:
             raise RuntimeError(
                 'lang_switch argument "{}" invalid, must be in {}'
@@ -118,30 +118,25 @@ class EspeakBackend(BaseBackend):
         return {v[1]: v[3].replace(u'_', u' ').replace(u'å', u'a')
                 for v in voices}
 
-    def _process_lang_switch(self, n, utt):
-        # look for language swith in the current utterance
-        flags = re.findall(_ESPEAK_FLAGS_RE, utt)
-
-        # no language switch, nothing to do
-        if not flags:
+     def _process_lang_switch(self, n, utt):
+        if self._lang_swith == 'ignore':
+            # ignore the language switch but warn if one is found
             return utt
 
-        # language switch detected, register the line number
-        self._lang_switch_list.append(n)
-
-        # ignore the language switch but warn if one is found
-        if self._lang_switch == 'keep-flags':
-            return utt
-
-        elif self._lang_switch == 'remove-flags':
-            # remove all the (lang) flags in the current utterance
-            for flag in set(flags):
-                utt = utt.replace(flag, '')
-
-        else:  # self._lang_switch == 'remove-utterances':
-            # drop the entire utterance
+        elif self._lang_swith == 'remove-utterance':
+            # remove the entire utterance
             return None
 
+        else:
+            flags = set(re.findall(r'\(.+?\)', utt))
+            self._lang_switch_list.append(n)
+            if self._lang_swith == 'remove-flags':
+                # remove all the (lang) flags in the line
+                for flag in flags:
+                    utt = line.replace(flag, '')
+            else: # self._lang_switch == "keep-flags"
+                return utt
+        
         return utt
 
     def _phonemize_aux(self, text, separator, strip):
@@ -200,6 +195,9 @@ class EspeakBackend(BaseBackend):
                 self.logger.warning(
                     'removed %s utterances containing language switches '
                     '(applying "remove-utterance" policy)', nswitches)
+            elif self._lang_switch == 'ignore':
+                 self.logger.warning(
+                     'language switch found but ignored.')
             else:
                 self.logger.warning(
                     'fount %s utterances containing language switches '

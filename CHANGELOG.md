@@ -2,6 +2,12 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+## phonemizer-resembletron 
+* **bugfixes**
+
+  * Add ``ignore`` option to disable ``language_switch`` by default 
+    due to too many language detection mistakes.
+
 ## not yet released
 
 * **bugfix**
