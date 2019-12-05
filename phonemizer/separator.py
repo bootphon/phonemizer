@@ -31,6 +31,12 @@ class Separator(object):
         self._syllable = str(syllable) if syllable else ''
         self._word = str(word) if word else ''
 
+    def __eq__(self, other):
+        return (
+            self.phone == other.phone
+            and self.syllable == other.syllable
+            and self.word == other.word)
+
     def __str__(self):
         def format(s):
             return '"{}"'.format(s)

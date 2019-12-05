@@ -159,34 +159,37 @@ class EspeakBackend(BaseBackend):
                     if self.logger:
                         self.logger.debug('running %s', command)
 
-                    raw_output = subprocess.check_output(
+                    line = subprocess.check_output(
                         shlex.split(command, posix=False)).decode('utf8')
                 finally:
                     os.remove(data.name)
 
-                for line in (l.strip() for l in raw_output.split('\n') if l):
-                    line = self._process_lang_switch(n, line)
-                    if not line:
-                        continue
+                # espeak can split an utterance into several lines because
+                # of punctuation, here we merge the lines into a single one
+                line = line.strip().replace('\n', ' ').replace('  ', ' ')
 
-                    out_line = ''
-                    for word in line.split(u' '):
-                        w = word.strip()
+                line = self._process_lang_switch(n, line)
+                if not line:
+                    continue
 
-                        # remove the stresses on phonemes
-                        if not self._with_stress:
-                            w = w.replace(u"ˈ", u'')
-                            w = w.replace(u'ˌ', u'')
-                            w = w.replace(u"'", u'')
+                out_line = ''
+                for word in line.split(u' '):
+                    w = word.strip()
 
-                        if not strip:
-                            w += '_'
-                        w = w.replace('_', separator.phone)
-                        out_line += w + separator.word
+                    # remove the stresses on phonemes
+                    if not self._with_stress:
+                        w = w.replace(u"ˈ", u'')
+                        w = w.replace(u'ˌ', u'')
+                        w = w.replace(u"'", u'')
 
-                    if strip:
-                        out_line = out_line[:-len(separator.word)]
-                    output.append(out_line)
+                    if not strip:
+                        w += '_'
+                    w = w.replace('_', separator.phone)
+                    out_line += w + separator.word
+
+                if strip:
+                    out_line = out_line[:-len(separator.word)]
+                output.append(out_line)
 
         # warn the user on language switches fount during phonemization
         if self._lang_switch_list:
