@@ -143,3 +143,30 @@ def test_punctuation(text, strip, sep):
 
     output = EspeakBackend('en-us').phonemize(text, strip=strip, separator=sep)
     assert expected == output
+
+
+# see https://github.com/bootphon/phonemizer/issues/31
+def test_phone_separator_simple():
+    text = 'The lion and the tiger ran'
+    sep = separator.Separator(phone='_')
+    backend = EspeakBackend('en-us')
+
+    output = backend.phonemize(text, separator=sep, strip=True)
+    expected = 'ð_ə l_aɪə_n æ_n_d ð_ə t_aɪ_ɡ_ɚ ɹ_æ_n'
+    assert expected == output
+
+    output = backend.phonemize(text, separator=sep, strip=False)
+    expected = 'ð_ə_ l_aɪə_n_ æ_n_d_ ð_ə_ t_aɪ_ɡ_ɚ_ ɹ_æ_n_ '
+    assert expected == output
+
+@pytest.mark.parametrize(
+    'text, expected',
+    (('the hello but the', 'ð_ə h_ə_l_oʊ b_ʌ_t ð_ə'),
+     ('Here there and everywhere', 'h_ɪɹ ð_ɛɹ æ_n_d ɛ_v_ɹ_ɪ_w_ɛɹ'),
+     ('He was hungry and tired.', 'h_iː w_ʌ_z h_ʌ_ŋ_ɡ_ɹ_i æ_n_d t_aɪɚ_d'),
+     ('He was hungry but tired.', 'h_iː w_ʌ_z h_ʌ_ŋ_ɡ_ɹ_i b_ʌ_t t_aɪɚ_d')))
+def test_phone_separator(text, expected):
+    sep = separator.Separator(phone='_')
+    backend = EspeakBackend('en-us')
+    output = backend.phonemize(text, separator=sep, strip=True)
+    assert output == expected

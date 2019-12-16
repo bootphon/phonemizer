@@ -173,6 +173,12 @@ class EspeakBackend(BaseBackend):
                 # of punctuation, here we merge the lines into a single one
                 line = line.strip().replace('\n', ' ').replace('  ', ' ')
 
+                # due to a bug in espeak-ng, some additional separators can be
+                # added at the end of a word. Here a quick fix to solve that
+                # issue. See https://github.com/espeak-ng/espeak-ng/issues/694
+                line = re.sub(r'_+', '_', line)
+                line = re.sub(r'_ ', ' ', line)
+
                 line = self._process_lang_switch(n, line)
                 if not line:
                     continue

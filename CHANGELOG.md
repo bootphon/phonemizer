@@ -2,6 +2,12 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+## not yet released
+
+* **bugfix** fix an issue with ``espeak`` backend, where multiple phone
+  separators can be present at the end of a word, see
+  [#31](https://github.com/bootphon/phonemizer/issues/31).
+
 ## phonemizer-2.0.1
 
 * **bugfixes**
