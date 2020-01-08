@@ -14,4 +14,4 @@
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
 """Multilingual text to phonemes converter"""
 
-__version__ = '2.0.1-dev'
+__version__ = '2.0.1-resemble'
