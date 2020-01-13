@@ -46,7 +46,7 @@ class EspeakBackend(BaseBackend):
         version = self.version()
 
         self.sep = '--sep=_'
-        if version == '1.48.03' or int(version.split('.')[1]) <= 47:
+        if version == '1.48.03' or version.split('.')[1] <= '47':
             self.sep = ''  # pragma: nocover
 
         self.ipa = '--ipa=3'
