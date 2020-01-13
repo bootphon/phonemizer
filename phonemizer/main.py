@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2015-2019 Mathieu Bernard
+# Copyright 2015-2020 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
