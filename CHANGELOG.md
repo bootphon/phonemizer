@@ -4,6 +4,9 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 ## not yet released
 
+* **bugfix** now parses correctly the version of ``espeak-ng`` even for dev
+  versions (e.g. ``1.51-dev``).
+
 * **bugfix** fix an issue with ``espeak`` backend, where multiple phone
   separators can be present at the end of a word, see
   [#31](https://github.com/bootphon/phonemizer/issues/31).

@@ -23,16 +23,19 @@ from phonemizer.backend import EspeakBackend
 
 
 @pytest.mark.parametrize(
-    'version',
-    ['eSpeak text-to-speech: 1.48.03 04.Mar.14 Data at:'
-     '/usr/lib/x86_64-linux-gnu/espeak-data',
-     'speak text-to-speech: 1.48.03 04.Mar.14 Data at: /usr/local/Cellar/'
-     'espeak/1.48.04_1/share/espeak-dat',
-     'eSpeak NG text-to-speech: 1.49.2  Data at: /usr/lib/espeak-ng-data'])
-def test_versions(version):
-    expected = '1.49.2' if 'NG' in version else '1.48.03'
-    version_re = EspeakBackend.espeak_version_re
-    assert re.match(version_re, version).group(1) == expected
+    'version, expected',
+    [('eSpeak text-to-speech: 1.48.03 04.Mar.14 Data at:'
+      '/usr/lib/x86_64-linux-gnu/espeak-data', '1.48.03'),
+     ('speak text-to-speech: 1.48.03 04.Mar.14 Data at: /usr/local/Cellar/'
+      'espeak/1.48.04_1/share/espeak-dat', '1.48.03'),
+     ('eSpeak NG text-to-speech: 1.49.2  Data at: /espeak-ng-data', '1.49.2'),
+     ('eSpeak NG text-to-speech: 1.51-dev  '
+      'Data at: /share/espeak-ng-data', '1.51-dev'),
+     ('eSpeak NG text-to-speech: 1.51.1.2.3-dev '
+      'Data at: /share/espeak-ng-data', '1.51.1.2.3-dev')])
+def test_versions(version, expected):
+    found = re.match(EspeakBackend.espeak_version_re, version).group(1)
+    assert found == expected
 
 
 def test_english():

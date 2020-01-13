@@ -34,7 +34,7 @@ _ESPEAK_FLAGS_RE = re.compile(r'\(.+?\)')
 class EspeakBackend(BaseBackend):
     """Espeak backend for the phonemizer"""
 
-    espeak_version_re = r'.*: ([0-9]+\.[0-9]+\.[0-9]+)'
+    espeak_version_re = r'.*: ([0-9]+(\.[0-9]+)+(\-dev)?)'
 
     def __init__(self, language, use_sampa=False,
                  language_switch='keep-flags', with_stress=False,
