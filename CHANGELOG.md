@@ -2,14 +2,20 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-## not yet released
+## not yet released (will be phonemizer-2.1)
 
-* **bugfix** now parses correctly the version of ``espeak-ng`` even for dev
-  versions (e.g. ``1.51-dev``).
+* **improvements**
 
-* **bugfix** fix an issue with ``espeak`` backend, where multiple phone
-  separators can be present at the end of a word, see
-  [#31](https://github.com/bootphon/phonemizer/issues/31).
+  Punctuation is now supported.
+
+* **bugfixes**
+
+  * parses correctly the version of ``espeak-ng`` even for dev versions (e.g.
+    ``1.51-dev``).
+
+  * fix an issue with ``espeak`` backend, where multiple phone separators can be
+    present at the end of a word, see
+    [#31](https://github.com/bootphon/phonemizer/issues/31).
 
 ## phonemizer-2.0.1
 
