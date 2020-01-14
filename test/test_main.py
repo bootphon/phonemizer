@@ -115,3 +115,8 @@ def test_language_switch():
 def test_logger():
     with pytest.raises(RuntimeError):
         logger.get_logger(verbosity=1)
+
+
+def test_espeak_path():
+    espeak = backend.EspeakBackend.espeak_path()
+    _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')

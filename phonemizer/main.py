@@ -223,15 +223,20 @@ Exemples:
         (en) or (jp), in the output. The 'remove-flags' policy removes them and
         the 'remove-utterance' policy removes the whole line of text including
         a language switch.""")
+    group.add_argument(
+        '--espeak-path', default=None, type=str, metavar='<executable>',
+        help=f'''the path to the espeak executable to use (useful to overload
+        the default espeak/espeak-ng installed on the system).
+        Default to {EspeakBackend.espeak_path()}. This path can also be specified
+        using the $ESPEAK_PATH environment variable.''')
 
     group = parser.add_argument_group('language')
     group.add_argument(
         '-l', '--language', metavar='<str|file>', default='en-us',
         help='''the language code of the input text, see below for a list of
         supported languages. According to the language code you
-        specify, the appropriate backend (segments, espeak or
-        festival) will be called in background. Default is
-        %(default)s.''')
+        specify, the appropriate backend (segments, espeak or festival)
+        will be called in background. Default is %(default)s.''')
 
     return parser.parse_args()
 
@@ -240,6 +245,11 @@ Exemples:
 def main():
     """Phonemize a text from command-line arguments"""
     args = parse_args()
+
+    # setup a custom path to espeak if required (this must be done before
+    # generating the version message)
+    if args.espeak_path:
+        EspeakBackend.set_espeak_path(args.espeak_path)
 
     if args.version:
         print(version.version())

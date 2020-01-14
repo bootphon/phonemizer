@@ -15,6 +15,8 @@
 """Test of the espeak backend"""
 
 
+import distutils.spawn
+import os
 import re
 import pytest
 
@@ -173,3 +175,53 @@ def test_phone_separator(text, expected):
     backend = EspeakBackend('en-us')
     output = backend.phonemize(text, separator=sep, strip=True)
     assert output == expected
+
+
+def test_path_good():
+    try:
+        binary = distutils.spawn.find_executable('espeak')
+        EspeakBackend.set_espeak_path(binary)
+
+        test_english()
+
+    # restore the espeak path to default
+    finally:
+        EspeakBackend.set_espeak_path(None)
+
+
+def test_path_bad():
+    try:
+        # corrupt the default espeak path, try to use python executable instead
+        binary = distutils.spawn.find_executable('python')
+        EspeakBackend.set_espeak_path(binary)
+
+        with pytest.raises(RuntimeError):
+            EspeakBackend('en-us').phonemize('hello')
+        with pytest.raises(RuntimeError):
+            EspeakBackend.version()
+
+        with pytest.raises(ValueError):
+            EspeakBackend.set_espeak_path(__file__)
+
+    # restore the espeak path to default
+    finally:
+        EspeakBackend.set_espeak_path(None)
+
+
+def test_path_venv():
+    try:
+        os.environ['ESPEAK_PATH'] = distutils.spawn.find_executable('python')
+        with pytest.raises(RuntimeError):
+            EspeakBackend('en-us').phonemize('hello')
+        with pytest.raises(RuntimeError):
+            EspeakBackend.version()
+
+        os.environ['ESPEAK_PATH'] = __file__
+        with pytest.raises(ValueError):
+            EspeakBackend.version()
+
+    finally:
+        try:
+            del os.environ['ESPEAK_PATH']
+        except KeyError:
+            pass

@@ -69,7 +69,7 @@ def phonemize(text, language='en-us', backend='festival',
       Alphabet). This option is only valid for the 'espeak-ng' backend. Default
       to False.
 
-    language_switch (str) : espeak can pronounce some words in another language
+    language_switch (str): espeak can pronounce some words in another language
       (typically English) when phonemizing a text. This option setups the
       policy to use when such a language switch occurs. Three values are
       available: 'keep-flags' (the default), 'remove-flags' or

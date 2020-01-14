@@ -6,7 +6,11 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 * **improvements**
 
-  Punctuation is now supported.
+  * it is now possible to specify the path to a custom ``espeak`` executable
+    (for instance to use a local installation or to test different versions).
+    Either specify the ``ESPEAK_PATH`` environment variable, the
+    ``--espeak-path`` option from command line or use the
+    ``EspeakBackend.set_espeak_path`` method from the Python API.
 
 * **bugfixes**
 
