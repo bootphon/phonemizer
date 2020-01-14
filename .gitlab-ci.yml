@@ -30,6 +30,8 @@ phonemizer-oberon:
     - cd /shared/apps/phonemizer
     - git pull origin master
     - python setup.py install
+  only:
+    - tags
 
 phonemizer-pypi:
   # upload the release on PyPI
