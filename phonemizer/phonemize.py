@@ -109,10 +109,6 @@ def phonemize(text, language='en-us', backend='festival',
 
     # ensure the phonetic alphabet is valid
     if use_sampa is True:
-        if backend == 'espeak' and not EspeakBackend.is_espeak_ng():
-            raise RuntimeError(  # pragma: nocover
-                'sampa alphabet is not supported by espeak, '
-                'please install espeak-ng')
         if backend != 'espeak':
             raise RuntimeError(
                 'sampa alphabet is only supported by espeak backend')

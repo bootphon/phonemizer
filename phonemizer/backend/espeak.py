@@ -55,10 +55,6 @@ class EspeakBackend(BaseBackend):
 
         self._with_stress = with_stress
         if use_sampa is True:
-            if not self.is_espeak_ng():
-                raise RuntimeError(  # pragma: nocover
-                    'sampa alphabet is only supported by espeak-ng backend, '
-                    'please install it instead of espeak')
             self.ipa = '-x --pho'
 
         # ensure the lang_switch argument is valid
