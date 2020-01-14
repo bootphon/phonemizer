@@ -26,10 +26,13 @@ from phonemizer.logger import get_logger
 from phonemizer.separator import default_separator
 from phonemizer.backend import (
     EspeakBackend, FestivalBackend, SegmentsBackend)
+from phonemizer.punctuation import Punctuation
 
 
 def phonemize(text, language='en-us', backend='festival',
               separator=default_separator, strip=False,
+              preserve_punctuation=False,
+              punctuation_marks=Punctuation.default_marks(),
               with_stress=False, use_sampa=False,
               language_switch='keep-flags',
               njobs=1, logger=get_logger()):
@@ -59,6 +62,12 @@ def phonemize(text, language='en-us', backend='festival',
 
     strip (bool): If True, don't output the last word and phone
       separators of a token, default to False.
+
+    preserve_punctuation (bool): When True, will keep the punctuation in the
+        phonemized output. Default to False and remove all the punctuation.
+
+    punctuation_marks (str): The punctuation marks to consider when dealing
+        with punctuation.
 
     with_stress (bool): This option is only valid for the espeak/espeak-ng
       backend. When True the stresses on phonemes are present (stresses
@@ -150,6 +159,16 @@ def phonemize(text, language='en-us', backend='festival',
     else:
         phonemizer = backends[backend](language, logger=logger)
 
-    # phonemize the input text with the backend
+    # deals with punctuation
+    punctuator = Puntuation(punctuation_marks)
+
+    # phonemize the input text but preserve punctuation
+    if preserve_punctuation:
+        text, marks = punctuator.preserve(text)
+        text = phonemizer.phonemize(
+            text, separator=separator, strip=strip, njobs=njobs)
+        return punctuator.restore(text, marks)
+
+    # phonemize the input text with punctuation removed
     return phonemizer.phonemize(
-        text, separator=separator, strip=strip, njobs=njobs)
+        punctuator.remove(text), separator=separator, strip=strip, njobs=njobs)

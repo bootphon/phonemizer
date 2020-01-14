@@ -15,4 +15,55 @@
 """Implementation of punctuation processing"""
 
 
-PUNCTUATION = (';', ':', ',', '.', '!', '?')
+import re
+
+
+_DEFAULT_MARKS = ';:,.!?¡¿—"'
+
+
+def _apply_str_or_list(function, text):
+    if isinstance(text, list):
+        return [function(line) for line in text]
+    return function(text)
+
+
+class Punctuation:
+    def __init__(self, marks=_DEFAULT_MARKS):
+        self.marks = marks
+
+    @staticmethod
+    def default_marks():
+        return _DEFAULT_MARKS
+
+    @property
+    def marks(self):
+        return self._marks
+
+    @marks.setter
+    def marks(self, value):
+        if not isinstance(value, str):
+            raise ValueError('punctuation marks must be defined as a string')
+        self._marks = ''.join(set(value))
+
+        # catching all the marks in one regular expression: zero or more spaces
+        # + one or more marks + zero or more spaces.
+        self.marks_re = re.compile(fr'\s*[{self._marks}]+\s*')
+
+    def remove(self, text):
+        """Returns the `text` with all punctuation marks replaced by spaces"""
+        return _apply_str_or_list(self._remove_str, text)
+
+    def _remove_str(self, text):
+        return re.sub(self._match_re, ' ', text)
+
+    def preserve(self, text):
+        return _apply_str_or_list(self._preserve_str, text)
+
+    def _preserve_str(self, text):
+        return text, []
+
+    def restore(text, marks):
+        return _apply_str_or_list(self._restore_str, text)
+
+    def _restore_str(self, text):
+        return text
