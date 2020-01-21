@@ -51,12 +51,6 @@ def test_espeak(njobs):
         strip=True, njobs=njobs)
     assert out == ['wʌn tuː', 'θɹiː', 'foːɹ faɪv']
 
-    if EspeakBackend.is_espeak_ng():
-        out = phonemize(
-            text, language='en-us', backend='espeak', use_sampa=True,
-            strip=True, njobs=njobs)
-        assert out == ['wVn tu:', 'Tri:', 'fo@ faIv']
-
     out = phonemize(
         text, language='en-us', backend='espeak',
         strip=False, njobs=njobs)
@@ -81,6 +75,57 @@ def test_espeak(njobs):
         '\n'.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
     assert out == '\n'.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
+
+    # if EspeakBackend.is_espeak_ng():
+    out = phonemize(
+        text, language='en-us', backend='espeak', use_sampa=True,
+        strip=True, njobs=njobs)
+    assert out == ['wVn tu:', 'Tri:', 'fo@ faIv']
+
+    list_sampa_examples_plosives = ['pont', 'bon', 'temps', 'dans',
+                                    'quand', 'gant']
+    list_sampa_examples_fricatives = ['femme', 'vent', 'sans',
+                                      'champ', 'gens', 'ion']
+    list_sampa_examples_nasals = ['mont', 'nom', 'oignon', 'camping']
+    list_sampa_examples_liquids_glides = ['long', 'rond', 'coin',
+                                          'juin', 'pierre']
+    list_sampa_examples_vowels = ['si', 'ses', 'seize', 'patte', 'pâte',
+                                  'comme', 'gros', 'doux', 'du', 'deux',
+                                  'neuf', 'justement', 'vin', 'vent',
+                                  'bon', 'brun']
+    list_sampa = {
+        'plosives': list_sampa_examples_plosives,
+        'fricatives': list_sampa_examples_fricatives,
+        'nasals': list_sampa_examples_nasals,
+        'liquids_glides': list_sampa_examples_liquids_glides,
+        'vowels': list_sampa_examples_vowels}
+    list_sampa_answers = {
+        'fricatives': ['fam', 'va~', 'sa~', 'Sa~', 'Za~', 'jo~'],
+        'liquids_glides': ['lo~', 'ro~', 'kwe~', 'Zye~', 'pjEr'],
+        'nasals': ['mo~', 'no~', 'onjo~', 'kampIN'],
+        'plosives': ['po~', 'bo~', 'ta~', 'da~', 'ka~', 'ga~'],
+        'vowels': ['si',
+                   'se',
+                   'sEz',
+                   'pat',
+                   'pa:t',
+                   'kOm',
+                   'gro',
+                   'du',
+                   'dy',
+                   'dY',
+                   'n9f',
+                   'Zystma~',
+                   've~',
+                   'va~',
+                   'bo~',
+                   'br9~']}
+    for category in list_sampa.keys():
+        for idx, text in enumerate(list_sampa[category]):
+            out = phonemize(
+                text, language='fr-fr', backend='espeak', use_sampa=True,
+                strip=True, njobs=njobs)
+            assert out == list_sampa_answers[category][idx]
 
 
 @pytest.mark.parametrize('njobs', [1, 2, 4])

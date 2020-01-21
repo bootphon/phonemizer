@@ -194,15 +194,19 @@ class EspeakBackend(BaseBackend):
                         w = w.replace(u"-", u'')
 
                     if self.use_sampa:
+                        path_curr_file = os.path.realpath(__file__)
+                        path_dir_name = os.path.dirname(path_curr_file)
                         language_file_replace = os.path.join(
+                            path_dir_name,
                             'espeak_sampa_replacement',
                             self.language + '.yaml'
                             )
                         if os.path.isfile(language_file_replace):
-                            sampa_mapping_replace = safe_load(
-                                language_file_replace)
+                            with open(language_file_replace, 'r') as stream:
+                                sampa_mapping_replace = safe_load(stream)
                             for key in sampa_mapping_replace.keys():
-                                w = w.replace(key, sampa_mapping_replace[key])
+                                w = w.replace(key, str(
+                                              sampa_mapping_replace[key]))
                         else:
                             # self.logger.warning(
                             #     'No phone replacements '
