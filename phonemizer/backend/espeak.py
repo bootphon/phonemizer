@@ -20,6 +20,7 @@ import re
 import shlex
 import subprocess
 import tempfile
+from yaml import safe_load
 
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
@@ -44,6 +45,8 @@ class EspeakBackend(BaseBackend):
         # adapt some command line option to the espeak version (for
         # phoneme separation and IPA output)
         version = self.version()
+
+        self.use_sampa = use_sampa
 
         self.sep = '--sep=_'
         if version == '1.48.03' or version.split('.')[1] <= '47':
@@ -188,6 +191,24 @@ class EspeakBackend(BaseBackend):
                         w = w.replace(u"ˈ", u'')
                         w = w.replace(u'ˌ', u'')
                         w = w.replace(u"'", u'')
+                        w = w.replace(u"-", u'')
+
+                    if self.use_sampa:
+                        language_file_replace = os.path.join(
+                            'espeak_sampa_replacement',
+                            self.language + '.yaml'
+                            )
+                        if os.path.isfile(language_file_replace):
+                            sampa_mapping_replace = safe_load(
+                                language_file_replace)
+                            for key in sampa_mapping_replace.keys():
+                                w = w.replace(key, sampa_mapping_replace[key])
+                        else:
+                            # self.logger.warning(
+                            #     'No phone replacements '
+                            #     'for language %s. Some phones may not be '
+                            #     ' Sampa standard', self.language)
+                            pass
 
                     if not strip:
                         w += '_'
