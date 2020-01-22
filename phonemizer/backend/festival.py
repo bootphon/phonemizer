@@ -134,7 +134,8 @@ class FestivalBackend(BaseBackend):
                 data.close()
 
                 # the Scheme script to be send to festival
-                scm_script = open(self.script, 'r').read().format(data.name)
+                text_fpath = data.name.replace("\\", "/")
+                scm_script = open(self.script, 'r').read().format(text_fpath)
 
                 with tempfile.NamedTemporaryFile('w+', delete=False) as scm:
                     try:
@@ -167,7 +168,7 @@ class FestivalBackend(BaseBackend):
         """
         try:
             output = subprocess.check_output(
-                shlex.split(cmd.replace("\\", "/"), posix=False), stderr=fstderr)
+                shlex.split(cmd, posix=False), stderr=fstderr)
 
             # festival seems to use latin1 and not utf8
             return re.sub(' +', ' ', output.decode('latin1'))
