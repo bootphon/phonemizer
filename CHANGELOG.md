@@ -2,16 +2,38 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-## not yet released
+## not yet released (will be phonemizer-2.1)
 
-* **bugfix**
+* **improvements**
+
+  * it is now possible to specify the path to a custom ``espeak`` executable
+    (for instance to use a local installation or to test different versions).
+    Either specify the ``ESPEAK_PATH`` environment variable, the
+    ``--espeak-path`` option from command line or use the
+    ``EspeakBackend.set_espeak_path`` method from the Python API.
+
+* **bugfixes**
+
+  * parses correctly the version of ``espeak-ng`` even for dev versions (e.g.
+    ``1.51-dev``).
+
+  * fix an issue with ``espeak`` backend, where multiple phone separators can be
+    present at the end of a word, see
+    [#31](https://github.com/bootphon/phonemizer/issues/31).
+
+## phonemizer-2.0.1
+
+* **bugfixes**
 
   * ``keep-flags`` was not the default argument for ``language_switch`` in the
     class ``EspeakBackend``.
 
+  * fixed an issue with punctuation processing in the espeak backend, see
+    [#26](https://github.com/bootphon/phonemizer/issues/26)
+
 * **improvements**
 
-  * now log a warning if using ``python2``.
+  * log a warning if using ``python2``.
 
 
 ## phonemizer-2.0

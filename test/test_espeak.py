@@ -1,4 +1,4 @@
-# Copyright 2015-2019 Mathieu Bernard
+# Copyright 2015-2020 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -15,6 +15,8 @@
 """Test of the espeak backend"""
 
 
+import distutils.spawn
+import os
 import re
 import pytest
 
@@ -23,16 +25,19 @@ from phonemizer.backend import EspeakBackend
 
 
 @pytest.mark.parametrize(
-    'version',
-    ['eSpeak text-to-speech: 1.48.03 04.Mar.14 Data at:'
-     '/usr/lib/x86_64-linux-gnu/espeak-data',
-     'speak text-to-speech: 1.48.03 04.Mar.14 Data at: /usr/local/Cellar/'
-     'espeak/1.48.04_1/share/espeak-dat',
-     'eSpeak NG text-to-speech: 1.49.2  Data at: /usr/lib/espeak-ng-data'])
-def test_versions(version):
-    expected = '1.49.2' if 'NG' in version else '1.48.03'
-    version_re = EspeakBackend.espeak_version_re
-    assert re.match(version_re, version).group(1) == expected
+    'version, expected',
+    [('eSpeak text-to-speech: 1.48.03 04.Mar.14 Data at:'
+      '/usr/lib/x86_64-linux-gnu/espeak-data', '1.48.03'),
+     ('speak text-to-speech: 1.48.03 04.Mar.14 Data at: /usr/local/Cellar/'
+      'espeak/1.48.04_1/share/espeak-dat', '1.48.03'),
+     ('eSpeak NG text-to-speech: 1.49.2  Data at: /espeak-ng-data', '1.49.2'),
+     ('eSpeak NG text-to-speech: 1.51-dev  '
+      'Data at: /share/espeak-ng-data', '1.51-dev'),
+     ('eSpeak NG text-to-speech: 1.51.1.2.3-dev '
+      'Data at: /share/espeak-ng-data', '1.51.1.2.3-dev')])
+def test_versions(version, expected):
+    found = re.match(EspeakBackend.espeak_version_re, version).group(1)
+    assert found == expected
 
 
 def test_english():
@@ -121,3 +126,102 @@ def test_language_switch():
 
     with pytest.raises(RuntimeError):
         backend = EspeakBackend('fr-fr', language_switch='foo')
+
+
+@pytest.mark.parametrize(
+    'text, strip, sep',
+    ((t, s, u) for t in [
+        'a comma a point',
+        'a comma. a point.',
+        'a comma,, a point.',
+        'a comma, , a point.',
+        'a comma? a point!']
+     for s in (True, False)
+     for u in (separator.Separator(), separator.Separator(word='_', phone=' '))
+     ))
+def test_punctuation(text, strip, sep):
+    if sep == separator.Separator():
+        expected = 'ɐ kɑːmə ɐ pɔɪnt' if strip else 'ɐ kɑːmə ɐ pɔɪnt '
+    else:
+        expected = (
+            'ɐ_k ɑː m ə_ɐ_p ɔɪ n t' if strip else 'ɐ _k ɑː m ə _ɐ _p ɔɪ n t _')
+
+    output = EspeakBackend('en-us').phonemize(text, strip=strip, separator=sep)
+    assert expected == output
+
+
+# see https://github.com/bootphon/phonemizer/issues/31
+def test_phone_separator_simple():
+    text = 'The lion and the tiger ran'
+    sep = separator.Separator(phone='_')
+    backend = EspeakBackend('en-us')
+
+    output = backend.phonemize(text, separator=sep, strip=True)
+    expected = 'ð_ə l_aɪə_n æ_n_d ð_ə t_aɪ_ɡ_ɚ ɹ_æ_n'
+    assert expected == output
+
+    output = backend.phonemize(text, separator=sep, strip=False)
+    expected = 'ð_ə_ l_aɪə_n_ æ_n_d_ ð_ə_ t_aɪ_ɡ_ɚ_ ɹ_æ_n_ '
+    assert expected == output
+
+@pytest.mark.parametrize(
+    'text, expected',
+    (('the hello but the', 'ð_ə h_ə_l_oʊ b_ʌ_t ð_ə'),
+     ('Here there and everywhere', 'h_ɪɹ ð_ɛɹ æ_n_d ɛ_v_ɹ_ɪ_w_ɛɹ'),
+     ('He was hungry and tired.', 'h_iː w_ʌ_z h_ʌ_ŋ_ɡ_ɹ_i æ_n_d t_aɪɚ_d'),
+     ('He was hungry but tired.', 'h_iː w_ʌ_z h_ʌ_ŋ_ɡ_ɹ_i b_ʌ_t t_aɪɚ_d')))
+def test_phone_separator(text, expected):
+    sep = separator.Separator(phone='_')
+    backend = EspeakBackend('en-us')
+    output = backend.phonemize(text, separator=sep, strip=True)
+    assert output == expected
+
+
+def test_path_good():
+    try:
+        binary = distutils.spawn.find_executable('espeak')
+        EspeakBackend.set_espeak_path(binary)
+
+        test_english()
+
+    # restore the espeak path to default
+    finally:
+        EspeakBackend.set_espeak_path(None)
+
+
+def test_path_bad():
+    try:
+        # corrupt the default espeak path, try to use python executable instead
+        binary = distutils.spawn.find_executable('python')
+        EspeakBackend.set_espeak_path(binary)
+
+        with pytest.raises(RuntimeError):
+            EspeakBackend('en-us').phonemize('hello')
+        with pytest.raises(RuntimeError):
+            EspeakBackend.version()
+
+        with pytest.raises(ValueError):
+            EspeakBackend.set_espeak_path(__file__)
+
+    # restore the espeak path to default
+    finally:
+        EspeakBackend.set_espeak_path(None)
+
+
+def test_path_venv():
+    try:
+        os.environ['ESPEAK_PATH'] = distutils.spawn.find_executable('python')
+        with pytest.raises(RuntimeError):
+            EspeakBackend('en-us').phonemize('hello')
+        with pytest.raises(RuntimeError):
+            EspeakBackend.version()
+
+        os.environ['ESPEAK_PATH'] = __file__
+        with pytest.raises(ValueError):
+            EspeakBackend.version()
+
+    finally:
+        try:
+            del os.environ['ESPEAK_PATH']
+        except KeyError:
+            pass

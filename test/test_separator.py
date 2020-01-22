@@ -1,4 +1,4 @@
-# Copyright 2015-2019 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
+# Copyright 2015-2020 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -48,3 +48,9 @@ def test_str():
     separator = Separator(word='w', syllable='s', phone='p')
     assert str(separator) == '(phone: "p", syllable: "s", word: "w")'
     assert str(default_separator) == '(phone: "", syllable: "", word: " ")'
+
+
+def test_equal():
+    assert Separator() == Separator()
+    assert default_separator == Separator(phone='', syllable='', word=' ')
+    assert Separator(word='  ') != default_separator

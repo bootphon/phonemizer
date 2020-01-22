@@ -1,4 +1,4 @@
-# Copyright 2015-2019 Mathieu Bernard
+# Copyright 2015-2020 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -31,22 +31,29 @@ from phonemizer.logger import get_logger
 _ESPEAK_FLAGS_RE = re.compile(r'\(.+?\)')
 
 
+# a global variable being used to verload the default espeak installed on the
+# system. The user can choose an alternative espeak with the method
+# EspeakBackend.set_espeak_path().
+_ESPEAK_DEFAULT_PATH = None
+
+
 class EspeakBackend(BaseBackend):
     """Espeak backend for the phonemizer"""
 
-    espeak_version_re = r'.*: ([0-9]+\.[0-9]+\.[0-9]+)'
+    espeak_version_re = r'.*: ([0-9]+(\.[0-9]+)+(\-dev)?)'
 
     def __init__(self, language, use_sampa=False,
                  language_switch='keep-flags', with_stress=False,
                  logger=get_logger()):
         super(self.__class__, self).__init__(language, logger=logger)
+        self.logger.debug(f'espeak is {self.espeak_path()}')
 
         # adapt some command line option to the espeak version (for
         # phoneme separation and IPA output)
         version = self.version()
 
         self.sep = '--sep=_'
-        if version == '1.48.03' or int(version.split('.')[1]) <= 47:
+        if version == '1.48.03' or version.split('.')[1] <= '47':
             self.sep = ''  # pragma: nocover
 
         self.ipa = '--ipa=3'
@@ -76,7 +83,31 @@ class EspeakBackend(BaseBackend):
         return 'espeak'
 
     @staticmethod
-    def espeak_exe():
+    def set_espeak_path(fpath):
+        """"""
+        global _ESPEAK_DEFAULT_PATH
+        if not fpath:
+            _ESPEAK_DEFAULT_PATH = None
+            return
+
+        if not (os.path.isfile(fpath) and os.access(fpath, os.X_OK)):
+            raise ValueError(
+                f'{fpath} is not an executable file')
+
+        _ESPEAK_DEFAULT_PATH = os.path.abspath(fpath)
+
+    @staticmethod
+    def espeak_path():
+        if 'ESPEAK_PATH' in os.environ:
+            espeak = os.environ['ESPEAK_PATH']
+            if not (os.path.isfile(espeak) and os.access(espeak, os.X_OK)):
+                raise ValueError(
+                    f'ESPEAK_PATH={espeak} is not an executable file')
+            return os.path.abspath(espeak)
+
+        if _ESPEAK_DEFAULT_PATH:
+            return _ESPEAK_DEFAULT_PATH
+
         espeak = distutils.spawn.find_executable('espeak-ng')
         if not espeak:  # pragma: nocover
             espeak = distutils.spawn.find_executable('espeak')
@@ -84,12 +115,12 @@ class EspeakBackend(BaseBackend):
 
     @classmethod
     def is_available(cls):
-        return True if cls.espeak_exe() else False
+        return True if cls.espeak_path() else False
 
     @classmethod
     def long_version(cls):
         return subprocess.check_output(shlex.split(
-            '{} --help'.format(cls.espeak_exe()), posix=False)).decode(
+            '{} --help'.format(cls.espeak_path()), posix=False)).decode(
                 'utf8').split('\n')[1]
 
     @classmethod
@@ -104,13 +135,16 @@ class EspeakBackend(BaseBackend):
         long_version = cls.long_version()
 
         # extract the version number with a regular expression
-        return re.match(cls.espeak_version_re, long_version).group(1)
+        try:
+            return re.match(cls.espeak_version_re, long_version).group(1)
+        except AttributeError:
+            raise RuntimeError(f'cannot extract espeak version from {cls.espeak_path()}')
 
     @classmethod
     def supported_languages(cls):
         # retrieve the languages from a call to 'espeak --voices'
         voices = subprocess.check_output(shlex.split(
-            '{} --voices'.format(cls.espeak_exe()), posix=False)).decode(
+            '{} --voices'.format(cls.espeak_path()), posix=False)).decode(
                 'utf8').split('\n')[1:-1]
         voices = [v.split() for v in voices]
 
@@ -158,40 +192,49 @@ class EspeakBackend(BaseBackend):
 
                     # generate the espeak command to run
                     command = '{} -v{} {} -q -f {} {}'.format(
-                        self.espeak_exe(), self.language, self.ipa,
+                        self.espeak_path(), self.language, self.ipa,
                         data.name, self.sep)
 
                     if self.logger:
                         self.logger.debug('running %s', command)
 
-                    raw_output = subprocess.check_output(
+                    line = subprocess.check_output(
                         shlex.split(command, posix=False)).decode('utf8')
                 finally:
                     os.remove(data.name)
 
-                for line in (l.strip() for l in raw_output.split('\n') if l):
-                    line = self._process_lang_switch(n, line)
-                    if not line:
-                        continue
+                # espeak can split an utterance into several lines because
+                # of punctuation, here we merge the lines into a single one
+                line = line.strip().replace('\n', ' ').replace('  ', ' ')
 
-                    out_line = ''
-                    for word in line.split(u' '):
-                        w = word.strip()
+                # due to a bug in espeak-ng, some additional separators can be
+                # added at the end of a word. Here a quick fix to solve that
+                # issue. See https://github.com/espeak-ng/espeak-ng/issues/694
+                line = re.sub(r'_+', '_', line)
+                line = re.sub(r'_ ', ' ', line)
 
-                        # remove the stresses on phonemes
-                        if not self._with_stress:
-                            w = w.replace(u"ˈ", u'')
-                            w = w.replace(u'ˌ', u'')
-                            w = w.replace(u"'", u'')
+                line = self._process_lang_switch(n, line)
+                if not line:
+                    continue
 
-                        if not strip:
-                            w += '_'
-                        w = w.replace('_', separator.phone)
-                        out_line += w + separator.word
+                out_line = ''
+                for word in line.split(u' '):
+                    w = word.strip()
 
-                    if strip:
-                        out_line = out_line[:-len(separator.word)]
-                    output.append(out_line)
+                    # remove the stresses on phonemes
+                    if not self._with_stress:
+                        w = w.replace(u"ˈ", u'')
+                        w = w.replace(u'ˌ', u'')
+                        w = w.replace(u"'", u'')
+
+                    if not strip:
+                        w += '_'
+                    w = w.replace('_', separator.phone)
+                    out_line += w + separator.word
+
+                if strip:
+                    out_line = out_line[:-len(separator.word)]
+                output.append(out_line)
 
         # warn the user on language switches fount during phonemization
         if self._lang_switch_list:

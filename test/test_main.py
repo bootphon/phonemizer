@@ -1,4 +1,4 @@
-# Copyright 2015-2019 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
+# Copyright 2015-2020 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -115,3 +115,8 @@ def test_language_switch():
 def test_logger():
     with pytest.raises(RuntimeError):
         logger.get_logger(verbosity=1)
+
+
+def test_espeak_path():
+    espeak = backend.EspeakBackend.espeak_path()
+    _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
