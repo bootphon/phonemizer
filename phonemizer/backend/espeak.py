@@ -32,7 +32,7 @@ from phonemizer.logger import get_logger
 _ESPEAK_FLAGS_RE = re.compile(r'\(.+?\)')
 
 
-# a global variable being used to verload the default espeak installed on the
+# a global variable being used to overload the default espeak installed on the
 # system. The user can choose an alternative espeak with the method
 # EspeakBackend.set_espeak_path().
 _ESPEAK_DEFAULT_PATH = None

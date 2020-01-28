@@ -6,11 +6,13 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 * **new features**
 
-  * It is now possible to specify the path to a custom ``espeak`` executable
-    (for instance to use a local installation or to test different versions).
-    Either specify the ``PHONEMIZER_ESPEAK_PATH`` environment variable, the
-    ``--espeak-path`` option from command line or use the
-    ``EspeakBackend.set_espeak_path`` method from the Python API.
+  * It is now possible to specify the path to a custom ``espeak`` or
+    ``festival`` executable (for instance to use a local installation or to test
+    different versions). Either specify the ``PHONEMIZER_ESPEAK_PATH``
+    environment variable, the ``--espeak-path`` option from command line or use
+    the ``EspeakBackend.set_espeak_path`` method from the Python API. Similarly
+    for festival use ``PHONEMIZER_FESTIVAL_PATH``, ``--festival-path`` or
+    ``FestivalBackend.set_festival_path``.
 
   * When using ``espeak`` with SAMPA output, some SAMPA phones are corrected to
     correspond to the normalized SAMPA alphabet (espeak seems not to respect

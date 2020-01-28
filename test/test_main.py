@@ -19,7 +19,7 @@ import tempfile
 import shlex
 import sys
 
-from phonemizer.backend import EspeakBackend
+from phonemizer.backend import EspeakBackend, FestivalBackend
 from phonemizer import main, backend, logger
 
 
@@ -118,3 +118,8 @@ def test_logger():
 def test_espeak_path():
     espeak = backend.EspeakBackend.espeak_path()
     _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
+
+
+def test_festival_path():
+    festival = backend.FestivalBackend.festival_path()
+    _test(u'hello world', u'hhaxlow werld ', f'--festival-path={festival} -b festival')

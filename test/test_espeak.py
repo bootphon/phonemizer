@@ -211,6 +211,9 @@ def test_path_bad():
         EspeakBackend.set_espeak_path(None)
 
 
+@pytest.mark.skipif(
+    'PHONEMIZER_ESPEAK_PATH' in os.environ,
+    reason='cannot modify environment')
 def test_path_venv():
     try:
         os.environ['PHONEMIZER_ESPEAK_PATH'] = distutils.spawn.find_executable('python')
