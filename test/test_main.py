@@ -19,6 +19,7 @@ import tempfile
 import shlex
 import sys
 
+from phonemizer.backend import EspeakBackend
 from phonemizer import main, backend, logger
 
 
@@ -60,17 +61,11 @@ def test_readme():
     _test(u'hello world', u'həloʊ wɜːld ')
     _test(u'hello world', u'həloʊ wɜːld ', '--verbose')
     _test(u'hello world', u'həloʊ wɜːld ', '--quiet')
-
-    if backend.EspeakBackend.is_espeak_ng():
-        _test(u'hello world', u'h@loU w3:ld ', '--sampa')
-    else:  # sampa only supported by espeak-ng
-        with pytest.raises(SystemExit):
-            _test(u'hello world', u'h@loU w3:ld ', '--sampa')
-
+    _test(u'hello world', u'h@loU w3:ld ', '--sampa')
     _test(u'hello world', u'hhaxlow werld', '-b festival --strip')
     _test(u'hello world', u'həloʊ wɜːld ', '-l en-us')
-    _test(u'bonjour le monde', u'bɔ̃ʒuʁ lə- mɔ̃d ', '-l fr-fr')
-    _test(u'bonjour le monde', u'b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword ',
+    _test(u'bonjour le monde', u'bɔ̃ʒuʁ lə mɔ̃d ', '-l fr-fr')
+    _test(u'bonjour le monde', u'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword ',
           '-l fr-fr -p " " -w ";eword "')
 
 
@@ -98,14 +93,17 @@ def test_unicode():
     _test(u'untuʼule', u'untṵːle ', '-l yucatec -b segments')
 
 
+@pytest.mark.skipif(
+    not EspeakBackend.is_espeak_ng(),
+    reason='language switch only exists for espeak-ng')
 def test_language_switch():
-    _test("j'aime le football", "ʒɛm lə- (en)fʊtbɔːl(fr) ",
+    _test("j'aime le football", "ʒɛm lə (en)fʊtbɔːl(fr) ",
           '-l fr-fr -b espeak')
 
-    _test("j'aime le football", "ʒɛm lə- (en)fʊtbɔːl(fr) ",
+    _test("j'aime le football", "ʒɛm lə (en)fʊtbɔːl(fr) ",
           '-l fr-fr -b espeak --language-switch keep-flags')
 
-    _test("j'aime le football", "ʒɛm lə- fʊtbɔːl ",
+    _test("j'aime le football", "ʒɛm lə fʊtbɔːl ",
           '-l fr-fr -b espeak --language-switch remove-flags')
 
     _test("j'aime le football", "",

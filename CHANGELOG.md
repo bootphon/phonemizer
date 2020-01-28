@@ -4,22 +4,31 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 ## not yet released (will be phonemizer-2.1)
 
-* **improvements**
+* **new features**
 
-  * it is now possible to specify the path to a custom ``espeak`` executable
+  * It is now possible to specify the path to a custom ``espeak`` executable
     (for instance to use a local installation or to test different versions).
-    Either specify the ``ESPEAK_PATH`` environment variable, the
+    Either specify the ``PHONEMIZER_ESPEAK_PATH`` environment variable, the
     ``--espeak-path`` option from command line or use the
     ``EspeakBackend.set_espeak_path`` method from the Python API.
+
+  * When using ``espeak`` with SAMPA output, some SAMPA phones are corrected to
+    correspond to the normalized SAMPA alphabet (espeak seems not to respect
+    it). The corrections are language specific. A correction file must be placed
+    in ``phonemizer/share/espeak``. This have been implemented only for French
+    by now.
 
 * **bugfixes**
 
   * parses correctly the version of ``espeak-ng`` even for dev versions (e.g.
     ``1.51-dev``).
 
-  * fix an issue with ``espeak`` backend, where multiple phone separators can be
+  * fixed an issue with ``espeak`` backend, where multiple phone separators can be
     present at the end of a word, see
     [#31](https://github.com/bootphon/phonemizer/issues/31).
+
+  * added an additional stress symbol ``-``.
+>>>>>>> Rachine-master
 
 ## phonemizer-2.0.1
 

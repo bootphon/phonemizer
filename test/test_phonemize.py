@@ -51,12 +51,6 @@ def test_espeak(njobs):
         strip=True, njobs=njobs)
     assert out == ['wʌn tuː', 'θɹiː', 'foːɹ faɪv']
 
-    if EspeakBackend.is_espeak_ng():
-        out = phonemize(
-            text, language='en-us', backend='espeak', use_sampa=True,
-            strip=True, njobs=njobs)
-        assert out == ['wVn tu:', 'Tri:', 'fo@ faIv']
-
     out = phonemize(
         text, language='en-us', backend='espeak',
         strip=False, njobs=njobs)
@@ -81,6 +75,12 @@ def test_espeak(njobs):
         '\n'.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
     assert out == '\n'.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
+
+    # if EspeakBackend.is_espeak_ng():
+    out = phonemize(
+        text, language='en-us', backend='espeak', use_sampa=True,
+        strip=True, njobs=njobs)
+    assert out == ['wVn tu:', 'Tri:', 'fo@ faIv']
 
 
 @pytest.mark.parametrize('njobs', [1, 2, 4])
