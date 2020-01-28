@@ -14,6 +14,9 @@ Version numbers follow [semantic versioning](https://semver.org)
     for festival use ``PHONEMIZER_FESTIVAL_PATH``, ``--festival-path`` or
     ``FestivalBackend.set_festival_path``.
 
+  * The ``--sampa`` option is now available for espeak (was available only for
+    espeak-ng).
+
   * When using ``espeak`` with SAMPA output, some SAMPA phones are corrected to
     correspond to the normalized SAMPA alphabet (espeak seems not to respect
     it). The corrections are language specific. A correction file must be placed
@@ -29,8 +32,8 @@ Version numbers follow [semantic versioning](https://semver.org)
     present at the end of a word, see
     [#31](https://github.com/bootphon/phonemizer/issues/31).
 
-  * added an additional stress symbol ``-``.
->>>>>>> Rachine-master
+  * added an additional stress symbol ``-`` for ``espeak``.
+
 
 ## phonemizer-2.0.1
 
