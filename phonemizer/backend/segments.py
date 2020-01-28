@@ -21,6 +21,7 @@ import pkg_resources
 import segments
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
+from phonemizer.punctuation import Punctuation
 
 
 class SegmentsBackend(BaseBackend):
@@ -30,13 +31,21 @@ class SegmentsBackend(BaseBackend):
     unknown morpheme.
 
     """
-    def __init__(self, language, logger=get_logger()):
+    def __init__(self, language,
+                 punctuation_marks=Punctuation.default_marks(),
+                 preserve_punctuation=False,
+                 logger=get_logger()):
         self.logger = logger
         self.logger.info(
             'initializing backend %s-%s', self.name(), self.version())
 
+        # load the grapheme to phoneme mapping
         profile = self._load_g2p_profile(language)
         self.tokenizer = segments.Tokenizer(profile=profile)
+
+        # setup punctuation processing
+        self.preserve_punctuation = preserve_punctuation
+        self._punctuator = Punctuation(punctuation_marks)
 
     @staticmethod
     def name():

@@ -152,23 +152,19 @@ def phonemize(text, language='en-us', backend='festival',
     if backend == 'espeak':
         phonemizer = backends[backend](
             language,
+            punctuation_marks=punctuation_marks,
+            preserve_punctuation=preserve_punctuation,
             with_stress=with_stress,
             use_sampa=use_sampa,
             language_switch=language_switch,
             logger=logger)
     else:
-        phonemizer = backends[backend](language, logger=logger)
+        phonemizer = backends[backend](
+            language,
+            punctuation_marks=punctuation_marks,
+            preserve_punctuation=preserve_punctuation,
+            logger=logger)
 
-    # deals with punctuation
-    punctuator = Puntuation(punctuation_marks)
-
-    # phonemize the input text but preserve punctuation
-    if preserve_punctuation:
-        text, marks = punctuator.preserve(text)
-        text = phonemizer.phonemize(
-            text, separator=separator, strip=strip, njobs=njobs)
-        return punctuator.restore(text, marks)
-
-    # phonemize the input text with punctuation removed
+    # phonemize the input text
     return phonemizer.phonemize(
-        punctuator.remove(text), separator=separator, strip=strip, njobs=njobs)
+        text, separator=separator, strip=strip, njobs=njobs)

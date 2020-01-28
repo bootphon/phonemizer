@@ -9,7 +9,7 @@ https://doi.org/10.5281/zenodo.1045825)
 
 # Phonemizer -- *foʊnmaɪzɚ*
 
-* Simple text to phonemes converter for multiple languages, based on
+* Simple text to phones converter for multiple languages, based on
   [festival](http://www.cstr.ed.ac.uk/projects/festival),
   [espeak-ng](https://github.com/espeak-ng/espeak-ng/)
   and [segments](https://github.com/cldf/segments).
@@ -121,7 +121,7 @@ See the installed backends with the `--version` option:
 
 ### Token separators
 
-You can specify separators for phonemes, syllables (festival only) and
+You can specify separators for phones, syllables (festival only) and
 words.
 
     $ echo "hello world" | phonemize -b festival -w ' ' -p ''
@@ -183,7 +183,7 @@ a space for both phones and words):
         $ echo "hello world" | phonemize -l en-us -b espeak --sampa
         h@loU w3:ld
 
-* **Espeak** can output the stresses on phonemes (this is not supported by festival
+* **Espeak** can output the stresses on phones (this is not supported by festival
   or segments backends)
 
         $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
@@ -224,7 +224,7 @@ a space for both phones and words):
 	    yucatec	  -> ./phonemizer/share/yucatec.g2p
 
   Instead of a language you can also provide a file specifying a
-  grapheme to phoneme mapping (see the files above for exemples).
+  grapheme to phone mapping (see the files above for exemples).
 
 * Languages supported by espeak are (espeak-ng supports even more of
   them), type `phonemize --help` for an exhaustive list:

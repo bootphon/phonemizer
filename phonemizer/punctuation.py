@@ -15,16 +15,18 @@
 """Implementation of punctuation processing"""
 
 
+import collections
 import re
+import six
+from phonemizer.utils import str2list
 
 
-_DEFAULT_MARKS = ';:,.!?¡¿—"'
+# The punctuation marks considered by default.
+_DEFAULT_MARKS = ';:,.!?¡¿—…"«»“”'
 
 
-def _apply_str_or_list(function, text):
-    if isinstance(text, list):
-        return [function(line) for line in text]
-    return function(text)
+_mark_index = collections.namedtuple(
+    '_mark_index', ['index', 'mark', 'position'])
 
 
 class Punctuation:
@@ -41,29 +43,87 @@ class Punctuation:
 
     @marks.setter
     def marks(self, value):
-        if not isinstance(value, str):
+        if not isinstance(value, six.string_types):
             raise ValueError('punctuation marks must be defined as a string')
         self._marks = ''.join(set(value))
 
         # catching all the marks in one regular expression: zero or more spaces
         # + one or more marks + zero or more spaces.
-        self.marks_re = re.compile(fr'\s*[{self._marks}]+\s*')
+        self._marks_re = re.compile(fr'\s*[{self._marks}]+\s*')
 
     def remove(self, text):
         """Returns the `text` with all punctuation marks replaced by spaces"""
-        return _apply_str_or_list(self._remove_str, text)
+        def aux(text):
+            return re.sub(self._marks_re, ' ', text).strip()
 
-    def _remove_str(self, text):
-        return re.sub(self._match_re, ' ', text)
+        if isinstance(text, six.string_types):
+            return aux(text)
+        return [aux(line) for line in text]
 
     def preserve(self, text):
-        return _apply_str_or_list(self._preserve_str, text)
+        text = str2list(text)
+        preserved_text = []
+        preserved_marks = []
 
-    def _preserve_str(self, text):
-        return text, []
+        for n, line in enumerate(text):
+            line, marks = self._preserve_line(line, n)
+            preserved_text += line
+            preserved_marks += marks
+        return [line for line in preserved_text if line], preserved_marks
 
-    def restore(text, marks):
-        return _apply_str_or_list(self._restore_str, text)
+    def _preserve_line(self, line, n):
+        matches = list(re.finditer(self._marks_re, line))
+        if not matches:
+            return [line], []
 
-    def _restore_str(self, text):
-        return text
+        # the line is made only of punctuation marks
+        if len(matches) == 1 and matches[0].group() == line:
+            return [], [_mark_index(n, line, 'A')]
+
+        # build the list of mark indexes required to restore the punctuation
+        marks = []
+        for m in matches:
+            # find the position of the punctuation mark in the utterance:
+            # begin (B), end (E), in the middle (I) or alone (A)
+            position = 'I'
+            if m == matches[0] and line.startswith(m.group()):
+                position = 'B'
+            elif m == matches[-1] and line.endswith(m.group()):
+                position = 'E'
+            marks.append(_mark_index(n, m.group(), position))
+
+        # split the line into sublines, each separated by a punctuation mark
+        preserved_line = []
+        for m in marks:
+            split = line.split(m.mark)
+            prefix, suffix = split[0], m.mark.join(split[1:])
+            preserved_line.append(prefix)
+            line = suffix
+
+        # append any trailing text to the preserved line
+        return preserved_line + [line], marks
+
+    @classmethod
+    def restore(cls, text, marks):
+        return cls._restore_aux(str2list(text), marks, 0)
+
+    @classmethod
+    def _restore_aux(cls, text, marks, n):
+        if len(marks) == 0:
+            return text
+
+        m = marks[0]
+        if m.index == n:  # place the current mark here
+            if m.position == 'B':
+                return cls._restore_aux(
+                    [m.mark + text[0]] + text[1:], marks[1:], n)
+            if m.position == 'E':
+                return [text[0] + m.mark] + cls._restore_aux(
+                    text[1:], marks[1:], n+1)
+            elif m.position == 'A':
+                return [m.mark] + cls._restore_aux(text, marks[1:], n+1)
+            else:  # position == 'I'
+                return cls._restore_aux(
+                    [text[0] + m.mark + text[1]] + text[2:], marks[1:], n)
+        else:
+            return [text[0]] + cls._restore_aux(text[1:], marks, n+1)

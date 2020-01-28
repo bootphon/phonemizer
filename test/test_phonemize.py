@@ -1,4 +1,4 @@
-# Copyright 2016-2019 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
+# Copyright 2015-2020 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -40,6 +40,18 @@ def test_bad_language():
 
     with pytest.raises(RuntimeError):
         phonemize('', language='creep', backend='segments')
+
+
+def test_text_type():
+    t1 = ['one two', 'three', 'four five']
+    t2 = '\n'.join(t1)
+
+    p1 = phonemize(t1, language='en-us', backend='espeak', strip=True)
+    p2 = phonemize(t2, language='en-us', backend='espeak', strip=True)
+
+    assert isinstance(p1, list)
+    assert isinstance(p2, str)
+    assert '\n'.join(p1) == p2
 
 
 @pytest.mark.parametrize('njobs', [1, 2, 4])

@@ -26,11 +26,17 @@ import tempfile
 import phonemizer.lispy as lispy
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
+from phonemizer.punctuation import Punctuation
 
 
 class FestivalBackend(BaseBackend):
-    def __init__(self, language, logger=get_logger()):
-        super(self.__class__, self).__init__(language, logger=logger)
+    def __init__(self, language,
+                 punctuation_marks=Punctuation.default_marks(),
+                 preserve_punctuation=False,
+                 logger=get_logger()):
+        super(self.__class__, self).__init__(
+            language, punctuation_marks=punctuation_marks,
+            preserve_punctuation=preserve_punctuation, logger=logger)
 
         self.script = pkg_resources.resource_filename(
             pkg_resources.Requirement.parse('phonemizer'),

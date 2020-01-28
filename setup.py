@@ -23,7 +23,7 @@ import phonemizer
 setuptools.setup(
     # general description
     name='phonemizer',
-    description=' Simple text to phonemes converter for multiple languages',
+    description=' Simple text to phones converter for multiple languages',
     version=phonemizer.__version__,
 
     # python package dependancies
@@ -42,7 +42,7 @@ setuptools.setup(
     author='Mathieu Bernard',
     author_email='mathieu.a.bernard@inria.fr',
     license='GPL3',
-    keywords='linguistics G2P phoneme festival espeak TTS',
+    keywords='linguistics G2P phone festival espeak TTS',
     url='https://github.com/bootphon/phonemizer',
     long_description=codecs.open('README.md', encoding='utf-8').read(),
     long_description_content_type="text/markdown",

@@ -227,8 +227,8 @@ Exemples:
         '--espeak-path', default=None, type=str, metavar='<executable>',
         help=f'''the path to the espeak executable to use (useful to overload
         the default espeak/espeak-ng installed on the system).
-        Default to {EspeakBackend.espeak_path()}. This path can also be specified
-        using the $ESPEAK_PATH environment variable.''')
+        Default to {EspeakBackend.espeak_path()}. This path can also be
+        specified using the $ESPEAK_PATH environment variable.''')
 
     group = parser.add_argument_group('language')
     group.add_argument(
