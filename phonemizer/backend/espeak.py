@@ -16,11 +16,11 @@
 
 import distutils.spawn
 import os
+import pkg_resources
 import re
 import shlex
 import subprocess
 import tempfile
-from yaml import safe_load
 
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
@@ -47,6 +47,7 @@ class EspeakBackend(BaseBackend):
         version = self.version()
 
         self.use_sampa = use_sampa
+        self.sampa_mapping = self._load_sampa_mapping()
 
         self.sep = '--sep=_'
         if version == '1.48.03' or version.split('.')[1] <= '47':
@@ -76,6 +77,8 @@ class EspeakBackend(BaseBackend):
 
     @staticmethod
     def espeak_exe():
+        # if 'PHONEMIZER_ESPEAK_PATH' in os.environ:
+        #     return os.environ['PHONEMIZER_ESPEAK_PATH']
         espeak = distutils.spawn.find_executable('espeak-ng')
         if not espeak:  # pragma: nocover
             espeak = distutils.spawn.find_executable('espeak')
@@ -116,6 +119,36 @@ class EspeakBackend(BaseBackend):
         # u'å' cause a bug in python2
         return {v[1]: v[3].replace(u'_', u' ').replace(u'å', u'a')
                 for v in voices}
+
+    def _load_sampa_mapping(self):
+        """Loads a sampa symbol map from a file in phonemizer/share/espeak
+
+        Returns it as a dictionary. Returns None if such a file does not exist.
+
+        """
+        if not self.use_sampa:
+            return None
+
+        # look for a file with SAMPA conversion mapping
+        directory = pkg_resources.resource_filename(
+            pkg_resources.Requirement.parse('phonemizer'),
+            'phonemizer/share/espeak')
+        filename = os.path.join(directory, 'sampa_{}.txt'.format(self.language))
+
+        if not os.path.isfile(filename):
+            return None
+
+        # build the mapping from the file
+        self.logger.debug('loading SAMPA mapping from %s', filename)
+        mapping = {}
+        for line in open(filename, 'r'):
+            symbols = line.strip().split()
+            if len(symbols) != 2:  # pragma: nocover
+                raise ValueError(
+                    'bad format in sampa mapping file {}: {}'
+                    .format(filename, line))
+            mapping[symbols[0]] = symbols[1]
+        return mapping
 
     def _process_lang_switch(self, n, utt):
         # look for language swith in the current utterance
@@ -193,26 +226,11 @@ class EspeakBackend(BaseBackend):
                         w = w.replace(u"'", u'')
                         w = w.replace(u"-", u'')
 
-                    if self.use_sampa:
-                        path_curr_file = os.path.realpath(__file__)
-                        path_dir_name = os.path.dirname(path_curr_file)
-                        language_file_replace = os.path.join(
-                            path_dir_name,
-                            'espeak_sampa_replacement',
-                            self.language + '.yaml'
-                            )
-                        if os.path.isfile(language_file_replace):
-                            with open(language_file_replace, 'r') as stream:
-                                sampa_mapping_replace = safe_load(stream)
-                            for key in sampa_mapping_replace.keys():
-                                w = w.replace(key, str(
-                                              sampa_mapping_replace[key]))
-                        else:
-                            # self.logger.warning(
-                            #     'No phone replacements '
-                            #     'for language %s. Some phones may not be '
-                            #     ' Sampa standard', self.language)
-                            pass
+                    # replace the SAMPA symbols from espeak output to the
+                    # standardized ones
+                    if self.sampa_mapping:
+                        for k, v in self.sampa_mapping.items():
+                            w = w.replace(k, v)
 
                     if not strip:
                         w += '_'

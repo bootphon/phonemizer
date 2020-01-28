@@ -34,7 +34,7 @@ class FestivalBackend(BaseBackend):
 
         self.script = pkg_resources.resource_filename(
             pkg_resources.Requirement.parse('phonemizer'),
-            'phonemizer/share/phonemize.scm')
+            'phonemizer/share/festival/phonemize.scm')
         self.logger.info('loaded {}'.format(self.script))
 
     @staticmethod

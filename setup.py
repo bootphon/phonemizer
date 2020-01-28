@@ -27,7 +27,7 @@ setuptools.setup(
     version=phonemizer.__version__,
 
     # python package dependancies
-    install_requires=['joblib', 'segments', 'attrs>=18.1', 'PyYAML>=5.3'],
+    install_requires=['joblib', 'segments', 'attrs>=18.1'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pytest-cov'],
 

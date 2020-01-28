@@ -4,12 +4,24 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 ## not yet released
 
-* **bugfix** now parses correctly the version of ``espeak-ng`` even for dev
-  versions (e.g. ``1.51-dev``).
+* **new features**
 
-* **bugfix** fix an issue with ``espeak`` backend, where multiple phone
-  separators can be present at the end of a word, see
-  [#31](https://github.com/bootphon/phonemizer/issues/31).
+  * When using ``espeak`` with SAMPA output, some SAMPA phones are corrected to
+    correspond to the normalized SAMPA alphabet (espeak seems not to respect
+    it). The corrections are language specific. A correction file must be placed
+    in ``phonemizer/share/espeak``. This have been implemented only for French
+    by now.
+
+* **bugfixes**
+
+  * parses correctly the version of ``espeak-ng`` even for dev versions (e.g.
+    ``1.51-dev``).
+
+  * fixed an issue with ``espeak`` backend, where multiple phone separators can be
+    present at the end of a word, see
+    [#31](https://github.com/bootphon/phonemizer/issues/31).
+
+  * added an additional stress symbol ``-``.
 
 ## phonemizer-2.0.1
 
