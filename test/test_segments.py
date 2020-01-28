@@ -95,7 +95,7 @@ def test_language(tmpdir):
     # check languages by g2p file
     directory = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('phonemizer'),
-        'phonemizer/share')
+        'phonemizer/share/segments')
     assert SegmentsBackend.is_supported_language(
         os.path.join(directory, 'cree.g2p'))
     assert not SegmentsBackend.is_supported_language(

@@ -62,7 +62,7 @@ def test_french():
     backend = EspeakBackend('fr-fr')
     text = u'bonjour le monde'
     sep = separator.Separator(word=';eword ', syllable=None, phone=' ')
-    expected = [u'b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword ']
+    expected = [u'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword ']
     out = backend._phonemize_aux(text, sep, False)
     assert out == expected
 
@@ -84,6 +84,9 @@ def test_arabic():
     assert out == expected
 
 
+@pytest.mark.skipif(
+    not EspeakBackend.is_espeak_ng(),
+    reason='language switch only exists for espeak-ng')
 def test_language_switch():
     text = '\n'.join([
         "j'aime l'anglais",
@@ -96,9 +99,9 @@ def test_language_switch():
     out = backend._phonemize_aux(text, separator.Separator(), True)
     assert out == [
         'ʒɛm lɑ̃ɡlɛ',
-        'ʒɛm lə- (en)fʊtbɔːl(fr)',
+        'ʒɛm lə (en)fʊtbɔːl(fr)',
         '(en)fʊtbɔːl(fr)',
-        'syʁtu lə- (en)ɹiəl(fr) madʁid',
+        'syʁtu lə (en)ɹiəl(fr) madʁid',
         'nytiliz pa (en)ɡuːɡəl(fr)']
 
     # default behavior is to keep the flags
@@ -106,18 +109,18 @@ def test_language_switch():
     out = backend._phonemize_aux(text, separator.Separator(), True)
     assert out == [
         'ʒɛm lɑ̃ɡlɛ',
-        'ʒɛm lə- (en)fʊtbɔːl(fr)',
+        'ʒɛm lə (en)fʊtbɔːl(fr)',
         '(en)fʊtbɔːl(fr)',
-        'syʁtu lə- (en)ɹiəl(fr) madʁid',
+        'syʁtu lə (en)ɹiəl(fr) madʁid',
         'nytiliz pa (en)ɡuːɡəl(fr)']
 
     backend = EspeakBackend('fr-fr', language_switch='remove-flags')
     out = backend._phonemize_aux(text, separator.Separator(), True)
     assert out == [
         'ʒɛm lɑ̃ɡlɛ',
-        'ʒɛm lə- fʊtbɔːl',
+        'ʒɛm lə fʊtbɔːl',
         'fʊtbɔːl',
-        'syʁtu lə- ɹiəl madʁid',
+        'syʁtu lə ɹiəl madʁid',
         'nytiliz pa ɡuːɡəl']
 
     backend = EspeakBackend('fr-fr', language_switch='remove-utterance')
@@ -208,20 +211,72 @@ def test_path_bad():
         EspeakBackend.set_espeak_path(None)
 
 
+@pytest.mark.skipif(
+    'PHONEMIZER_ESPEAK_PATH' in os.environ,
+    reason='cannot modify environment')
 def test_path_venv():
     try:
-        os.environ['ESPEAK_PATH'] = distutils.spawn.find_executable('python')
+        os.environ['PHONEMIZER_ESPEAK_PATH'] = distutils.spawn.find_executable('python')
         with pytest.raises(RuntimeError):
             EspeakBackend('en-us').phonemize('hello')
         with pytest.raises(RuntimeError):
             EspeakBackend.version()
 
-        os.environ['ESPEAK_PATH'] = __file__
+        os.environ['PHONEMIZER_ESPEAK_PATH'] = __file__
         with pytest.raises(ValueError):
             EspeakBackend.version()
 
     finally:
         try:
-            del os.environ['ESPEAK_PATH']
+            del os.environ['PHONEMIZER_ESPEAK_PATH']
         except KeyError:
             pass
+
+
+def test_sampa_fr():
+    list_sampa_examples_plosives = [
+        'pont', 'bon', 'temps', 'dans', 'quand', 'gant']
+    list_sampa_examples_fricatives = [
+        'femme', 'vent', 'sans', 'champ', 'gens', 'ion']
+    list_sampa_examples_nasals = [
+        'mont', 'nom', 'oignon', 'camping']
+    list_sampa_examples_liquids_glides = [
+        'long', 'rond', 'coin', 'juin', 'pierre']
+    list_sampa_examples_vowels = [
+        'si', 'ses', 'seize', 'patte', 'pâte',
+        'comme', 'gros', 'doux', 'du', 'deux',
+        'neuf', 'justement', 'vin', 'vent', 'bon', 'brun']
+    list_sampa = {
+        'plosives': list_sampa_examples_plosives,
+        'fricatives': list_sampa_examples_fricatives,
+        'nasals': list_sampa_examples_nasals,
+        'liquids_glides': list_sampa_examples_liquids_glides,
+        'vowels': list_sampa_examples_vowels}
+    list_sampa_answers = {
+        'fricatives': ['fam', 'va~', 'sa~', 'Sa~', 'Za~', 'jo~'],
+        'liquids_glides': ['lo~', 'ro~', 'kwe~', 'Zye~', 'pjEr'],
+        'nasals': ['mo~', 'no~', 'onjo~', 'kampIN'],
+        'plosives': ['po~', 'bo~', 'ta~', 'da~', 'ka~', 'ga~'],
+        'vowels': ['si',
+                   'se',
+                   'sEz',
+                   'pat',
+                   'pa:t',
+                   'kOm',
+                   'gro',
+                   'du',
+                   'dy',
+                   'dY',
+                   'n9f',
+                   'Zystma~',
+                   've~',
+                   'va~',
+                   'bo~',
+                   'br9~']}
+
+    backend = EspeakBackend(
+        'fr-fr', use_sampa=True, language_switch='remove-flags')
+    for category in list_sampa.keys():
+        for idx, text in enumerate(list_sampa[category]):
+            out = backend.phonemize(text, strip=True)
+            assert out == list_sampa_answers[category][idx]

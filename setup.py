@@ -33,7 +33,9 @@ setuptools.setup(
 
     # include Python code and any files in phonemizer/share
     packages=setuptools.find_packages(),
-    package_data={'phonemizer': ['share/*']},
+    package_data={
+        'phonemizer': [
+            'share/espeak/*', 'share/festival/*', 'share/segments/*']},
 
     # define the command-line script to use
     entry_points={'console_scripts': ['phonemize = phonemizer.main:main']},

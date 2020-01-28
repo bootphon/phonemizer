@@ -16,6 +16,7 @@
 
 import distutils.spawn
 import os
+import pkg_resources
 import re
 import shlex
 import subprocess
@@ -32,7 +33,7 @@ from phonemizer.punctuation import Punctuation
 _ESPEAK_FLAGS_RE = re.compile(r'\(.+?\)')
 
 
-# a global variable being used to verload the default espeak installed on the
+# a global variable being used to overload the default espeak installed on the
 # system. The user can choose an alternative espeak with the method
 # EspeakBackend.set_espeak_path().
 _ESPEAK_DEFAULT_PATH = None
@@ -58,6 +59,9 @@ class EspeakBackend(BaseBackend):
         # phoneme separation and IPA output)
         version = self.version()
 
+        self.use_sampa = use_sampa
+        self.sampa_mapping = self._load_sampa_mapping()
+
         self.sep = '--sep=_'
         if version == '1.48.03' or version.split('.')[1] <= '47':
             self.sep = ''  # pragma: nocover
@@ -68,10 +72,6 @@ class EspeakBackend(BaseBackend):
 
         self._with_stress = with_stress
         if use_sampa is True:
-            if not self.is_espeak_ng():
-                raise RuntimeError(  # pragma: nocover
-                    'sampa alphabet is only supported by espeak-ng backend, '
-                    'please install it instead of espeak')
             self.ipa = '-x --pho'
 
         # ensure the lang_switch argument is valid
@@ -104,11 +104,12 @@ class EspeakBackend(BaseBackend):
 
     @staticmethod
     def espeak_path():
-        if 'ESPEAK_PATH' in os.environ:
-            espeak = os.environ['ESPEAK_PATH']
+        if 'PHONEMIZER_ESPEAK_PATH' in os.environ:
+            espeak = os.environ['PHONEMIZER_ESPEAK_PATH']
             if not (os.path.isfile(espeak) and os.access(espeak, os.X_OK)):
                 raise ValueError(
-                    f'ESPEAK_PATH={espeak} is not an executable file')
+                    f'PHONEMIZER_ESPEAK_PATH={espeak} '
+                    f'is not an executable file')
             return os.path.abspath(espeak)
 
         if _ESPEAK_DEFAULT_PATH:
@@ -157,6 +158,36 @@ class EspeakBackend(BaseBackend):
         # u'å' cause a bug in python2
         return {v[1]: v[3].replace(u'_', u' ').replace(u'å', u'a')
                 for v in voices}
+
+    def _load_sampa_mapping(self):
+        """Loads a sampa symbol map from a file in phonemizer/share/espeak
+
+        Returns it as a dictionary. Returns None if such a file does not exist.
+
+        """
+        if not self.use_sampa:
+            return None
+
+        # look for a file with SAMPA conversion mapping
+        directory = pkg_resources.resource_filename(
+            pkg_resources.Requirement.parse('phonemizer'),
+            'phonemizer/share/espeak')
+        filename = os.path.join(directory, 'sampa_{}.txt'.format(self.language))
+
+        if not os.path.isfile(filename):
+            return None
+
+        # build the mapping from the file
+        self.logger.debug('loading SAMPA mapping from %s', filename)
+        mapping = {}
+        for line in open(filename, 'r'):
+            symbols = line.strip().split()
+            if len(symbols) != 2:  # pragma: nocover
+                raise ValueError(
+                    'bad format in sampa mapping file {}: {}'
+                    .format(filename, line))
+            mapping[symbols[0]] = symbols[1]
+        return mapping
 
     def _process_lang_switch(self, n, utt):
         # look for language swith in the current utterance
@@ -232,6 +263,13 @@ class EspeakBackend(BaseBackend):
                         w = w.replace(u"ˈ", u'')
                         w = w.replace(u'ˌ', u'')
                         w = w.replace(u"'", u'')
+                        w = w.replace(u"-", u'')
+
+                    # replace the SAMPA symbols from espeak output to the
+                    # standardized ones
+                    if self.sampa_mapping:
+                        for k, v in self.sampa_mapping.items():
+                            w = w.replace(k, v)
 
                     if not strip:
                         w += '_'

@@ -71,7 +71,7 @@ class SegmentsBackend(BaseBackend):
         # directory phonemizer/share
         directory = pkg_resources.resource_filename(
             pkg_resources.Requirement.parse('phonemizer'),
-            'phonemizer/share')
+            'phonemizer/share/segments')
 
         # supported languages are files with the 'g2p' extension
         return {f.split('.')[0]: os.path.join(directory, f)

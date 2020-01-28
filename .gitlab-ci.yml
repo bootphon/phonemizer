@@ -19,6 +19,7 @@ phonemizer-test:
   script:
     # run the unit tests within the CI environment
     - conda activate phonemizer-ci
+    - phonemize --version
     - python setup.py test
 
 phonemizer-oberon:

@@ -14,6 +14,8 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the festival backend"""
 
+import distutils.spawn
+import os
 import pytest
 from phonemizer import separator
 from phonemizer.backend import FestivalBackend
@@ -58,3 +60,56 @@ def test_im():
         == ['aym luhkaxng faor axn ihmaxjh']
     assert _test("Im looking for an image", sep) \
         == ['ihm luhkaxng faor axn ihmaxjh']
+
+
+def test_path_good():
+    try:
+        binary = distutils.spawn.find_executable('festival')
+        FestivalBackend.set_festival_path(binary)
+
+        test_im()
+
+    # restore the festival path to default
+    finally:
+        FestivalBackend.set_festival_path(None)
+
+
+def test_path_bad():
+    try:
+        # corrupt the default espeak path, try to use python executable instead
+        binary = distutils.spawn.find_executable('python')
+        FestivalBackend.set_festival_path(binary)
+
+        with pytest.raises(RuntimeError):
+            FestivalBackend('en-us').phonemize('hello')
+        with pytest.raises(RuntimeError):
+            FestivalBackend.version()
+
+        with pytest.raises(ValueError):
+            FestivalBackend.set_festival_path(__file__)
+
+    # restore the festival path to default
+    finally:
+        FestivalBackend.set_festival_path(None)
+
+
+@pytest.mark.skipif(
+    'PHONEMIZER_FESTIVAL_PATH' in os.environ,
+    reason='cannot modify environment')
+def test_path_venv():
+    try:
+        os.environ['PHONEMIZER_FESTIVAL_PATH'] = distutils.spawn.find_executable('python')
+        with pytest.raises(RuntimeError):
+            FestivalBackend('en-us').phonemize('hello')
+        with pytest.raises(RuntimeError):
+            FestivalBackend.version()
+
+        os.environ['PHONEMIZER_FESTIVAL_PATH'] = __file__
+        with pytest.raises(ValueError):
+            FestivalBackend.version()
+
+    finally:
+        try:
+            del os.environ['PHONEMIZER_FESTIVAL_PATH']
+        except KeyError:
+            pass
