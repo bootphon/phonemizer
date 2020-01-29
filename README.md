@@ -147,6 +147,18 @@ a space for both phones and words):
     must be all differents if not empty
 
 
+### Punctuation
+
+By default the punctuation is removed in the phonemized output. You can preserve
+it using the ``--preserve-punctuation`` option:
+
+    $ echo "hello, world!" | phonemize --strip
+    həloʊ wɜːld
+
+    $ echo "hello, world!" | phonemize --preserve-punctuation --strip
+    həloʊ, wɜːld!
+
+
 ### Options
 
 * **Espeak** us-english is the default
