@@ -6,6 +6,12 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 * **new features**
 
+  * Possibility to preserve the punctuation (ignored and silently removed by
+    default) in the phonemized output with the new option
+    ``--preserve-punctuation`` from command line (or the equivalent
+    ``preserve-punctuation`` from Python API). With the ``punctuation-marks``
+    option, one can overload the default marls considered as punctuation.
+
   * It is now possible to specify the path to a custom ``espeak`` or
     ``festival`` executable (for instance to use a local installation or to test
     different versions). Either specify the ``PHONEMIZER_ESPEAK_PATH``

@@ -30,11 +30,26 @@ _mark_index = collections.namedtuple(
 
 
 class Punctuation:
+    """Preserve or remove the punctuation during phonemization
+
+    Backends behave differently with punctuation: festival and espeak with
+    ignore it and remove ot silently whereas segments will raise an error. The
+    Punctuation class solves that issue by "hiding" the punctuation to the
+    phonemization backend and restoring it afterwards.
+
+    Parameters
+    ----------
+    marks (str) : The list of punctuation marks to considerate for processing
+        (either removal or preservation). Each mark must be made of a single
+        character. Default to Punctuation.default_marks().
+
+    """
     def __init__(self, marks=_DEFAULT_MARKS):
         self.marks = marks
 
     @staticmethod
     def default_marks():
+        """Returns the default punctuation marks as a string"""
         return _DEFAULT_MARKS
 
     @property
@@ -52,7 +67,12 @@ class Punctuation:
         self._marks_re = re.compile(fr'\s*[{self._marks}]+\s*')
 
     def remove(self, text):
-        """Returns the `text` with all punctuation marks replaced by spaces"""
+        """Returns the `text` with all punctuation marks replaced by spaces
+
+        The input `text` can be a string or a list and is returned with the
+        same type and punctuation removed.
+
+        """
         def aux(text):
             return re.sub(self._marks_re, ' ', text).strip()
 
@@ -61,6 +81,14 @@ class Punctuation:
         return [aux(line) for line in text]
 
     def preserve(self, text):
+        """Removes punctuation from `text`, allowing for furter restoration
+
+        This method returns the text as a list of punctuated chunks, along with
+        a list of punctuation marks for furter restoration:
+
+            'hello, my world!' -> ['hello', 'my world'], [',', '!']
+
+        """
         text = str2list(text)
         preserved_text = []
         preserved_marks = []
@@ -72,6 +100,7 @@ class Punctuation:
         return [line for line in preserved_text if line], preserved_marks
 
     def _preserve_line(self, line, n):
+        """Auxiliary method for Punctuation.preserve()"""
         matches = list(re.finditer(self._marks_re, line))
         if not matches:
             return [line], []
@@ -105,10 +134,20 @@ class Punctuation:
 
     @classmethod
     def restore(cls, text, marks):
+        """Restore punctuation in a text.
+
+        This is the reverse operation of Punctuation.preserve(). It takes a
+        list of punctuated chunks and a list of punctuation marks. It returns a
+        a punctuated text as a list:
+
+            ['hello', 'my world'], [',', '!'] -> ['hello, my world!']
+
+        """
         return cls._restore_aux(str2list(text), marks, 0)
 
     @classmethod
     def _restore_aux(cls, text, marks, n):
+        """Auxiliary method for Punctuation.restore()"""
         if len(marks) == 0:
             return text
 

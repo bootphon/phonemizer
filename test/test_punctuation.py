@@ -16,6 +16,7 @@
 
 import pytest
 
+from phonemizer.backend import EspeakBackend, FestivalBackend, SegmentsBackend
 from phonemizer.punctuation import Punctuation
 
 
@@ -54,3 +55,63 @@ def test_custom():
     p.marks = '?.'
     assert len(p.marks) == 2
     assert p.remove('a,b.c') == 'a,b c'
+
+
+def test_espeak():
+    text = 'hello, world!'
+    expected1 = 'həloʊ wɜːld'
+    expected2 = 'həloʊ, wɜːld!'
+    expected3 = 'həloʊ wɜːld '
+    expected4 = 'həloʊ , wɜːld !'
+
+    out1 = EspeakBackend('en-us', preserve_punctuation=False).phonemize(text, strip=True)
+    assert out1 == expected1
+
+    out2 = EspeakBackend('en-us', preserve_punctuation=True).phonemize(text, strip=True)
+    assert out2 == expected2
+
+    out3 = EspeakBackend('en-us', preserve_punctuation=False).phonemize(text, strip=False)
+    assert out3 == expected3
+
+    out4 = EspeakBackend('en-us', preserve_punctuation=True).phonemize(text, strip=False)
+    assert out4 == expected4
+
+
+def test_festival():
+    text = 'hello, world!'
+    expected1 = 'hhaxlow werld'
+    expected2 = 'hhaxlow, werld!'
+    expected3 = 'hhaxlow werld '
+    expected4 = 'hhaxlow , werld !'
+
+    out1 = FestivalBackend('en-us', preserve_punctuation=False).phonemize(text, strip=True)
+    assert out1 == expected1
+
+    out2 = FestivalBackend('en-us', preserve_punctuation=True).phonemize(text, strip=True)
+    assert out2 == expected2
+
+    out3 = FestivalBackend('en-us', preserve_punctuation=False).phonemize(text, strip=False)
+    assert out3 == expected3
+
+    out4 = FestivalBackend('en-us', preserve_punctuation=True).phonemize(text, strip=False)
+    assert out4 == expected4
+
+
+def test_segments():
+    text = 'achi, acho!'
+    expected1 = 'ʌtʃɪ ʌtʃʊ'
+    expected2 = 'ʌtʃɪ, ʌtʃʊ!'
+    expected3 = 'ʌtʃɪ ʌtʃʊ '
+    expected4 = 'ʌtʃɪ , ʌtʃʊ !'
+
+    out1 = SegmentsBackend('cree', preserve_punctuation=False).phonemize(text, strip=True)
+    assert out1 == expected1
+
+    out2 = SegmentsBackend('cree', preserve_punctuation=True).phonemize(text, strip=True)
+    assert out2 == expected2
+
+    out3 = SegmentsBackend('cree', preserve_punctuation=False).phonemize(text, strip=False)
+    assert out3 == expected3
+
+    out4 = SegmentsBackend('cree', preserve_punctuation=True).phonemize(text, strip=False)
+    assert out4 == expected4

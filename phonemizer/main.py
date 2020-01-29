@@ -20,7 +20,7 @@ import codecs
 import pkg_resources
 import sys
 
-from phonemizer import phonemize, separator, version, logger
+from phonemizer import phonemize, separator, version, logger, punctuation
 from phonemizer.backend import (
     EspeakBackend, FestivalBackend, SegmentsBackend)
 
@@ -238,6 +238,17 @@ Exemples:
         Default to {FestivalBackend.festival_path()}. This path can also be specified
         using the $PHONEMIZER_FESTIVAL_PATH environment variable.''')
 
+    group = parser.add_argument_group('punctuation processing')
+    group.add_argument(
+        '--preserve-punctuation', action='store_true',
+        help='''preserve the punctuation marks in the phonemized output,
+        default is to remove them.''')
+    group.add_argument(
+        '--punctuation-marks', type=str, metavar='<str>',
+        default=punctuation.Punctuation.default_marks(),
+        help='''the marks to consider during punctuation processing (either
+        for removal or preservation). Default is %(default)s.''')
+
     group = parser.add_argument_group('language')
     group.add_argument(
         '-l', '--language', metavar='<str|file>', default='en-us',
@@ -306,6 +317,8 @@ def main():
         backend=args.backend,
         separator=sep,
         strip=args.strip,
+        preserve_punctuation=args.preserve_punctuation,
+        punctuation_marks=args.punctuation_marks,
         with_stress=args.with_stress,
         use_sampa=args.sampa,
         language_switch=args.language_switch,
