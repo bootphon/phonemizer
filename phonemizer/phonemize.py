@@ -29,13 +29,19 @@ from phonemizer.backend import (
 from phonemizer.punctuation import Punctuation
 
 
-def phonemize(text, language='en-us', backend='festival',
-              separator=default_separator, strip=False,
-              preserve_punctuation=False,
-              punctuation_marks=Punctuation.default_marks(),
-              with_stress=False, use_sampa=False,
-              language_switch='keep-flags',
-              njobs=1, logger=get_logger()):
+def phonemize(
+        text,
+        language='en-us',
+        backend='festival',
+        separator=default_separator,
+        strip=False,
+        preserve_punctuation=False,
+        punctuation_marks=Punctuation.default_marks(),
+        with_stress=False,
+        use_sampa=False,
+        language_switch='keep-flags',
+        njobs=1,
+        logger=get_logger()):
     """Multilingual text to phonemes converter
 
     Return a phonemized version of an input `text`, given its
@@ -67,7 +73,7 @@ def phonemize(text, language='en-us', backend='festival',
         phonemized output. Default to False and remove all the punctuation.
 
     punctuation_marks (str): The punctuation marks to consider when dealing
-        with punctuation.
+        with punctuation. Default to Punctuation.default_marks().
 
     with_stress (bool): This option is only valid for the espeak/espeak-ng
       backend. When True the stresses on phonemes are present (stresses
@@ -78,7 +84,7 @@ def phonemize(text, language='en-us', backend='festival',
       Alphabet). This option is only valid for the 'espeak-ng' backend. Default
       to False.
 
-    language_switch (str): espeak can pronounce some words in another language
+    language_switch (str): Espeak can output some words in another language
       (typically English) when phonemizing a text. This option setups the
       policy to use when such a language switch occurs. Three values are
       available: 'keep-flags' (the default), 'remove-flags' or
@@ -154,7 +160,7 @@ def phonemize(text, language='en-us', backend='festival',
             use_sampa=use_sampa,
             language_switch=language_switch,
             logger=logger)
-    else:
+    else:  # festival or segments
         phonemizer = backends[backend](
             language,
             punctuation_marks=punctuation_marks,

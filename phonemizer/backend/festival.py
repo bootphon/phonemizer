@@ -17,7 +17,6 @@
 
 import distutils
 import os
-import pkg_resources
 import re
 import shlex
 import subprocess
@@ -27,6 +26,7 @@ import phonemizer.lispy as lispy
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
+from phonemizer.utils import get_package_resource
 
 
 # a global variable being used to overload the default festival installed on
@@ -44,9 +44,7 @@ class FestivalBackend(BaseBackend):
             language, punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation, logger=logger)
 
-        self.script = pkg_resources.resource_filename(
-            pkg_resources.Requirement.parse('phonemizer'),
-            'phonemizer/share/festival/phonemize.scm')
+        self.script = get_package_resource('festival/phonemize.scm')
         self.logger.info('loaded {}'.format(self.script))
 
     @staticmethod

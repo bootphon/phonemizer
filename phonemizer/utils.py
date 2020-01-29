@@ -14,6 +14,8 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Provides utility functions for the phonemizer"""
 
+import os
+import pkg_resources
 import six
 
 
@@ -40,3 +42,35 @@ def chunks(text, n):
     size = int(max(1, len(text)/n))
     return [list2str(text[i:i+size])
             for i in range(0, len(text), size)]
+
+
+def get_package_resource(path):
+    """Returns the absolute path to a phonemizer resource file or directory
+
+    The packages resource are stored within the source tree in the
+    'phonemizer/share' directory and, once the package is installed, are moved
+    to another system directory (e.g. /share/phonemizer).
+
+    Parameters
+    ----------
+    path (str) : the file or directory to get, must be relative to
+        'phonemizer/share'.
+
+    Raises
+    ------
+    ValueError if the required `path` is not found
+
+    Returns
+    -------
+    The absolute path to the required resource
+
+    """
+    path = pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse('phonemizer'),
+        'phonemizer/share/{}'.format(path))
+
+    if not os.path.exists(path):  # pragma: nocover
+        raise ValueError(
+            'the requested resource does not exist: {}'.format(path))
+
+    return os.path.abspath(path)

@@ -12,6 +12,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
-"""Multilingual text to phonemes converter"""
+"""Multilingual text to phones converter"""
 
-__version__ = '2.1-dev'
+__version__ = '2.1.dev0'

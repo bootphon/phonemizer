@@ -54,7 +54,7 @@ def test_text_type():
     assert '\n'.join(p1) == p2
 
 
-@pytest.mark.parametrize('njobs', [1, 2, 4])
+@pytest.mark.parametrize('njobs', [2, 4])
 def test_espeak(njobs):
     text = ['one two', 'three', 'four five']
 
@@ -95,7 +95,7 @@ def test_espeak(njobs):
     assert out == ['wVn tu:', 'Tri:', 'fo@ faIv']
 
 
-@pytest.mark.parametrize('njobs', [1, 2, 4])
+@pytest.mark.parametrize('njobs', [2, 4])
 def test_festival(njobs):
     text = ['one two', 'three', 'four five']
 
@@ -148,7 +148,7 @@ def test_festival_bad():
             language_switch='remove-flags')
 
 
-@pytest.mark.parametrize('njobs', [1, 2, 4])
+@pytest.mark.parametrize('njobs', [2, 4])
 def test_segments(njobs):
     # one two three four five in Maya Yucatec
     text = ['untuʼuleʼ kaʼapʼeʼel', 'oʼoxpʼeʼel', 'kantuʼuloʼon chincho']

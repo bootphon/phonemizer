@@ -16,12 +16,12 @@
 
 import codecs
 import os
-import pkg_resources
 
 import segments
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
+from phonemizer.utils import get_package_resource
 
 
 class SegmentsBackend(BaseBackend):
@@ -68,10 +68,8 @@ class SegmentsBackend(BaseBackend):
         parameter of the phonemize() function.
 
         """
-        # directory phonemizer/share
-        directory = pkg_resources.resource_filename(
-            pkg_resources.Requirement.parse('phonemizer'),
-            'phonemizer/share/segments')
+        # directory phonemizer/share/segments
+        directory = get_package_resource('segments')
 
         # supported languages are files with the 'g2p' extension
         return {f.split('.')[0]: os.path.join(directory, f)

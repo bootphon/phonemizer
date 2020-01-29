@@ -20,7 +20,6 @@ phonemizer-build:
 - phonemize --version
 - python setup.py test
 
-
 phonemizer-test-espeak-1-48-04:
   stage: test
   script:

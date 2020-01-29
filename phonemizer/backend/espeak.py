@@ -16,7 +16,6 @@
 
 import distutils.spawn
 import os
-import pkg_resources
 import re
 import shlex
 import subprocess
@@ -25,6 +24,7 @@ import tempfile
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
+from phonemizer.utils import get_package_resource
 
 
 # a regular expression to find language switching flags in espeak output,
@@ -169,10 +169,9 @@ class EspeakBackend(BaseBackend):
             return None
 
         # look for a file with SAMPA conversion mapping
-        directory = pkg_resources.resource_filename(
-            pkg_resources.Requirement.parse('phonemizer'),
-            'phonemizer/share/espeak')
-        filename = os.path.join(directory, 'sampa_{}.txt'.format(self.language))
+        filename = os.path.join(
+            get_package_resource('espeak'),
+            'sampa_{}.txt'.format(self.language))
 
         if not os.path.isfile(filename):
             return None
