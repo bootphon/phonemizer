@@ -1,6 +1,6 @@
 before_script:
   # load the requested modules on oberon
-  - module load anaconda/3 espeak/1.49.2 festival/2.4
+  - module load anaconda/3 festival/2.4
 
 phonemizer-build:
   stage: build
@@ -14,12 +14,32 @@ phonemizer-build:
     - python setup.py build
     - python setup.py install
 
-phonemizer-test:
+.phonemizer-test: &phonemizer-test
+# run the unit tests within the CI environment
+- conda activate phonemizer-ci
+- phonemize --version
+- python setup.py test
+
+phonemizer-test-espeak-1-48-04:
   stage: test
   script:
     # run the unit tests within the CI environment
-    - conda activate phonemizer-ci
-    - python setup.py test
+    - module unload espeak && module load espeak/1.48.04
+    - *phonemizer-test
+
+phonemizer-test-espeak-1-49-2:
+  stage: test
+  script:
+    # run the unit tests within the CI environment
+    - module unload espeak && module load espeak/1.49.2
+    - *phonemizer-test
+
+phonemizer-test-espeak-1-50:
+  stage: test
+  script:
+    # run the unit tests within the CI environment
+    - module unload espeak && module load espeak/1.50
+    - *phonemizer-test
 
 phonemizer-oberon:
   # install phonemizer in the "wordseg" virtual environment on oberon (users just
@@ -42,6 +62,6 @@ phonemizer-pypi:
     - rm -rf dist
     - python setup.py sdist bdist_wheel
     - twine check dist/*
-    - twine upload dist/*
+    - twine upload -u $TWINE_USERNAME -p $TWINE_PASSWORD --non-interactive dist/*
   only:
     - tags

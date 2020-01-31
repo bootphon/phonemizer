@@ -20,7 +20,7 @@ import codecs
 import pkg_resources
 import sys
 
-from phonemizer import phonemize, separator, version, logger
+from phonemizer import phonemize, separator, version, logger, punctuation
 from phonemizer.backend import (
     EspeakBackend, FestivalBackend, SegmentsBackend)
 
@@ -228,7 +228,26 @@ Exemples:
         help=f'''the path to the espeak executable to use (useful to overload
         the default espeak/espeak-ng installed on the system).
         Default to {EspeakBackend.espeak_path()}. This path can also be specified
-        using the $ESPEAK_PATH environment variable.''')
+        using the $PHONEMIZER_ESPEAK_PATH environment variable.''')
+
+    group = parser.add_argument_group('specific to festival backend')
+    group.add_argument(
+        '--festival-path', default=None, type=str, metavar='<executable>',
+        help=f'''the path to the festival executable to use (useful to overload
+        the default festival installed on the system).
+        Default to {FestivalBackend.festival_path()}. This path can also be specified
+        using the $PHONEMIZER_FESTIVAL_PATH environment variable.''')
+
+    group = parser.add_argument_group('punctuation processing')
+    group.add_argument(
+        '--preserve-punctuation', action='store_true',
+        help='''preserve the punctuation marks in the phonemized output,
+        default is to remove them.''')
+    group.add_argument(
+        '--punctuation-marks', type=str, metavar='<str>',
+        default=punctuation.Punctuation.default_marks(),
+        help='''the marks to consider during punctuation processing (either
+        for removal or preservation). Default is %(default)s.''')
 
     group = parser.add_argument_group('language')
     group.add_argument(
@@ -246,10 +265,12 @@ def main():
     """Phonemize a text from command-line arguments"""
     args = parse_args()
 
-    # setup a custom path to espeak if required (this must be done before
-    # generating the version message)
+    # setup a custom path to espeak and festival if required (this must be done
+    # before generating the version message)
     if args.espeak_path:
         EspeakBackend.set_espeak_path(args.espeak_path)
+    if args.festival_path:
+        FestivalBackend.set_festival_path(args.festival_path)
 
     if args.version:
         print(version.version())
@@ -296,6 +317,8 @@ def main():
         backend=args.backend,
         separator=sep,
         strip=args.strip,
+        preserve_punctuation=args.preserve_punctuation,
+        punctuation_marks=args.punctuation_marks,
         with_stress=args.with_stress,
         use_sampa=args.sampa,
         language_switch=args.language_switch,

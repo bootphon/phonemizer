@@ -23,17 +23,19 @@ import phonemizer
 setuptools.setup(
     # general description
     name='phonemizer',
-    description=' Simple text to phonemes converter for multiple languages',
+    description=' Simple text to phones converter for multiple languages',
     version=phonemizer.__version__,
 
     # python package dependancies
-    install_requires=['joblib', 'segments', 'attrs>=18.1', 'PyYAML>=5.3'],
+    install_requires=['joblib', 'segments', 'attrs>=18.1'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pytest-cov'],
 
     # include Python code and any files in phonemizer/share
     packages=setuptools.find_packages(),
-    package_data={'phonemizer': ['share/*']},
+    package_data={
+        'phonemizer': [
+            'share/espeak/*', 'share/festival/*', 'share/segments/*']},
 
     # define the command-line script to use
     entry_points={'console_scripts': ['phonemize = phonemizer.main:main']},
@@ -42,7 +44,7 @@ setuptools.setup(
     author='Mathieu Bernard',
     author_email='mathieu.a.bernard@inria.fr',
     license='GPL3',
-    keywords='linguistics G2P phoneme festival espeak TTS',
+    keywords='linguistics G2P phone festival espeak TTS',
     url='https://github.com/bootphon/phonemizer',
     long_description=codecs.open('README.md', encoding='utf-8').read(),
     long_description_content_type="text/markdown",

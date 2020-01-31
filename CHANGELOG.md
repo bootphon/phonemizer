@@ -2,24 +2,44 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-## not yet released (will be phonemizer-2.1)
+## phonemizer-2.1
 
-* **improvements**
+* **new features**
 
-  * it is now possible to specify the path to a custom ``espeak`` executable
-    (for instance to use a local installation or to test different versions).
-    Either specify the ``ESPEAK_PATH`` environment variable, the
-    ``--espeak-path`` option from command line or use the
-    ``EspeakBackend.set_espeak_path`` method from the Python API.
+  * Possibility to preserve the punctuation (ignored and silently removed by
+    default) in the phonemized output with the new option
+    ``--preserve-punctuation`` from command line (or the equivalent
+    ``preserve-punctuation`` from Python API). With the ``punctuation-marks``
+    option, one can overload the default marls considered as punctuation.
+
+  * It is now possible to specify the path to a custom ``espeak`` or
+    ``festival`` executable (for instance to use a local installation or to test
+    different versions). Either specify the ``PHONEMIZER_ESPEAK_PATH``
+    environment variable, the ``--espeak-path`` option from command line or use
+    the ``EspeakBackend.set_espeak_path`` method from the Python API. Similarly
+    for festival use ``PHONEMIZER_FESTIVAL_PATH``, ``--festival-path`` or
+    ``FestivalBackend.set_festival_path``.
+
+  * The ``--sampa`` option is now available for espeak (was available only for
+    espeak-ng).
+
+  * When using ``espeak`` with SAMPA output, some SAMPA phones are corrected to
+    correspond to the normalized SAMPA alphabet (espeak seems not to respect
+    it). The corrections are language specific. A correction file must be placed
+    in ``phonemizer/share/espeak``. This have been implemented only for French
+    by now.
 
 * **bugfixes**
 
   * parses correctly the version of ``espeak-ng`` even for dev versions (e.g.
     ``1.51-dev``).
 
-  * fix an issue with ``espeak`` backend, where multiple phone separators can be
+  * fixed an issue with ``espeak`` backend, where multiple phone separators can be
     present at the end of a word, see
     [#31](https://github.com/bootphon/phonemizer/issues/31).
+
+  * added an additional stress symbol ``-`` for ``espeak``.
+
 
 ## phonemizer-2.0.1
 
