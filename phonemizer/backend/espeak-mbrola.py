@@ -40,15 +40,14 @@ _ESPEAK_DEFAULT_PATH = None
 
 
 class EspeakBackend(BaseBackend):
-    """Espeak backend for the phonemizer"""
+    """Espeak-mbrola backend for the phonemizer"""
 
     espeak_version_re = r'.*: ([0-9]+(\.[0-9]+)+(\-dev)?)'
 
     def __init__(self, language,
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
-                 use_sampa=False,
-                 language_switch='keep-flags', with_stress=False,
+                 language_switch='keep-flags',
                  logger=get_logger()):
         super(self.__class__, self).__init__(
             language, punctuation_marks=punctuation_marks,
@@ -59,21 +58,7 @@ class EspeakBackend(BaseBackend):
         # phoneme separation and IPA output)
         version = self.version()
 
-        self.use_sampa = use_sampa
-        self.sampa_mapping = self._load_sampa_mapping()
-
-        self.sep = '--sep=_'
-        if version == '1.48.03' or version.split('.')[1] <= '47':
-            self.sep = ''  # pragma: nocover
-
-        self.ipa = '--ipa=3'
-        if self.is_espeak_ng():  # this is espeak-ng
-            self.ipa = '-x --ipa'
-
-        self._with_stress = with_stress
-        if use_sampa is True:
-            self.ipa = '-x --pho'
-
+        # TODO : check this
         # ensure the lang_switch argument is valid
         valid_lang_switch = [
             'keep-flags', 'remove-flags', 'remove-utterance']
@@ -86,7 +71,7 @@ class EspeakBackend(BaseBackend):
 
     @staticmethod
     def name():
-        return 'espeak'
+        return 'espeak-mbrola'
 
     @staticmethod
     def set_espeak_path(fpath):
@@ -149,6 +134,7 @@ class EspeakBackend(BaseBackend):
 
     @classmethod
     def supported_languages(cls):
+        # TODO
         # retrieve the languages from a call to 'espeak --voices'
         voices = subprocess.check_output(shlex.split(
             '{} --voices'.format(cls.espeak_path()), posix=False)).decode(
@@ -158,32 +144,6 @@ class EspeakBackend(BaseBackend):
         # u'å' cause a bug in python2
         return {v[1]: v[3].replace(u'_', u' ').replace(u'å', u'a')
                 for v in voices}
-
-    def _process_lang_switch(self, n, utt):
-        # look for language swith in the current utterance
-        flags = re.findall(_ESPEAK_FLAGS_RE, utt)
-
-        # no language switch, nothing to do
-        if not flags:
-            return utt
-
-        # language switch detected, register the line number
-        self._lang_switch_list.append(n)
-
-        # ignore the language switch but warn if one is found
-        if self._lang_switch == 'keep-flags':
-            return utt
-
-        elif self._lang_switch == 'remove-flags':
-            # remove all the (lang) flags in the current utterance
-            for flag in set(flags):
-                utt = utt.replace(flag, '')
-
-        else:  # self._lang_switch == 'remove-utterances':
-            # drop the entire utterance
-            return None
-
-        return utt
 
     def _phonemize_aux(self, text, separator, strip):
         output = []
@@ -198,67 +158,26 @@ class EspeakBackend(BaseBackend):
                     data.close()
 
                     # generate the espeak command to run
-                    command = '{} -v{} {} -q -f {} {}'.format(
-                        self.espeak_path(), self.language, self.ipa,
-                        data.name, self.sep)
+                    command = '{} -v{} -q -f {}'.format(
+                        self.espeak_path(), self.language, data.name)
 
                     if self.logger:
                         self.logger.debug('running %s', command)
 
-                    line = subprocess.check_output(
+                    pho_output = subprocess.check_output(
                         shlex.split(command, posix=False)).decode('utf8')
                 finally:
                     os.remove(data.name)
 
-                # espeak can split an utterance into several lines because
-                # of punctuation, here we merge the lines into a single one
-                line = line.strip().replace('\n', ' ').replace('  ', ' ')
+                # splitting lines, then throwing away the pronunciation params
+                # (duration and pitch variations)
+                lines = pho_output.split("\n")
+                phonemes = [line.split("\t")[0] for line in lines]
 
-                # due to a bug in espeak-ng, some additional separators can be
-                # added at the end of a word. Here a quick fix to solve that
-                # issue. See https://github.com/espeak-ng/espeak-ng/issues/694
-                line = re.sub(r'_+', '_', line)
-                line = re.sub(r'_ ', ' ', line)
-
-                line = self._process_lang_switch(n, line)
-                if not line:
+                if not phonemes:
                     continue
-
-                out_line = ''
-                for word in line.split(u' '):
-                    w = word.strip()
-
-                    if not strip:
-                        w += '_'
-                    w = w.replace('_', separator.phone)
-                    out_line += w + separator.word
-
-                if strip:
-                    out_line = out_line[:-len(separator.word)]
-                output.append(out_line)
-
-        # warn the user on language switches fount during phonemization
-        if self._lang_switch_list:
-            nswitches = len(self._lang_switch_list)
-            if self._lang_switch == 'remove-utterance':
-                self.logger.warning(
-                    'removed %s utterances containing language switches '
-                    '(applying "remove-utterance" policy)', nswitches)
-            else:
-                self.logger.warning(
-                    'fount %s utterances containing language switches '
-                    'on lines %s', nswitches,
-                    ', '.join(str(l) for l in self._lang_switch_list))
-                self.logger.warning(
-                    'extra phones may appear in the "%s" phoneset',
-                    self.language)
-                if self._lang_switch == "remove-flags":
-                    self.logger.warning(
-                        'language switch flags have been removed '
-                        '(applying "remove-flags" policy)')
-                else:
-                    self.logger.warning(
-                        'language switch flags have been kept '
-                        '(applying "keep-flags" policy)')
+                # sticking all phonemes together to be compliant with the
+                # expected output
+                output.append("_".join(phonemes))
 
         return output
