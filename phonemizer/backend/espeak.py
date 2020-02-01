@@ -24,8 +24,6 @@ import tempfile
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
-from phonemizer.utils import get_package_resource
-
 
 # a regular expression to find language switching flags in espeak output,
 # Switches have the following form (here a switch from English to French):
@@ -39,54 +37,10 @@ _ESPEAK_FLAGS_RE = re.compile(r'\(.+?\)')
 _ESPEAK_DEFAULT_PATH = None
 
 
-class EspeakBackend(BaseBackend):
+class BaseEspeakBackend(BaseBackend):
     """Espeak backend for the phonemizer"""
 
     espeak_version_re = r'.*: ([0-9]+(\.[0-9]+)+(\-dev)?)'
-
-    def __init__(self, language,
-                 punctuation_marks=Punctuation.default_marks(),
-                 preserve_punctuation=False,
-                 use_sampa=False,
-                 language_switch='keep-flags', with_stress=False,
-                 logger=get_logger()):
-        super(self.__class__, self).__init__(
-            language, punctuation_marks=punctuation_marks,
-            preserve_punctuation=preserve_punctuation, logger=logger)
-        self.logger.debug(f'espeak is {self.espeak_path()}')
-
-        # adapt some command line option to the espeak version (for
-        # phoneme separation and IPA output)
-        version = self.version()
-
-        self.use_sampa = use_sampa
-        self.sampa_mapping = self._load_sampa_mapping()
-
-        self.sep = '--sep=_'
-        if version == '1.48.03' or version.split('.')[1] <= '47':
-            self.sep = ''  # pragma: nocover
-
-        self.ipa = '--ipa=3'
-        if self.is_espeak_ng():  # this is espeak-ng
-            self.ipa = '-x --ipa'
-
-        self._with_stress = with_stress
-        if use_sampa is True:
-            self.ipa = '-x --pho'
-
-        # ensure the lang_switch argument is valid
-        valid_lang_switch = [
-            'keep-flags', 'remove-flags', 'remove-utterance']
-        if language_switch not in valid_lang_switch:
-            raise RuntimeError(
-                'lang_switch argument "{}" invalid, must be in {}'
-                .format(language_switch, ", ".join(valid_lang_switch)))
-        self._lang_switch = language_switch
-        self._lang_switch_list = []
-
-    @staticmethod
-    def name():
-        return 'espeak'
 
     @staticmethod
     def set_espeak_path(fpath):
@@ -128,7 +82,7 @@ class EspeakBackend(BaseBackend):
     def long_version(cls):
         return subprocess.check_output(shlex.split(
             '{} --help'.format(cls.espeak_path()), posix=False)).decode(
-                'utf8').split('\n')[1]
+            'utf8').split('\n')[1]
 
     @classmethod
     def is_espeak_ng(cls):
@@ -146,6 +100,55 @@ class EspeakBackend(BaseBackend):
             return re.match(cls.espeak_version_re, long_version).group(1)
         except AttributeError:
             raise RuntimeError(f'cannot extract espeak version from {cls.espeak_path()}')
+
+
+class EspeakBackend(BaseEspeakBackend):
+    """Espeak backend for the phonemizer"""
+
+    espeak_version_re = r'.*: ([0-9]+(\.[0-9]+)+(\-dev)?)'
+
+    def __init__(self, language,
+                 punctuation_marks=Punctuation.default_marks(),
+                 preserve_punctuation=False,
+                 use_sampa=False,
+                 language_switch='keep-flags', with_stress=False,
+                 logger=get_logger()):
+        super(self.__class__, self).__init__(
+            language, punctuation_marks=punctuation_marks,
+            preserve_punctuation=preserve_punctuation, logger=logger)
+        self.logger.debug(f'espeak is {self.espeak_path()}')
+
+        # adapt some command line option to the espeak version (for
+        # phoneme separation and IPA output)
+        version = self.version()
+
+        self.use_sampa = use_sampa
+
+        self.sep = '--sep=_'
+        if version == '1.48.03' or version.split('.')[1] <= '47':
+            self.sep = ''  # pragma: nocover
+
+        self.ipa = '--ipa=3'
+        if self.is_espeak_ng():  # this is espeak-ng
+            self.ipa = '-x --ipa'
+
+        self._with_stress = with_stress
+        if use_sampa is True:
+            self.ipa = '-x --pho'
+
+        # ensure the lang_switch argument is valid
+        valid_lang_switch = [
+            'keep-flags', 'remove-flags', 'remove-utterance']
+        if language_switch not in valid_lang_switch:
+            raise RuntimeError(
+                'lang_switch argument "{}" invalid, must be in {}'
+                .format(language_switch, ", ".join(valid_lang_switch)))
+        self._lang_switch = language_switch
+        self._lang_switch_list = []
+
+    @staticmethod
+    def name():
+        return 'espeak'
 
     @classmethod
     def supported_languages(cls):
@@ -226,6 +229,13 @@ class EspeakBackend(BaseBackend):
                 for word in line.split(u' '):
                     w = word.strip()
 
+                    # remove the stresses on phonemes
+                    if not self._with_stress:
+                        w = w.replace("ˈ", '')
+                        w = w.replace('ˌ', '')
+                        w = w.replace("'", '')
+                        w = w.replace("-", '')
+
                     if not strip:
                         w += '_'
                     w = w.replace('_', separator.phone)
@@ -258,5 +268,75 @@ class EspeakBackend(BaseBackend):
                     self.logger.warning(
                         'language switch flags have been kept '
                         '(applying "keep-flags" policy)')
+
+        return output
+
+
+class EspeakMbrolaBackend(BaseEspeakBackend):
+    """Espeak-mbrola backend for the phonemizer"""
+
+    def __init__(self, language,
+                 punctuation_marks=Punctuation.default_marks(),
+                 preserve_silences=False,
+                 preserve_punctuation=False,
+                 logger=get_logger()):
+        super().__init__(
+            language, punctuation_marks=punctuation_marks,
+            preserve_punctuation=preserve_punctuation, logger=logger)
+        self.logger.debug(f'espeak is {self.espeak_path()}')
+
+        self._preserve_silences = preserve_silences
+
+    @staticmethod
+    def name():
+        return 'espeak-mbrola'
+
+    @classmethod
+    def supported_languages(cls):
+        # retrieve the voices from a call to 'espeak --voices=mb"
+        voices = subprocess.check_output(shlex.split(
+            f'{cls.espeak_path()} --voices=mb', posix=False)).decode(
+            'utf8').split('\n')[1:-1]
+        voices = [voice.split() for voice in voices]
+
+        return {voice[4][3:]: voice[3] for voice in voices}
+
+    def _phonemize_aux(self, text, separator, strip):
+        output = []
+        for n, line in enumerate(text.split('\n'), start=1):
+            with tempfile.NamedTemporaryFile('w+', delete=False) as data:
+                try:
+                    # save the text as a tempfile
+                    data.write(line)
+                    data.close()
+
+                    # generate the espeak command to run
+                    command = '{} -v {} -q -f {} --pho'.format(
+                        self.espeak_path(), self.language, data.name)
+
+                    if self.logger:
+                        self.logger.debug('running %s', command)
+
+                    pho_output = subprocess.check_output(
+                        shlex.split(command, posix=False)).decode('utf8')
+                finally:
+                    os.remove(data.name)
+
+                # splitting lines, then throwing away the pronunciation params
+                # (duration and pitch variations)
+                lines = pho_output.split("\n")
+                phonemes = [line.split("\t")[0] for line in lines]
+
+                if not self._preserve_silences:
+                    phonemes = [pho for pho in phonemes if pho != "_"]
+
+                if not phonemes:
+                    continue
+                # joining all phonemes with the phone separator
+                if separator.phone is not None:
+                    line = separator.phone.join(phonemes)
+                else:
+                    line = "_".join(phonemes)
+                output.append(line)
 
         return output

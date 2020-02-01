@@ -21,7 +21,8 @@ import re
 import pytest
 
 import phonemizer.separator as separator
-from phonemizer.backend import EspeakBackend
+from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
+from phonemizer.separator import Separator
 
 
 @pytest.mark.parametrize(
@@ -239,7 +240,7 @@ def test_sampa_fr():
     list_sampa_examples_fricatives = [
         'femme', 'vent', 'sans', 'champ', 'gens', 'ion']
     list_sampa_examples_nasals = [
-        'mont', 'nom', 'oignon', 'camping']
+        'mont', 'nom', 'oignon', 'ping']
     list_sampa_examples_liquids_glides = [
         'long', 'rond', 'coin', 'juin', 'pierre']
     list_sampa_examples_vowels = [
@@ -254,29 +255,28 @@ def test_sampa_fr():
         'vowels': list_sampa_examples_vowels}
     list_sampa_answers = {
         'fricatives': ['fam', 'va~', 'sa~', 'Sa~', 'Za~', 'jo~'],
-        'liquids_glides': ['lo~', 'ro~', 'kwe~', 'Zye~', 'pjEr'],
-        'nasals': ['mo~', 'no~', 'onjo~', 'kampIN'],
+        'liquids_glides': ['lo~', 'Ro~', 'kwe~', 'Zye~', 'pjER'],
+        'nasals': ['mo~', 'no~', 'onjo~', 'piN'],
         'plosives': ['po~', 'bo~', 'ta~', 'da~', 'ka~', 'ga~'],
         'vowels': ['si',
                    'se',
                    'sEz',
                    'pat',
-                   'pa:t',
+                   'pat',
                    'kOm',
-                   'gro',
+                   'gRo',
                    'du',
                    'dy',
-                   'dY',
+                   'd2',
                    'n9f',
                    'Zystma~',
                    've~',
                    'va~',
                    'bo~',
-                   'br9~']}
+                   'bR9~']}
 
-    backend = EspeakBackend(
-        'fr-fr', use_sampa=True, language_switch='remove-flags')
+    backend = EspeakMbrolaBackend('mb-fr1')
     for category in list_sampa.keys():
         for idx, text in enumerate(list_sampa[category]):
-            out = backend.phonemize(text, strip=True)
+            out = backend.phonemize(text, strip=True, separator=Separator(phone=""))
             assert out == list_sampa_answers[category][idx]
