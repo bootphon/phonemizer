@@ -24,14 +24,11 @@ import tempfile
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
-from phonemizer.utils import get_package_resource
-
 
 # a regular expression to find language switching flags in espeak output,
 # Switches have the following form (here a switch from English to French):
 # "something (fr) quelque chose (en) another thing".
 _ESPEAK_FLAGS_RE = re.compile(r'\(.+?\)')
-
 
 # a global variable being used to overload the default espeak installed on the
 # system. The user can choose an alternative espeak with the method
@@ -39,7 +36,7 @@ _ESPEAK_FLAGS_RE = re.compile(r'\(.+?\)')
 _ESPEAK_DEFAULT_PATH = None
 
 
-class EspeakBackend(BaseBackend):
+class EspeakMbrolaBackend(BaseBackend):
     """Espeak-mbrola backend for the phonemizer"""
 
     espeak_version_re = r'.*: ([0-9]+(\.[0-9]+)+(\-dev)?)'
@@ -49,7 +46,7 @@ class EspeakBackend(BaseBackend):
                  preserve_punctuation=False,
                  language_switch='keep-flags',
                  logger=get_logger()):
-        super(self.__class__, self).__init__(
+        super().__init__(
             language, punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation, logger=logger)
         self.logger.debug(f'espeak is {self.espeak_path()}')
@@ -65,7 +62,7 @@ class EspeakBackend(BaseBackend):
         if language_switch not in valid_lang_switch:
             raise RuntimeError(
                 'lang_switch argument "{}" invalid, must be in {}'
-                .format(language_switch, ", ".join(valid_lang_switch)))
+                    .format(language_switch, ", ".join(valid_lang_switch)))
         self._lang_switch = language_switch
         self._lang_switch_list = []
 
@@ -113,7 +110,7 @@ class EspeakBackend(BaseBackend):
     def long_version(cls):
         return subprocess.check_output(shlex.split(
             '{} --help'.format(cls.espeak_path()), posix=False)).decode(
-                'utf8').split('\n')[1]
+            'utf8').split('\n')[1]
 
     @classmethod
     def is_espeak_ng(cls):
@@ -134,16 +131,13 @@ class EspeakBackend(BaseBackend):
 
     @classmethod
     def supported_languages(cls):
-        # TODO
-        # retrieve the languages from a call to 'espeak --voices'
+        # retrieve the voices from a call to 'espeak --voices=mb"
         voices = subprocess.check_output(shlex.split(
-            '{} --voices'.format(cls.espeak_path()), posix=False)).decode(
-                'utf8').split('\n')[1:-1]
-        voices = [v.split() for v in voices]
+            f'{cls.espeak_path()} --voices=mb', posix=False)).decode(
+            'utf8').split('\n')[1:-1]
+        voices = [voice.split() for voice in voices]
 
-        # u'å' cause a bug in python2
-        return {v[1]: v[3].replace(u'_', u' ').replace(u'å', u'a')
-                for v in voices}
+        return {voice[4]: voice[3] for voice in voices}
 
     def _phonemize_aux(self, text, separator, strip):
         output = []
@@ -158,7 +152,7 @@ class EspeakBackend(BaseBackend):
                     data.close()
 
                     # generate the espeak command to run
-                    command = '{} -v{} -q -f {}'.format(
+                    command = '{} -v {} -q -f {}'.format(
                         self.espeak_path(), self.language, data.name)
 
                     if self.logger:

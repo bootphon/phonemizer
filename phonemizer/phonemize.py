@@ -25,7 +25,7 @@ import sys
 from phonemizer.logger import get_logger
 from phonemizer.separator import default_separator
 from phonemizer.backend import (
-    EspeakBackend, FestivalBackend, SegmentsBackend)
+    EspeakBackend, FestivalBackend, SegmentsBackend, EspeakMbrolaBackend)
 from phonemizer.punctuation import Punctuation
 
 
@@ -149,7 +149,7 @@ def phonemize(
     # instanciate the requested backend for the given language (raises
     # a RuntimeError if the language is not supported).
     backends = {b.name(): b for b in (
-        EspeakBackend, FestivalBackend, SegmentsBackend)}
+        EspeakBackend, FestivalBackend, SegmentsBackend, EspeakMbrolaBackend)}
 
     if backend == 'espeak':
         phonemizer = backends[backend](
@@ -160,7 +160,7 @@ def phonemize(
             use_sampa=use_sampa,
             language_switch=language_switch,
             logger=logger)
-    else:  # festival or segments
+    else:  # festival, espeak-mbrola or segments
         phonemizer = backends[backend](
             language,
             punctuation_marks=punctuation_marks,

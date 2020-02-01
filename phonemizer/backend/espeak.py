@@ -155,9 +155,7 @@ class EspeakBackend(BaseBackend):
                 'utf8').split('\n')[1:-1]
         voices = [v.split() for v in voices]
 
-        # u'å' cause a bug in python2
-        return {v[1]: v[3].replace(u'_', u' ').replace(u'å', u'a')
-                for v in voices}
+        return {v[1]: v[3].replace('_', ' ') for v in voices}
 
     def _process_lang_switch(self, n, utt):
         # look for language swith in the current utterance
