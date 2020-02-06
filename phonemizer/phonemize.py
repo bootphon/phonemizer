@@ -117,10 +117,11 @@ def phonemize(
 
     """
     # ensure the backend is either espeak, festival or segments
-    if backend not in ('espeak', 'festival', 'segments'):
+    if backend not in ('espeak', 'espeak-mbrola', 'festival', 'segments'):
         raise RuntimeError(
             '{} is not a supported backend, choose in {}.'
-            .format(backend, ', '.join(('espeak', 'festival', 'segments'))))
+            .format(backend, ', '.join(('espeak', 'espeak-mbrola',
+                                        'festival', 'segments'))))
 
     # ensure the phonetic alphabet is valid
     if use_sampa is True:
