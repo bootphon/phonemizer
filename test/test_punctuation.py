@@ -37,7 +37,8 @@ def test_remove(inp, out):
         ['a, a?', '!?', 'b, b'],
         ['!?', 'a, a?', 'b, b'],
         ['a, a, a'],
-        ['a, a?', 'aaa bb', '.bb, b', 'c', '!d.d. dd??  d!']])
+        ['a, a?', 'aaa bb', '.bb, b', 'c', '!d.d. dd??  d!'],
+        ['Truly replied, "Yes".']])
 def test_preserve(inp):
     p = Punctuation()
     t, m = p.preserve(inp)
