@@ -19,7 +19,7 @@ import itertools
 import joblib
 import six
 
-from phonemizer import separator
+from phonemizer.separator import default_separator
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
 from phonemizer.utils import list2str, str2list, chunks
@@ -86,7 +86,7 @@ class BaseBackend(object):
         """Returns True if `language` is supported by the backend"""
         return language in self.supported_languages()
 
-    def phonemize(self, text, separator=separator.default_separator,
+    def phonemize(self, text, separator=default_separator,
                   strip=False, njobs=1):
         """Returns the `text` phonemized for the given language"""
         # remember the text type for output (either list or string)
