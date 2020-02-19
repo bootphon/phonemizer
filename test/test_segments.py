@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2019 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -95,7 +95,7 @@ def test_language(tmpdir):
     # check languages by g2p file
     directory = pkg_resources.resource_filename(
         pkg_resources.Requirement.parse('phonemizer'),
-        'phonemizer/share/segments')
+        'phonemizer/share')
     assert SegmentsBackend.is_supported_language(
         os.path.join(directory, 'cree.g2p'))
     assert not SegmentsBackend.is_supported_language(

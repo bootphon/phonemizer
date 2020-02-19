@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
+# Copyright 2016-2019 Thomas Schatz, Xuan Nga Cao, Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -42,19 +42,7 @@ def test_bad_language():
         phonemize('', language='creep', backend='segments')
 
 
-def test_text_type():
-    t1 = ['one two', 'three', 'four five']
-    t2 = '\n'.join(t1)
-
-    p1 = phonemize(t1, language='en-us', backend='espeak', strip=True)
-    p2 = phonemize(t2, language='en-us', backend='espeak', strip=True)
-
-    assert isinstance(p1, list)
-    assert isinstance(p2, str)
-    assert '\n'.join(p1) == p2
-
-
-@pytest.mark.parametrize('njobs', [2, 4])
+@pytest.mark.parametrize('njobs', [1, 2, 4])
 def test_espeak(njobs):
     text = ['one two', 'three', 'four five']
 
@@ -62,6 +50,12 @@ def test_espeak(njobs):
         text, language='en-us', backend='espeak',
         strip=True, njobs=njobs)
     assert out == ['wʌn tuː', 'θɹiː', 'foːɹ faɪv']
+
+    if EspeakBackend.is_espeak_ng():
+        out = phonemize(
+            text, language='en-us', backend='espeak', use_sampa=True,
+            strip=True, njobs=njobs)
+        assert out == ['wVn tu:', 'Tri:', 'fo@ faIv']
 
     out = phonemize(
         text, language='en-us', backend='espeak',
@@ -88,14 +82,8 @@ def test_espeak(njobs):
         strip=False, njobs=njobs)
     assert out == '\n'.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
 
-    # if EspeakBackend.is_espeak_ng():
-    out = phonemize(
-        text, language='en-us', backend='espeak', use_sampa=True,
-        strip=True, njobs=njobs)
-    assert out == ['wVn tu:', 'Tri:', 'fo@ faIv']
 
-
-@pytest.mark.parametrize('njobs', [2, 4])
+@pytest.mark.parametrize('njobs', [1, 2, 4])
 def test_festival(njobs):
     text = ['one two', 'three', 'four five']
 
@@ -148,7 +136,7 @@ def test_festival_bad():
             language_switch='remove-flags')
 
 
-@pytest.mark.parametrize('njobs', [2, 4])
+@pytest.mark.parametrize('njobs', [1, 2, 4])
 def test_segments(njobs):
     # one two three four five in Maya Yucatec
     text = ['untuʼuleʼ kaʼapʼeʼel', 'oʼoxpʼeʼel', 'kantuʼuloʼon chincho']
