@@ -2,6 +2,16 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+
+## not yet released
+
+* **bugfixes**
+
+  * fixed issues with punctuation processing on some corner cases, see issues
+    [#39](https://github.com/bootphon/phonemizer/issues/39) and
+    [#40](https://github.com/bootphon/phonemizer/issues/40).
+
+
 ## phonemizer-2.1
 
 * **new features**

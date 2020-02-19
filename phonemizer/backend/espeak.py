@@ -136,16 +136,20 @@ class EspeakBackend(BaseBackend):
         return 'eSpeak NG' in cls.long_version()
 
     @classmethod
-    def version(cls):
+    def version(cls, as_tuple=False):
         # the full version version string includes extra information
         # we don't need
         long_version = cls.long_version()
 
         # extract the version number with a regular expression
         try:
-            return re.match(cls.espeak_version_re, long_version).group(1)
+            version = re.match(cls.espeak_version_re, long_version).group(1)
         except AttributeError:
             raise RuntimeError(f'cannot extract espeak version from {cls.espeak_path()}')
+
+        if as_tuple:
+            version = tuple(int(v) for v in version.split('.'))
+        return version
 
     @classmethod
     def supported_languages(cls):

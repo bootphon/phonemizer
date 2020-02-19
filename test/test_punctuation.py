@@ -21,6 +21,10 @@ from phonemizer.punctuation import Punctuation
 from phonemizer.phonemize import phonemize
 
 
+# True if we are using espeak>=1.50
+ESPEAK_150 = (EspeakBackend.version(as_tuple=True) >= (1, 50))
+
+
 @pytest.mark.parametrize(
     'inp, out', [
         ('a, b,c.', 'a b c'),
@@ -50,8 +54,8 @@ def test_preserve(inp):
 @pytest.mark.parametrize(
     'text, output', [
         (['hi; ho,"'], ['haɪ ; hoʊ ,']),
-        (['hi; "ho,'], ['haɪ ;  hoʊ ,']),
-        (['"hi; ho,'], [' haɪ ; hoʊ ,'])])
+        (['hi; "ho,'], ['haɪ ; hoʊ ,'] if ESPEAK_150 else ['haɪ ;  hoʊ ,']),
+        (['"hi; ho,'], ['haɪ ; hoʊ ,'] if ESPEAK_150 else [' haɪ ; hoʊ ,'])])
 def test_preserve_2(text, output):
     marks = ".!;:,?"
     p = Punctuation(marks=marks)
