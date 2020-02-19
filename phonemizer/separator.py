@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2019 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -30,12 +30,6 @@ class Separator(object):
         self._phone = str(phone) if phone else ''
         self._syllable = str(syllable) if syllable else ''
         self._word = str(word) if word else ''
-
-    def __eq__(self, other):
-        return (
-            self.phone == other.phone
-            and self.syllable == other.syllable
-            and self.word == other.word)
 
     def __str__(self):
         def format(s):

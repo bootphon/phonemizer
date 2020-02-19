@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2019 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,22 +26,13 @@ from phonemizer.logger import get_logger
 from phonemizer.separator import default_separator
 from phonemizer.backend import (
     EspeakBackend, FestivalBackend, SegmentsBackend)
-from phonemizer.punctuation import Punctuation
 
 
-def phonemize(
-        text,
-        language='en-us',
-        backend='festival',
-        separator=default_separator,
-        strip=False,
-        preserve_punctuation=False,
-        punctuation_marks=Punctuation.default_marks(),
-        with_stress=False,
-        use_sampa=False,
-        language_switch='keep-flags',
-        njobs=1,
-        logger=get_logger()):
+def phonemize(text, language='en-us', backend='festival',
+              separator=default_separator, strip=False,
+              with_stress=False, use_sampa=False,
+              language_switch='keep-flags',
+              njobs=1, logger=get_logger()):
     """Multilingual text to phonemes converter
 
     Return a phonemized version of an input `text`, given its
@@ -69,12 +60,6 @@ def phonemize(
     strip (bool): If True, don't output the last word and phone
       separators of a token, default to False.
 
-    preserve_punctuation (bool): When True, will keep the punctuation in the
-        phonemized output. Default to False and remove all the punctuation.
-
-    punctuation_marks (str): The punctuation marks to consider when dealing
-        with punctuation. Default to Punctuation.default_marks().
-
     with_stress (bool): This option is only valid for the espeak/espeak-ng
       backend. When True the stresses on phonemes are present (stresses
       characters are ˈ'ˌ). When False stresses are removed. Default to False.
@@ -84,7 +69,7 @@ def phonemize(
       Alphabet). This option is only valid for the 'espeak-ng' backend. Default
       to False.
 
-    language_switch (str): Espeak can output some words in another language
+    language_switch (str) : espeak can pronounce some words in another language
       (typically English) when phonemizing a text. This option setups the
       policy to use when such a language switch occurs. Three values are
       available: 'keep-flags' (the default), 'remove-flags' or
@@ -124,6 +109,10 @@ def phonemize(
 
     # ensure the phonetic alphabet is valid
     if use_sampa is True:
+        if backend == 'espeak' and not EspeakBackend.is_espeak_ng():
+            raise RuntimeError(  # pragma: nocover
+                'sampa alphabet is not supported by espeak, '
+                'please install espeak-ng')
         if backend != 'espeak':
             raise RuntimeError(
                 'sampa alphabet is only supported by espeak backend')
@@ -154,19 +143,13 @@ def phonemize(
     if backend == 'espeak':
         phonemizer = backends[backend](
             language,
-            punctuation_marks=punctuation_marks,
-            preserve_punctuation=preserve_punctuation,
             with_stress=with_stress,
             use_sampa=use_sampa,
             language_switch=language_switch,
             logger=logger)
-    else:  # festival or segments
-        phonemizer = backends[backend](
-            language,
-            punctuation_marks=punctuation_marks,
-            preserve_punctuation=preserve_punctuation,
-            logger=logger)
+    else:
+        phonemizer = backends[backend](language, logger=logger)
 
-    # phonemize the input text
+    # phonemize the input text with the backend
     return phonemizer.phonemize(
         text, separator=separator, strip=strip, njobs=njobs)

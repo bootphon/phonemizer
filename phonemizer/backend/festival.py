@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2019 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,6 +17,7 @@
 
 import distutils
 import os
+import pkg_resources
 import re
 import shlex
 import subprocess
@@ -25,26 +26,15 @@ import tempfile
 import phonemizer.lispy as lispy
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
-from phonemizer.punctuation import Punctuation
-from phonemizer.utils import get_package_resource
-
-
-# a global variable being used to overload the default festival installed on
-# the system. The user can choose an alternative espeak with the method
-# FestivalBackend.set_festival_path().
-_FESTIVAL_DEFAULT_PATH = None
 
 
 class FestivalBackend(BaseBackend):
-    def __init__(self, language,
-                 punctuation_marks=Punctuation.default_marks(),
-                 preserve_punctuation=False,
-                 logger=get_logger()):
-        super(self.__class__, self).__init__(
-            language, punctuation_marks=punctuation_marks,
-            preserve_punctuation=preserve_punctuation, logger=logger)
+    def __init__(self, language, logger=get_logger()):
+        super(self.__class__, self).__init__(language, logger=logger)
 
-        self.script = get_package_resource('festival/phonemize.scm')
+        self.script = pkg_resources.resource_filename(
+            pkg_resources.Requirement.parse('phonemizer'),
+            'phonemizer/share/phonemize.scm')
         self.logger.info('loaded {}'.format(self.script))
 
     @staticmethod
@@ -52,51 +42,19 @@ class FestivalBackend(BaseBackend):
         return 'festival'
 
     @staticmethod
-    def set_festival_path(fpath):
-        """"""
-        global _FESTIVAL_DEFAULT_PATH
-        if not fpath:
-            _FESTIVAL_DEFAULT_PATH = None
-            return
-
-        if not (os.path.isfile(fpath) and os.access(fpath, os.X_OK)):
-            raise ValueError(
-                f'{fpath} is not an executable file')
-
-        _FESTIVAL_DEFAULT_PATH = os.path.abspath(fpath)
-
-    @staticmethod
-    def festival_path():
-        if 'PHONEMIZER_FESTIVAL_PATH' in os.environ:
-            festival = os.environ['PHONEMIZER_FESTIVAL_PATH']
-            if not (os.path.isfile(festival) and os.access(festival, os.X_OK)):
-                raise ValueError(
-                    f'PHONEMIZER_FESTIVAL_PATH={festival} '
-                    f'is not an executable file')
-            return os.path.abspath(festival)
-
-        if _FESTIVAL_DEFAULT_PATH:
-            return _FESTIVAL_DEFAULT_PATH
-
+    def is_available():
         return distutils.spawn.find_executable('festival')
 
-    @classmethod
-    def is_available(cls):
-        return True if cls.festival_path() else False
-
-    @classmethod
-    def version(cls):
+    @staticmethod
+    def version():
         # the full version version string includes extra information
         # we don't need
         long_version = subprocess.check_output(
-            [cls.festival_path(), '--version']).decode('latin1').strip()
+            ['festival', '--version']).decode('latin1').strip()
 
         # extract the version number with a regular expression
         festival_version_re = r'.* ([0-9\.]+[0-9]):'
-        try:
-            return re.match(festival_version_re, long_version).group(1)
-        except AttributeError:
-            raise RuntimeError(f'cannot extract festival version from {cls.festival_path()}')
+        return re.match(festival_version_re, long_version).group(1)
 
     @staticmethod
     def supported_languages():
@@ -184,7 +142,7 @@ class FestivalBackend(BaseBackend):
                         scm.write(scm_script)
                         scm.close()
 
-                        cmd = '{} -b {}'.format(self.festival_path(), scm.name)
+                        cmd = 'festival -b {}'.format(scm.name)
                         if self.logger:
                             self.logger.debug('running %s', cmd)
 
