@@ -169,19 +169,34 @@ class BaseEspeakBackend(BaseBackend):
                     if self.logger:
                         self.logger.debug('running %s', command)
 
-                    line = subprocess.check_output(
-                        shlex.split(command, posix=False)).decode('utf8')
+                    # run the command
+                    completed = subprocess.run(
+                        shlex.split(command, posix=False), capture_output=True)
+
+                    # retrieve the output line (raw phonemization)
+                    line = completed.stdout.decode('utf8')
+
+                    # ensure all was OK
+                    error = completed.stderr.decode('utf8')
+                    for err_line in error.split('\n'):
+                        err_line = err_line.strip()
+                        if err_line:
+                            self.logger.error(err_line)
+                    if error or completed.returncode:
+                        raise RuntimeError(
+                            f'espeak failed with return code '
+                            f'{completed.returncode}')
                 finally:
                     os.remove(data.name)
 
-                line = self._postprocess_line(line, n, separator, strip)
+                line = self._postprocess_line(line, num, separator, strip)
                 if line:
                     output.append(line)
 
         self._warn_on_lang_switch()
         return output
 
-    def _process_lang_switch(self, n, utt):
+    def _process_lang_switch(self, num, utt):
         # look for language swith in the current utterance
         flags = re.findall(_ESPEAK_FLAGS_RE, utt)
 
