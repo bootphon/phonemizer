@@ -17,12 +17,14 @@
 
 import argparse
 import codecs
-import pkg_resources
 import sys
+
+import pkg_resources
 
 from phonemizer import phonemize, separator, version, logger, punctuation
 from phonemizer.backend import (
     EspeakBackend, FestivalBackend, SegmentsBackend)
+from phonemizer.backend.espeak import BaseEspeakBackend
 
 
 class CatchExceptions(object):  # pragma: nocover
@@ -227,7 +229,7 @@ Exemples:
         '--espeak-path', default=None, type=str, metavar='<executable>',
         help=f'''the path to the espeak executable to use (useful to overload
         the default espeak/espeak-ng installed on the system).
-        Default to {EspeakBackend.espeak_path()}. This path can also be specified
+        Default to {BaseEspeakBackend.espeak_path()}. This path can also be specified
         using the $PHONEMIZER_ESPEAK_PATH environment variable.''')
 
     group = parser.add_argument_group('specific to festival backend')
@@ -268,7 +270,7 @@ def main():
     # setup a custom path to espeak and festival if required (this must be done
     # before generating the version message)
     if args.espeak_path:
-        EspeakBackend.set_espeak_path(args.espeak_path)
+        BaseEspeakBackend.set_espeak_path(args.espeak_path)
     if args.festival_path:
         FestivalBackend.set_festival_path(args.festival_path)
 
