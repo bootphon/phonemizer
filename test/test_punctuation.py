@@ -18,6 +18,7 @@ import pytest
 
 from phonemizer.backend import EspeakBackend, FestivalBackend, SegmentsBackend
 from phonemizer.punctuation import Punctuation
+from phonemizer.phonemize import phonemize
 
 
 @pytest.mark.parametrize(
@@ -38,11 +39,29 @@ def test_remove(inp, out):
         ['!?', 'a, a?', 'b, b'],
         ['a, a, a'],
         ['a, a?', 'aaa bb', '.bb, b', 'c', '!d.d. dd??  d!'],
-        ['Truly replied, "Yes".']])
+        ['Truly replied, "Yes".'],
+        ['hi; ho,"']])
 def test_preserve(inp):
     p = Punctuation()
     t, m = p.preserve(inp)
     assert inp == p.restore(t, m)
+
+
+@pytest.mark.parametrize(
+    'text, output', [
+        (['hi; ho,"'], ['haɪ ; hoʊ ,']),
+        (['hi; "ho,'], ['haɪ ;  hoʊ ,']),
+        (['"hi; ho,'], [' haɪ ; hoʊ ,'])])
+def test_preserve_2(text, output):
+    marks = ".!;:,?"
+    p = Punctuation(marks=marks)
+    t, m = p.preserve(text)
+    assert text == p.restore(t, m)
+
+    o = phonemize(
+        text, backend="espeak",
+        preserve_punctuation=True, punctuation_marks=marks)
+    assert o == output
 
 
 def test_custom():

@@ -159,10 +159,14 @@ class Punctuation:
             if m.position == 'E':
                 return [text[0] + m.mark] + cls._restore_aux(
                     text[1:], marks[1:], n+1)
-            elif m.position == 'A':
+            if m.position == 'A':
                 return [m.mark] + cls._restore_aux(text, marks[1:], n+1)
-            else:  # position == 'I'
-                return cls._restore_aux(
-                    [text[0] + m.mark + text[1]] + text[2:], marks[1:], n)
+            # position == 'I'
+            if len(text) == 1:
+                # a corner case where the final part of an intermediate
+                # mark (I) has not been phonemized
+                return cls._restore_aux([text[0] + m.mark], marks[1:], n)
+            return cls._restore_aux(
+                [text[0] + m.mark + text[1]] + text[2:], marks[1:], n)
         else:
             return [text[0]] + cls._restore_aux(text[1:], marks, n+1)
