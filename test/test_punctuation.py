@@ -22,7 +22,7 @@ from phonemizer.phonemize import phonemize
 
 
 # True if we are using espeak>=1.50
-ESPEAK_143 = (EspeakBackend.version(as_tuple=True) >= (1, 43))
+ESPEAK_143 = (EspeakBackend.version(as_tuple=True) >= (1, 49, 3))
 
 
 @pytest.mark.parametrize(
