@@ -4,14 +4,12 @@ https://travis-ci.org/bootphon/phonemizer)
 https://codecov.io/gh/bootphon/phonemizer)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/bootphon/phonemizer)](
 https://github.com/bootphon/phonemizer/releases/latest)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/phonemizer)](
-https://pypi.org/project/phonemizer)
 [![DOI](https://zenodo.org/badge/56728069.svg)](
 https://doi.org/10.5281/zenodo.1045825)
 
 # Phonemizer -- *foʊnmaɪzɚ*
 
-* Simple text to phonemes converter for multiple languages, based on
+* Simple text to phones converter for multiple languages, based on
   [festival](http://www.cstr.ed.ac.uk/projects/festival),
   [espeak-ng](https://github.com/espeak-ng/espeak-ng/)
   and [segments](https://github.com/cldf/segments).
@@ -39,7 +37,7 @@ https://doi.org/10.5281/zenodo.1045825)
 
 ## Installation
 
-**You need python3.** If you really need to use python2, use an [older
+**You need python>=3.6.** If you really need to use python2, use an [older
 version](https://github.com/bootphon/phonemizer/releases/tag/v1.0) of
 phonemizer.
 
@@ -62,15 +60,12 @@ phonemizer.
 
         $ pip install phonemizer
 
-* **Or** download and install it from
-  [github](https://github.com/bootphon/phonemizer) with:
+* **OR** install it from sources with:
 
         $ git clone https://github.com/bootphon/phonemizer
         $ cd phonemizer
         $ python setup.py build
         $ [sudo] python setup.py install
-
-  The `phonemize` command should be in your `$PATH`.
 
   If you experiment an error such as `ImportError: No module named
   setuptools` during installation, refeer to [issue
@@ -80,9 +75,7 @@ phonemizer.
 ### Docker image
 
 Alternatively you can run the phonemizer within docker, using the
-provided `Dockerfile`.
-
-To build the docker image, have a:
+provided `Dockerfile`. To build the docker image, have a:
 
     $ git clone https://github.com/bootphon/phonemizer
     $ cd phonemizer
@@ -102,7 +95,7 @@ For a complete list of available options, have a:
 See the installed backends with the `--version` option:
 
     $ phonemize --version
-    phonemizer-1.0.1
+    phonemizer-2.0
     available backends: festival-2.5.0, espeak-ng-1.49.3, segments-2.0.1
 
 
@@ -128,7 +121,7 @@ See the installed backends with the `--version` option:
 
 ### Token separators
 
-You can specify separators for phonemes, syllables (festival only) and
+You can specify separators for phones, syllables (festival only) and
 words.
 
     $ echo "hello world" | phonemize -b festival -w ' ' -p ''
@@ -152,6 +145,18 @@ a space for both phones and words):
     $ echo "hello world" | phonemize -b festival -p ' ' -w ' '
     fatal error: illegal separator with word=" ", syllable="" and phone=" ",
     must be all differents if not empty
+
+
+### Punctuation
+
+By default the punctuation is removed in the phonemized output. You can preserve
+it using the ``--preserve-punctuation`` option:
+
+    $ echo "hello, world!" | phonemize --strip
+    həloʊ wɜːld
+
+    $ echo "hello, world!" | phonemize --preserve-punctuation --strip
+    həloʊ, wɜːld!
 
 
 ### Options
@@ -190,7 +195,7 @@ a space for both phones and words):
         $ echo "hello world" | phonemize -l en-us -b espeak --sampa
         h@loU w3:ld
 
-* **Espeak** can output the stresses on phonemes (this is not supported by festival
+* **Espeak** can output the stresses on phones (this is not supported by festival
   or segments backends)
 
         $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
@@ -231,7 +236,7 @@ a space for both phones and words):
 	    yucatec	  -> ./phonemizer/share/yucatec.g2p
 
   Instead of a language you can also provide a file specifying a
-  grapheme to phoneme mapping (see the files above for exemples).
+  grapheme to phone mapping (see the files above for exemples).
 
 * Languages supported by espeak are (espeak-ng supports even more of
   them), type `phonemize --help` for an exhaustive list:
@@ -309,7 +314,7 @@ a space for both phones and words):
 
 ## Licence
 
-**Copyright 2015-2019 Mathieu Bernard**
+**Copyright 2015-2020 Mathieu Bernard**
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

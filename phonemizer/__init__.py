@@ -1,4 +1,4 @@
-# Copyright 2015-2019 Mathieu Bernard
+# Copyright 2015-2020 Mathieu Bernard
 #
 # This file is part of phonologizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -12,6 +12,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
-"""Multilingual text to phonemes converter"""
+"""Multilingual text to phones converter"""
 
-__version__ = '2.0.2-resemble'
+__version__ = '2.1-resemble'
