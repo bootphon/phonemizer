@@ -17,7 +17,6 @@
 import pytest
 
 from phonemizer.phonemize import phonemize
-from phonemizer.backend import EspeakBackend
 
 
 def test_bad_backend():
