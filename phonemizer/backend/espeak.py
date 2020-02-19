@@ -51,7 +51,7 @@ class BaseEspeakBackend(BaseBackend):
         super().__init__(
             language, punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation, logger=logger)
-        self.logger.debug(f'espeak is {self.espeak_path()}')
+        self.logger.debug('espeak is %s', self.espeak_path())
 
         # adapt some command line option to the espeak version (for
         # phoneme separation and IPA output)
@@ -77,7 +77,7 @@ class BaseEspeakBackend(BaseBackend):
 
     @staticmethod
     def set_espeak_path(fpath):
-        """"""
+        """Sets the espeak executable as `fpath`"""
         global _ESPEAK_DEFAULT_PATH
         if not fpath:
             _ESPEAK_DEFAULT_PATH = None
@@ -91,6 +91,7 @@ class BaseEspeakBackend(BaseBackend):
 
     @staticmethod
     def espeak_path():
+        """Returns the absolute path to the espeak executable"""
         if 'PHONEMIZER_ESPEAK_PATH' in os.environ:
             espeak = os.environ['PHONEMIZER_ESPEAK_PATH']
             if not (os.path.isfile(espeak) and os.access(espeak, os.X_OK)):
@@ -113,9 +114,14 @@ class BaseEspeakBackend(BaseBackend):
 
     @classmethod
     def long_version(cls):
+        """Returns full version line
+
+        Includes data path and detailed name (espeak or espeak-ng).
+
+        """
         return subprocess.check_output(shlex.split(
             '{} --help'.format(cls.espeak_path()), posix=False)).decode(
-            'utf8').split('\n')[1]
+                'utf8').split('\n')[1]
 
     @classmethod
     def is_espeak_ng(cls):
@@ -146,12 +152,12 @@ class BaseEspeakBackend(BaseBackend):
         pass
 
     @abc.abstractmethod
-    def _postprocess_line(line, n, separator, strip):
+    def _postprocess_line(self, line, num, separator, strip):
         pass
 
     def _phonemize_aux(self, text, separator, strip):
         output = []
-        for n, line in enumerate(text.split('\n'), start=1):
+        for num, line in enumerate(text.split('\n'), start=1):
             with tempfile.NamedTemporaryFile('w+', delete=False) as data:
                 try:
                     # save the text as a tempfile
@@ -184,13 +190,13 @@ class BaseEspeakBackend(BaseBackend):
             return utt
 
         # language switch detected, register the line number
-        self._lang_switch_list.append(n)
+        self._lang_switch_list.append(num)
 
         # ignore the language switch but warn if one is found
         if self._lang_switch == 'keep-flags':
             return utt
 
-        elif self._lang_switch == 'remove-flags':
+        if self._lang_switch == 'remove-flags':
             # remove all the (lang) flags in the current utterance
             for flag in set(flags):
                 utt = utt.replace(flag, '')
@@ -233,9 +239,10 @@ class EspeakBackend(BaseEspeakBackend):
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
                  use_sampa=False,
-                 language_switch='keep-flags', with_stress=False,
+                 language_switch='keep-flags',
+                 with_stress=False,
                  logger=get_logger()):
-        super(self.__class__, self).__init__(
+        super().__init__(
             language, punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation,
             language_switch=language_switch, logger=logger)
@@ -264,7 +271,7 @@ class EspeakBackend(BaseEspeakBackend):
             f'{self.espeak_path()} -v{self.language} {self.ipa} '
             f'-q -f {fname} {self.sep}')
 
-    def _postprocess_line(self, line, n, separator, strip):
+    def _postprocess_line(self, line, num, separator, strip):
         # espeak can split an utterance into several lines because
         # of punctuation, here we merge the lines into a single one
         line = line.strip().replace('\n', ' ').replace('  ', ' ')
@@ -275,25 +282,25 @@ class EspeakBackend(BaseEspeakBackend):
         line = re.sub(r'_+', '_', line)
         line = re.sub(r'_ ', ' ', line)
 
-        line = self._process_lang_switch(n, line)
+        line = self._process_lang_switch(num, line)
         if not line:
             return ''
 
         out_line = ''
         for word in line.split(u' '):
-            w = word.strip()
+            word = word.strip()
 
             # remove the stresses on phonemes
             if not self._with_stress:
-                w = w.replace("ˈ", '')
-                w = w.replace('ˌ', '')
-                w = w.replace("'", '')
-                w = w.replace("-", '')
+                word = word.replace("ˈ", '')
+                word = word.replace('ˌ', '')
+                word = word.replace("'", '')
+                word = word.replace("-", '')
 
             if not strip:
-                w += '_'
-            w = w.replace('_', separator.phone)
-            out_line += w + separator.word
+                word += '_'
+            word = word.replace('_', separator.phone)
+            out_line += word + separator.word
 
         if strip and separator.word:
             out_line = out_line[:-len(separator.word)]
@@ -318,7 +325,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         # retrieve the voices from a call to 'espeak --voices=mb'
         voices = subprocess.check_output(shlex.split(
             f'{cls.espeak_path()} --voices=mb', posix=False)).decode(
-            'utf8').split('\n')[1:-1]
+                'utf8').split('\n')[1:-1]
         voices = [voice.split() for voice in voices]
 
         return {voice[4][3:]: voice[3] for voice in voices}
@@ -328,7 +335,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
             f'{self.espeak_path()} -v {self.language} '
             f'-q -f {fname} --pho --sep=_')
 
-    def _postprocess_line(self, line, n, separator, strip):
+    def _postprocess_line(self, line, num, separator, strip):
         lines = line.split('\n')
 
         # retrieve the phonemized output but with bad SAMPA alphabet
@@ -346,10 +353,9 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         out_line = ''
         phonemes_index = 0
         for word in output_bad_phones.split(' '):
-            w = word.strip()
-
-            for phoneme in w.split('_'):
-                if '(' in phoneme and ')' in phoneme:  # language switch flag
+            for phoneme in word.strip().split('_'):
+                if '(' in phoneme and ')' in phoneme:
+                    # this is a language switch flag
                     out_line += phoneme + separator.phone
                 else:
                     out_line += phonemes[phonemes_index] + separator.phone
@@ -362,5 +368,5 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         if strip and separator.word:
             out_line = out_line[:-len(separator.word)]
 
-        out_line = self._process_lang_switch(n, out_line)
+        out_line = self._process_lang_switch(num, out_line)
         return out_line
