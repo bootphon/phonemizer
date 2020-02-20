@@ -189,12 +189,6 @@ it using the ``--preserve-punctuation`` option:
         $ echo 'konnichiwa' | phonemize -b segments -l ./phonemizer/share/japanese.g2p
         konnitʃiwa
 
-* **Espeak** can output SAMPA phonemes instead of IPA ones (this is only supported
-  by espeak-ng, not by the original espeak)
-
-        $ echo "hello world" | phonemize -l en-us -b espeak --sampa
-        h@loU w3:ld
-
 * **Espeak** can output the stresses on phones (this is not supported by festival
   or segments backends)
 

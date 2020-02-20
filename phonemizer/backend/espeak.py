@@ -254,7 +254,6 @@ class EspeakBackend(BaseEspeakBackend):
     def __init__(self, language,
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
-                 use_sampa=False,
                  language_switch='keep-flags',
                  with_stress=False,
                  logger=get_logger()):
@@ -263,10 +262,7 @@ class EspeakBackend(BaseEspeakBackend):
             preserve_punctuation=preserve_punctuation,
             language_switch=language_switch, logger=logger)
 
-        self.use_sampa = use_sampa
         self._with_stress = with_stress
-        if use_sampa is True:
-            self.ipa = '-x --pho'
 
     @staticmethod
     def name():

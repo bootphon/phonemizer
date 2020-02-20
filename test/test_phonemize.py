@@ -87,12 +87,6 @@ def test_espeak(njobs):
         strip=False, njobs=njobs)
     assert out == '\n'.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
 
-    # if EspeakBackend.is_espeak_ng():
-    out = phonemize(
-        text, language='en-us', backend='espeak', use_sampa=True,
-        strip=True, njobs=njobs)
-    assert out == ['wVn tu:', 'Tri:', 'fo@ faIv']
-
 
 @pytest.mark.parametrize('njobs', [2, 4])
 def test_festival(njobs):
@@ -135,10 +129,6 @@ def test_festival_bad():
 
     with pytest.raises(RuntimeError):
         phonemize(
-            text, language='en-us', backend='festival', use_sampa=True)
-
-    with pytest.raises(RuntimeError):
-        phonemize(
             text, language='en-us', backend='festival', with_stress=True)
 
     with pytest.raises(RuntimeError):
@@ -151,11 +141,6 @@ def test_festival_bad():
 def test_segments(njobs):
     # one two three four five in Maya Yucatec
     text = ['untuʼuleʼ kaʼapʼeʼel', 'oʼoxpʼeʼel', 'kantuʼuloʼon chincho']
-
-    with pytest.raises(RuntimeError):
-        phonemize(
-            text, language='yucatec', backend='segments',
-            use_sampa=True, strip=True, njobs=njobs)
 
     out = phonemize(
         text, language='yucatec', backend='segments',

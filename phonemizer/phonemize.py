@@ -38,7 +38,6 @@ def phonemize(
         preserve_punctuation=False,
         punctuation_marks=Punctuation.default_marks(),
         with_stress=False,
-        use_sampa=False,
         language_switch='keep-flags',
         njobs=1,
         logger=get_logger()):
@@ -79,12 +78,6 @@ def phonemize(
       True the stresses on phonemes are present (stresses characters are ˈ'ˌ).
       When False stresses are removed. Default to False.
 
-    use_sampa (bool): Use a pseudo-sampa phonetic alphabet (Speech Assessment
-      Methods Phonetic Alphabet) instead of 'ipa' (International Phonetic
-      Alphabet). To get a normalized sampa use the 'espeak-mbrola' backend.
-      This option is only valid for the 'espeak' backend if running espeak-ng.
-      Default to False.
-
     language_switch (str): Espeak can output some words in another language
       (typically English) when phonemizing a text. This option setups the
       policy to use when such a language switch occurs. Three values are
@@ -110,11 +103,9 @@ def phonemize(
 
     Raises
     ------
-    RuntimeError
-      If the `backend` is not valid or is valid but not installed, if the
-      `language` is not supported by the `backend`, if `use_sampa`,
-      `with_stress` or `language_switch` are used but the backend is not
-      'espeak'.
+    RuntimeError if the `backend` is not valid or is valid but not installed,
+      if the `language` is not supported by the `backend`, if with_stress` or
+      `language_switch` are used but the backend is not 'espeak'.
 
     """
     # ensure the backend is either espeak, festival or segments
@@ -123,12 +114,6 @@ def phonemize(
             '{} is not a supported backend, choose in {}.'
             .format(backend, ', '.join(
                 ('espeak', 'espeak-mbrola', 'festival', 'segments'))))
-
-    # ensure the phonetic alphabet is valid
-    if use_sampa is True:
-        if backend != 'espeak':
-            raise RuntimeError(
-                'sampa alphabet is only supported by espeak backend')
 
     # with_stress option only valid for espeak
     if with_stress and backend != 'espeak':
@@ -162,7 +147,6 @@ def phonemize(
             punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation,
             with_stress=with_stress,
-            use_sampa=use_sampa,
             language_switch=language_switch,
             logger=logger)
     elif backend == 'espeak-mbrola':

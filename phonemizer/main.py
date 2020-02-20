@@ -197,11 +197,6 @@ Exemples:
         help='''when the option is set, the stresses on phonemes are present
         (stresses characters are ˈ'ˌ). By default stresses are removed.''')
     group.add_argument(
-        '--sampa', action='store_true',
-        help='''only valid for espeak-ng and NOT supported for espeak, use the
-        "sampa" (Speech Assessment Methods Phonetic Alphabet) alphabet instead
-        of "ipa" (International Phonetic Alphabet).''')
-    group.add_argument(
         '--language-switch', default='keep-flags',
         choices=['keep-flags', 'remove-flags', 'remove-utterance'],
         help="""espeak can pronounce some words in another language (typically
@@ -327,7 +322,6 @@ def main():
         preserve_punctuation=args.preserve_punctuation,
         punctuation_marks=args.punctuation_marks,
         with_stress=args.with_stress,
-        use_sampa=args.sampa,
         language_switch=args.language_switch,
         njobs=args.njobs,
         logger=log)
