@@ -25,7 +25,6 @@ import tempfile
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
-from phonemizer.separator import Separator
 
 
 # a regular expression to find language switching flags in espeak output,
@@ -327,6 +326,9 @@ class EspeakBackend(BaseEspeakBackend):
 
 class EspeakMbrolaBackend(BaseEspeakBackend):
     """Espeak-mbrola backend for the phonemizer"""
+    # this will be initialized once, at the first call to supported_languages()
+    _supported_languages = None
+
     @staticmethod
     def name():
         return 'espeak-mbrola'
@@ -338,29 +340,33 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
             distutils.spawn.find_executable('mbrola') is not None)
 
     @classmethod
-    def supported_languages(cls):
-        # retrieve the voices from a call to 'espeak --voices=mb'
+    def _all_supported_languages(cls):
+        # retrieve the voices from a call to 'espeak --voices=mb'. This voices
+        # must be installed separately.
         voices = subprocess.check_output(shlex.split(
             f'{cls.espeak_path()} --voices=mb', posix=False)).decode(
                 'utf8').split('\n')[1:-1]
         voices = [voice.split() for voice in voices]
-
         return {voice[4][3:]: voice[3] for voice in voices}
 
     @classmethod
-    def is_language_installed(cls, language):
+    def _is_language_installed(cls, language):
         """Returns True if the required mbrola voice is installed"""
-        try:
-            cls(language).phonemize('')
-        except RuntimeError:
+        command = f'{cls.espeak_path()} --stdin -v {language} -q --pho'
+        completed = subprocess.run(
+            shlex.split(command, posix=False), input=b'', capture_output=True)
+        if completed.stderr.decode('utf8'):
             return False
         return True
 
     @classmethod
-    def installed_languages(cls):  # pragma: nocover
+    def supported_languages(cls):  # pragma: nocover
         """Returns the list of installed mbrola voices"""
-        return [l for l in cls.supported_languages()
-                if cls.is_language_installed(l)]
+        if cls._supported_languages is None:
+            cls._supported_languages = {
+                k: v for k, v in cls._all_supported_languages().items()
+                if cls._is_language_installed(k)}
+        return cls._supported_languages
 
     def _command(self, fname):
         return (

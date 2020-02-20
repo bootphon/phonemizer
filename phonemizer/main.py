@@ -23,8 +23,11 @@ import pkg_resources
 
 from phonemizer import phonemize, separator, version, logger, punctuation
 from phonemizer.backend import (
-    EspeakBackend, FestivalBackend, SegmentsBackend)
-from phonemizer.backend.espeak import BaseEspeakBackend
+    EspeakBackend, EspeakMbrolaBackend, FestivalBackend, SegmentsBackend)
+
+
+BACKENDS_MAP = {b.name(): b for b in (
+        EspeakBackend, FestivalBackend, SegmentsBackend, EspeakMbrolaBackend)}
 
 
 class CatchExceptions(object):  # pragma: nocover
@@ -99,18 +102,6 @@ supported by each backend.
 
 ''',
         epilog='''
-   Languages supported by the festival backend are:
-   {festival}
-
-   Languages supported by the segments backend are:
-   {segments}
-   Instead of a language you can also provide a file specifying a
-   grapheme to phoneme mapping (see the files above for exemples).
-
-   Languages supported by the espeak backend are:
-   {espeak}
-
-
 Exemples:
 
 * Phonemize a US English text with espeak
@@ -136,16 +127,7 @@ Exemples:
 * Phonemize some French text file using espeak
 
   $ phonemize -l fr-fr -b espeak text.txt -o phones.txt
-        '''.format(
-            festival='\n'.join(
-                '\t{}\t->\t{}'.format(k, v) for k, v in
-                sorted(FestivalBackend.supported_languages().items())),
-            segments='\n'.join(
-                '\t{}\t->\t{}'.format(k, v) for k, v in
-                sorted(SegmentsBackend.supported_languages().items())),
-            espeak='\n'.join(
-                '\t{}\t->\t{}'.format(k, v) for k, v in
-                sorted(EspeakBackend.supported_languages().items()))))
+        ''')
 
     # general arguments
     parser.add_argument(
@@ -199,10 +181,15 @@ Exemples:
 
     group = parser.add_argument_group('backends')
     group.add_argument(
-        '-b', '--backend', metavar='<str>', default='espeak',
-        choices=['espeak', 'festival', 'segments'],
-        help="""the phonemization backend, must be 'espeak', 'festival' or
-        'segments'. Default is %(default)s.""")
+        '-b', '--backend', metavar='<str>', default=None,
+        choices=['espeak', 'espeak-mbrola', 'festival', 'segments'],
+        help="""the phonemization backend, must be 'espeak', 'espeak-mbrola',
+        'festival' or 'segments'. Default is espeak.""")
+
+    group.add_argument(
+        '-L', '--list-languages', action='store_true',
+        help="""list available languages (and exit) for the specified backend,
+        or for all backends if none selected.""")
 
     group = parser.add_argument_group('specific to espeak backend')
     group.add_argument(
@@ -229,16 +216,18 @@ Exemples:
         '--espeak-path', default=None, type=str, metavar='<executable>',
         help=f'''the path to the espeak executable to use (useful to overload
         the default espeak/espeak-ng installed on the system).
-        Default to {BaseEspeakBackend.espeak_path()}. This path can also be specified
-        using the $PHONEMIZER_ESPEAK_PATH environment variable.''')
+        Default to {EspeakBackend.espeak_path()}.
+        This path can also be specified using the
+        $PHONEMIZER_ESPEAK_PATH environment variable.''')
 
     group = parser.add_argument_group('specific to festival backend')
     group.add_argument(
         '--festival-path', default=None, type=str, metavar='<executable>',
         help=f'''the path to the festival executable to use (useful to overload
         the default festival installed on the system).
-        Default to {FestivalBackend.festival_path()}. This path can also be specified
-        using the $PHONEMIZER_FESTIVAL_PATH environment variable.''')
+        Default to {FestivalBackend.festival_path()}.
+        This path can also be specified using the
+        $PHONEMIZER_FESTIVAL_PATH environment variable.''')
 
     group = parser.add_argument_group('punctuation processing')
     group.add_argument(
@@ -270,13 +259,29 @@ def main():
     # setup a custom path to espeak and festival if required (this must be done
     # before generating the version message)
     if args.espeak_path:
-        BaseEspeakBackend.set_espeak_path(args.espeak_path)
+        EspeakBackend.set_espeak_path(args.espeak_path)
     if args.festival_path:
         FestivalBackend.set_festival_path(args.festival_path)
 
+    # display version information and exit
     if args.version:
         print(version.version())
         return
+
+    # list supported languages and exit
+    if args.list_languages:
+        backends = (
+            ['festival', 'segments', 'espeak', 'espeak-mbrola']
+            if not args.backend else [args.backend])
+        for backend in backends:
+            print(
+                f'supported languages for {backend} are:\n' +
+                '\n'.join(f'\t{k}\t->\t{v}' for k, v in sorted(
+                    BACKENDS_MAP[backend].supported_languages().items())))
+        return
+
+    # set default backend as espeak if not specified
+    args.backend = args.backend or 'espeak'
 
     # configure logging according to --verbose/--quiet options
     verbosity = 'normal'

@@ -249,7 +249,7 @@ def test_path_venv():
 
 @pytest.mark.skipif(
     not EspeakMbrolaBackend.is_available() or
-    not EspeakMbrolaBackend.is_language_installed('mb-fr1'),
+    not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
     reason='mbrola or mb-fr1 voice not installed')
 @pytest.mark.parametrize(
     'text, expected',
@@ -304,7 +304,7 @@ def test_sampa_fr(text, expected):
 
 @pytest.mark.skipif(
     not EspeakMbrolaBackend.is_available() or
-    not EspeakMbrolaBackend.is_language_installed('mb-fr1'),
+    not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
     reason='mbrola or mb-fr1 voice not installed')
 def test_french_sampa():
     text = u'bonjour le monde'
@@ -327,4 +327,4 @@ def test_french_sampa():
     not EspeakMbrolaBackend.is_available(),
     reason='mbrola not installed')
 def test_mbrola_bad_language():
-    assert not EspeakMbrolaBackend.is_language_installed('foo-bar')
+    assert not EspeakMbrolaBackend.is_supported_language('foo-bar')

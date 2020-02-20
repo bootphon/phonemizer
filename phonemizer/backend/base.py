@@ -82,9 +82,11 @@ class BaseBackend(object):
         """Return a dict of language codes -> name supported by the backend"""
         pass
 
-    def is_supported_language(self, language):
+    @classmethod
+    @abc.abstractmethod
+    def is_supported_language(cls, language):
         """Returns True if `language` is supported by the backend"""
-        return language in self.supported_languages()
+        return language in cls.supported_languages()
 
     def phonemize(self, text, separator=default_separator,
                   strip=False, njobs=1):
