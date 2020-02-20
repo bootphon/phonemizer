@@ -182,8 +182,15 @@ def test_phone_separator(text, expected):
     assert output == expected
 
 
+@pytest.mark.skipif(
+    'PHONEMIZER_ESPEAK_PATH' in os.environ,
+    reason='cannot modify environment')
 def test_path_good():
+    espeak = EspeakBackend.espeak_path()
     try:
+        EspeakBackend.set_espeak_path(None)
+        assert espeak == EspeakBackend.espeak_path()
+
         binary = distutils.spawn.find_executable('espeak')
         EspeakBackend.set_espeak_path(binary)
 
@@ -191,10 +198,14 @@ def test_path_good():
 
     # restore the espeak path to default
     finally:
-        EspeakBackend.set_espeak_path(None)
+        EspeakBackend.set_espeak_path(espeak)
 
 
+@pytest.mark.skipif(
+    'PHONEMIZER_ESPEAK_PATH' in os.environ,
+    reason='cannot modify environment')
 def test_path_bad():
+    espeak = EspeakBackend.espeak_path()
     try:
         # corrupt the default espeak path, try to use python executable instead
         binary = distutils.spawn.find_executable('python')
@@ -210,7 +221,7 @@ def test_path_bad():
 
     # restore the espeak path to default
     finally:
-        EspeakBackend.set_espeak_path(None)
+        EspeakBackend.set_espeak_path(espeak)
 
 
 @pytest.mark.skipif(
@@ -237,8 +248,9 @@ def test_path_venv():
 
 
 @pytest.mark.skipif(
-    not EspeakMbrolaBackend.is_available(),
-    reason='mbrola not installed')
+    not EspeakMbrolaBackend.is_available() or
+    not EspeakMbrolaBackend.is_language_installed('mb-fr1'),
+    reason='mbrola or mb-fr1 voice not installed')
 @pytest.mark.parametrize(
     'text, expected',
     [
@@ -291,8 +303,9 @@ def test_sampa_fr(text, expected):
 
 
 @pytest.mark.skipif(
-    not EspeakMbrolaBackend.is_available(),
-    reason='mbrola not installed')
+    not EspeakMbrolaBackend.is_available() or
+    not EspeakMbrolaBackend.is_language_installed('mb-fr1'),
+    reason='mbrola or mb-fr1 voice not installed')
 def test_french_sampa():
     text = u'bonjour le monde'
     backend = EspeakMbrolaBackend('mb-fr1')
@@ -305,3 +318,13 @@ def test_french_sampa():
     expected = 'b o~ Z u R /w l @ /w m o~ d'
     out = backend.phonemize(text, separator=sep, strip=True)
     assert out == expected
+
+    assert '' == backend.phonemize('', separator=sep, strip=True)
+    assert '' == backend.phonemize('"', separator=sep, strip=True)
+
+
+@pytest.mark.skipif(
+    not EspeakMbrolaBackend.is_available(),
+    reason='mbrola not installed')
+def test_mbrola_bad_language():
+    assert not EspeakMbrolaBackend.is_language_installed('foo-bar')

@@ -25,6 +25,8 @@ import tempfile
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
+from phonemizer.separator import Separator
+
 
 # a regular expression to find language switching flags in espeak output,
 # Switches have the following form (here a switch from English to French):
@@ -178,11 +180,11 @@ class BaseEspeakBackend(BaseBackend):
 
                     # ensure all was OK
                     error = completed.stderr.decode('utf8')
-                    for err_line in error.split('\n'):
+                    for err_line in error.split('\n'):  # pragma: nocover
                         err_line = err_line.strip()
                         if err_line:
                             self.logger.error(err_line)
-                    if error or completed.returncode:
+                    if error or completed.returncode:  # pragma: nocover
                         raise RuntimeError(
                             f'espeak failed with return code '
                             f'{completed.returncode}')
@@ -345,6 +347,21 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
 
         return {voice[4][3:]: voice[3] for voice in voices}
 
+    @classmethod
+    def is_language_installed(cls, language):
+        """Returns True if the required mbrola voice is installed"""
+        try:
+            cls(language).phonemize('')
+        except RuntimeError:
+            return False
+        return True
+
+    @classmethod
+    def installed_languages(cls):  # pragma: nocover
+        """Returns the list of installed mbrola voices"""
+        return [l for l in cls.supported_languages()
+                if cls.is_language_installed(l)]
+
     def _command(self, fname):
         return (
             f'{self.espeak_path()} -v {self.language} '
@@ -356,6 +373,8 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         # retrieve the phonemized output but with bad SAMPA alphabet
         # (with word separation)
         output_bad_phones = lines[0]
+        if not output_bad_phones.strip():
+            return ''
 
         # retrieve the phonemes with the correct SAMPA alphabet (but
         # without word separation)

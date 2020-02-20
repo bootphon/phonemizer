@@ -21,7 +21,7 @@ from phonemizer.punctuation import Punctuation
 from phonemizer.phonemize import phonemize
 
 
-# True if we are using espeak>=1.50
+# True if we are using espeak>=1.49.3
 ESPEAK_143 = (EspeakBackend.version(as_tuple=True) >= (1, 49, 3))
 
 
