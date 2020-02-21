@@ -375,21 +375,18 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
             f'-q -f {fname} --pho --sep=_')
 
     def _postprocess_line(self, line, num, separator, strip):
-        print('line:', line)
         lines = line.split('\n')
         # retrieve the phonemized output but with bad SAMPA alphabet
         # (with word separation)
         output_bad_phones = lines[0].strip()
         if not output_bad_phones:
             return ''
-        print('phones:', output_bad_phones)
 
         # retrieve the phonemes with the correct SAMPA alphabet (but
         # without word separation)
         phonemes = (
             line.split('\t')[0] for line in lines[1:] if line.strip())
         phonemes = [pho for pho in phonemes if pho != '_']
-        print('phonemes:', phonemes)
 
         # merge the two outputs in a single one, word separation AND
         # correct sampa alphabet
