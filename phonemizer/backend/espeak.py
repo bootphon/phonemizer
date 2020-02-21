@@ -375,7 +375,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
             f'-q -f {fname} --pho --sep=_')
 
     def _postprocess_line(self, line, num, separator, strip):
-        lines = line.split('\n')
+        lines = line.strip().split('\n')
 
         # retrieve the phonemized output but with bad SAMPA alphabet
         # (with word separation)
