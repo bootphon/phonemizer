@@ -19,7 +19,7 @@ import tempfile
 import shlex
 import sys
 
-from phonemizer.backend import EspeakBackend
+from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
 from phonemizer import main, backend, logger
 
 
@@ -114,6 +114,15 @@ def test_language_switch():
 def test_logger():
     with pytest.raises(RuntimeError):
         logger.get_logger(verbosity=1)
+
+
+@pytest.mark.skipif(
+    not EspeakMbrolaBackend.is_available() or
+    not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
+    reason='mbrola or mb-fr1 voice not installed')
+def test_espeak_mbrola():
+    _test(u'coucou toi!', u'k u k u t w a ',
+          f'-b espeak-mbrola -l mb-fr1 -p" " --preserve-punctuation')
 
 
 def test_espeak_path():

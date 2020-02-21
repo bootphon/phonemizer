@@ -62,21 +62,24 @@ def phonemize(
       be 'festival' (US English only is supported, coded 'en-us'),
       'espeak', 'espeak-mbrola' or 'segments'.
 
-    separator (Separator): string separators between phonemes,
-      syllables and words, default to separator.default_separator.
+    separator (Separator): string separators between phonemes, syllables and
+      words, default to separator.default_separator. Syllable separator is
+      considered only for the festival backend. Word separator is ignored by
+      the 'espeak-mbrola' backend.
 
     strip (bool): If True, don't output the last word and phone
       separators of a token, default to False.
 
     preserve_punctuation (bool): When True, will keep the punctuation in the
-        phonemized output. Default to False and remove all the punctuation.
+        phonemized output. Not supportyed by the 'espeak-mbrola' backend.
+        Default to False and remove all the punctuation.
 
     punctuation_marks (str): The punctuation marks to consider when dealing
         with punctuation. Default to Punctuation.default_marks().
 
-    with_stress (bool): This option is only valid for the espeak backend. When
-      True the stresses on phonemes are present (stresses characters are ˈ'ˌ).
-      When False stresses are removed. Default to False.
+    with_stress (bool): This option is only valid for the 'espeak' backend.
+      When True the stresses on phonemes are present (stresses characters are
+      ˈ'ˌ). When False stresses are removed. Default to False.
 
     language_switch (str): Espeak can output some words in another language
       (typically English) when phonemizing a text. This option setups the
@@ -86,7 +89,7 @@ def phonemize(
       flags, for example (en) or (jp), in the output. The 'remove-flags' policy
       removes them and the 'remove-utterance' policy removes the whole line of
       text including a language switch. This option is only valid for the
-      'espeak' and 'espeak-mbrola' backends.
+      'espeak' backend.
 
     njobs (int): The number of parallel jobs to launch. The input text
       is split in `njobs` parts, phonemized on parallel instances of
@@ -130,6 +133,12 @@ def phonemize(
             'the "language_switch" option is available for espeak backend '
             'only, but you are using {} backend'.format(backend))
 
+    # preserve_punctuation and word separator not valid for espeak-mbrola
+    if backend == 'espeak-mbrola' and preserve_punctuation:
+        logger.warning('espeak-mbrola backend cannot preserve punctuation')
+    if backend == 'espeak-mbrola' and separator.word:
+        logger.warning('espeak-mbrola backend cannot preserve word separation')
+
     # python2 needs additional utf8 encoding
     if sys.version_info[0] == 2:  # pragma: nocover
         logger.warning(
@@ -152,9 +161,6 @@ def phonemize(
     elif backend == 'espeak-mbrola':
         phonemizer = backends[backend](
             language,
-            punctuation_marks=punctuation_marks,
-            preserve_punctuation=preserve_punctuation,
-            language_switch=language_switch,
             logger=logger)
     else:  # festival or segments
         phonemizer = backends[backend](

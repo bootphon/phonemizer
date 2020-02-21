@@ -100,12 +100,12 @@ def test_espeak_mbrola(njobs):
     out = phonemize(
         text, language='mb-fr1', backend='espeak-mbrola',
         strip=True, njobs=njobs)
-    assert out == ['9~ d2', 'tRwa', 'katR se~k']
+    assert out == ['9~d2', 'tRwa', 'katRse~k']
 
     out = phonemize(
         text, language='mb-fr1', backend='espeak-mbrola',
         strip=False, njobs=njobs)
-    assert out == ['9~ d2 ', 'tRwa ', 'katR se~k ']
+    assert out == ['9~d2', 'tRwa', 'katRse~k']
 
 
 @pytest.mark.parametrize('njobs', [2, 4])

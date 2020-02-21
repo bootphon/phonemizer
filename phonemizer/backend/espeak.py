@@ -44,38 +44,6 @@ class BaseEspeakBackend(BaseBackend):
 
     espeak_version_re = r'.*: ([0-9]+(\.[0-9]+)+(\-dev)?)'
 
-    def __init__(self, language,
-                 punctuation_marks=Punctuation.default_marks(),
-                 preserve_punctuation=False,
-                 language_switch='keep-flags',
-                 logger=get_logger()):
-        super().__init__(
-            language, punctuation_marks=punctuation_marks,
-            preserve_punctuation=preserve_punctuation, logger=logger)
-        self.logger.debug('espeak is %s', self.espeak_path())
-
-        # adapt some command line option to the espeak version (for
-        # phoneme separation and IPA output)
-        version = self.version()
-
-        self.sep = '--sep=_'
-        if version == '1.48.03' or version.split('.')[1] <= '47':
-            self.sep = ''  # pragma: nocover
-
-        self.ipa = '--ipa=3'
-        if self.is_espeak_ng():  # this is espeak-ng
-            self.ipa = '-x --ipa'
-
-        # ensure the lang_switch argument is valid
-        valid_lang_switch = [
-            'keep-flags', 'remove-flags', 'remove-utterance']
-        if language_switch not in valid_lang_switch:
-            raise RuntimeError(
-                'lang_switch argument "{}" invalid, must be in {}'
-                .format(language_switch, ", ".join(valid_lang_switch)))
-        self._lang_switch = language_switch
-        self._lang_switch_list = []
-
     @staticmethod
     def set_espeak_path(fpath):
         """Sets the espeak executable as `fpath`"""
@@ -261,8 +229,30 @@ class EspeakBackend(BaseEspeakBackend):
                  logger=get_logger()):
         super().__init__(
             language, punctuation_marks=punctuation_marks,
-            preserve_punctuation=preserve_punctuation,
-            language_switch=language_switch, logger=logger)
+            preserve_punctuation=preserve_punctuation, logger=logger)
+        self.logger.debug('espeak is %s', self.espeak_path())
+
+        # adapt some command line option to the espeak version (for
+        # phoneme separation and IPA output)
+        version = self.version()
+
+        self.sep = '--sep=_'
+        if version == '1.48.03' or version.split('.')[1] <= '47':
+            self.sep = ''  # pragma: nocover
+
+        self.ipa = '--ipa=3'
+        if self.is_espeak_ng():  # this is espeak-ng
+            self.ipa = '-x --ipa'
+
+        # ensure the lang_switch argument is valid
+        valid_lang_switch = [
+            'keep-flags', 'remove-flags', 'remove-utterance']
+        if language_switch not in valid_lang_switch:
+            raise RuntimeError(
+                'lang_switch argument "{}" invalid, must be in {}'
+                .format(language_switch, ", ".join(valid_lang_switch)))
+        self._lang_switch = language_switch
+        self._lang_switch_list = []
 
         self._with_stress = with_stress
 
@@ -327,6 +317,12 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
     # this will be initialized once, at the first call to supported_languages()
     _supported_languages = None
 
+    _lang_switch_list = []
+
+    def __init__(self, language, logger=get_logger()):
+        super().__init__(language, logger=logger)
+        self.logger.debug('espeak is %s', self.espeak_path())
+
     @staticmethod
     def name():
         return 'espeak-mbrola'
@@ -370,54 +366,16 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         return cls._supported_languages
 
     def _command(self, fname):
-        return (
-            f'{self.espeak_path()} -v {self.language} '
-            f'-q -f {fname} --pho --sep=_')
+        return f'{self.espeak_path()} -v {self.language} -q -f {fname} --pho'
 
     def _postprocess_line(self, line, num, separator, strip):
-        lines = line.split('\n')
-
-        # retrieve the phonemized output but with bad SAMPA alphabet
-        # (with word separation)
-        output_bad_phones = lines[0].strip()
-        if not output_bad_phones:
-            return ''
-
-        # this fix an unexplained bug fount only on travis (on all other tested
-        # platforms and epseak versions, 'oignon' is phonemized as o_n_j_'O~
-        # excepted on travis where it is o_n^_'O~)
-        output_bad_phones = output_bad_phones.replace('^', '_j')
-
         # retrieve the phonemes with the correct SAMPA alphabet (but
         # without word separation)
         phonemes = (
-            line.split('\t')[0] for line in lines[1:] if line.strip())
-        phonemes = [pho for pho in phonemes if pho != '_']
+            l.split('\t')[0] for l in line.split('\n') if l.strip())
+        phonemes = separator.phone.join(pho for pho in phonemes if pho != '_')
 
-        # merge the two outputs in a single one, word separation AND
-        # correct sampa alphabet
-        out_line = ''
-        phonemes_index = 0
-        for word in output_bad_phones.split(' '):
-            for phoneme in word.strip().split('_'):
-                if '(' in phoneme and ')' in phoneme:
-                    # this is a language switch flag
-                    out_line += phoneme + separator.phone
-                else:
-                    out_line += phonemes[phonemes_index] + separator.phone
-                    phonemes_index += 1
+        if not strip:
+            phonemes += separator.phone
 
-            if strip and separator.phone:
-                out_line = out_line[:-len(separator.phone)]
-            out_line += separator.word
-
-        # ensure all the phonemes have been converted
-        if phonemes_index != len(phonemes):
-            raise RuntimeError(
-                f'failed to postprocess line {num}: {output_bad_phones}')
-
-        if strip and separator.word:
-            out_line = out_line[:-len(separator.word)]
-
-        out_line = self._process_lang_switch(num, out_line)
-        return out_line
+        return phonemes

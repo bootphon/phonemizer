@@ -20,7 +20,8 @@ Version numbers follow [semantic versioning](https://semver.org)
     * On the other hand the ``espeak-mbrola`` backend allows espeak to output
       phones in standard SAMPA (adapted to the mbrola TTS front-end). This
       backend requires mbrola to be installed, as well as additional mbrola
-      voices to support needed languages.
+      voices to support needed languages. **This backend does not support word
+      separation nor punctuation preservation**.
 
 * **bugfixes**
 
@@ -32,6 +33,8 @@ Version numbers follow [semantic versioning](https://semver.org)
     and Python code).
 
   * Fixed a test when using ``espeak>=1.50``.
+
+  * Empty lines are correctly ignored when reading text from a file.
 
 
 ## phonemizer-2.1

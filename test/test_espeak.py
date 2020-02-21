@@ -272,7 +272,7 @@ def test_path_venv():
         ('mont', 'mo~'),
         ('nom', 'no~'),
         ('oignon', 'onjo~'),
-        ('ping', '(en)piN(fr)'),
+        ('ping', 'piN'),
         # liquid glides
         ('long', 'lo~'),
         ('rond', 'Ro~'),
@@ -309,13 +309,13 @@ def test_sampa_fr(text, expected):
 def test_french_sampa():
     text = u'bonjour le monde'
     backend = EspeakMbrolaBackend('mb-fr1')
-    sep = separator.Separator(word=' /w ', phone=' ')
+    sep = separator.Separator(word=None, phone=' ')
 
-    expected = 'b o~ Z u R  /w l @  /w m o~ d  /w '
+    expected = 'b o~ Z u R l @ m o~ d '
     out = backend.phonemize(text, separator=sep, strip=False)
     assert out == expected
 
-    expected = 'b o~ Z u R /w l @ /w m o~ d'
+    expected = 'b o~ Z u R l @ m o~ d'
     out = backend.phonemize(text, separator=sep, strip=True)
     assert out == expected
 

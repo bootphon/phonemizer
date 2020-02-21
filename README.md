@@ -20,7 +20,8 @@ https://doi.org/10.5281/zenodo.1045825)
     and IPA (International Phonetic Alphabet) output.
 
   * [espeak-mbrola](https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)
-    uses the SAMPA phonetic alphabet instead of IPA.
+    uses the SAMPA phonetic alphabet instead of IPA but does not preserve word
+    boundaries.
 
   * [festival](http://www.cstr.ed.ac.uk/projects/festival) currently supports
     only American English. It uses a [custom
@@ -138,12 +139,13 @@ See the installed backends with the `--version` option:
         $ echo "hello world" | phonemize -l en-us -b festival
         hhaxlow werld
 
-* In French, using **espeak** and **espeak-mbrola**
+* In French, using **espeak** and **espeak-mbrola**, with custom token
+  separators (see below). espeak-mbrola does not support words separation.
 
-        $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr
-        bɔ̃ʒuʁ lə- mɔ̃d
-        $ echo "bonjour le monde" | phonemize -b espeak-mbrola -l mb-fr1
-        bo~ZuR l@ mo~d
+        $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr -p ' ' -w '/w '
+        b ɔ̃ ʒ u ʁ /w l ə /w m ɔ̃ d /w
+        $ echo "bonjour le monde" | phonemize -b espeak-mbrola -l mb-fr1 -p ' ' -w '/w '
+        b o~ Z u R l @ m o~ d
 
 * In Japanese, using **segments**
 
@@ -185,8 +187,8 @@ The exhaustive list of supported languages is available with the command
 
 ### Token separators
 
-You can specify separators for phones, syllables (festival only) and
-words.
+You can specify separators for phones, syllables (**festival** only and
+words (excepted **espeak-mbrola**).
 
     $ echo "hello world" | phonemize -b festival -w ' ' -p ''
     hhaxlow werld
@@ -214,7 +216,8 @@ a space for both phones and words):
 ### Punctuation
 
 By default the punctuation is removed in the phonemized output. You can preserve
-it using the ``--preserve-punctuation`` option:
+it using the ``--preserve-punctuation`` option (not supported by the
+**espeak-mbrola** backend:
 
     $ echo "hello, world!" | phonemize --strip
     həloʊ wɜːld
@@ -230,9 +233,8 @@ it using the ``--preserve-punctuation`` option:
         $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
         həlˈoʊ wˈɜːld
 
-* The **espeak** and **espeak-mbrola** backends can switch languages during
-  phonemization (below from French to English), use the ``--language-switch``
-  option to deal with it:
+* The **espeak** backend can switch languages during phonemization (below from
+  French to English), use the ``--language-switch`` option to deal with it:
 
         $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch keep-flags
         [WARNING] fount 1 utterances containing language switches on lines 1

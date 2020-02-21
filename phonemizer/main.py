@@ -89,7 +89,8 @@ and segments.
   https://github.com/espeak-ng/espeak-ng
 
 - espeak-mbrola uses the SAMPA phonetic alphabet, it requires mbrola to be
-  installed as well as additional mbrola voices. See
+  installed as well as additional mbrola voices. It does not support word or
+  syllable tokenization. See
   https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md
 
 - festival is also a text-to-speech software. Currently only American
@@ -189,7 +190,8 @@ Exemples:
     group.add_argument(
         '-w', '--word-separator', metavar='<str>',
         default=separator.default_separator.word,
-        help='word separator, default is "%(default)s".')
+        help='''word separator, not valid for espeak-mbrola backend,
+        default is "%(default)s".''')
 
     group.add_argument(
         '-s', '--syllable-separator', metavar='<str>',
@@ -235,7 +237,9 @@ Exemples:
         This path can also be specified using the
         $PHONEMIZER_FESTIVAL_PATH environment variable.''')
 
-    group = parser.add_argument_group('punctuation processing')
+    group = parser.add_argument_group(
+        'punctuation processing',
+        description='not available for espeak-mbrola backend')
     group.add_argument(
         '--preserve-punctuation', action='store_true',
         help='''preserve the punctuation marks in the phonemized output,
@@ -302,18 +306,20 @@ def main():
     log.debug('writing to %s', streamout.name)
 
     # configure the separator for phonemes, syllables and words.
-    sep = separator.Separator(
-        phone=args.phone_separator,
-        syllable=args.syllable_separator,
-        word=args.word_separator)
+    if args.backend == 'espeak-mbrola':
+        log.debug('using espeak-mbrola backend: ignoring word separator')
+        sep = separator.Separator(
+            phone=args.phone_separator,
+            syllable=None,
+            word=None)
+    else:
+        sep = separator.Separator(
+            phone=args.phone_separator,
+            syllable=args.syllable_separator,
+            word=args.word_separator)
     log.debug('separator is %s', sep)
 
-    # load the input text (python2 optionnally needs an extra decode)
-    text = streamin.read()
-    try:
-        text = text.decode('utf8')
-    except (AttributeError, UnicodeEncodeError):
-        pass
+    text = [line.strip() for line in streamin]
 
     # phonemize the input text
     out = phonemize.phonemize(
@@ -329,8 +335,8 @@ def main():
         njobs=args.njobs,
         logger=log)
 
-    if len(out):
-        streamout.write(out + '\n')
+    if out:
+        streamout.write('\n'.join(out) + '\n')
 
 
 if __name__ == '__main__':  # pragma: nocover
