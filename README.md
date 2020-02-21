@@ -27,7 +27,7 @@ https://doi.org/10.5281/zenodo.1045825)
     phoneset](http://www.festvox.org/bsv/c4711.html), but it allows tokenization
     at the syllable level.
 
-  *[segments](https://github.com/cldf/segments) is a Unicode tokenizer that
+  * [segments](https://github.com/cldf/segments) is a Unicode tokenizer that
     build a phonemization from a grapheme to phoneme mapping provided as a file
     by the user.
 
@@ -36,7 +36,7 @@ https://doi.org/10.5281/zenodo.1045825)
 
 **You need python>=3.6.** If you really need to use python2, use an [older
 version](https://github.com/bootphon/phonemizer/releases/tag/v1.0) of
-phonemizer.
+the phonemizer.
 
 
 ### Dependencies
@@ -138,16 +138,10 @@ See the installed backends with the `--version` option:
         $ echo "hello world" | phonemize -l en-us -b festival
         hhaxlow werld
 
-* In French, using **espeak**
+* In French, using **espeak** and **espeak-mbrola**
 
         $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr
         bɔ̃ʒuʁ lə- mɔ̃d
-
-        $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr -p ' ' -w ';eword '
-        b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword
-
-* In French, using **espeak-mbrola** (SAMPA alphabet)
-
         $ echo "bonjour le monde" | phonemize -b espeak-mbrola -l mb-fr1
         bo~ZuR l@ mo~d
 
@@ -155,7 +149,6 @@ See the installed backends with the `--version` option:
 
         $ echo 'konnichiwa' | phonemize -b segments -l japanese
         konnitʃiwa
-
         $ echo 'konnichiwa' | phonemize -b segments -l ./phonemizer/share/japanese.g2p
         konnitʃiwa
 
@@ -167,16 +160,16 @@ The exhaustive list of supported languages is available with the command
 
 * Languages supported by **festival** are:
 
-        en-us	->	english-us
+        en-us -> english-us
 
 * Languages supported by the **segments** backend are:
 
         chintang  -> ./phonemizer/share/segments/chintang.g2p
-	    cree	  -> ./phonemizer/share/segments/cree.g2p
+	    cree      -> ./phonemizer/share/segments/cree.g2p
 	    inuktitut -> ./phonemizer/share/segments/inuktitut.g2p
 	    japanese  -> ./phonemizer/share/segments/japanese.g2p
-	    sesotho	  -> ./phonemizer/share/segments/sesotho.g2p
-	    yucatec	  -> ./phonemizer/share/segments/yucatec.g2p
+	    sesotho   -> ./phonemizer/share/segments/sesotho.g2p
+	    yucatec   -> ./phonemizer/share/segments/yucatec.g2p
 
   Instead of a language you can also provide a file specifying a
   grapheme to phone mapping (see the files above for examples).
