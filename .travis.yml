@@ -26,6 +26,8 @@ install:
   - pip install .[test]
 
 script:
+  - apt-cache show mbrola | grep -i version
+  - apt-cache show mbrola-fr1 | grep -i version
   - phonemize --version
   - python setup.py test
 
