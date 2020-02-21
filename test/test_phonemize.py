@@ -17,7 +17,7 @@
 import pytest
 
 from phonemizer.phonemize import phonemize
-from phonemizer.backend import EspeakBackend
+from phonemizer.backend import EspeakMbrolaBackend
 
 
 def test_bad_backend():
@@ -88,11 +88,24 @@ def test_espeak(njobs):
         strip=False, njobs=njobs)
     assert out == '\n'.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
 
-    # if EspeakBackend.is_espeak_ng():
+
+@pytest.mark.skipif(
+    not EspeakMbrolaBackend.is_available() or
+    not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
+    reason='mbrola or mb-fr1 voice not installed')
+@pytest.mark.parametrize('njobs', [2, 4])
+def test_espeak_mbrola(njobs):
+    text = ['un deux', 'trois', 'quatre cinq']
+
     out = phonemize(
-        text, language='en-us', backend='espeak', use_sampa=True,
+        text, language='mb-fr1', backend='espeak-mbrola',
         strip=True, njobs=njobs)
-    assert out == ['wVn tu:', 'Tri:', 'fo@ faIv']
+    assert out == ['9~ d2', 'tRwa', 'katR se~k']
+
+    out = phonemize(
+        text, language='mb-fr1', backend='espeak-mbrola',
+        strip=False, njobs=njobs)
+    assert out == ['9~ d2 ', 'tRwa ', 'katR se~k ']
 
 
 @pytest.mark.parametrize('njobs', [2, 4])
@@ -136,10 +149,6 @@ def test_festival_bad():
 
     with pytest.raises(RuntimeError):
         phonemize(
-            text, language='en-us', backend='festival', use_sampa=True)
-
-    with pytest.raises(RuntimeError):
-        phonemize(
             text, language='en-us', backend='festival', with_stress=True)
 
     with pytest.raises(RuntimeError):
@@ -152,11 +161,6 @@ def test_festival_bad():
 def test_segments(njobs):
     # one two three four five in Maya Yucatec
     text = ['untuʼuleʼ kaʼapʼeʼel', 'oʼoxpʼeʼel', 'kantuʼuloʼon chincho']
-
-    with pytest.raises(RuntimeError):
-        phonemize(
-            text, language='yucatec', backend='segments',
-            use_sampa=True, strip=True, njobs=njobs)
 
     out = phonemize(
         text, language='yucatec', backend='segments',

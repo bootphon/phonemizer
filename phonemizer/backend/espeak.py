@@ -14,6 +14,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Espeak backend for the phonemizer"""
 
+import abc
 import distutils.spawn
 import os
 import re
@@ -24,7 +25,6 @@ import tempfile
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
-from phonemizer.utils import get_package_resource
 
 
 # a regular expression to find language switching flags in espeak output,
@@ -39,7 +39,7 @@ _ESPEAK_FLAGS_RE = re.compile(r'\(.+?\)')
 _ESPEAK_DEFAULT_PATH = None
 
 
-class EspeakBackend(BaseBackend):
+class BaseEspeakBackend(BaseBackend):
     """Espeak backend for the phonemizer"""
 
     espeak_version_re = r'.*: ([0-9]+(\.[0-9]+)+(\-dev)?)'
@@ -47,20 +47,16 @@ class EspeakBackend(BaseBackend):
     def __init__(self, language,
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
-                 use_sampa=False,
-                 language_switch='keep-flags', with_stress=False,
+                 language_switch='keep-flags',
                  logger=get_logger()):
-        super(self.__class__, self).__init__(
+        super().__init__(
             language, punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation, logger=logger)
-        self.logger.debug(f'espeak is {self.espeak_path()}')
+        self.logger.debug('espeak is %s', self.espeak_path())
 
         # adapt some command line option to the espeak version (for
         # phoneme separation and IPA output)
         version = self.version()
-
-        self.use_sampa = use_sampa
-        self.sampa_mapping = self._load_sampa_mapping()
 
         self.sep = '--sep=_'
         if version == '1.48.03' or version.split('.')[1] <= '47':
@@ -69,10 +65,6 @@ class EspeakBackend(BaseBackend):
         self.ipa = '--ipa=3'
         if self.is_espeak_ng():  # this is espeak-ng
             self.ipa = '-x --ipa'
-
-        self._with_stress = with_stress
-        if use_sampa is True:
-            self.ipa = '-x --pho'
 
         # ensure the lang_switch argument is valid
         valid_lang_switch = [
@@ -85,12 +77,8 @@ class EspeakBackend(BaseBackend):
         self._lang_switch_list = []
 
     @staticmethod
-    def name():
-        return 'espeak'
-
-    @staticmethod
     def set_espeak_path(fpath):
-        """"""
+        """Sets the espeak executable as `fpath`"""
         global _ESPEAK_DEFAULT_PATH
         if not fpath:
             _ESPEAK_DEFAULT_PATH = None
@@ -104,6 +92,7 @@ class EspeakBackend(BaseBackend):
 
     @staticmethod
     def espeak_path():
+        """Returns the absolute path to the espeak executable"""
         if 'PHONEMIZER_ESPEAK_PATH' in os.environ:
             espeak = os.environ['PHONEMIZER_ESPEAK_PATH']
             if not (os.path.isfile(espeak) and os.access(espeak, os.X_OK)):
@@ -126,6 +115,11 @@ class EspeakBackend(BaseBackend):
 
     @classmethod
     def long_version(cls):
+        """Returns full version line
+
+        Includes data path and detailed name (espeak or espeak-ng).
+
+        """
         return subprocess.check_output(shlex.split(
             '{} --help'.format(cls.espeak_path()), posix=False)).decode(
                 'utf8').split('\n')[1]
@@ -145,54 +139,65 @@ class EspeakBackend(BaseBackend):
         try:
             version = re.match(cls.espeak_version_re, long_version).group(1)
         except AttributeError:
-            raise RuntimeError(f'cannot extract espeak version from {cls.espeak_path()}')
+            raise RuntimeError(
+                f'cannot extract espeak version from {cls.espeak_path()}')
 
         if as_tuple:
+            # ignore the '-dev' at the end
+            version = version.replace('-dev', '')
             version = tuple(int(v) for v in version.split('.'))
         return version
 
-    @classmethod
-    def supported_languages(cls):
-        # retrieve the languages from a call to 'espeak --voices'
-        voices = subprocess.check_output(shlex.split(
-            '{} --voices'.format(cls.espeak_path()), posix=False)).decode(
-                'utf8').split('\n')[1:-1]
-        voices = [v.split() for v in voices]
+    @abc.abstractmethod
+    def _command(self, fname):
+        pass
 
-        # u'å' cause a bug in python2
-        return {v[1]: v[3].replace(u'_', u' ').replace(u'å', u'a')
-                for v in voices}
+    @abc.abstractmethod
+    def _postprocess_line(self, line, num, separator, strip):
+        pass
 
-    def _load_sampa_mapping(self):
-        """Loads a sampa symbol map from a file in phonemizer/share/espeak
+    def _phonemize_aux(self, text, separator, strip):
+        output = []
+        for num, line in enumerate(text.split('\n'), start=1):
+            with tempfile.NamedTemporaryFile('w+', delete=False) as data:
+                try:
+                    # save the text as a tempfile
+                    data.write(line)
+                    data.close()
 
-        Returns it as a dictionary. Returns None if such a file does not exist.
+                    # generate the espeak command to run
+                    command = self._command(data.name)
+                    if self.logger:
+                        self.logger.debug('running %s', command)
 
-        """
-        if not self.use_sampa:
-            return None
+                    # run the command
+                    completed = subprocess.run(
+                        shlex.split(command, posix=False), capture_output=True)
 
-        # look for a file with SAMPA conversion mapping
-        filename = os.path.join(
-            get_package_resource('espeak'),
-            'sampa_{}.txt'.format(self.language))
+                    # retrieve the output line (raw phonemization)
+                    line = completed.stdout.decode('utf8')
 
-        if not os.path.isfile(filename):
-            return None
+                    # ensure all was OK
+                    error = completed.stderr.decode('utf8')
+                    for err_line in error.split('\n'):  # pragma: nocover
+                        err_line = err_line.strip()
+                        if err_line:
+                            self.logger.error(err_line)
+                    if error or completed.returncode:  # pragma: nocover
+                        raise RuntimeError(
+                            f'espeak failed with return code '
+                            f'{completed.returncode}')
+                finally:
+                    os.remove(data.name)
 
-        # build the mapping from the file
-        self.logger.debug('loading SAMPA mapping from %s', filename)
-        mapping = {}
-        for line in open(filename, 'r'):
-            symbols = line.strip().split()
-            if len(symbols) != 2:  # pragma: nocover
-                raise ValueError(
-                    'bad format in sampa mapping file {}: {}'
-                    .format(filename, line))
-            mapping[symbols[0]] = symbols[1]
-        return mapping
+                line = self._postprocess_line(line, num, separator, strip)
+                if line:
+                    output.append(line)
 
-    def _process_lang_switch(self, n, utt):
+        self._warn_on_lang_switch()
+        return output
+
+    def _process_lang_switch(self, num, utt):
         # look for language swith in the current utterance
         flags = re.findall(_ESPEAK_FLAGS_RE, utt)
 
@@ -201,13 +206,13 @@ class EspeakBackend(BaseBackend):
             return utt
 
         # language switch detected, register the line number
-        self._lang_switch_list.append(n)
+        self._lang_switch_list.append(num)
 
         # ignore the language switch but warn if one is found
         if self._lang_switch == 'keep-flags':
             return utt
 
-        elif self._lang_switch == 'remove-flags':
+        if self._lang_switch == 'remove-flags':
             # remove all the (lang) flags in the current utterance
             for flag in set(flags):
                 utt = utt.replace(flag, '')
@@ -218,71 +223,7 @@ class EspeakBackend(BaseBackend):
 
         return utt
 
-    def _phonemize_aux(self, text, separator, strip):
-        output = []
-        for n, line in enumerate(text.split('\n'), start=1):
-            with tempfile.NamedTemporaryFile('w+', delete=False) as data:
-                try:
-                    # save the text as a tempfile
-                    try:  # python2
-                        data.write(line.encode('utf8'))
-                    except TypeError:  # python3
-                        data.write(line)
-                    data.close()
-
-                    # generate the espeak command to run
-                    command = '{} -v{} {} -q -f {} {}'.format(
-                        self.espeak_path(), self.language, self.ipa,
-                        data.name, self.sep)
-
-                    if self.logger:
-                        self.logger.debug('running %s', command)
-
-                    line = subprocess.check_output(
-                        shlex.split(command, posix=False)).decode('utf8')
-                finally:
-                    os.remove(data.name)
-
-                # espeak can split an utterance into several lines because
-                # of punctuation, here we merge the lines into a single one
-                line = line.strip().replace('\n', ' ').replace('  ', ' ')
-
-                # due to a bug in espeak-ng, some additional separators can be
-                # added at the end of a word. Here a quick fix to solve that
-                # issue. See https://github.com/espeak-ng/espeak-ng/issues/694
-                line = re.sub(r'_+', '_', line)
-                line = re.sub(r'_ ', ' ', line)
-
-                line = self._process_lang_switch(n, line)
-                if not line:
-                    continue
-
-                out_line = ''
-                for word in line.split(u' '):
-                    w = word.strip()
-
-                    # remove the stresses on phonemes
-                    if not self._with_stress:
-                        w = w.replace(u"ˈ", u'')
-                        w = w.replace(u'ˌ', u'')
-                        w = w.replace(u"'", u'')
-                        w = w.replace(u"-", u'')
-
-                    # replace the SAMPA symbols from espeak output to the
-                    # standardized ones
-                    if self.sampa_mapping:
-                        for k, v in self.sampa_mapping.items():
-                            w = w.replace(k, v)
-
-                    if not strip:
-                        w += '_'
-                    w = w.replace('_', separator.phone)
-                    out_line += w + separator.word
-
-                if strip:
-                    out_line = out_line[:-len(separator.word)]
-                output.append(out_line)
-
+    def _warn_on_lang_switch(self):
         # warn the user on language switches fount during phonemization
         if self._lang_switch_list:
             nswitches = len(self._lang_switch_list)
@@ -307,4 +248,161 @@ class EspeakBackend(BaseBackend):
                         'language switch flags have been kept '
                         '(applying "keep-flags" policy)')
 
-        return output
+
+class EspeakBackend(BaseEspeakBackend):
+    """Espeak backend for the phonemizer"""
+    def __init__(self, language,
+                 punctuation_marks=Punctuation.default_marks(),
+                 preserve_punctuation=False,
+                 language_switch='keep-flags',
+                 with_stress=False,
+                 logger=get_logger()):
+        super().__init__(
+            language, punctuation_marks=punctuation_marks,
+            preserve_punctuation=preserve_punctuation,
+            language_switch=language_switch, logger=logger)
+
+        self._with_stress = with_stress
+
+    @staticmethod
+    def name():
+        return 'espeak'
+
+    @classmethod
+    def supported_languages(cls):
+        # retrieve the languages from a call to 'espeak --voices'
+        voices = subprocess.check_output(shlex.split(
+            '{} --voices'.format(cls.espeak_path()), posix=False)).decode(
+                'utf8').split('\n')[1:-1]
+        voices = [v.split() for v in voices]
+
+        return {v[1]: v[3].replace('_', ' ') for v in voices}
+
+    def _command(self, fname):
+        return (
+            f'{self.espeak_path()} -v{self.language} {self.ipa} '
+            f'-q -f {fname} {self.sep}')
+
+    def _postprocess_line(self, line, num, separator, strip):
+        # espeak can split an utterance into several lines because
+        # of punctuation, here we merge the lines into a single one
+        line = line.strip().replace('\n', ' ').replace('  ', ' ')
+
+        # due to a bug in espeak-ng, some additional separators can be
+        # added at the end of a word. Here a quick fix to solve that
+        # issue. See https://github.com/espeak-ng/espeak-ng/issues/694
+        line = re.sub(r'_+', '_', line)
+        line = re.sub(r'_ ', ' ', line)
+
+        line = self._process_lang_switch(num, line)
+        if not line:
+            return ''
+
+        out_line = ''
+        for word in line.split(u' '):
+            word = word.strip()
+
+            # remove the stresses on phonemes
+            if not self._with_stress:
+                word = word.replace("ˈ", '')
+                word = word.replace('ˌ', '')
+                word = word.replace("'", '')
+                word = word.replace("-", '')
+
+            if not strip:
+                word += '_'
+            word = word.replace('_', separator.phone)
+            out_line += word + separator.word
+
+        if strip and separator.word:
+            out_line = out_line[:-len(separator.word)]
+
+        return out_line
+
+
+class EspeakMbrolaBackend(BaseEspeakBackend):
+    """Espeak-mbrola backend for the phonemizer"""
+    # this will be initialized once, at the first call to supported_languages()
+    _supported_languages = None
+
+    @staticmethod
+    def name():
+        return 'espeak-mbrola'
+
+    @staticmethod
+    def is_available():
+        return (
+            BaseEspeakBackend.is_available() and
+            distutils.spawn.find_executable('mbrola') is not None)
+
+    @classmethod
+    def _all_supported_languages(cls):
+        # retrieve the voices from a call to 'espeak --voices=mb'. This voices
+        # must be installed separately.
+        voices = subprocess.check_output(shlex.split(
+            f'{cls.espeak_path()} --voices=mb', posix=False)).decode(
+                'utf8').split('\n')[1:-1]
+        voices = [voice.split() for voice in voices]
+        return {voice[4][3:]: voice[3] for voice in voices}
+
+    @classmethod
+    def _is_language_installed(cls, language):
+        """Returns True if the required mbrola voice is installed"""
+        command = f'{cls.espeak_path()} --stdin -v {language} -q --pho'
+        completed = subprocess.run(
+            shlex.split(command, posix=False), input=b'', capture_output=True)
+        if completed.stderr.decode('utf8'):
+            return False
+        return True
+
+    @classmethod
+    def supported_languages(cls):  # pragma: nocover
+        """Returns the list of installed mbrola voices"""
+        if cls._supported_languages is None:
+            cls._supported_languages = {
+                k: v for k, v in cls._all_supported_languages().items()
+                if cls._is_language_installed(k)}
+        return cls._supported_languages
+
+    def _command(self, fname):
+        return (
+            f'{self.espeak_path()} -v {self.language} '
+            f'-q -f {fname} --pho --sep=_')
+
+    def _postprocess_line(self, line, num, separator, strip):
+        lines = line.split('\n')
+
+        # retrieve the phonemized output but with bad SAMPA alphabet
+        # (with word separation)
+        output_bad_phones = lines[0]
+        if not output_bad_phones.strip():
+            return ''
+
+        # retrieve the phonemes with the correct SAMPA alphabet (but
+        # without word separation)
+        phonemes = (
+            line.split('\t')[0] for line in lines[1:] if line.strip())
+        phonemes = [pho for pho in phonemes if pho != '_']
+
+        # merge the two outputs in a single one, word separation AND
+        # correct sampa alphabet
+        out_line = ''
+        phonemes_index = 0
+        for word in output_bad_phones.split(' '):
+            for phoneme in word.strip().split('_'):
+                if '(' in phoneme and ')' in phoneme:
+                    # this is a language switch flag
+                    out_line += phoneme + separator.phone
+                else:
+                    out_line += phonemes[phonemes_index] + separator.phone
+                    phonemes_index += 1
+
+            if strip and separator.phone:
+                out_line = out_line[:-len(separator.phone)]
+            out_line += separator.word
+
+        if strip and separator.word:
+            out_line = out_line[:-len(separator.word)]
+
+        out_line = self._process_lang_switch(num, out_line)
+        return out_line

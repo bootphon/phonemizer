@@ -17,12 +17,17 @@
 
 import argparse
 import codecs
-import pkg_resources
 import sys
+
+import pkg_resources
 
 from phonemizer import phonemize, separator, version, logger, punctuation
 from phonemizer.backend import (
-    EspeakBackend, FestivalBackend, SegmentsBackend)
+    EspeakBackend, EspeakMbrolaBackend, FestivalBackend, SegmentsBackend)
+
+
+BACKENDS_MAP = {b.name(): b for b in (
+        EspeakBackend, FestivalBackend, SegmentsBackend, EspeakMbrolaBackend)}
 
 
 class CatchExceptions(object):  # pragma: nocover
@@ -75,12 +80,17 @@ def parse_args():
         description='''Multilingual text to phonemes converter
 
 The 'phonemize' program allows simple phonemization of words and texts
-in many language using three backends: espeak, festival and segments.
+in many language using four backends: espeak, espeak-mbrola, festival
+and segments.
 
 - espeak is a text-to-speech software supporting multiple languages
-  and IPA (Internatinal Phonetic Alphabet) output. See
+  and IPA (International Phonetic Alphabet) output. See
   http://espeak.sourceforge.net or
   https://github.com/espeak-ng/espeak-ng
+
+- espeak-mbrola uses the SAMPA phonetic alphabet, it requires mbrola to be
+  installed as well as additional mbrola voices. See
+  https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md
 
 - festival is also a text-to-speech software. Currently only American
   English is supported and festival uses a custom phoneset
@@ -92,23 +102,11 @@ in many language using three backends: espeak, festival and segments.
   grapheme to phoneme mapping provided as a file by the user. See
   https://github.com/cldf/segments.
 
-See the '--language' option below for details on the languages
+See the '--list-languages' option below for details on the languages
 supported by each backend.
 
 ''',
         epilog='''
-   Languages supported by the festival backend are:
-   {festival}
-
-   Languages supported by the segments backend are:
-   {segments}
-   Instead of a language you can also provide a file specifying a
-   grapheme to phoneme mapping (see the files above for exemples).
-
-   Languages supported by the espeak backend are:
-   {espeak}
-
-
 Exemples:
 
 * Phonemize a US English text with espeak
@@ -134,20 +132,11 @@ Exemples:
 * Phonemize some French text file using espeak
 
   $ phonemize -l fr-fr -b espeak text.txt -o phones.txt
-        '''.format(
-            festival='\n'.join(
-                '\t{}\t->\t{}'.format(k, v) for k, v in
-                sorted(FestivalBackend.supported_languages().items())),
-            segments='\n'.join(
-                '\t{}\t->\t{}'.format(k, v) for k, v in
-                sorted(SegmentsBackend.supported_languages().items())),
-            espeak='\n'.join(
-                '\t{}\t->\t{}'.format(k, v) for k, v in
-                sorted(EspeakBackend.supported_languages().items()))))
+        ''')
 
     # general arguments
     parser.add_argument(
-        '--version', action='store_true',
+        '-V', '--version', action='store_true',
         help='show version information and exit.')
 
     group = parser.add_mutually_exclusive_group()
@@ -173,7 +162,25 @@ Exemples:
         '-o', '--output', default=sys.stdout, metavar='<file>',
         help='output text file to write, if not specified write to stdout.')
 
-    group = parser.add_argument_group('separators')
+    group = parser.add_argument_group('backends')
+    group.add_argument(
+        '-b', '--backend', metavar='<str>', default=None,
+        choices=['espeak', 'espeak-mbrola', 'festival', 'segments'],
+        help="""the phonemization backend, must be 'espeak', 'espeak-mbrola',
+        'festival' or 'segments'. Default is espeak.""")
+
+    group.add_argument(
+        '-L', '--list-languages', action='store_true',
+        help="""list available languages (and exit) for the specified backend,
+        or for all backends if none selected.""")
+
+    group = parser.add_argument_group('language')
+    group.add_argument(
+        '-l', '--language', metavar='<str|file>', default='en-us',
+        help='''the language code of the input text, use '--list-languages'
+        for a list of supported languages. Default is %(default)s.''')
+
+    group = parser.add_argument_group('token separators')
     group.add_argument(
         '-p', '--phone-separator', metavar='<str>',
         default=separator.default_separator.phone,
@@ -188,30 +195,18 @@ Exemples:
         '-s', '--syllable-separator', metavar='<str>',
         default=separator.default_separator.syllable,
         help='''syllable separator, only valid for festival backend,
-        this option has no effect if espeak or segments is used.
+        this option has no effect if another backend is used.
         Default is "%(default)s".''')
 
     group.add_argument(
         '--strip', action='store_true',
         help='removes the end separators in phonemized tokens.')
 
-    group = parser.add_argument_group('backends')
-    group.add_argument(
-        '-b', '--backend', metavar='<str>', default='espeak',
-        choices=['espeak', 'festival', 'segments'],
-        help="""the phonemization backend, must be 'espeak', 'festival' or
-        'segments'. Default is %(default)s.""")
-
     group = parser.add_argument_group('specific to espeak backend')
     group.add_argument(
         '--with-stress', action='store_true',
         help='''when the option is set, the stresses on phonemes are present
         (stresses characters are ˈ'ˌ). By default stresses are removed.''')
-    group.add_argument(
-        '--sampa', action='store_true',
-        help='''only valid for espeak-ng and NOT supported for espeak, use the
-        "sampa" (Speech Assessment Methods Phonetic Alphabet) alphabet instead
-        of "ipa" (International Phonetic Alphabet).''')
     group.add_argument(
         '--language-switch', default='keep-flags',
         choices=['keep-flags', 'remove-flags', 'remove-utterance'],
@@ -227,16 +222,18 @@ Exemples:
         '--espeak-path', default=None, type=str, metavar='<executable>',
         help=f'''the path to the espeak executable to use (useful to overload
         the default espeak/espeak-ng installed on the system).
-        Default to {EspeakBackend.espeak_path()}. This path can also be specified
-        using the $PHONEMIZER_ESPEAK_PATH environment variable.''')
+        Default to {EspeakBackend.espeak_path()}.
+        This path can also be specified using the
+        $PHONEMIZER_ESPEAK_PATH environment variable.''')
 
     group = parser.add_argument_group('specific to festival backend')
     group.add_argument(
         '--festival-path', default=None, type=str, metavar='<executable>',
         help=f'''the path to the festival executable to use (useful to overload
         the default festival installed on the system).
-        Default to {FestivalBackend.festival_path()}. This path can also be specified
-        using the $PHONEMIZER_FESTIVAL_PATH environment variable.''')
+        Default to {FestivalBackend.festival_path()}.
+        This path can also be specified using the
+        $PHONEMIZER_FESTIVAL_PATH environment variable.''')
 
     group = parser.add_argument_group('punctuation processing')
     group.add_argument(
@@ -248,14 +245,6 @@ Exemples:
         default=punctuation.Punctuation.default_marks(),
         help='''the marks to consider during punctuation processing (either
         for removal or preservation). Default is %(default)s.''')
-
-    group = parser.add_argument_group('language')
-    group.add_argument(
-        '-l', '--language', metavar='<str|file>', default='en-us',
-        help='''the language code of the input text, see below for a list of
-        supported languages. According to the language code you
-        specify, the appropriate backend (segments, espeak or festival)
-        will be called in background. Default is %(default)s.''')
 
     return parser.parse_args()
 
@@ -272,9 +261,25 @@ def main():
     if args.festival_path:
         FestivalBackend.set_festival_path(args.festival_path)
 
+    # display version information and exit
     if args.version:
         print(version.version())
         return
+
+    # list supported languages and exit
+    if args.list_languages:
+        backends = (
+            ['festival', 'segments', 'espeak', 'espeak-mbrola']
+            if not args.backend else [args.backend])
+        for backend in backends:
+            print(
+                f'supported languages for {backend} are:\n' +
+                '\n'.join(f'\t{k}\t->\t{v}' for k, v in sorted(
+                    BACKENDS_MAP[backend].supported_languages().items())))
+        return
+
+    # set default backend as espeak if not specified
+    args.backend = args.backend or 'espeak'
 
     # configure logging according to --verbose/--quiet options
     verbosity = 'normal'
@@ -320,7 +325,6 @@ def main():
         preserve_punctuation=args.preserve_punctuation,
         punctuation_marks=args.punctuation_marks,
         with_stress=args.with_stress,
-        use_sampa=args.sampa,
         language_switch=args.language_switch,
         njobs=args.njobs,
         logger=log)

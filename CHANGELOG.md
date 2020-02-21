@@ -5,11 +5,33 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 ## not yet released
 
+* **new features**
+
+  * New option ``--list-languages`` to list the available languages for a given
+    backend from the command line.
+
+  * The ``--sampa`` option of the ``espeak`` backend has been replaced by a new
+    backend ``espeak-mbrola``.
+
+    * The former ``--sampa`` option (introduced in phonemizer-2.0) outputs
+      phones that are not standard SAMPA but are adapted to the espeak TTS
+      front-end.
+
+    * On the other hand the ``espeak-mbrola`` backend allows espeak to output
+      phones in standard SAMPA (adapted to the mbrola TTS front-end). This
+      backend requires mbrola to be installed, as well as additional mbrola
+      voices to support needed languages.
+
 * **bugfixes**
 
-  * fixed issues with punctuation processing on some corner cases, see issues
+  * Fixed issues with punctuation processing on some corner cases, see issues
     [#39](https://github.com/bootphon/phonemizer/issues/39) and
     [#40](https://github.com/bootphon/phonemizer/issues/40).
+
+  * Improvments and updates in the documentation (Readme, ``phonemize --help``
+    and Python code).
+
+  * Fixed a test when using ``espeak>=1.50``.
 
 
 ## phonemizer-2.1

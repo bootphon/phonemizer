@@ -1,6 +1,6 @@
 before_script:
   # load the requested modules on oberon
-  - module load anaconda/3 festival/2.4
+  - module load anaconda/3 festival/2.4 mbrola
 
 phonemizer-build:
   stage: build

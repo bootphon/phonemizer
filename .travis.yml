@@ -2,7 +2,7 @@ dist: bionic
 addons:
   apt:
     packages:
-      - festival festvox-us1 festlex-cmu festlex-poslex espeak-ng
+      - festival festvox-us1 festlex-cmu festlex-poslex espeak-ng mbrola mbrola-fr1
 
 language: python
 
