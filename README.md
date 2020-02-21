@@ -9,29 +9,27 @@ https://doi.org/10.5281/zenodo.1045825)
 
 # Phonemizer -- *foʊnmaɪzɚ*
 
-* The phonemizer allows simple phonemization of words and texts in many language
+* The phonemizer allows simple phonemization of words and texts in many languages.
 
 * Provides both the `phonemize` command-line tool and the Python function
-  `phonemizer.phonemize`
+  `phonemizer.phonemize`.
 
 * It is using four backends: espeak, espeak-mbrola, festival and segments.
 
-  * **espeak** is a text-to-speech software supporting multiple languages and
-    IPA (International Phonetic Alphabet) output. See
-    https://github.com/espeak-ng/espeak-ng.
+  * [espeak](https://github.com/espeak-ng/espeak-ng) supports a lot of languages
+    and IPA (International Phonetic Alphabet) output.
 
-  * **espeak-mbrola** uses the SAMPA phonetic alphabet instead of IPA. See
-    https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md
+  * [espeak-mbrola](https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)
+    uses the SAMPA phonetic alphabet instead of IPA.
 
-  * **festival** is also a text-to-speech software. Currently only American
-    English is supported and festival uses a custom phoneset
-    (http://www.festvox.org/bsv/c4711.html), but festival is the only backend
-    supporting tokenization at the syllable level. See
-    http://www.cstr.ed.ac.uk/projects/festival.
+  * [festival](http://www.cstr.ed.ac.uk/projects/festival) currently supports
+    only American English. It uses a [custom
+    phoneset](http://www.festvox.org/bsv/c4711.html), but it allows tokenization
+    at the syllable level.
 
-  * **segments** is a Unicode tokenizer that build a phonemization from a
-    grapheme to phoneme mapping provided as a file by the user. See
-    https://github.com/cldf/segments.
+  *[segments](https://github.com/cldf/segments) is a Unicode tokenizer that
+    build a phonemization from a grapheme to phoneme mapping provided as a file
+    by the user.
 
 
 ## Installation
@@ -128,14 +126,14 @@ See the installed backends with the `--version` option:
 
 ### Backends
 
-* **Espeak** us-english is the default
+* The default is to use **espeak** us-english:
 
         $ echo "hello world" | phonemize
         həloʊ wɜːld
         $ echo "hello world" | phonemize -l en-us -b espeak
         həloʊ wɜːld
 
-* use **Festival** US English instead
+* Use **festival** US English instead
 
         $ echo "hello world" | phonemize -l en-us -b festival
         hhaxlow werld
@@ -183,7 +181,7 @@ The exhaustive list of supported languages is available with the command
   Instead of a language you can also provide a file specifying a
   grapheme to phone mapping (see the files above for examples).
 
-* Languages supported by **espeak-ng** are available
+* Languages supported by **espeak** are available
   [here](https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md).
 
 * Languages supported by **espeak-mbrola** are available
