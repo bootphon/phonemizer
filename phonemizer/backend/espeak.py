@@ -172,7 +172,9 @@ class BaseEspeakBackend(BaseBackend):
 
                     # run the command
                     completed = subprocess.run(
-                        shlex.split(command, posix=False), capture_output=True)
+                        shlex.split(command, posix=False),
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE)
 
                     # retrieve the output line (raw phonemization)
                     line = completed.stdout.decode('utf8')
@@ -350,7 +352,10 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         """Returns True if the required mbrola voice is installed"""
         command = f'{cls.espeak_path()} --stdin -v {language} -q --pho'
         completed = subprocess.run(
-            shlex.split(command, posix=False), input=b'', capture_output=True)
+            shlex.split(command, posix=False),
+            input=b'',
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
         if completed.stderr.decode('utf8'):
             return False
         return True
