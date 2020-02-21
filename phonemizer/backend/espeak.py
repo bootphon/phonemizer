@@ -376,11 +376,17 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
 
     def _postprocess_line(self, line, num, separator, strip):
         lines = line.split('\n')
+
         # retrieve the phonemized output but with bad SAMPA alphabet
         # (with word separation)
         output_bad_phones = lines[0].strip()
         if not output_bad_phones:
             return ''
+
+        # this fix an unexplained bug fount only on travis (on all other tested
+        # platforms and epseak versions, 'oignon' is phonemized as o_n_j_'O~
+        # excepted on travis where it is o_n^_'O~)
+        output_bad_phones = output_bad_phones.replace('^', '_j')
 
         # retrieve the phonemes with the correct SAMPA alphabet (but
         # without word separation)
@@ -404,6 +410,11 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
             if strip and separator.phone:
                 out_line = out_line[:-len(separator.phone)]
             out_line += separator.word
+
+        # ensure all the phonemes have been converted
+        if phonemes_index != len(phonemes):
+            raise RuntimeError(
+                f'failed to postprocess line {num}: {output_bad_phones}')
 
         if strip and separator.word:
             out_line = out_line[:-len(separator.word)]
