@@ -140,7 +140,7 @@ See the installed backends with the `--version` option:
         hhaxlow werld
 
 * In French, using **espeak** and **espeak-mbrola**, with custom token
-  separators (see below). espeak-mbrola does not support words separation.
+  separators (see below). **espeak-mbrola** does not support words separation.
 
         $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr -p ' ' -w '/w '
         b ɔ̃ ʒ u ʁ /w l ə /w m ɔ̃ d /w
@@ -160,6 +160,14 @@ See the installed backends with the `--version` option:
 The exhaustive list of supported languages is available with the command
 `phonemize --list-languages [--backend <backend>]`.
 
+* Languages supported by **espeak** are available
+  [here](https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md).
+
+* Languages supported by **espeak-mbrola** are available
+  [here](https://github.com/numediart/MBROLA-voices). Please note that the
+  mbrola voices are not bundled with the phonemizer and must be installed
+  separately.
+
 * Languages supported by **festival** are:
 
         en-us -> english-us
@@ -176,18 +184,10 @@ The exhaustive list of supported languages is available with the command
   Instead of a language you can also provide a file specifying a
   grapheme to phone mapping (see the files above for examples).
 
-* Languages supported by **espeak** are available
-  [here](https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md).
-
-* Languages supported by **espeak-mbrola** are available
-  [here](https://github.com/numediart/MBROLA-voices). Please note that the
-  mbrola voices are not bundled with the phonemizer and must be installed
-  separately.
-
 
 ### Token separators
 
-You can specify separators for phones, syllables (**festival** only and
+You can specify separators for phones, syllables (**festival** only) and
 words (excepted **espeak-mbrola**).
 
     $ echo "hello world" | phonemize -b festival -w ' ' -p ''
@@ -217,7 +217,7 @@ a space for both phones and words):
 
 By default the punctuation is removed in the phonemized output. You can preserve
 it using the ``--preserve-punctuation`` option (not supported by the
-**espeak-mbrola** backend:
+**espeak-mbrola** backend):
 
     $ echo "hello, world!" | phonemize --strip
     həloʊ wɜːld
