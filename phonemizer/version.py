@@ -17,7 +17,8 @@
 
 import pkg_resources
 
-from phonemizer.backend import EspeakBackend, FestivalBackend, SegmentsBackend
+from phonemizer.backend import (
+    EspeakBackend, EspeakMbrolaBackend, FestivalBackend, SegmentsBackend)
 
 
 def version():
@@ -36,6 +37,11 @@ def version():
             + EspeakBackend.version())
     else:  # pragma: nocover
         unavailable.append('espeak')
+
+    if EspeakMbrolaBackend.is_available():
+        available.append('espeak-mbrola')
+    else:  # pragma: nocover
+        unavailable.append('espeak-mbrola')
 
     if FestivalBackend.is_available():
         available.append('festival-' + FestivalBackend.version())

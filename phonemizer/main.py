@@ -80,12 +80,17 @@ def parse_args():
         description='''Multilingual text to phonemes converter
 
 The 'phonemize' program allows simple phonemization of words and texts
-in many language using three backends: espeak, festival and segments.
+in many language using four backends: espeak, espeak-mbrola, festival
+and segments.
 
 - espeak is a text-to-speech software supporting multiple languages
-  and IPA (Internatinal Phonetic Alphabet) output. See
+  and IPA (International Phonetic Alphabet) output. See
   http://espeak.sourceforge.net or
   https://github.com/espeak-ng/espeak-ng
+
+- espeak-mbrola uses the SAMPA phonetic alphabet, it requires mbrola to be
+  installed as well as additional mbrola voices. See
+  https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md
 
 - festival is also a text-to-speech software. Currently only American
   English is supported and festival uses a custom phoneset
@@ -97,7 +102,7 @@ in many language using three backends: espeak, festival and segments.
   grapheme to phoneme mapping provided as a file by the user. See
   https://github.com/cldf/segments.
 
-See the '--language' option below for details on the languages
+See the '--list-languages' option below for details on the languages
 supported by each backend.
 
 ''',
@@ -131,7 +136,7 @@ Exemples:
 
     # general arguments
     parser.add_argument(
-        '--version', action='store_true',
+        '-V', '--version', action='store_true',
         help='show version information and exit.')
 
     group = parser.add_mutually_exclusive_group()
@@ -157,7 +162,25 @@ Exemples:
         '-o', '--output', default=sys.stdout, metavar='<file>',
         help='output text file to write, if not specified write to stdout.')
 
-    group = parser.add_argument_group('separators')
+    group = parser.add_argument_group('backends')
+    group.add_argument(
+        '-b', '--backend', metavar='<str>', default=None,
+        choices=['espeak', 'espeak-mbrola', 'festival', 'segments'],
+        help="""the phonemization backend, must be 'espeak', 'espeak-mbrola',
+        'festival' or 'segments'. Default is espeak.""")
+
+    group.add_argument(
+        '-L', '--list-languages', action='store_true',
+        help="""list available languages (and exit) for the specified backend,
+        or for all backends if none selected.""")
+
+    group = parser.add_argument_group('language')
+    group.add_argument(
+        '-l', '--language', metavar='<str|file>', default='en-us',
+        help='''the language code of the input text, use '--list-languages'
+        for a list of supported languages. Default is %(default)s.''')
+
+    group = parser.add_argument_group('token separators')
     group.add_argument(
         '-p', '--phone-separator', metavar='<str>',
         default=separator.default_separator.phone,
@@ -172,24 +195,12 @@ Exemples:
         '-s', '--syllable-separator', metavar='<str>',
         default=separator.default_separator.syllable,
         help='''syllable separator, only valid for festival backend,
-        this option has no effect if espeak or segments is used.
+        this option has no effect if another backend is used.
         Default is "%(default)s".''')
 
     group.add_argument(
         '--strip', action='store_true',
         help='removes the end separators in phonemized tokens.')
-
-    group = parser.add_argument_group('backends')
-    group.add_argument(
-        '-b', '--backend', metavar='<str>', default=None,
-        choices=['espeak', 'espeak-mbrola', 'festival', 'segments'],
-        help="""the phonemization backend, must be 'espeak', 'espeak-mbrola',
-        'festival' or 'segments'. Default is espeak.""")
-
-    group.add_argument(
-        '-L', '--list-languages', action='store_true',
-        help="""list available languages (and exit) for the specified backend,
-        or for all backends if none selected.""")
 
     group = parser.add_argument_group('specific to espeak backend')
     group.add_argument(
@@ -234,14 +245,6 @@ Exemples:
         default=punctuation.Punctuation.default_marks(),
         help='''the marks to consider during punctuation processing (either
         for removal or preservation). Default is %(default)s.''')
-
-    group = parser.add_argument_group('language')
-    group.add_argument(
-        '-l', '--language', metavar='<str|file>', default='en-us',
-        help='''the language code of the input text, see below for a list of
-        supported languages. According to the language code you
-        specify, the appropriate backend (segments, espeak or festival)
-        will be called in background. Default is %(default)s.''')
 
     return parser.parse_args()
 

@@ -24,6 +24,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         festival \
         espeak-ng \
         git \
+        mbrola \
+        mbrola-fr1 \
         python3 \
         python3-pip \
         python3-pytest && \

@@ -19,7 +19,7 @@ import tempfile
 import shlex
 import sys
 
-from phonemizer.backend import EspeakBackend, FestivalBackend
+from phonemizer.backend import EspeakBackend
 from phonemizer import main, backend, logger
 
 
@@ -37,9 +37,6 @@ def _test(input, expected_output, args=''):
             main.main()
 
             output = foutput.read()
-            # python2 needs additional utf8 decoding
-            if sys.version_info[0] == 2:
-                output = output.decode('utf8')
             if expected_output == '':
                 assert output == ''
             else:
@@ -54,6 +51,11 @@ def test_help():
 
 def test_version():
     sys.argv = ['foo', '--version']
+    main.main()
+
+
+def test_list_languages():
+    sys.argv = ['foo', '--list-languages']
     main.main()
 
 
@@ -121,4 +123,5 @@ def test_espeak_path():
 
 def test_festival_path():
     festival = backend.FestivalBackend.festival_path()
-    _test(u'hello world', u'hhaxlow werld ', f'--festival-path={festival} -b festival')
+    _test(u'hello world', u'hhaxlow werld ',
+          f'--festival-path={festival} -b festival')

@@ -9,30 +9,29 @@ https://doi.org/10.5281/zenodo.1045825)
 
 # Phonemizer -- *foʊnmaɪzɚ*
 
-* Simple text to phones converter for multiple languages, based on
-  [festival](http://www.cstr.ed.ac.uk/projects/festival),
-  [espeak-ng](https://github.com/espeak-ng/espeak-ng/)
-  and [segments](https://github.com/cldf/segments).
+* The phonemizer allows simple phonemization of words and texts in many language
 
 * Provides both the `phonemize` command-line tool and the Python function
   `phonemizer.phonemize`
 
-* **espeak-ng** is a text-to-speech software supporting multiple
-  languages and IPA (Internatinal Phonetic Alphabet) output. See
-  https://github.com/espeak-ng/espeak-ng. Alternatively you can use
-  the orginal [espeak](http://espeak.sourceforge.net/) program
-  (*espeak-ng* is a fork of *espeak* supporting much more languages
-  and significant improvements).
+* It is using four backends: espeak, espeak-mbrola, festival and segments.
 
-* **festival** is also a text-to-speech software. Currently only
-  American English is supported and festival uses a custom phoneset
-  (http://www.festvox.org/bsv/c4711.html), but festival is the only
-  backend supporting tokenization at the syllable level. See
-  http://www.cstr.ed.ac.uk/projects/festival.
+  * **espeak** is a text-to-speech software supporting multiple languages and
+    IPA (International Phonetic Alphabet) output. See
+    https://github.com/espeak-ng/espeak-ng.
 
-* **segments** is a Unicode tokenizer that build a phonemization from
-  a grapheme to phoneme mapping provided as a file by the user. See
-  https://github.com/cldf/segments.
+  * **espeak-mbrola** uses the SAMPA phonetic alphabet instead of IPA. See
+    https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md
+
+  * **festival** is also a text-to-speech software. Currently only American
+    English is supported and festival uses a custom phoneset
+    (http://www.festvox.org/bsv/c4711.html), but festival is the only backend
+    supporting tokenization at the syllable level. See
+    http://www.cstr.ed.ac.uk/projects/festival.
+
+  * **segments** is a Unicode tokenizer that build a phonemization from a
+    grapheme to phoneme mapping provided as a file by the user. See
+    https://github.com/cldf/segments.
 
 
 ## Installation
@@ -41,18 +40,26 @@ https://doi.org/10.5281/zenodo.1045825)
 version](https://github.com/bootphon/phonemizer/releases/tag/v1.0) of
 phonemizer.
 
+
 ### Dependencies
 
-* You need to install festival and espeak-ng on your system. Visit
-  [this festival link](http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation)
-  and [that espeak-ng one](https://github.com/espeak-ng/espeak-ng#espeak-ng-text-to-speech)
-  for installation guidelines. On Debian/Ubuntu simply run:
+* You need to install
+  [festival](http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation),
+  [espeak-ng](https://github.com/espeak-ng/espeak-ng#espeak-ng-text-to-speech)
+  and [mbrola](https://github.com/numediart/MBROLA) on your system. On
+  Debian/Ubuntu simply run:
 
-        $ sudo apt-get install festival espeak-ng
+        $ sudo apt-get install festival espeak-ng mbrola
 
-* Alternatively you may want to use `espeak` instead of `espeak-ng`,
-  see [here](http://espeak.sourceforge.net/download.html) for
-  instalaltion instructions.
+* Alternatively you may want to use **espeak** instead of **espeak-ng**, see
+  [here](http://espeak.sourceforge.net/download.html) for installation
+  instructions.
+
+* When using the **espeak-mbrola** backend, additional mbrola voices must be
+  installed (see
+  [here](https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)). On
+  Debian/Ubuntu, list the installable voices with `apt search mbrola`.
+
 
 ### Phonemizer
 
@@ -95,8 +102,8 @@ For a complete list of available options, have a:
 See the installed backends with the `--version` option:
 
     $ phonemize --version
-    phonemizer-2.0
-    available backends: festival-2.5.0, espeak-ng-1.49.3, segments-2.0.1
+    phonemizer-2.2
+    available backends: espeak-ng-1.49.3, espeak-mbrola, festival-2.5.0, segments-2.0.1
 
 
 ### Input/output exemples
@@ -117,6 +124,72 @@ See the installed backends with the `--version` option:
         $ phonemize hello.txt -o hello.phon --strip
         $ cat hello.phon
         həloʊ wɜːld
+
+
+### Backends
+
+* **Espeak** us-english is the default
+
+        $ echo "hello world" | phonemize
+        həloʊ wɜːld
+        $ echo "hello world" | phonemize -l en-us -b espeak
+        həloʊ wɜːld
+
+* use **Festival** US English instead
+
+        $ echo "hello world" | phonemize -l en-us -b festival
+        hhaxlow werld
+
+* In French, using **espeak**
+
+        $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr
+        bɔ̃ʒuʁ lə- mɔ̃d
+
+        $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr -p ' ' -w ';eword '
+        b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword
+
+* In French, using **espeak-mbrola** (SAMPA alphabet)
+
+        $ echo "bonjour le monde" | phonemize -b espeak-mbrola -l mb-fr1
+        bo~ZuR l@ mo~d
+
+* In Japanese, using **segments**
+
+        $ echo 'konnichiwa' | phonemize -b segments -l japanese
+        konnitʃiwa
+
+        $ echo 'konnichiwa' | phonemize -b segments -l ./phonemizer/share/japanese.g2p
+        konnitʃiwa
+
+
+### Supported languages
+
+The exhaustive list of supported languages is available with the command
+`phonemize --list-languages [--backend <backend>]`.
+
+* Languages supported by **festival** are:
+
+        en-us	->	english-us
+
+* Languages supported by the **segments** backend are:
+
+        chintang  -> ./phonemizer/share/segments/chintang.g2p
+	    cree	  -> ./phonemizer/share/segments/cree.g2p
+	    inuktitut -> ./phonemizer/share/segments/inuktitut.g2p
+	    japanese  -> ./phonemizer/share/segments/japanese.g2p
+	    sesotho	  -> ./phonemizer/share/segments/sesotho.g2p
+	    yucatec	  -> ./phonemizer/share/segments/yucatec.g2p
+
+  Instead of a language you can also provide a file specifying a
+  grapheme to phone mapping (see the files above for examples).
+
+* Languages supported by **espeak-ng** are available
+  [here](https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md).
+
+* Languages supported by **espeak-mbrola** are available
+  [here](https://github.com/numediart/MBROLA-voices). Please note that the
+  mbrola voices are not bundled with the phonemizer and must be installed
+  separately.
 
 
 ### Token separators
@@ -159,44 +232,16 @@ it using the ``--preserve-punctuation`` option:
     həloʊ, wɜːld!
 
 
-### Options
+### Espeak specific options
 
-* **Espeak** us-english is the default
-
-        $ echo "hello world" | phonemize
-        həloʊ wɜːld
-        $ echo "hello world" | phonemize -l en-us -b espeak
-        həloʊ wɜːld
-
-* use **Festival** US English instead
-
-        $ echo "hello world" | phonemize -l en-us -b festival
-        hhaxlow werld
-
-* In French, using **espeak**
-
-        $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr
-        bɔ̃ʒuʁ lə- mɔ̃d
-
-        $ echo "bonjour le monde" | phonemize -b espeak -l fr-fr -p ' ' -w ';eword '
-        b ɔ̃ ʒ u ʁ ;eword l ə- ;eword m ɔ̃ d ;eword
-
-* In Japanese, using **segments**
-
-        $ echo 'konnichiwa' | phonemize -b segments -l japanese
-        konnitʃiwa
-
-        $ echo 'konnichiwa' | phonemize -b segments -l ./phonemizer/share/japanese.g2p
-        konnitʃiwa
-
-* **Espeak** can output the stresses on phones (this is not supported by festival
-  or segments backends)
+* The **espeak** backend can output the stresses on phones:
 
         $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
         həlˈoʊ wˈɜːld
 
-* **Espeak** can switch languages during phonemization (below from French to
-  English), use the ``--language-switch`` option to deal with it
+* The **espeak** and **espeak-mbrola** backends can switch languages during
+  phonemization (below from French to English), use the ``--language-switch``
+  option to deal with it:
 
         $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch keep-flags
         [WARNING] fount 1 utterances containing language switches on lines 1
@@ -212,98 +257,6 @@ it using the ``--preserve-punctuation`` option:
 
         $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch remove-utterance
         [WARNING] removed 1 utterances containing language switches (applying "remove-utterance" policy)
-
-
-### Supported languages
-
-* Languages supported by festival are:
-
-        en-us	->	english-us
-
-* Languages supported by the segments backend are:
-
-        chintang  -> ./phonemizer/share/chintang.g2p
-	    cree	  -> ./phonemizer/share/cree.g2p
-	    inuktitut -> ./phonemizer/share/inuktitut.g2p
-	    japanese  -> ./phonemizer/share/japanese.g2p
-	    sesotho	  -> ./phonemizer/share/sesotho.g2p
-	    yucatec	  -> ./phonemizer/share/yucatec.g2p
-
-  Instead of a language you can also provide a file specifying a
-  grapheme to phone mapping (see the files above for exemples).
-
-* Languages supported by espeak are (espeak-ng supports even more of
-  them), type `phonemize --help` for an exhaustive list:
-
-        af	->	afrikaans
-        an	->	aragonese
-        bg	->	bulgarian
-        bs	->	bosnian
-        ca	->	catalan
-        cs	->	czech
-        cy	->	welsh
-        da	->	danish
-        de	->	german
-        el	->	greek
-        en	->	default
-        en-gb	->	english
-        en-sc	->	en-scottish
-        en-uk-north	->	english-north
-        en-uk-rp	->	english_rp
-        en-uk-wmids	->	english_wmids
-        en-us	->	english-us
-        en-wi	->	en-westindies
-        eo	->	esperanto
-        es	->	spanish
-        es-la	->	spanish-latin-am
-        et	->	estonian
-        fa	->	persian
-        fa-pin	->	persian-pinglish
-        fi	->	finnish
-        fr-be	->	french-Belgium
-        fr-fr	->	french
-        ga	->	irish-gaeilge
-        grc	->	greek-ancient
-        hi	->	hindi
-        hr	->	croatian
-        hu	->	hungarian
-        hy	->	armenian
-        hy-west	->	armenian-west
-        id	->	indonesian
-        is	->	icelandic
-        it	->	italian
-        jbo	->	lojban
-        ka	->	georgian
-        kn	->	kannada
-        ku	->	kurdish
-        la	->	latin
-        lfn	->	lingua_franca_nova
-        lt	->	lithuanian
-        lv	->	latvian
-        mk	->	macedonian
-        ml	->	malayalam
-        ms	->	malay
-        ne	->	nepali
-        nl	->	dutch
-        no	->	norwegian
-        pa	->	punjabi
-        pl	->	polish
-        pt-br	->	brazil
-        pt-pt	->	portugal
-        ro	->	romanian
-        ru	->	russian
-        sk	->	slovak
-        sq	->	albanian
-        sr	->	serbian
-        sv	->	swedish
-        sw	->	swahili-test
-        ta	->	tamil
-        tr	->	turkish
-        vi	->	vietnam
-        vi-hue	->	vietnam_hue
-        vi-sgn	->	vietnam_sgn
-        zh	->	Mandarin
-        zh-yue	->	cantonese
 
 
 ## Licence
