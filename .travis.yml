@@ -1,11 +1,5 @@
 dist: bionic
-addons:
-  apt:
-    packages:
-      - festival festvox-us1 festlex-cmu festlex-poslex espeak-ng mbrola mbrola-fr1
-
 language: python
-
 python:
   - "3.6"
   - "3.7"
@@ -20,14 +14,16 @@ branches:
   only:
     - master
 
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install festival festvox-us1 festlex-cmu festlex-poslex espeak-ng mbrola mbrola-fr1
+
 install:
   - pip install --upgrade pip
   - pip install pytest-cov codecov
   - pip install .[test]
 
 script:
-  - apt-cache show mbrola | grep -i version
-  - apt-cache show mbrola-fr1 | grep -i version
   - phonemize --version
   - python setup.py test
 
