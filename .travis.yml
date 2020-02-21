@@ -5,6 +5,8 @@ addons:
       - festival espeak-ng mbrola mbrola-fr1
 
 language: python
+
+python:
   - "3.6"
   - "3.7"
   - "3.8"
