@@ -20,6 +20,7 @@ import re
 import shlex
 import subprocess
 import tempfile
+from functools import lru_cache
 
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
@@ -87,7 +88,7 @@ class EspeakBackend(BaseBackend):
     @staticmethod
     def name():
         return 'espeak'
-
+    
     @staticmethod
     def set_espeak_path(fpath):
         """"""
@@ -103,6 +104,7 @@ class EspeakBackend(BaseBackend):
         _ESPEAK_DEFAULT_PATH = os.path.abspath(fpath)
 
     @staticmethod
+    @lru_cache(maxsize=None)
     def espeak_path():
         if 'PHONEMIZER_ESPEAK_PATH' in os.environ:
             espeak = os.environ['PHONEMIZER_ESPEAK_PATH']
@@ -121,21 +123,25 @@ class EspeakBackend(BaseBackend):
         return espeak
 
     @classmethod
+    @lru_cache(maxsize=None)
     def is_available(cls):
         return True if cls.espeak_path() else False
-
+    
     @classmethod
+    @lru_cache(maxsize=None)
     def long_version(cls):
         return subprocess.check_output(shlex.split(
             '{} --help'.format(cls.espeak_path()), posix=False)).decode(
                 'utf8').split('\n')[1]
 
     @classmethod
+    @lru_cache(maxsize=None)
     def is_espeak_ng(cls):
         """Returns True if using espeak-ng, False otherwise"""
         return 'eSpeak NG' in cls.long_version()
 
     @classmethod
+    @lru_cache(maxsize=None)
     def version(cls, as_tuple=False):
         # the full version version string includes extra information
         # we don't need
@@ -152,6 +158,7 @@ class EspeakBackend(BaseBackend):
         return version
 
     @classmethod
+    @lru_cache(maxsize=None)
     def supported_languages(cls):
         # retrieve the languages from a call to 'espeak --voices'
         voices = subprocess.check_output(shlex.split(
@@ -283,7 +290,7 @@ class EspeakBackend(BaseBackend):
                     out_line = out_line[:-len(separator.word)]
                 output.append(out_line)
 
-        # warn the user on language switches fount during phonemization
+        # warn the user on language switches found during phonemization
         if self._lang_switch_list:
             nswitches = len(self._lang_switch_list)
             if self._lang_switch == 'remove-utterance':
@@ -292,7 +299,7 @@ class EspeakBackend(BaseBackend):
                     '(applying "remove-utterance" policy)', nswitches)
             else:
                 self.logger.warning(
-                    'fount %s utterances containing language switches '
+                    'found %s utterances containing language switches '
                     'on lines %s', nswitches,
                     ', '.join(str(l) for l in self._lang_switch_list))
                 self.logger.warning(
