@@ -127,7 +127,7 @@ class BaseEspeakBackend(BaseBackend):
     def _phonemize_aux(self, text, separator, strip):
         output = []
         for num, line in enumerate(text.split('\n'), start=1):
-            with tempfile.NamedTemporaryFile('w+', delete=False) as data:
+            with tempfile.NamedTemporaryFile('w+', encoding='utf8', delete=False) as data:
                 try:
                     # save the text as a tempfile
                     data.write(line)
