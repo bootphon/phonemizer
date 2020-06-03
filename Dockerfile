@@ -27,9 +27,14 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         mbrola \
         mbrola-fr1 \
         python3 \
-        python3-pip \
-        python3-pytest && \
+        python3-pip && \
     apt-get clean
+
+# Pytest needs to be installed through pip to make sure we have a recent version
+RUN pip3 install pytest pytest-cov
+
+# Tests expect python to be available as executable 'python' not 'python3'
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # install phonemizer and run the tests
 RUN git clone https://github.com/bootphon/phonemizer.git && \
