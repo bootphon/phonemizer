@@ -2,6 +2,16 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+## not yet released
+
+* **bugfixes**
+
+  *  Save file in utf-8 explicitly for Windows compat (see issue
+     [#43](https://github.com/bootphon/phonemizer/issues/43)).
+
+  * Fixed build and tests in Dockerfile (see issue
+     [#45](https://github.com/bootphon/phonemizer/issues/45)).
+
 
 ## phonemizer-2.2
 
