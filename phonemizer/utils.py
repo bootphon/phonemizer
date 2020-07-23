@@ -19,6 +19,16 @@ import pkg_resources
 import six
 
 
+def cumsum(l):
+    """Returns the cumulative sum of the list `l`"""
+    r = []
+    c = 0
+    for e in l:
+        c += e
+        r.append(c)
+    return r
+
+
 def str2list(s):
     """Returns the string `s` as a list of lines"""
     return s.strip().split('\n') if isinstance(s, six.string_types) else s
@@ -32,6 +42,8 @@ def list2str(s):
 def chunks(text, n):
     """Return `n` equally sized chunks of a `text`
 
+    `n` must be an integer greater than 0.
+
     Only the n-1 first chunks have equal size. The last chunk can be longer.
     The input `text` can be a list or a string. Return a list of `n` strings.
 
@@ -40,8 +52,15 @@ def chunks(text, n):
     """
     text = str2list(text)
     size = int(max(1, len(text)/n))
-    return [list2str(text[i:i+size])
-            for i in range(0, len(text), size)]
+    m = min(n, len(text))
+
+    chunks = [list2str(text[i*size:(i+1)*size]) for i in range(m-1)]
+
+    last = list2str(text[(m-1)*size:])
+    if last:
+        chunks.append(last)
+
+    return chunks
 
 
 def get_package_resource(path):

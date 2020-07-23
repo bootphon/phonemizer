@@ -17,7 +17,7 @@
 import pytest
 
 from phonemizer.phonemize import phonemize
-from phonemizer.backend import EspeakMbrolaBackend
+from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
 
 
 def test_bad_backend():
@@ -87,6 +87,25 @@ def test_espeak(njobs):
         '\n'.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
     assert out == '\n'.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
+
+
+@pytest.mark.skipif(
+    not EspeakBackend.is_espeak_ng(),
+    reason='Language switch better supported by espeak-ng')
+@pytest.mark.parametrize('njobs', [1, 2])
+def test_espeak_langswitch(njobs, caplog):
+    text = ["j'aime le football", "moi aussi", "moi aussi j'aime le football"]
+    out = phonemize(
+        text, language='fr-fr', backend='espeak', njobs=njobs, strip=True)
+
+    assert out == [
+        'ʒɛm lə (en)fʊtbɔːl(fr)',
+        'mwa osi',
+        'mwa osi ʒɛm lə (en)fʊtbɔːl(fr)']
+
+    assert (
+        '2 utterances containing language switches on lines 1, 3'
+        in caplog.text)
 
 
 @pytest.mark.skipif(

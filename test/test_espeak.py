@@ -44,27 +44,26 @@ def test_versions(version, expected):
 def test_english():
     backend = EspeakBackend('en-us')
     text = u'hello world\ngoodbye\nthird line\nyet another'
-    out = '\n'.join(backend._phonemize_aux(
-        text, separator.default_separator, True))
+    out = backend.phonemize(text, separator.default_separator, True)
     assert out == u'həloʊ wɜːld\nɡʊdbaɪ\nθɜːd laɪn\njɛt ɐnʌðɚ'
 
 
 def test_stress():
     backend = EspeakBackend('en-us', with_stress=False)
-    assert u'həloʊ wɜːld' == backend._phonemize_aux(
-        u'hello world', separator.default_separator, True)[0]
+    assert u'həloʊ wɜːld' == backend.phonemize(
+        'hello world', separator.default_separator, True)
 
     backend = EspeakBackend('en-us', with_stress=True)
-    assert u'həlˈoʊ wˈɜːld' == backend._phonemize_aux(
-        u'hello world', separator.default_separator, True)[0]
+    assert u'həlˈoʊ wˈɜːld' == backend.phonemize(
+        u'hello world', separator.default_separator, True)
 
 
 def test_french():
     backend = EspeakBackend('fr-fr')
     text = u'bonjour le monde'
     sep = separator.Separator(word=';eword ', syllable=None, phone=' ')
-    expected = [u'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword ']
-    out = backend._phonemize_aux(text, sep, False)
+    expected = u'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword '
+    out = backend.phonemize(text, sep, False)
     assert out == expected
 
 
@@ -78,10 +77,10 @@ def test_arabic():
 
     # Arabic seems to have changed starting at espeak-ng-1.49.3
     if tuple(EspeakBackend.version().split('.')) >= ('1', '49', '3'):
-        expected = [u'ʔassalaːm ʕliːkm ']
+        expected = u'ʔassalaːm ʕliːkm '
     else:
-        expected = [u'ʔassalaam ʕaliijkum ']
-    out = backend._phonemize_aux(text, sep, False)
+        expected = u'ʔassalaam ʕaliijkum '
+    out = backend.phonemize(text, sep, False)
     assert out == expected
 
 
@@ -89,15 +88,15 @@ def test_arabic():
     not EspeakBackend.is_espeak_ng(),
     reason='language switch only exists for espeak-ng')
 def test_language_switch():
-    text = '\n'.join([
+    text = [
         "j'aime l'anglais",
         "j'aime le football",
         "football",
         "surtout le real madrid",
-        "n'utilise pas google"])
+        "n'utilise pas google"]
 
     backend = EspeakBackend('fr-fr', language_switch='keep-flags')
-    out = backend._phonemize_aux(text, separator.Separator(), True)
+    out = backend.phonemize(text, separator.Separator(), True)
     assert out == [
         'ʒɛm lɑ̃ɡlɛ',
         'ʒɛm lə (en)fʊtbɔːl(fr)',
@@ -107,7 +106,7 @@ def test_language_switch():
 
     # default behavior is to keep the flags
     backend = EspeakBackend('fr-fr')
-    out = backend._phonemize_aux(text, separator.Separator(), True)
+    out = backend.phonemize(text, separator.Separator(), True)
     assert out == [
         'ʒɛm lɑ̃ɡlɛ',
         'ʒɛm lə (en)fʊtbɔːl(fr)',
@@ -116,7 +115,7 @@ def test_language_switch():
         'nytiliz pa (en)ɡuːɡəl(fr)']
 
     backend = EspeakBackend('fr-fr', language_switch='remove-flags')
-    out = backend._phonemize_aux(text, separator.Separator(), True)
+    out = backend.phonemize(text, separator.Separator(), True)
     assert out == [
         'ʒɛm lɑ̃ɡlɛ',
         'ʒɛm lə fʊtbɔːl',
@@ -125,7 +124,7 @@ def test_language_switch():
         'nytiliz pa ɡuːɡəl']
 
     backend = EspeakBackend('fr-fr', language_switch='remove-utterance')
-    out = backend._phonemize_aux(text, separator.Separator(), True)
+    out = backend.phonemize(text, separator.Separator(), True)
     assert out == ['ʒɛm lɑ̃ɡlɛ']
 
     with pytest.raises(RuntimeError):
