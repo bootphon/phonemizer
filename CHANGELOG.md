@@ -2,15 +2,26 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-## not yet released
+## phonemizer-2.2.1
+
+* **improvements**
+
+  From Python import the phonemize function using `from phonemizer import
+  phonemize` instead of `from phonemizer.phonemize import phonemize`. The
+  second import is still available for compatibility.
 
 * **bugfixes**
 
-  *  Save file in utf-8 explicitly for Windows compat (see issue
-     [#43](https://github.com/bootphon/phonemizer/issues/43)).
+  * Fixed a minor bug in `utils.chunks`.
+
+  * Fixed warnings on language switching for espeak backend when using parallel
+    jobs (see issue [#50](https://github.com/bootphon/phonemizer/issues/50)).
+
+  * Save file in utf-8 explicitly for Windows compat (see issue
+    [#43](https://github.com/bootphon/phonemizer/issues/43)).
 
   * Fixed build and tests in Dockerfile (see issue
-     [#45](https://github.com/bootphon/phonemizer/issues/45)).
+    [#45](https://github.com/bootphon/phonemizer/issues/45)).
 
 
 ## phonemizer-2.2

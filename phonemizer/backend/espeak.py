@@ -16,6 +16,8 @@
 
 import abc
 import distutils.spawn
+import itertools
+import joblib
 import os
 import re
 import shlex
@@ -25,6 +27,8 @@ import tempfile
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
+from phonemizer.separator import default_separator
+from phonemizer.utils import list2str, chunks, cumsum
 
 
 # a regular expression to find language switching flags in espeak output,
@@ -40,7 +44,12 @@ _ESPEAK_DEFAULT_PATH = None
 
 
 class BaseEspeakBackend(BaseBackend):
-    """Espeak backend for the phonemizer"""
+    """Abstract espeak backend for the phonemizer
+
+    Base class of the concrete backends Espeak and EspeakMbrola. It provides
+    facilities to find espeak executable path and read espeak version.
+
+    """
 
     espeak_version_re = r'.*: ([0-9]+(\.[0-9]+)+(\-dev)?)'
 
@@ -124,100 +133,6 @@ class BaseEspeakBackend(BaseBackend):
     def _postprocess_line(self, line, num, separator, strip):
         pass
 
-    def _phonemize_aux(self, text, separator, strip):
-        output = []
-        for num, line in enumerate(text.split('\n'), start=1):
-            with tempfile.NamedTemporaryFile('w+', encoding='utf8', delete=False) as data:
-                try:
-                    # save the text as a tempfile
-                    data.write(line)
-                    data.close()
-
-                    # generate the espeak command to run
-                    command = self._command(data.name)
-                    if self.logger:
-                        self.logger.debug('running %s', command)
-
-                    # run the command
-                    completed = subprocess.run(
-                        shlex.split(command, posix=False),
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE)
-
-                    # retrieve the output line (raw phonemization)
-                    line = completed.stdout.decode('utf8')
-
-                    # ensure all was OK
-                    error = completed.stderr.decode('utf8')
-                    for err_line in error.split('\n'):  # pragma: nocover
-                        err_line = err_line.strip()
-                        if err_line:
-                            self.logger.error(err_line)
-                    if error or completed.returncode:  # pragma: nocover
-                        raise RuntimeError(
-                            f'espeak failed with return code '
-                            f'{completed.returncode}')
-                finally:
-                    os.remove(data.name)
-
-                line = self._postprocess_line(line, num, separator, strip)
-                if line:
-                    output.append(line)
-
-        self._warn_on_lang_switch()
-        return output
-
-    def _process_lang_switch(self, num, utt):
-        # look for language swith in the current utterance
-        flags = re.findall(_ESPEAK_FLAGS_RE, utt)
-
-        # no language switch, nothing to do
-        if not flags:
-            return utt
-
-        # language switch detected, register the line number
-        self._lang_switch_list.append(num)
-
-        # ignore the language switch but warn if one is found
-        if self._lang_switch == 'keep-flags':
-            return utt
-
-        if self._lang_switch == 'remove-flags':
-            # remove all the (lang) flags in the current utterance
-            for flag in set(flags):
-                utt = utt.replace(flag, '')
-
-        else:  # self._lang_switch == 'remove-utterances':
-            # drop the entire utterance
-            return None
-
-        return utt
-
-    def _warn_on_lang_switch(self):
-        # warn the user on language switches fount during phonemization
-        if self._lang_switch_list:
-            nswitches = len(self._lang_switch_list)
-            if self._lang_switch == 'remove-utterance':
-                self.logger.warning(
-                    'removed %s utterances containing language switches '
-                    '(applying "remove-utterance" policy)', nswitches)
-            else:
-                self.logger.warning(
-                    'fount %s utterances containing language switches '
-                    'on lines %s', nswitches,
-                    ', '.join(str(l) for l in self._lang_switch_list))
-                self.logger.warning(
-                    'extra phones may appear in the "%s" phoneset',
-                    self.language)
-                if self._lang_switch == "remove-flags":
-                    self.logger.warning(
-                        'language switch flags have been removed '
-                        '(applying "remove-flags" policy)')
-                else:
-                    self.logger.warning(
-                        'language switch flags have been kept '
-                        '(applying "keep-flags" policy)')
-
 
 class EspeakBackend(BaseEspeakBackend):
     """Espeak backend for the phonemizer"""
@@ -252,7 +167,6 @@ class EspeakBackend(BaseEspeakBackend):
                 'lang_switch argument "{}" invalid, must be in {}'
                 .format(language_switch, ", ".join(valid_lang_switch)))
         self._lang_switch = language_switch
-        self._lang_switch_list = []
 
         self._with_stress = with_stress
 
@@ -270,10 +184,107 @@ class EspeakBackend(BaseEspeakBackend):
 
         return {v[1]: v[3].replace('_', ' ') for v in voices}
 
+    def phonemize(self, text, separator=default_separator,
+                  strip=False, njobs=1):
+        text, text_type, punctuation_marks = self._phonemize_preprocess(text)
+        lang_switches = []
+
+        if njobs == 1:
+            # phonemize the text forced as a string
+            text, lang_switches = self._phonemize_aux(
+                list2str(text), separator, strip)
+        else:
+            # If using parallel jobs, disable the log as stderr is not
+            # picklable.
+            self.logger.info('running %s on %s jobs', self.name(), njobs)
+            log_storage = self.logger
+            self.logger = None
+
+            # divide the input text in chunks, each chunk being processed in a
+            # separate job
+            text_chunks = chunks(text, njobs)
+
+            # offset used below to recover the line numbers in the input text
+            # wrt the chunks
+            offset = [0] + cumsum(
+                (c.count('\n') + 1 for c in text_chunks[:-1]))
+
+            # we have here a list of (phonemized chunk, lang_switches)
+            output = joblib.Parallel(n_jobs=njobs)(
+                joblib.delayed(self._phonemize_aux)(t, separator, strip)
+                for t in text_chunks)
+
+            # flatten both the phonemized chunks and language switches in a
+            # list. For language switches lines we need to add an offset to
+            # have the correct lines numbers wrt the input text.
+            text = list(itertools.chain(*(chunk[0] for chunk in output)))
+            lang_switches = [chunk[1] for chunk in output]
+            for i in range(len(lang_switches)):
+                for j in range(len(lang_switches[i])):
+                    lang_switches[i][j] += offset[i]
+            lang_switches = list(itertools.chain(*lang_switches))
+
+            # restore the log as it was before parallel processing
+            self.logger = log_storage
+
+        # warn the user if language switches occured during phonemization
+        self._warn_on_lang_switch(lang_switches)
+
+        # finally restore the punctuation
+        return self._phonemize_postprocess(
+            text, text_type, punctuation_marks)
+
     def _command(self, fname):
         return (
             f'{self.espeak_path()} -v{self.language} {self.ipa} '
             f'-q -f {fname} {self.sep}')
+
+    def _phonemize_aux(self, text, separator, strip):
+        output = []
+        lang_switch_list = []
+        for num, line in enumerate(text.split('\n'), start=1):
+            with tempfile.NamedTemporaryFile(
+                    'w+', encoding='utf8', delete=False) as data:
+                try:
+                    # save the text as a tempfile
+                    data.write(line)
+                    data.close()
+
+                    # generate the espeak command to run
+                    command = self._command(data.name)
+                    if self.logger:
+                        self.logger.debug('running %s', command)
+
+                    # run the command
+                    completed = subprocess.run(
+                        shlex.split(command, posix=False),
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE)
+
+                    # retrieve the output line (raw phonemization)
+                    line = completed.stdout.decode('utf8')
+
+                    # ensure all was OK
+                    error = completed.stderr.decode('utf8')
+                    for err_line in error.split('\n'):  # pragma: nocover
+                        err_line = err_line.strip()
+                        if err_line:
+                            self.logger.error(err_line)
+                    if error or completed.returncode:  # pragma: nocover
+                        raise RuntimeError(
+                            f'espeak failed with return code '
+                            f'{completed.returncode}')
+                finally:
+                    os.remove(data.name)
+
+                line, lang_switch = self._postprocess_line(
+                    line, num, separator, strip)
+                if line:
+                    output.append(line)
+                if lang_switch:
+                    lang_switch_list.append(num)
+
+        return output, lang_switch_list
 
     def _postprocess_line(self, line, num, separator, strip):
         # espeak can split an utterance into several lines because
@@ -286,9 +297,9 @@ class EspeakBackend(BaseEspeakBackend):
         line = re.sub(r'_+', '_', line)
         line = re.sub(r'_ ', ' ', line)
 
-        line = self._process_lang_switch(num, line)
+        line, lang_switch = self._process_lang_switch(num, line)
         if not line:
-            return ''
+            return '', lang_switch
 
         out_line = ''
         for word in line.split(u' '):
@@ -309,7 +320,59 @@ class EspeakBackend(BaseEspeakBackend):
         if strip and separator.word:
             out_line = out_line[:-len(separator.word)]
 
-        return out_line
+        return out_line, lang_switch
+
+    def _process_lang_switch(self, num, utt):
+        # look for language swith in the current utterance
+        flags = re.findall(_ESPEAK_FLAGS_RE, utt)
+
+        # no language switch, nothing to do
+        if not flags:
+            return utt, False
+
+        # # language switch detected, register the line number
+        # print(f'append {num}')
+        # self._lang_switch_list.append(num)
+
+        # ignore the language switch but warn if one is found
+        if self._lang_switch == 'keep-flags':
+            return utt, True
+
+        if self._lang_switch == 'remove-flags':
+            # remove all the (lang) flags in the current utterance
+            for flag in set(flags):
+                utt = utt.replace(flag, '')
+
+        else:  # self._lang_switch == 'remove-utterances':
+            # drop the entire utterance
+            return None, True
+
+        return utt, True
+
+    def _warn_on_lang_switch(self, lang_switches):
+        # warn the user on language switches fount during phonemization
+        if lang_switches:
+            nswitches = len(lang_switches)
+            if self._lang_switch == 'remove-utterance':
+                self.logger.warning(
+                    'removed %s utterances containing language switches '
+                    '(applying "remove-utterance" policy)', nswitches)
+            else:
+                self.logger.warning(
+                    '%s utterances containing language switches '
+                    'on lines %s', nswitches,
+                    ', '.join(str(l) for l in lang_switches))
+                self.logger.warning(
+                    'extra phones may appear in the "%s" phoneset',
+                    self.language)
+                if self._lang_switch == "remove-flags":
+                    self.logger.warning(
+                        'language switch flags have been removed '
+                        '(applying "remove-flags" policy)')
+                else:
+                    self.logger.warning(
+                        'language switch flags have been kept '
+                        '(applying "keep-flags" policy)')
 
 
 class EspeakMbrolaBackend(BaseEspeakBackend):
@@ -367,6 +430,49 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
 
     def _command(self, fname):
         return f'{self.espeak_path()} -v {self.language} -q -f {fname} --pho'
+
+    def _phonemize_aux(self, text, separator, strip):
+        output = []
+        for num, line in enumerate(text.split('\n'), start=1):
+            with tempfile.NamedTemporaryFile(
+                    'w+', encoding='utf8', delete=False) as data:
+                try:
+                    # save the text as a tempfile
+                    data.write(line)
+                    data.close()
+
+                    # generate the espeak command to run
+                    command = self._command(data.name)
+                    if self.logger:
+                        self.logger.debug('running %s', command)
+
+                    # run the command
+                    completed = subprocess.run(
+                        shlex.split(command, posix=False),
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE)
+
+                    # retrieve the output line (raw phonemization)
+                    line = completed.stdout.decode('utf8')
+
+                    # ensure all was OK
+                    error = completed.stderr.decode('utf8')
+                    for err_line in error.split('\n'):  # pragma: nocover
+                        err_line = err_line.strip()
+                        if err_line:
+                            self.logger.error(err_line)
+                    if error or completed.returncode:  # pragma: nocover
+                        raise RuntimeError(
+                            f'espeak failed with return code '
+                            f'{completed.returncode}')
+                finally:
+                    os.remove(data.name)
+
+                line = self._postprocess_line(line, num, separator, strip)
+                if line:
+                    output.append(line)
+
+        return output
 
     def _postprocess_line(self, line, num, separator, strip):
         # retrieve the phonemes with the correct SAMPA alphabet (but

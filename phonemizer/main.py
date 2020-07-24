@@ -322,7 +322,7 @@ def main():
     text = [line.strip() for line in streamin]
 
     # phonemize the input text
-    out = phonemize.phonemize(
+    out = phonemize(
         text,
         language=args.language,
         backend=args.backend,

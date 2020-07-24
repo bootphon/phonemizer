@@ -16,10 +16,10 @@ https://doi.org/10.5281/zenodo.1045825)
 
 * It is using four backends: espeak, espeak-mbrola, festival and segments.
 
-  * [espeak](https://github.com/espeak-ng/espeak-ng) supports a lot of languages
-    and IPA (International Phonetic Alphabet) output.
+  * [espeak-ng](https://github.com/espeak-ng/espeak-ng) supports a lot of
+    languages and IPA (International Phonetic Alphabet) output.
 
-  * [espeak-mbrola](https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)
+  * [espeak-ng-mbrola](https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)
     uses the SAMPA phonetic alphabet instead of IPA but does not preserve word
     boundaries.
 
@@ -50,14 +50,10 @@ the phonemizer.
 
         $ sudo apt-get install festival espeak-ng mbrola
 
-* Alternatively you may want to use **espeak** instead of **espeak-ng**, see
-  [here](http://espeak.sourceforge.net/download.html) for installation
-  instructions.
-
 * When using the **espeak-mbrola** backend, additional mbrola voices must be
   installed (see
   [here](https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)). On
-  Debian/Ubuntu, list the installable voices with `apt search mbrola`.
+  Debian/Ubuntu, list the possible voices with `apt search mbrola`.
 
 
 ### Phonemizer
@@ -72,6 +68,7 @@ the phonemizer.
         $ cd phonemizer
         $ python setup.py build
         $ [sudo] python setup.py install
+        $ python setup.py test  # optionally run the tests
 
   If you experiment an error such as `ImportError: No module named
   setuptools` during installation, refeer to [issue
@@ -81,7 +78,7 @@ the phonemizer.
 ### Docker image
 
 Alternatively you can run the phonemizer within docker, using the
-provided `Dockerfile`. To build the docker image, have a:
+provided `Dockerfile**. To build the docker image, have a:
 
     $ git clone https://github.com/bootphon/phonemizer
     $ cd phonemizer
@@ -92,7 +89,18 @@ Then run an interactive session with:
     $ sudo docker run -it phonemizer /bin/bash
 
 
+## Python usage
+
+In Python import the `phonemize` function with `from phonemizer import
+phonemize`. See
+[here](https://github.com/bootphon/phonemizer/blob/master/phonemizer/phonemize.py#L32)
+for function documentation.
+
+
 ## Command-line examples
+
+**The above examples can be run from Python using the `phonemize` function**
+
 
 For a complete list of available options, have a:
 
