@@ -20,8 +20,9 @@ before_install:
 
 install:
   - pip install --upgrade pip
-  - pip install pytest-cov codecov joblib
-  - pip install .[test]
+  - pip install pytest-cov codecov joblib segments
+  - python setup.py build
+  - python setup.py install
 
 script:
   - phonemize --version
