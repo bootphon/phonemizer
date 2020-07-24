@@ -20,7 +20,7 @@ before_install:
 
 install:
   - pip install --upgrade pip
-  - pip install pytest-cov codecov
+  - pip install pytest-cov codecov joblib
   - pip install .[test]
 
 script:
