@@ -2,13 +2,13 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-## not yet released
+## phonemizer-2.2.1
 
 * **improvements**
 
-  * From Python import the phonemize function using `from phonemizer import
-    phonemize` instead of `from phonemizer.phonemize import phonemize`. The
-    second import is still available for compatibility.
+  From Python import the phonemize function using `from phonemizer import
+  phonemize` instead of `from phonemizer.phonemize import phonemize`. The
+  second import is still available for compatibility.
 
 * **bugfixes**
 
