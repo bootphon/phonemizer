@@ -30,24 +30,33 @@ def cumsum(l):
 
 
 def str2list(s):
-    """Returns the string `s` as a list of lines"""
+    """Returns the string `s` as a list of lines, split by \n"""
     return s.strip().split('\n') if isinstance(s, six.string_types) else s
 
 
 def list2str(s):
-    """Returns the list of lines `s` as a single string"""
+    """Returns the list of lines `s` as a single string separated by \n"""
     return '\n'.join(s) if not isinstance(s, six.string_types) else s
 
 
 def chunks(text, n):
-    """Return `n` equally sized chunks of a `text`
-
-    `n` must be an integer greater than 0.
-
-    Only the n-1 first chunks have equal size. The last chunk can be longer.
-    The input `text` can be a list or a string. Return a list of `n` strings.
+    """Return a maximum of `n` equally sized chunks of a `text`
 
     This method is usefull when phonemizing a single text on multiple jobs.
+
+    The exact number of chunks eturned is `m = min(n, len(str2list(text)))`.
+    Only the m-1 first chunks have equal size. The last chunk can be longer.
+    The input `text` can be a list or a string. Return a list of `m` strings.
+
+    Parameters
+    ----------
+    text (str or list) : The text to divide in chunks
+
+    n (int) : The number of chunks to build, must be an integer greater than 0.
+
+    Returns
+    -------
+    The chunked text as a list of str.
 
     """
     text = str2list(text)

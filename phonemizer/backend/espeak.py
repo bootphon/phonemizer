@@ -167,7 +167,6 @@ class EspeakBackend(BaseEspeakBackend):
                 'lang_switch argument "{}" invalid, must be in {}'
                 .format(language_switch, ", ".join(valid_lang_switch)))
         self._lang_switch = language_switch
-        # self._lang_switch_list = []
 
         self._with_stress = with_stress
 
@@ -201,18 +200,23 @@ class EspeakBackend(BaseEspeakBackend):
             log_storage = self.logger
             self.logger = None
 
+            # divide the input text in chunks, each chunk being processed in a
+            # separate job
             text_chunks = chunks(text, njobs)
-            offset = [0] + cumsum(
-                [c.count('\n') + 1 for c in text_chunks[:-1]])
 
-            # we have here a list of phonemized chunks, output is a list of
-            # (text, lang_switches)
+            # offset used below to recover the line numbers in the input text
+            # wrt the chunks
+            offset = [0] + cumsum(
+                (c.count('\n') + 1 for c in text_chunks[:-1]))
+
+            # we have here a list of (phonemized chunk, lang_switches)
             output = joblib.Parallel(n_jobs=njobs)(
                 joblib.delayed(self._phonemize_aux)(t, separator, strip)
                 for t in text_chunks)
 
-            # flatten them in a single list. For language switches lines we
-            # need to add an offset for each text chunk
+            # flatten both the phonemized chunks and language switches in a
+            # list. For language switches lines we need to add an offset to
+            # have the correct lines numbers wrt the input text.
             text = list(itertools.chain(*(chunk[0] for chunk in output)))
             lang_switches = [chunk[1] for chunk in output]
             for i in range(len(lang_switches)):
@@ -223,11 +227,12 @@ class EspeakBackend(BaseEspeakBackend):
             # restore the log as it was before parallel processing
             self.logger = log_storage
 
+        # warn the user if language switches occured during phonemization
         self._warn_on_lang_switch(lang_switches)
-        result = self._phonemize_postprocess(
-            text, text_type, punctuation_marks)
 
-        return result
+        # finally restore the punctuation
+        return self._phonemize_postprocess(
+            text, text_type, punctuation_marks)
 
     def _command(self, fname):
         return (
