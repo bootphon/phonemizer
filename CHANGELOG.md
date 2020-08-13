@@ -2,6 +2,13 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+## not yet released
+
+* **bugfixes**
+
+  Fixed installation from source (bug introduced in 2.2.1, see
+  issue [#52](https://github.com/bootphon/phonemizer/issues/52).
+
 ## phonemizer-2.2.1
 
 * **improvements**

@@ -9,16 +9,17 @@ phonemizer-build:
     - conda create --name phonemizer-ci python=3 2> /dev/null || true
     - conda activate phonemizer-ci
 
-    # install the phonemizer
-    - pip install coverage
-    - python setup.py build
+    # install dependencies for testing
+    - pip install --upgrade pytest coverage
+
+    # install phonemizer
     - python setup.py install
 
 .phonemizer-test: &phonemizer-test
 # run the unit tests within the CI environment
 - conda activate phonemizer-ci
 - phonemize --version
-- python setup.py test
+- coverage run && coverage report
 
 phonemizer-test-espeak-1-48-04:
   stage: test

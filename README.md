@@ -66,9 +66,7 @@ the phonemizer.
 
         $ git clone https://github.com/bootphon/phonemizer
         $ cd phonemizer
-        $ python setup.py build
         $ [sudo] python setup.py install
-        $ python setup.py test  # optionally run the tests
 
   If you experiment an error such as `ImportError: No module named
   setuptools` during installation, refeer to [issue
@@ -87,6 +85,15 @@ provided `Dockerfile**. To build the docker image, have a:
 Then run an interactive session with:
 
     $ sudo docker run -it phonemizer /bin/bash
+
+
+### Testing
+
+When installed from sources or whithin a Docker image, you can run the tests
+suite from the root `phonemizer` folder (once you installed `pytest`):
+
+    $ pip install pytest
+    $ pytest
 
 
 ## Python usage
