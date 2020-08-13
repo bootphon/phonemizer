@@ -16,9 +16,19 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Setup script for the phonemizer package"""
 
+import builtins
 import codecs
 import setuptools
+
+
+# This is a bit hackish: we are setting a global variable so that the main
+# phonemizer __init__ can detect if it is being loaded by the setup routine, to
+# avoid attempting to load components that aren't built yet.
+builtins.__PHONEMIZER_SETUP__ = True
+
+
 import phonemizer
+
 
 setuptools.setup(
     # general description
@@ -28,8 +38,6 @@ setuptools.setup(
 
     # python package dependancies
     install_requires=['joblib', 'segments', 'attrs>=18.1'],
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-cov'],
 
     # include Python code and any files in phonemizer/share
     packages=setuptools.find_packages(),

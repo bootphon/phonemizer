@@ -20,15 +20,15 @@ before_install:
 
 install:
   - pip install --upgrade pip
-  - pip install pytest-cov codecov joblib segments
-  - python setup.py build
   - python setup.py install
+  - pip install --upgrade pytest coverage codecov
 
 script:
   - phonemize --version
-  - python setup.py test
+  - pytest
 
 after_success:
+  - coverage run
   - codecov
 
 cache:
