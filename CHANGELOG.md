@@ -6,8 +6,11 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 * **bugfixes**
 
-  Fixed installation from source (bug introduced in 2.2.1, see
-  issue [#52](https://github.com/bootphon/phonemizer/issues/52).
+  * Fixed a bug when trying to restore punctuation on an empty text (see issue
+    [#54](https://github.com/bootphon/phonemizer/issues/54)).
+
+  * Fixed installation from source (bug introduced in 2.2.1, see
+    issue [#52](https://github.com/bootphon/phonemizer/issues/52)).
 
 ## phonemizer-2.2.1
 

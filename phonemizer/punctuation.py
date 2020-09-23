@@ -154,6 +154,10 @@ class Punctuation:
         if not marks:
             return text
 
+        # nothing have been phonemized, returns the marks alone
+        if not text:
+            return [''.join(m.mark for m in marks)]
+
         current = marks[0]
         if current.index == num:  # place the current mark here
             if current.position == 'B':
