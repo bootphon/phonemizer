@@ -14,7 +14,7 @@
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
 """Multilingual text to phones converter"""
 
-__version__ = '2.2.1'
+__version__ = '2.2.1-resemble'
 
 
 try:  # pragma: nocover
