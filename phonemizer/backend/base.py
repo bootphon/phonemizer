@@ -82,23 +82,16 @@ class BaseBackend(object):
         """Return a dict of language codes -> name supported by the backend"""
         pass
 
-    def is_supported_language(self, language):
+    @classmethod
+    @abc.abstractmethod
+    def is_supported_language(cls, language):
         """Returns True if `language` is supported by the backend"""
-        return language in self.supported_languages()
+        return language in cls.supported_languages()
 
     def phonemize(self, text, separator=default_separator,
                   strip=False, njobs=1):
         """Returns the `text` phonemized for the given language"""
-        # remember the text type for output (either list or string)
-        text_type = type(text)
-
-        # deals with punctuation: remove it and keep track of it for
-        # restoration at the end if asked for
-        punctuation_marks = []
-        if self.preserve_punctuation:
-            text, punctuation_marks = self._punctuator.preserve(text)
-        else:
-            text = self._punctuator.remove(text)
+        text, text_type, punctuation_marks = self._phonemize_preprocess(text)
 
         if njobs == 1:
             # phonemize the text forced as a string
@@ -121,6 +114,27 @@ class BaseBackend(object):
             # restore the log as it was before parallel processing
             self.logger = log_storage
 
+        return self._phonemize_postprocess(text, text_type, punctuation_marks)
+
+    @abc.abstractmethod
+    def _phonemize_aux(self, text, separator, strip):
+        pass
+
+    def _phonemize_preprocess(self, text):
+        # remember the text type for output (either list or string)
+        text_type = type(text)
+
+        # deals with punctuation: remove it and keep track of it for
+        # restoration at the end if asked for
+        punctuation_marks = []
+        if self.preserve_punctuation:
+            text, punctuation_marks = self._punctuator.preserve(text)
+        else:
+            text = self._punctuator.remove(text)
+
+        return text, text_type, punctuation_marks
+
+    def _phonemize_postprocess(self, text, text_type, punctuation_marks):
         # restore the punctuation is asked for
         if self.preserve_punctuation:
             text = self._punctuator.restore(text, punctuation_marks)
@@ -129,7 +143,3 @@ class BaseBackend(object):
         # according to type(text)
         return (list2str(text) if text_type in six.string_types
                 else str2list(text))
-
-    @abc.abstractmethod
-    def _phonemize_aux(self, text, separator, strip):
-        pass

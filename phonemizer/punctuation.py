@@ -25,7 +25,7 @@ from phonemizer.utils import str2list
 _DEFAULT_MARKS = ';:,.!?¡¿—…"«»“”'
 
 
-_mark_index = collections.namedtuple(
+_MarkIndex = collections.namedtuple(
     '_mark_index', ['index', 'mark', 'position'])
 
 
@@ -45,6 +45,8 @@ class Punctuation:
 
     """
     def __init__(self, marks=_DEFAULT_MARKS):
+        self._marks = None
+        self._marks_re = None
         self.marks = marks
 
     @staticmethod
@@ -54,6 +56,7 @@ class Punctuation:
 
     @property
     def marks(self):
+        """The punctuation marks as a string"""
         return self._marks
 
     @marks.setter
@@ -93,13 +96,13 @@ class Punctuation:
         preserved_text = []
         preserved_marks = []
 
-        for n, line in enumerate(text):
-            line, marks = self._preserve_line(line, n)
+        for num, line in enumerate(text):
+            line, marks = self._preserve_line(line, num)
             preserved_text += line
             preserved_marks += marks
         return [line for line in preserved_text if line], preserved_marks
 
-    def _preserve_line(self, line, n):
+    def _preserve_line(self, line, num):
         """Auxiliary method for Punctuation.preserve()"""
         matches = list(re.finditer(self._marks_re, line))
         if not matches:
@@ -107,25 +110,25 @@ class Punctuation:
 
         # the line is made only of punctuation marks
         if len(matches) == 1 and matches[0].group() == line:
-            return [], [_mark_index(n, line, 'A')]
+            return [], [_MarkIndex(num, line, 'A')]
 
         # build the list of mark indexes required to restore the punctuation
         marks = []
-        for m in matches:
+        for match in matches:
             # find the position of the punctuation mark in the utterance:
             # begin (B), end (E), in the middle (I) or alone (A)
             position = 'I'
-            if m == matches[0] and line.startswith(m.group()):
+            if match == matches[0] and line.startswith(match.group()):
                 position = 'B'
-            elif m == matches[-1] and line.endswith(m.group()):
+            elif match == matches[-1] and line.endswith(match.group()):
                 position = 'E'
-            marks.append(_mark_index(n, m.group(), position))
+            marks.append(_MarkIndex(num, match.group(), position))
 
         # split the line into sublines, each separated by a punctuation mark
         preserved_line = []
-        for m in marks:
-            split = line.split(m.mark)
-            prefix, suffix = split[0], m.mark.join(split[1:])
+        for mark in marks:
+            split = line.split(mark.mark)
+            prefix, suffix = split[0], mark.mark.join(split[1:])
             preserved_line.append(prefix)
             line = suffix
 
@@ -146,27 +149,36 @@ class Punctuation:
         return cls._restore_aux(str2list(text), marks, 0)
 
     @classmethod
-    def _restore_aux(cls, text, marks, n):
+    def _restore_aux(cls, text, marks, num):
         """Auxiliary method for Punctuation.restore()"""
-        if len(marks) == 0:
+        if not marks:
             return text
 
-        m = marks[0]
-        if m.index == n:  # place the current mark here
-            if m.position == 'B':
+        # nothing have been phonemized, returns the marks alone
+        if not text:
+            return [''.join(m.mark for m in marks)]
+
+        current = marks[0]
+        if current.index == num:  # place the current mark here
+            if current.position == 'B':
                 return cls._restore_aux(
-                    [m.mark + text[0]] + text[1:], marks[1:], n)
-            if m.position == 'E':
-                return [text[0] + m.mark] + cls._restore_aux(
-                    text[1:], marks[1:], n+1)
-            if m.position == 'A':
-                return [m.mark] + cls._restore_aux(text, marks[1:], n+1)
+                    [current.mark + text[0]] + text[1:], marks[1:], num)
+            if current.position == 'E':
+                return [text[0] + current.mark] + cls._restore_aux(
+                    text[1:], marks[1:], num + 1)
+            if current.position == 'A':
+                return [current.mark] + cls._restore_aux(
+                    text, marks[1:], num + 1)
             # position == 'I'
             if len(text) == 1:
                 # a corner case where the final part of an intermediate
                 # mark (I) has not been phonemized
-                return cls._restore_aux([text[0] + m.mark], marks[1:], n)
-            return cls._restore_aux(
-                [text[0] + m.mark + text[1]] + text[2:], marks[1:], n)
+                restored = cls._restore_aux(
+                    [text[0] + current.mark], marks[1:], num)
+            else:
+                restored = cls._restore_aux(
+                    [text[0] + current.mark + text[1]] + text[2:],
+                    marks[1:], num)
+            return restored
         else:
-            return [text[0]] + cls._restore_aux(text[1:], marks, n+1)
+            return [text[0]] + cls._restore_aux(text[1:], marks, num + 1)

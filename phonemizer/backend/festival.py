@@ -96,7 +96,8 @@ class FestivalBackend(BaseBackend):
         try:
             return re.match(festival_version_re, long_version).group(1)
         except AttributeError:
-            raise RuntimeError(f'cannot extract festival version from {cls.festival_path()}')
+            raise RuntimeError(
+                f'cannot extract festival version from {cls.festival_path()}')
 
     @staticmethod
     def supported_languages():

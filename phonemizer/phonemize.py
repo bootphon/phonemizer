@@ -25,7 +25,7 @@ import sys
 from phonemizer.logger import get_logger
 from phonemizer.separator import default_separator
 from phonemizer.backend import (
-    EspeakBackend, FestivalBackend, SegmentsBackend)
+    EspeakBackend, EspeakMbrolaBackend, FestivalBackend, SegmentsBackend)
 from phonemizer.punctuation import Punctuation
 
 
@@ -38,7 +38,6 @@ def phonemize(
         preserve_punctuation=False,
         punctuation_marks=Punctuation.default_marks(),
         with_stress=False,
-        use_sampa=False,
         language_switch='keep-flags',
         njobs=1,
         logger=get_logger()):
@@ -61,28 +60,26 @@ def phonemize(
 
     backend (str): The software backend to use for phonemization, must
       be 'festival' (US English only is supported, coded 'en-us'),
-      'espeak' or 'segments'.
+      'espeak', 'espeak-mbrola' or 'segments'.
 
-    separator (Separator): string separators between phonemes,
-      syllables and words, default to separator.default_separator.
+    separator (Separator): string separators between phonemes, syllables and
+      words, default to separator.default_separator. Syllable separator is
+      considered only for the festival backend. Word separator is ignored by
+      the 'espeak-mbrola' backend.
 
     strip (bool): If True, don't output the last word and phone
       separators of a token, default to False.
 
     preserve_punctuation (bool): When True, will keep the punctuation in the
-        phonemized output. Default to False and remove all the punctuation.
+        phonemized output. Not supportyed by the 'espeak-mbrola' backend.
+        Default to False and remove all the punctuation.
 
     punctuation_marks (str): The punctuation marks to consider when dealing
         with punctuation. Default to Punctuation.default_marks().
 
-    with_stress (bool): This option is only valid for the espeak/espeak-ng
-      backend. When True the stresses on phonemes are present (stresses
-      characters are ˈ'ˌ). When False stresses are removed. Default to False.
-
-    use_sampa (bool): Use the 'sampa' phonetic alphabet (Speech Assessment
-      Methods Phonetic Alphabet) instead of 'ipa' (International Phonetic
-      Alphabet). This option is only valid for the 'espeak-ng' backend. Default
-      to False.
+    with_stress (bool): This option is only valid for the 'espeak' backend.
+      When True the stresses on phonemes are present (stresses characters are
+      ˈ'ˌ). When False stresses are removed. Default to False.
 
     language_switch (str): Espeak can output some words in another language
       (typically English) when phonemizing a text. This option setups the
@@ -91,7 +88,8 @@ def phonemize(
       'remove-utterance'. The 'keep-flags' policy keeps the language switching
       flags, for example (en) or (jp), in the output. The 'remove-flags' policy
       removes them and the 'remove-utterance' policy removes the whole line of
-      text including a language switch.
+      text including a language switch. This option is only valid for the
+      'espeak' backend.
 
     njobs (int): The number of parallel jobs to launch. The input text
       is split in `njobs` parts, phonemized on parallel instances of
@@ -108,25 +106,17 @@ def phonemize(
 
     Raises
     ------
-    RuntimeError
-
-      If the `backend` is not valid or is valid but not installed, if the
-      `language` is not supported by the `backend`, if `use_sampa`,
-      `with_stress` or `language_switch` are used but the backend is not
-      'espeak-ng'.
+    RuntimeError if the `backend` is not valid or is valid but not installed,
+      if the `language` is not supported by the `backend`, if with_stress` or
+      `language_switch` are used but the backend is not 'espeak'.
 
     """
     # ensure the backend is either espeak, festival or segments
-    if backend not in ('espeak', 'festival', 'segments'):
+    if backend not in ('espeak', 'espeak-mbrola', 'festival', 'segments'):
         raise RuntimeError(
             '{} is not a supported backend, choose in {}.'
-            .format(backend, ', '.join(('espeak', 'festival', 'segments'))))
-
-    # ensure the phonetic alphabet is valid
-    if use_sampa is True:
-        if backend != 'espeak':
-            raise RuntimeError(
-                'sampa alphabet is only supported by espeak backend')
+            .format(backend, ', '.join(
+                ('espeak', 'espeak-mbrola', 'festival', 'segments'))))
 
     # with_stress option only valid for espeak
     if with_stress and backend != 'espeak':
@@ -135,21 +125,30 @@ def phonemize(
             'but you are using {} backend'.format(backend))
 
     # language_switch option only valid for espeak
-    if language_switch != 'keep-flags' and backend != 'espeak':
+    if (
+            language_switch != 'keep-flags'
+            and backend not in ('espeak', 'espeak-mbrola')
+    ):
         raise RuntimeError(
             'the "language_switch" option is available for espeak backend '
             'only, but you are using {} backend'.format(backend))
+
+    # preserve_punctuation and word separator not valid for espeak-mbrola
+    if backend == 'espeak-mbrola' and preserve_punctuation:
+        logger.warning('espeak-mbrola backend cannot preserve punctuation')
+    if backend == 'espeak-mbrola' and separator.word:
+        logger.warning('espeak-mbrola backend cannot preserve word separation')
 
     # python2 needs additional utf8 encoding
     if sys.version_info[0] == 2:  # pragma: nocover
         logger.warning(
             'Your are using python2 but unsupported by the phonemizer, '
-            'please update to python3')
+            'please update to python>=3.6')
 
     # instanciate the requested backend for the given language (raises
     # a RuntimeError if the language is not supported).
     backends = {b.name(): b for b in (
-        EspeakBackend, FestivalBackend, SegmentsBackend)}
+        EspeakBackend, FestivalBackend, SegmentsBackend, EspeakMbrolaBackend)}
 
     if backend == 'espeak':
         phonemizer = backends[backend](
@@ -157,8 +156,11 @@ def phonemize(
             punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation,
             with_stress=with_stress,
-            use_sampa=use_sampa,
             language_switch=language_switch,
+            logger=logger)
+    elif backend == 'espeak-mbrola':
+        phonemizer = backends[backend](
+            language,
             logger=logger)
     else:  # festival or segments
         phonemizer = backends[backend](

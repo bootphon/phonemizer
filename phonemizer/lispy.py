@@ -57,15 +57,4 @@ def _read_from_tokens(tokens):
     elif ')' == token:  # pragma: nocover
         raise SyntaxError('unexpected )')
     else:
-        return token  # was _atom(token)
-
-
-# def _atom(token):
-#     "Numbers become numbers, every other token are not processed"
-#     try:
-#         return int(token)
-#     except ValueError:
-#         try:
-#             return float(token)
-#         except ValueError:
-#             return token
+        return token

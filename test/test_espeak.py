@@ -21,7 +21,8 @@ import re
 import pytest
 
 import phonemizer.separator as separator
-from phonemizer.backend import EspeakBackend
+from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
+from phonemizer.separator import Separator
 
 
 @pytest.mark.parametrize(
@@ -43,27 +44,26 @@ def test_versions(version, expected):
 def test_english():
     backend = EspeakBackend('en-us')
     text = u'hello world\ngoodbye\nthird line\nyet another'
-    out = '\n'.join(backend._phonemize_aux(
-        text, separator.default_separator, True))
+    out = backend.phonemize(text, separator.default_separator, True)
     assert out == u'həloʊ wɜːld\nɡʊdbaɪ\nθɜːd laɪn\njɛt ɐnʌðɚ'
 
 
 def test_stress():
     backend = EspeakBackend('en-us', with_stress=False)
-    assert u'həloʊ wɜːld' == backend._phonemize_aux(
-        u'hello world', separator.default_separator, True)[0]
+    assert u'həloʊ wɜːld' == backend.phonemize(
+        'hello world', separator.default_separator, True)
 
     backend = EspeakBackend('en-us', with_stress=True)
-    assert u'həlˈoʊ wˈɜːld' == backend._phonemize_aux(
-        u'hello world', separator.default_separator, True)[0]
+    assert u'həlˈoʊ wˈɜːld' == backend.phonemize(
+        u'hello world', separator.default_separator, True)
 
 
 def test_french():
     backend = EspeakBackend('fr-fr')
     text = u'bonjour le monde'
     sep = separator.Separator(word=';eword ', syllable=None, phone=' ')
-    expected = [u'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword ']
-    out = backend._phonemize_aux(text, sep, False)
+    expected = u'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword '
+    out = backend.phonemize(text, sep, False)
     assert out == expected
 
 
@@ -77,10 +77,10 @@ def test_arabic():
 
     # Arabic seems to have changed starting at espeak-ng-1.49.3
     if tuple(EspeakBackend.version().split('.')) >= ('1', '49', '3'):
-        expected = [u'ʔassalaːm ʕliːkm ']
+        expected = u'ʔassalaːm ʕliːkm '
     else:
-        expected = [u'ʔassalaam ʕaliijkum ']
-    out = backend._phonemize_aux(text, sep, False)
+        expected = u'ʔassalaam ʕaliijkum '
+    out = backend.phonemize(text, sep, False)
     assert out == expected
 
 
@@ -88,15 +88,15 @@ def test_arabic():
     not EspeakBackend.is_espeak_ng(),
     reason='language switch only exists for espeak-ng')
 def test_language_switch():
-    text = '\n'.join([
+    text = [
         "j'aime l'anglais",
         "j'aime le football",
         "football",
         "surtout le real madrid",
-        "n'utilise pas google"])
+        "n'utilise pas google"]
 
     backend = EspeakBackend('fr-fr', language_switch='keep-flags')
-    out = backend._phonemize_aux(text, separator.Separator(), True)
+    out = backend.phonemize(text, separator.Separator(), True)
     assert out == [
         'ʒɛm lɑ̃ɡlɛ',
         'ʒɛm lə (en)fʊtbɔːl(fr)',
@@ -106,7 +106,7 @@ def test_language_switch():
 
     # default behavior is to keep the flags
     backend = EspeakBackend('fr-fr')
-    out = backend._phonemize_aux(text, separator.Separator(), True)
+    out = backend.phonemize(text, separator.Separator(), True)
     assert out == [
         'ʒɛm lɑ̃ɡlɛ',
         'ʒɛm lə (en)fʊtbɔːl(fr)',
@@ -115,7 +115,7 @@ def test_language_switch():
         'nytiliz pa (en)ɡuːɡəl(fr)']
 
     backend = EspeakBackend('fr-fr', language_switch='remove-flags')
-    out = backend._phonemize_aux(text, separator.Separator(), True)
+    out = backend.phonemize(text, separator.Separator(), True)
     assert out == [
         'ʒɛm lɑ̃ɡlɛ',
         'ʒɛm lə fʊtbɔːl',
@@ -124,7 +124,7 @@ def test_language_switch():
         'nytiliz pa ɡuːɡəl']
 
     backend = EspeakBackend('fr-fr', language_switch='remove-utterance')
-    out = backend._phonemize_aux(text, separator.Separator(), True)
+    out = backend.phonemize(text, separator.Separator(), True)
     assert out == ['ʒɛm lɑ̃ɡlɛ']
 
     with pytest.raises(RuntimeError):
@@ -167,6 +167,7 @@ def test_phone_separator_simple():
     expected = 'ð_ə_ l_aɪə_n_ æ_n_d_ ð_ə_ t_aɪ_ɡ_ɚ_ ɹ_æ_n_ '
     assert expected == output
 
+
 @pytest.mark.parametrize(
     'text, expected',
     (('the hello but the', 'ð_ə h_ə_l_oʊ b_ʌ_t ð_ə'),
@@ -180,8 +181,15 @@ def test_phone_separator(text, expected):
     assert output == expected
 
 
+@pytest.mark.skipif(
+    'PHONEMIZER_ESPEAK_PATH' in os.environ,
+    reason='cannot modify environment')
 def test_path_good():
+    espeak = EspeakBackend.espeak_path()
     try:
+        EspeakBackend.set_espeak_path(None)
+        assert espeak == EspeakBackend.espeak_path()
+
         binary = distutils.spawn.find_executable('espeak')
         EspeakBackend.set_espeak_path(binary)
 
@@ -189,10 +197,14 @@ def test_path_good():
 
     # restore the espeak path to default
     finally:
-        EspeakBackend.set_espeak_path(None)
+        EspeakBackend.set_espeak_path(espeak)
 
 
+@pytest.mark.skipif(
+    'PHONEMIZER_ESPEAK_PATH' in os.environ,
+    reason='cannot modify environment')
 def test_path_bad():
+    espeak = EspeakBackend.espeak_path()
     try:
         # corrupt the default espeak path, try to use python executable instead
         binary = distutils.spawn.find_executable('python')
@@ -208,7 +220,7 @@ def test_path_bad():
 
     # restore the espeak path to default
     finally:
-        EspeakBackend.set_espeak_path(None)
+        EspeakBackend.set_espeak_path(espeak)
 
 
 @pytest.mark.skipif(
@@ -216,7 +228,8 @@ def test_path_bad():
     reason='cannot modify environment')
 def test_path_venv():
     try:
-        os.environ['PHONEMIZER_ESPEAK_PATH'] = distutils.spawn.find_executable('python')
+        os.environ['PHONEMIZER_ESPEAK_PATH'] = (
+            distutils.spawn.find_executable('python'))
         with pytest.raises(RuntimeError):
             EspeakBackend('en-us').phonemize('hello')
         with pytest.raises(RuntimeError):
@@ -233,50 +246,84 @@ def test_path_venv():
             pass
 
 
-def test_sampa_fr():
-    list_sampa_examples_plosives = [
-        'pont', 'bon', 'temps', 'dans', 'quand', 'gant']
-    list_sampa_examples_fricatives = [
-        'femme', 'vent', 'sans', 'champ', 'gens', 'ion']
-    list_sampa_examples_nasals = [
-        'mont', 'nom', 'oignon', 'camping']
-    list_sampa_examples_liquids_glides = [
-        'long', 'rond', 'coin', 'juin', 'pierre']
-    list_sampa_examples_vowels = [
-        'si', 'ses', 'seize', 'patte', 'pâte',
-        'comme', 'gros', 'doux', 'du', 'deux',
-        'neuf', 'justement', 'vin', 'vent', 'bon', 'brun']
-    list_sampa = {
-        'plosives': list_sampa_examples_plosives,
-        'fricatives': list_sampa_examples_fricatives,
-        'nasals': list_sampa_examples_nasals,
-        'liquids_glides': list_sampa_examples_liquids_glides,
-        'vowels': list_sampa_examples_vowels}
-    list_sampa_answers = {
-        'fricatives': ['fam', 'va~', 'sa~', 'Sa~', 'Za~', 'jo~'],
-        'liquids_glides': ['lo~', 'ro~', 'kwe~', 'Zye~', 'pjEr'],
-        'nasals': ['mo~', 'no~', 'onjo~', 'kampIN'],
-        'plosives': ['po~', 'bo~', 'ta~', 'da~', 'ka~', 'ga~'],
-        'vowels': ['si',
-                   'se',
-                   'sEz',
-                   'pat',
-                   'pa:t',
-                   'kOm',
-                   'gro',
-                   'du',
-                   'dy',
-                   'dY',
-                   'n9f',
-                   'Zystma~',
-                   've~',
-                   'va~',
-                   'bo~',
-                   'br9~']}
+@pytest.mark.skipif(
+    not EspeakMbrolaBackend.is_available() or
+    not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
+    reason='mbrola or mb-fr1 voice not installed')
+@pytest.mark.parametrize(
+    'text, expected',
+    [
+        # plosives
+        ('pont', 'po~'),
+        ('bon', 'bo~'),
+        ('temps', 'ta~'),
+        ('dans', 'da~'),
+        ('quand', 'ka~'),
+        ('gant', 'ga~'),
+        # fricatives
+        ('femme', 'fam'),
+        ('vent', 'va~'),
+        ('sans', 'sa~'),
+        ('champ', 'Sa~'),
+        ('gens', 'Za~'),
+        ('ion', 'jo~'),
+        # nasals
+        ('mont', 'mo~'),
+        ('nom', 'no~'),
+        ('oignon', 'onjo~'),
+        ('ping', 'piN'),
+        # liquid glides
+        ('long', 'lo~'),
+        ('rond', 'Ro~'),
+        ('coin', 'kwe~'),
+        ('juin', 'Zye~'),
+        ('pierre', 'pjER'),
+        # vowels
+        ('si', 'si'),
+        ('ses', 'se'),
+        ('seize', 'sEz'),
+        ('patte', 'pat'),
+        ('pâte', 'pat'),
+        ('comme', 'kOm'),
+        ('gros', 'gRo'),
+        ('doux', 'du'),
+        ('du', 'dy'),
+        ('deux', 'd2'),
+        ('neuf', 'n9f'),
+        ('justement', 'Zystma~'),
+        ('vin', 've~'),
+        ('vent', 'va~'),
+        ('bon', 'bo~'),
+        ('brun', 'bR9~')])
+def test_sampa_fr(text, expected):
+    assert expected == EspeakMbrolaBackend('mb-fr1').phonemize(
 
-    backend = EspeakBackend(
-        'fr-fr', use_sampa=True, language_switch='remove-flags')
-    for category in list_sampa.keys():
-        for idx, text in enumerate(list_sampa[category]):
-            out = backend.phonemize(text, strip=True)
-            assert out == list_sampa_answers[category][idx]
+        text, strip=True, separator=Separator(phone=''))
+
+
+@pytest.mark.skipif(
+    not EspeakMbrolaBackend.is_available() or
+    not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
+    reason='mbrola or mb-fr1 voice not installed')
+def test_french_sampa():
+    text = u'bonjour le monde'
+    backend = EspeakMbrolaBackend('mb-fr1')
+    sep = separator.Separator(word=None, phone=' ')
+
+    expected = 'b o~ Z u R l @ m o~ d '
+    out = backend.phonemize(text, separator=sep, strip=False)
+    assert out == expected
+
+    expected = 'b o~ Z u R l @ m o~ d'
+    out = backend.phonemize(text, separator=sep, strip=True)
+    assert out == expected
+
+    assert '' == backend.phonemize('', separator=sep, strip=True)
+    assert '' == backend.phonemize('"', separator=sep, strip=True)
+
+
+@pytest.mark.skipif(
+    not EspeakMbrolaBackend.is_available(),
+    reason='mbrola not installed')
+def test_mbrola_bad_language():
+    assert not EspeakMbrolaBackend.is_supported_language('foo-bar')

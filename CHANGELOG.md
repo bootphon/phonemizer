@@ -2,14 +2,70 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-
 ## not yet released
 
 * **bugfixes**
 
-  * fixed issues with punctuation processing on some corner cases, see issues
+  * Fixed a bug when trying to restore punctuation on an empty text (see issue
+    [#54](https://github.com/bootphon/phonemizer/issues/54)).
+
+  * Fixed installation from source (bug introduced in 2.2.1, see
+    issue [#52](https://github.com/bootphon/phonemizer/issues/52)).
+
+## phonemizer-2.2.1
+
+* **improvements**
+
+  From Python import the phonemize function using `from phonemizer import
+  phonemize` instead of `from phonemizer.phonemize import phonemize`. The
+  second import is still available for compatibility.
+
+* **bugfixes**
+
+  * Fixed a minor bug in `utils.chunks`.
+
+  * Fixed warnings on language switching for espeak backend when using parallel
+    jobs (see issue [#50](https://github.com/bootphon/phonemizer/issues/50)).
+
+  * Save file in utf-8 explicitly for Windows compat (see issue
+    [#43](https://github.com/bootphon/phonemizer/issues/43)).
+
+  * Fixed build and tests in Dockerfile (see issue
+    [#45](https://github.com/bootphon/phonemizer/issues/45)).
+
+
+## phonemizer-2.2
+
+* **new features**
+
+  * New option ``--list-languages`` to list the available languages for a given
+    backend from the command line.
+
+  * The ``--sampa`` option of the ``espeak`` backend has been replaced by a new
+    backend ``espeak-mbrola``.
+
+    * The former ``--sampa`` option (introduced in phonemizer-2.0) outputs
+      phones that are not standard SAMPA but are adapted to the espeak TTS
+      front-end.
+
+    * On the other hand the ``espeak-mbrola`` backend allows espeak to output
+      phones in standard SAMPA (adapted to the mbrola TTS front-end). This
+      backend requires mbrola to be installed, as well as additional mbrola
+      voices to support needed languages. **This backend does not support word
+      separation nor punctuation preservation**.
+
+* **bugfixes**
+
+  * Fixed issues with punctuation processing on some corner cases, see issues
     [#39](https://github.com/bootphon/phonemizer/issues/39) and
     [#40](https://github.com/bootphon/phonemizer/issues/40).
+
+  * Improvments and updates in the documentation (Readme, ``phonemize --help``
+    and Python code).
+
+  * Fixed a test when using ``espeak>=1.50``.
+
+  * Empty lines are correctly ignored when reading text from a file.
 
 
 ## phonemizer-2.1

@@ -19,7 +19,7 @@ import tempfile
 import shlex
 import sys
 
-from phonemizer.backend import EspeakBackend, FestivalBackend
+from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
 from phonemizer import main, backend, logger
 
 
@@ -37,9 +37,6 @@ def _test(input, expected_output, args=''):
             main.main()
 
             output = foutput.read()
-            # python2 needs additional utf8 decoding
-            if sys.version_info[0] == 2:
-                output = output.decode('utf8')
             if expected_output == '':
                 assert output == ''
             else:
@@ -57,11 +54,15 @@ def test_version():
     main.main()
 
 
+def test_list_languages():
+    sys.argv = ['foo', '--list-languages']
+    main.main()
+
+
 def test_readme():
     _test(u'hello world', u'həloʊ wɜːld ')
     _test(u'hello world', u'həloʊ wɜːld ', '--verbose')
     _test(u'hello world', u'həloʊ wɜːld ', '--quiet')
-    _test(u'hello world', u'h@loU w3:ld ', '--sampa')
     _test(u'hello world', u'hhaxlow werld', '-b festival --strip')
     _test(u'hello world', u'həloʊ wɜːld ', '-l en-us')
     _test(u'bonjour le monde', u'bɔ̃ʒuʁ lə mɔ̃d ', '-l fr-fr')
@@ -115,6 +116,15 @@ def test_logger():
         logger.get_logger(verbosity=1)
 
 
+@pytest.mark.skipif(
+    not EspeakMbrolaBackend.is_available() or
+    not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
+    reason='mbrola or mb-fr1 voice not installed')
+def test_espeak_mbrola():
+    _test(u'coucou toi!', u'k u k u t w a ',
+          f'-b espeak-mbrola -l mb-fr1 -p" " --preserve-punctuation')
+
+
 def test_espeak_path():
     espeak = backend.EspeakBackend.espeak_path()
     _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
@@ -122,4 +132,5 @@ def test_espeak_path():
 
 def test_festival_path():
     festival = backend.FestivalBackend.festival_path()
-    _test(u'hello world', u'hhaxlow werld ', f'--festival-path={festival} -b festival')
+    _test(u'hello world', u'hhaxlow werld ',
+          f'--festival-path={festival} -b festival')

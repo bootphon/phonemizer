@@ -14,4 +14,20 @@
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
 """Multilingual text to phones converter"""
 
-__version__ = '2.1-resemble_'
+__version__ = '2.2.1'
+
+
+try:  # pragma: nocover
+    # This variable is injected in the __builtins__ by the build process. In
+    # that case we don't want to import phonemize as there are missing
+    # dependencies.
+    __PHONEMIZER_SETUP__
+except NameError:
+    __PHONEMIZER_SETUP__ = False
+
+
+if __PHONEMIZER_SETUP__:  # pragma: nocover
+    import sys
+    sys.stderr.write('Partial import of phonemizer during the build process.\n')
+else:
+    from .phonemize import phonemize

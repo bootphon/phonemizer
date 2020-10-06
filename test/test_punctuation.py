@@ -21,8 +21,8 @@ from phonemizer.punctuation import Punctuation
 from phonemizer.phonemize import phonemize
 
 
-# True if we are using espeak>=1.50
-ESPEAK_150 = (EspeakBackend.version(as_tuple=True) >= (1, 50))
+# True if we are using espeak>=1.49.3
+ESPEAK_143 = (EspeakBackend.version(as_tuple=True) >= (1, 49, 3))
 
 
 @pytest.mark.parametrize(
@@ -44,7 +44,9 @@ def test_remove(inp, out):
         ['a, a, a'],
         ['a, a?', 'aaa bb', '.bb, b', 'c', '!d.d. dd??  d!'],
         ['Truly replied, "Yes".'],
-        ['hi; ho,"']])
+        ['hi; ho,"'],
+        ["!?"],
+        ["!'"]])
 def test_preserve(inp):
     p = Punctuation()
     t, m = p.preserve(inp)
@@ -54,8 +56,8 @@ def test_preserve(inp):
 @pytest.mark.parametrize(
     'text, output', [
         (['hi; ho,"'], ['haɪ ; hoʊ ,']),
-        (['hi; "ho,'], ['haɪ ; hoʊ ,'] if ESPEAK_150 else ['haɪ ;  hoʊ ,']),
-        (['"hi; ho,'], ['haɪ ; hoʊ ,'] if ESPEAK_150 else [' haɪ ; hoʊ ,'])])
+        (['hi; "ho,'], ['haɪ ; hoʊ ,'] if ESPEAK_143 else ['haɪ ;  hoʊ ,']),
+        (['"hi; ho,'], ['haɪ ; hoʊ ,'] if ESPEAK_143 else [' haɪ ; hoʊ ,'])])
 def test_preserve_2(text, output):
     marks = ".!;:,?"
     p = Punctuation(marks=marks)
@@ -88,16 +90,20 @@ def test_espeak():
     expected3 = 'həloʊ wɜːld '
     expected4 = 'həloʊ , wɜːld !'
 
-    out1 = EspeakBackend('en-us', preserve_punctuation=False).phonemize(text, strip=True)
+    out1 = EspeakBackend('en-us', preserve_punctuation=False).phonemize(
+        text, strip=True)
     assert out1 == expected1
 
-    out2 = EspeakBackend('en-us', preserve_punctuation=True).phonemize(text, strip=True)
+    out2 = EspeakBackend('en-us', preserve_punctuation=True).phonemize(
+        text, strip=True)
     assert out2 == expected2
 
-    out3 = EspeakBackend('en-us', preserve_punctuation=False).phonemize(text, strip=False)
+    out3 = EspeakBackend('en-us', preserve_punctuation=False).phonemize(
+        text, strip=False)
     assert out3 == expected3
 
-    out4 = EspeakBackend('en-us', preserve_punctuation=True).phonemize(text, strip=False)
+    out4 = EspeakBackend('en-us', preserve_punctuation=True).phonemize(
+        text, strip=False)
     assert out4 == expected4
 
 
@@ -108,16 +114,20 @@ def test_festival():
     expected3 = 'hhaxlow werld '
     expected4 = 'hhaxlow , werld !'
 
-    out1 = FestivalBackend('en-us', preserve_punctuation=False).phonemize(text, strip=True)
+    out1 = FestivalBackend('en-us', preserve_punctuation=False).phonemize(
+        text, strip=True)
     assert out1 == expected1
 
-    out2 = FestivalBackend('en-us', preserve_punctuation=True).phonemize(text, strip=True)
+    out2 = FestivalBackend('en-us', preserve_punctuation=True).phonemize(
+        text, strip=True)
     assert out2 == expected2
 
-    out3 = FestivalBackend('en-us', preserve_punctuation=False).phonemize(text, strip=False)
+    out3 = FestivalBackend('en-us', preserve_punctuation=False).phonemize(
+        text, strip=False)
     assert out3 == expected3
 
-    out4 = FestivalBackend('en-us', preserve_punctuation=True).phonemize(text, strip=False)
+    out4 = FestivalBackend('en-us', preserve_punctuation=True).phonemize(
+        text, strip=False)
     assert out4 == expected4
 
 
@@ -128,14 +138,28 @@ def test_segments():
     expected3 = 'ʌtʃɪ ʌtʃʊ '
     expected4 = 'ʌtʃɪ , ʌtʃʊ !'
 
-    out1 = SegmentsBackend('cree', preserve_punctuation=False).phonemize(text, strip=True)
+    out1 = SegmentsBackend('cree', preserve_punctuation=False).phonemize(
+        text, strip=True)
     assert out1 == expected1
 
-    out2 = SegmentsBackend('cree', preserve_punctuation=True).phonemize(text, strip=True)
+    out2 = SegmentsBackend('cree', preserve_punctuation=True).phonemize(
+        text, strip=True)
     assert out2 == expected2
 
-    out3 = SegmentsBackend('cree', preserve_punctuation=False).phonemize(text, strip=False)
+    out3 = SegmentsBackend('cree', preserve_punctuation=False).phonemize(
+        text, strip=False)
     assert out3 == expected3
 
-    out4 = SegmentsBackend('cree', preserve_punctuation=True).phonemize(text, strip=False)
+    out4 = SegmentsBackend('cree', preserve_punctuation=True).phonemize(
+        text, strip=False)
     assert out4 == expected4
+
+
+# see https://github.com/bootphon/phonemizer/issues/54
+@pytest.mark.parametrize(
+    'text', ["!'", "'!", "!'!", "'!'"])
+def test_issue_54(text):
+    phn = phonemize(
+        text, language='en-us', backend='espeak',
+        preserve_punctuation=True)
+    assert text.replace("'", '') == phn
