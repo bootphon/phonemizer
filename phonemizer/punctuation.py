@@ -67,7 +67,7 @@ class Punctuation:
 
         # catching all the marks in one regular expression: zero or more spaces
         # + one or more marks + zero or more spaces.
-        self._marks_re = re.compile(fr'(\s*[{self._marks}]+\s*)+')
+        self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
 
     def remove(self, text):
         """Returns the `text` with all punctuation marks replaced by spaces
