@@ -12,6 +12,9 @@ Version numbers follow [semantic versioning](https://semver.org)
   * Fixed installation from source (bug introduced in 2.2.1, see
     issue [#52](https://github.com/bootphon/phonemizer/issues/52)).
 
+  * Fixed regex issue that causes digits to be considered punctuation, see
+    [#60](https://github.com/bootphon/phonemizer/pull/60).
+
 ## phonemizer-2.2.1
 
 * **improvements**
