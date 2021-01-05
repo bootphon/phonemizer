@@ -25,7 +25,7 @@ from phonemizer.punctuation import Punctuation
 from phonemizer.utils import list2str, str2list, chunks
 
 
-class BaseBackend(object):
+class BaseBackend:
     """Abstract base class of all the phonemization backends
 
     Provides a common interface to all backends. The central method is
@@ -62,28 +62,23 @@ class BaseBackend(object):
     @abc.abstractmethod
     def name():
         """The name of the backend"""
-        pass
 
     @classmethod
     @abc.abstractmethod
     def is_available(cls):
         """Returns True if the backend is installed, False otherwise"""
-        pass
 
     @staticmethod
     @abc.abstractmethod
     def version():
         """Return the backend version as a string 'major.minor.patch'"""
-        pass
 
     @staticmethod
     @abc.abstractmethod
     def supported_languages():
         """Return a dict of language codes -> name supported by the backend"""
-        pass
 
     @classmethod
-    @abc.abstractmethod
     def is_supported_language(cls, language):
         """Returns True if `language` is supported by the backend"""
         return language in cls.supported_languages()

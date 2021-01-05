@@ -32,8 +32,8 @@ _MarkIndex = collections.namedtuple(
 class Punctuation:
     """Preserve or remove the punctuation during phonemization
 
-    Backends behave differently with punctuation: festival and espeak with
-    ignore it and remove ot silently whereas segments will raise an error. The
+    Backends behave differently with punctuation: festival and espeak ignore it
+    and remove it silently whereas segments will raise an error. The
     Punctuation class solves that issue by "hiding" the punctuation to the
     phonemization backend and restoring it afterwards.
 
@@ -180,5 +180,5 @@ class Punctuation:
                     [text[0] + current.mark + text[1]] + text[2:],
                     marks[1:], num)
             return restored
-        else:
-            return [text[0]] + cls._restore_aux(text[1:], marks, num + 1)
+
+        return [text[0]] + cls._restore_aux(text[1:], marks, num + 1)

@@ -30,7 +30,7 @@ BACKENDS_MAP = {b.name(): b for b in (
         EspeakBackend, FestivalBackend, SegmentsBackend, EspeakMbrolaBackend)}
 
 
-class CatchExceptions(object):  # pragma: nocover
+class CatchExceptions:  # pragma: nocover
     """Decorator wrapping a function in a try/except block
 
     When an exception occurs, display a user friendly message on

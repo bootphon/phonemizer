@@ -29,6 +29,7 @@ except NameError:
 
 if __PHONEMIZER_SETUP__:  # pragma: nocover
     import sys
-    sys.stderr.write('Partial import of phonemizer during the build process.\n')
+    sys.stderr.write(
+        'Partial import of phonemizer during the build process.\n')
 else:
     from .phonemize import phonemize

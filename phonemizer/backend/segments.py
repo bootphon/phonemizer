@@ -99,12 +99,13 @@ class SegmentsBackend(BaseBackend):
         # load the mapping grapheme -> phoneme from the file, make sure all
         # lines are well formatted
         g2p = {}
-        for n, line in enumerate(codecs.open(language, 'r', encoding='utf8')):
+        for num, line in enumerate(
+                codecs.open(language, 'r', encoding='utf8')):
             elts = line.strip().split()
             if not len(elts) == 2:
                 raise RuntimeError(
                     'grapheme to phoneme file, line {} must have 2 rows '
-                    'but have {}: {}'.format(n+1, len(elts), language))
+                    'but have {}: {}'.format(num + 1, len(elts), language))
 
             g2p[elts[0]] = elts[1]
 

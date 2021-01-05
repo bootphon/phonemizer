@@ -36,16 +36,17 @@ _FESTIVAL_DEFAULT_PATH = None
 
 
 class FestivalBackend(BaseBackend):
+    """Festival backend for the phonemizer"""
     def __init__(self, language,
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
                  logger=get_logger()):
-        super(self.__class__, self).__init__(
+        super().__init__(
             language, punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation, logger=logger)
 
         self.script = get_package_resource('festival/phonemize.scm')
-        self.logger.info('loaded {}'.format(self.script))
+        self.logger.info('loaded %s', self.script)
 
     @staticmethod
     def name():
@@ -53,7 +54,7 @@ class FestivalBackend(BaseBackend):
 
     @staticmethod
     def set_festival_path(fpath):
-        """"""
+        """Sets the festival path as `fpath`"""
         global _FESTIVAL_DEFAULT_PATH
         if not fpath:
             _FESTIVAL_DEFAULT_PATH = None
@@ -67,6 +68,7 @@ class FestivalBackend(BaseBackend):
 
     @staticmethod
     def festival_path():
+        """Returns the absolute path to the festival executable"""
         if 'PHONEMIZER_FESTIVAL_PATH' in os.environ:
             festival = os.environ['PHONEMIZER_FESTIVAL_PATH']
             if not (os.path.isfile(festival) and os.access(festival, os.X_OK)):
@@ -82,7 +84,7 @@ class FestivalBackend(BaseBackend):
 
     @classmethod
     def is_available(cls):
-        return True if cls.festival_path() else False
+        return bool(cls.festival_path())
 
     @classmethod
     def version(cls):
@@ -120,13 +122,13 @@ class FestivalBackend(BaseBackend):
         (typically with unbalanced parenthesis) raises an IndexError.
 
         """
-        a = self._preprocess(text)
-        if len(a) == 0:
+        text = self._preprocess(text)
+        if len(text) == 0:
             return []
-        b = self._process(a)
-        c = self._postprocess(b, separator, strip)
+        text = self._process(text)
+        text = self._postprocess(text, separator, strip)
 
-        return [line for line in c if line.strip() != '']
+        return [line for line in text if line.strip() != '']
 
     @staticmethod
     def _double_quoted(line):
