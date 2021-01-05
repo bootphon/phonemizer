@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,7 +16,7 @@
 
 To use it in your own code, type:
 
-    from phonemizer.phonemize import phonemize
+    from phonemizer import phonemize
 
 """
 
@@ -71,11 +71,12 @@ def phonemize(
       separators of a token, default to False.
 
     preserve_punctuation (bool): When True, will keep the punctuation in the
-        phonemized output. Not supportyed by the 'espeak-mbrola' backend.
+        phonemized output. Not supported by the 'espeak-mbrola' backend.
         Default to False and remove all the punctuation.
 
     punctuation_marks (str): The punctuation marks to consider when dealing
-        with punctuation. Default to Punctuation.default_marks().
+        with punctuation, either for removal or preservation. Default to
+        Punctuation.default_marks().
 
     with_stress (bool): This option is only valid for the 'espeak' backend.
       When True the stresses on phonemes are present (stresses characters are
@@ -86,10 +87,10 @@ def phonemize(
       policy to use when such a language switch occurs. Three values are
       available: 'keep-flags' (the default), 'remove-flags' or
       'remove-utterance'. The 'keep-flags' policy keeps the language switching
-      flags, for example (en) or (jp), in the output. The 'remove-flags' policy
-      removes them and the 'remove-utterance' policy removes the whole line of
-      text including a language switch. This option is only valid for the
-      'espeak' backend.
+      flags, for example "(en) or (jp)", in the output. The 'remove-flags'
+      policy removes them and the 'remove-utterance' policy removes the whole
+      line of text including a language switch. This option is only valid for
+      the 'espeak' backend.
 
     njobs (int): The number of parallel jobs to launch. The input text
       is split in `njobs` parts, phonemized on parallel instances of

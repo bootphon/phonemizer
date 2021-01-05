@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -207,8 +207,7 @@ class EspeakBackend(BaseEspeakBackend):
 
             # offset used below to recover the line numbers in the input text
             # wrt the chunks
-            offset = [0] + cumsum(
-                (c.count('\n') + 1 for c in text_chunks[:-1]))
+            offset = [0] + cumsum((c.count('\n')+1 for c in text_chunks[:-1]))
 
             # we have here a list of (phonemized chunk, lang_switches)
             output = joblib.Parallel(n_jobs=njobs)(
