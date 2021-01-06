@@ -182,7 +182,7 @@ def test_issue_54(text):
         ('segments', '!', ['! ?', 'hey!'], ValueError),
         ('festival', 'default', ['! ?', 'hey!'], ['! ?', 'hhey !']),
         ('festival', '!', ['! ?', 'hey!'],
-         RuntimeError if FESTIVAL_25 else ['! ', 'hhey !'])])
+         RuntimeError if FESTIVAL_25 else ['!  ', 'hhey !'])])
 def test_issue55(backend, marks, text, expected):
     if marks == 'default':
         marks = Punctuation.default_marks()
