@@ -24,6 +24,9 @@ from phonemizer.phonemize import phonemize
 # True if we are using espeak>=1.49.3
 ESPEAK_143 = (EspeakBackend.version(as_tuple=True) >= (1, 49, 3))
 
+# True if we are using espeak>=1.50
+ESPEAK_150 = (EspeakBackend.version(as_tuple=True) >= (1, 50))
+
 
 @pytest.mark.parametrize(
     'inp, out', [
@@ -168,24 +171,24 @@ def test_issue_54(text):
 @pytest.mark.parametrize(
     'backend, marks, text, expected', [
         ('espeak', 'default', ['"Hey! "', '"hey,"'], ['"heɪ ! "', '"heɪ ,"']),
-        ('espeak', '.!;:,?', ['"Hey! "', '"hey,"'], ['heɪ ! ', 'heɪ ,']),
+        ('espeak', '.!;:,?', ['"Hey! "', '"hey,"'],
+         ['heɪ ! ', 'heɪ ,'] if ESPEAK_150 else [' heɪ ! ', ' heɪ ,']),
         ('espeak', 'default', ['! ?', 'hey!'], ['! ?', 'heɪ !']),
         ('espeak', '!', ['! ?', 'hey!'], ['! ', 'heɪ !']),
         ('segments', 'default', ['! ?', 'hey!'], ['! ?', 'heːj !']),
-        ('segments', '!', ['! ?', 'hey!'], ValueError('invalid grapheme')),
+        ('segments', '!', ['! ?', 'hey!'], ValueError),
         ('festival', 'default', ['! ?', 'hey!'], ['! ?', 'hhey !']),
-        ('festival', '!', ['! ?', 'hey!'], RuntimeError('exit status -11'))])
+        ('festival', '!', ['! ?', 'hey!'], RuntimeError)])
 def test_issue55(backend, marks, text, expected):
     if marks == 'default':
         marks = Punctuation.default_marks()
     language = 'cree' if backend == 'segments' else 'en-us'
 
     if isinstance(expected, Exception):
-        with pytest.raises(type(expected)) as error:
+        with pytest.raises(type(expected)):
             phonemize(
                 text, language=language, backend=backend,
                 preserve_punctuation=True, punctuation_marks=marks)
-        assert str(expected) in str(error)
     else:
         assert expected == phonemize(
             text, language=language, backend=backend,
