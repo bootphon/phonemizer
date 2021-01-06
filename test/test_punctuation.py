@@ -159,7 +159,34 @@ def test_segments():
 @pytest.mark.parametrize(
     'text', ["!'", "'!", "!'!", "'!'"])
 def test_issue_54(text):
-    phn = phonemize(
-        text, language='en-us', backend='espeak',
-        preserve_punctuation=True)
-    assert text.replace("'", '') == phn
+    output = phonemize(
+        text, language='en-us', backend='espeak', preserve_punctuation=True)
+    assert text.replace("'", '') == output
+
+
+# see https://github.com/bootphon/phonemizer/issues/55
+@pytest.mark.parametrize(
+    'backend, marks, text, expected', [
+        ('espeak', 'default', ['"Hey! "', '"hey,"'], ['"heɪ ! "', '"heɪ ,"']),
+        ('espeak', '.!;:,?', ['"Hey! "', '"hey,"'], ['heɪ ! ', 'heɪ ,']),
+        ('espeak', 'default', ['! ?', 'hey!'], ['! ?', 'heɪ !']),
+        ('espeak', '!', ['! ?', 'hey!'], ['! ', 'heɪ !']),
+        ('segments', 'default', ['! ?', 'hey!'], ['! ?', 'heːj !']),
+        ('segments', '!', ['! ?', 'hey!'], ValueError('invalid grapheme')),
+        ('festival', 'default', ['! ?', 'hey!'], ['! ?', 'hhey !']),
+        ('festival', '!', ['! ?', 'hey!'], RuntimeError('exit status -11'))])
+def test_issue55(backend, marks, text, expected):
+    if marks == 'default':
+        marks = Punctuation.default_marks()
+    language = 'cree' if backend == 'segments' else 'en-us'
+
+    if isinstance(expected, Exception):
+        with pytest.raises(type(expected)) as error:
+            phonemize(
+                text, language=language, backend=backend,
+                preserve_punctuation=True, punctuation_marks=marks)
+        assert str(expected) in str(error)
+    else:
+        assert expected == phonemize(
+            text, language=language, backend=backend,
+            preserve_punctuation=True, punctuation_marks=marks)

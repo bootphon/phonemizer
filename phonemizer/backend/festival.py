@@ -127,8 +127,7 @@ class FestivalBackend(BaseBackend):
             return []
         text = self._process(text)
         text = self._postprocess(text, separator, strip)
-
-        return [line for line in text if line.strip() != '']
+        return text
 
     @staticmethod
     def _double_quoted(line):

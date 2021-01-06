@@ -280,8 +280,8 @@ class EspeakBackend(BaseEspeakBackend):
 
                 line, lang_switch = self._postprocess_line(
                     line, separator, strip)
-                if line:
-                    output.append(line)
+                output.append(line)
+
                 if lang_switch:
                     lang_switch_list.append(num)
 
@@ -466,8 +466,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
                     os.remove(data.name)
 
                 line = self._postprocess_line(line, separator, strip)
-                if line:
-                    output.append(line)
+                output.append(line)
 
         return output
 

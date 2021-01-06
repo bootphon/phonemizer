@@ -134,6 +134,9 @@ class BaseBackend:
         if self.preserve_punctuation:
             text = self._punctuator.restore(text, punctuation_marks)
 
+        # remove any empty line in output
+        text = [line for line in text if line]
+
         # output the result formatted as a string or a list of strings
         # according to type(text)
         return (list2str(text) if text_type in six.string_types
