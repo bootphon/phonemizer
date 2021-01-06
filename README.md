@@ -1,5 +1,5 @@
-[![Travis (.org)](https://img.shields.io/travis/bootphon/phonemizer)](
-https://travis-ci.org/bootphon/phonemizer)
+[![Build Status](https://travis-ci.com/bootphon/phonemizer.svg?branch=master)](
+https://travis-ci.com/bootphon/phonemizer)
 [![Codecov](https://img.shields.io/codecov/c/github/bootphon/phonemizer)](
 https://codecov.io/gh/bootphon/phonemizer)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/bootphon/phonemizer)](
