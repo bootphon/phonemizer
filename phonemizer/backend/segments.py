@@ -52,8 +52,14 @@ class SegmentsBackend(BaseBackend):
         return 'segments'
 
     @staticmethod
-    def version():
-        return segments.__version__
+    def version(as_tuple=False):
+        version = segments.__version__
+
+        if as_tuple:  # pragma: nocover
+            # ignore the '-dev' at the end
+            version = version.replace('-dev', '')
+            version = tuple(int(v) for v in version.split('.'))
+        return version
 
     @staticmethod
     def is_available():

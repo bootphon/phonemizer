@@ -70,8 +70,12 @@ class BaseBackend:
 
     @staticmethod
     @abc.abstractmethod
-    def version():
-        """Return the backend version as a string 'major.minor.patch'"""
+    def version(as_tuple=False):
+        """Return the backend version as a string 'major.minor.patch'
+
+        If `as_tuple` is True, returns a tuple (major, minor, patch).
+
+        """
 
     @staticmethod
     @abc.abstractmethod

@@ -27,6 +27,9 @@ ESPEAK_143 = (EspeakBackend.version(as_tuple=True) >= (1, 49, 3))
 # True if we are using espeak>=1.50
 ESPEAK_150 = (EspeakBackend.version(as_tuple=True) >= (1, 50))
 
+# True if we are using festival>=2.5
+FESTIVAL_25 = (FestivalBackend.version(as_tuple=True) >= (2, 5))
+
 
 @pytest.mark.parametrize(
     'inp, out', [
@@ -178,18 +181,19 @@ def test_issue_54(text):
         ('segments', 'default', ['! ?', 'hey!'], ['! ?', 'heːj !']),
         ('segments', '!', ['! ?', 'hey!'], ValueError),
         ('festival', 'default', ['! ?', 'hey!'], ['! ?', 'hhey !']),
-        ('festival', '!', ['! ?', 'hey!'], RuntimeError)])
+        ('festival', '!', ['! ?', 'hey!'],
+         RuntimeError if FESTIVAL_25 else ['! ', 'hhey !'])])
 def test_issue55(backend, marks, text, expected):
     if marks == 'default':
         marks = Punctuation.default_marks()
     language = 'cree' if backend == 'segments' else 'en-us'
 
-    if isinstance(expected, Exception):
-        with pytest.raises(type(expected)):
+    try:
+        with pytest.raises(expected):
             phonemize(
                 text, language=language, backend=backend,
                 preserve_punctuation=True, punctuation_marks=marks)
-    else:
+    except TypeError:
         assert expected == phonemize(
             text, language=language, backend=backend,
             preserve_punctuation=True, punctuation_marks=marks)

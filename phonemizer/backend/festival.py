@@ -87,7 +87,7 @@ class FestivalBackend(BaseBackend):
         return bool(cls.festival_path())
 
     @classmethod
-    def version(cls):
+    def version(cls, as_tuple=False):
         # the full version version string includes extra information
         # we don't need
         long_version = subprocess.check_output(
@@ -96,10 +96,17 @@ class FestivalBackend(BaseBackend):
         # extract the version number with a regular expression
         festival_version_re = r'.* ([0-9\.]+[0-9]):'
         try:
-            return re.match(festival_version_re, long_version).group(1)
+            version = re.match(festival_version_re, long_version).group(1)
         except AttributeError:
             raise RuntimeError(
                 f'cannot extract festival version from {cls.festival_path()}')
+
+        if as_tuple:
+            # ignore the '-dev' at the end
+            version = version.replace('-dev', '')
+            version = tuple(int(v) for v in version.split('.'))
+        return version
+
 
     @staticmethod
     def supported_languages():
