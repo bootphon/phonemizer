@@ -2,6 +2,13 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+## not yet released
+
+* **improvements**
+
+  * phonemizer's logger no more conflicts with other loggers when imported from
+    Python (see PR [#61](https://github.com/bootphon/phonemizer/pull/61)).
+
 ## phonemizer-2.2.2
 
 * **bugfixes**
