@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -23,6 +23,12 @@ from phonemizer.phonemize import phonemize
 
 # True if we are using espeak>=1.49.3
 ESPEAK_143 = (EspeakBackend.version(as_tuple=True) >= (1, 49, 3))
+
+# True if we are using espeak>=1.50
+ESPEAK_150 = (EspeakBackend.version(as_tuple=True) >= (1, 50))
+
+# True if we are using festival>=2.5
+FESTIVAL_25 = (FestivalBackend.version(as_tuple=True) >= (2, 5))
 
 
 @pytest.mark.parametrize(
@@ -159,7 +165,41 @@ def test_segments():
 @pytest.mark.parametrize(
     'text', ["!'", "'!", "!'!", "'!'"])
 def test_issue_54(text):
-    phn = phonemize(
-        text, language='en-us', backend='espeak',
-        preserve_punctuation=True)
-    assert text.replace("'", '') == phn
+    output = phonemize(
+        text, language='en-us', backend='espeak', preserve_punctuation=True)
+    assert text.replace("'", '') == output
+
+
+# see https://github.com/bootphon/phonemizer/issues/55
+@pytest.mark.parametrize(
+    'backend, marks, text, expected', [
+        ('espeak', 'default', ['"Hey! "', '"hey,"'], ['"heɪ ! "', '"heɪ ,"']),
+        ('espeak', '.!;:,?', ['"Hey! "', '"hey,"'],
+         ['heɪ ! ', 'heɪ ,'] if ESPEAK_150 else [' heɪ ! ', ' heɪ ,']),
+        ('espeak', 'default', ['! ?', 'hey!'], ['! ?', 'heɪ !']),
+        ('espeak', '!', ['! ?', 'hey!'], ['! ', 'heɪ !']),
+        ('segments', 'default', ['! ?', 'hey!'], ['! ?', 'heːj !']),
+        ('segments', '!', ['! ?', 'hey!'], ValueError),
+        ('festival', 'default', ['! ?', 'hey!'], ['! ?', 'hhey !']),
+        ('festival', '!', ['! ?', 'hey!'], ['!  ', 'hhey !'])])
+def test_issue55(backend, marks, text, expected):
+    if marks == 'default':
+        marks = Punctuation.default_marks()
+    language = 'cree' if backend == 'segments' else 'en-us'
+
+    try:
+        with pytest.raises(expected):
+            phonemize(
+                text, language=language, backend=backend,
+                preserve_punctuation=True, punctuation_marks=marks)
+    except TypeError:
+        try:
+            assert expected == phonemize(
+                text, language=language, backend=backend,
+                preserve_punctuation=True, punctuation_marks=marks)
+        except RuntimeError:
+            if backend == 'festival':
+                # TODO on some installations festival fails to phonemize "?".
+                # It ends with a segmentation fault. This seems to only appear
+                # with festival-2.5 (but is working on travis and docker image)
+                pass

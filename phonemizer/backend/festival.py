@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -36,16 +36,17 @@ _FESTIVAL_DEFAULT_PATH = None
 
 
 class FestivalBackend(BaseBackend):
+    """Festival backend for the phonemizer"""
     def __init__(self, language,
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
                  logger=get_logger()):
-        super(self.__class__, self).__init__(
+        super().__init__(
             language, punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation, logger=logger)
 
         self.script = get_package_resource('festival/phonemize.scm')
-        self.logger.info('loaded {}'.format(self.script))
+        self.logger.info('loaded %s', self.script)
 
     @staticmethod
     def name():
@@ -53,7 +54,7 @@ class FestivalBackend(BaseBackend):
 
     @staticmethod
     def set_festival_path(fpath):
-        """"""
+        """Sets the festival path as `fpath`"""
         global _FESTIVAL_DEFAULT_PATH
         if not fpath:
             _FESTIVAL_DEFAULT_PATH = None
@@ -67,6 +68,7 @@ class FestivalBackend(BaseBackend):
 
     @staticmethod
     def festival_path():
+        """Returns the absolute path to the festival executable"""
         if 'PHONEMIZER_FESTIVAL_PATH' in os.environ:
             festival = os.environ['PHONEMIZER_FESTIVAL_PATH']
             if not (os.path.isfile(festival) and os.access(festival, os.X_OK)):
@@ -82,10 +84,10 @@ class FestivalBackend(BaseBackend):
 
     @classmethod
     def is_available(cls):
-        return True if cls.festival_path() else False
+        return bool(cls.festival_path())
 
     @classmethod
-    def version(cls):
+    def version(cls, as_tuple=False):
         # the full version version string includes extra information
         # we don't need
         long_version = subprocess.check_output(
@@ -94,10 +96,17 @@ class FestivalBackend(BaseBackend):
         # extract the version number with a regular expression
         festival_version_re = r'.* ([0-9\.]+[0-9]):'
         try:
-            return re.match(festival_version_re, long_version).group(1)
+            version = re.match(festival_version_re, long_version).group(1)
         except AttributeError:
             raise RuntimeError(
                 f'cannot extract festival version from {cls.festival_path()}')
+
+        if as_tuple:
+            # ignore the '-dev' at the end
+            version = version.replace('-dev', '')
+            version = tuple(int(v) for v in version.split('.'))
+        return version
+
 
     @staticmethod
     def supported_languages():
@@ -120,13 +129,12 @@ class FestivalBackend(BaseBackend):
         (typically with unbalanced parenthesis) raises an IndexError.
 
         """
-        a = self._preprocess(text)
-        if len(a) == 0:
+        text = self._preprocess(text)
+        if len(text) == 0:
             return []
-        b = self._process(a)
-        c = self._postprocess(b, separator, strip)
-
-        return [line for line in c if line.strip() != '']
+        text = self._process(text)
+        text = self._postprocess(text, separator, strip)
+        return text
 
     @staticmethod
     def _double_quoted(line):

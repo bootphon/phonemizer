@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -48,13 +48,14 @@ def _read_from_tokens(tokens):
     if len(tokens) == 0:  # pragma: nocover
         raise SyntaxError('unexpected EOF while reading')
     token = tokens.pop(0)
-    if '(' == token:
+    if token == '(':
         L = []
         while tokens[0] != ')':
             L.append(_read_from_tokens(tokens))
         tokens.pop(0)  # pop off ')'
         return L
-    elif ')' == token:  # pragma: nocover
+
+    if token == ')':  # pragma: nocover
         raise SyntaxError('unexpected )')
-    else:
-        return token
+
+    return token

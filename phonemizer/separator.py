@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -15,13 +15,13 @@
 """Provides the Separator tuple and its default value"""
 
 
-class Separator(object):
+class Separator:
     """Defines phone, syllable and word boundary tokens"""
     def __init__(self, word=' ', syllable=None, phone=None):
         # check we have different separators, None excluded
-        g1 = list(sep for sep in (phone, syllable, word) if sep)
-        g2 = set(sep for sep in (phone, syllable, word) if sep)
-        if len(g1) != len(g2):
+        sep1 = list(sep for sep in (phone, syllable, word) if sep)
+        sep2 = set(sep for sep in (phone, syllable, word) if sep)
+        if len(sep1) != len(sep2):
             raise ValueError(
                 'illegal separator with word="{}", syllable="{}" and '
                 'phone="{}", must be all differents if not empty'
@@ -38,22 +38,24 @@ class Separator(object):
             and self.word == other.word)
 
     def __str__(self):
-        def format(s):
-            return '"{}"'.format(s)
-
-        return '(phone: {}, syllable: {}, word: {})'.format(
-            format(self.phone), format(self.syllable), format(self.word))
+        return (
+            f'(phone: "{self.phone}", '
+            f'syllable: "{self.syllable}", '
+            f'word: "{self.word}")')
 
     @property
     def phone(self):
+        """Phones separator"""
         return self._phone
 
     @property
     def syllable(self):
+        """Syllables separator"""
         return self._syllable
 
     @property
     def word(self):
+        """Words separator"""
         return self._word
 
 

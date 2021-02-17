@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@ import logging
 import sys
 
 
-def get_logger(verbosity='normal'):
+def get_logger(verbosity='quiet'):
     """Returns a configured logging.Logger instance
 
     The logger is configured to output messages on the standard error stream
@@ -41,8 +41,8 @@ def get_logger(verbosity='normal'):
         raise RuntimeError(
             f'verbosity is {verbosity} but must be in '
             f'{", ".join(valid_verbosity)}')
-
-    logger = logging.getLogger()
+    
+    logger = logging.getLogger('phonemizer')
 
     # setup output to stderr
     logger.handlers = []

@@ -1,9 +1,21 @@
-dist: bionic
+dist: focal
 language: python
 python:
   - "3.6"
   - "3.7"
   - "3.8"
+
+addons:
+  apt:
+    update: true
+    packages:
+      - festival
+      - festvox-us1
+      - festlex-cmu
+      - festlex-poslex
+      - espeak-ng
+      - mbrola
+      - mbrola-fr1
 
 # no need of git history
 git:
@@ -13,10 +25,6 @@ git:
 branches:
   only:
     - master
-
-before_install:
-  - sudo apt-get update
-  - sudo apt-get -y install festival festvox-us1 festlex-cmu festlex-poslex espeak-ng mbrola mbrola-fr1
 
 install:
   - pip install --upgrade pip

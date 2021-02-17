@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@ from phonemizer.backend import (
 def version():
     """Return version information for front and backends"""
     # version of the phonemizer
-    version = (
+    _version = (
         'phonemizer-' + pkg_resources.get_distribution('phonemizer').version)
 
     # for each backend, check if it is available or not. If so get its version
@@ -55,8 +55,8 @@ def version():
 
     # resumes the backends status in the final version string
     if available:
-        version += '\navailable backends: ' + ', '.join(available)
+        _version += '\navailable backends: ' + ', '.join(available)
     if unavailable:  # pragma: nocover
-        version += '\nuninstalled backends: ' + ', '.join(unavailable)
+        _version += '\nuninstalled backends: ' + ', '.join(unavailable)
 
-    return version
+    return _version

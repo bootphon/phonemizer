@@ -4,13 +4,27 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 ## not yet released
 
+* **improvements**
+
+  * phonemizer's logger no more conflicts with other loggers when imported from
+    Python (see PR [#61](https://github.com/bootphon/phonemizer/pull/61)).
+
+## phonemizer-2.2.2
+
 * **bugfixes**
+
+  * Fixed installation from source (bug introduced in 2.2.1, see
+    issue [#52](https://github.com/bootphon/phonemizer/issues/52)).
 
   * Fixed a bug when trying to restore punctuation on an empty text (see issue
     [#54](https://github.com/bootphon/phonemizer/issues/54)).
 
-  * Fixed installation from source (bug introduced in 2.2.1, see
-    issue [#52](https://github.com/bootphon/phonemizer/issues/52)).
+  * Fixed an edge case bug when using custom punctuation marks (see issue
+    [#55](https://github.com/bootphon/phonemizer/issues/55)).
+
+  * Fixed regex issue that causes digits to be considered punctuation (see
+    issue [#60](https://github.com/bootphon/phonemizer/pull/60)).
+
 
 ## phonemizer-2.2.1
 

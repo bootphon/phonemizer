@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -32,8 +32,8 @@ _MarkIndex = collections.namedtuple(
 class Punctuation:
     """Preserve or remove the punctuation during phonemization
 
-    Backends behave differently with punctuation: festival and espeak with
-    ignore it and remove ot silently whereas segments will raise an error. The
+    Backends behave differently with punctuation: festival and espeak ignore it
+    and remove it silently whereas segments will raise an error. The
     Punctuation class solves that issue by "hiding" the punctuation to the
     phonemization backend and restoring it afterwards.
 
@@ -67,7 +67,7 @@ class Punctuation:
 
         # catching all the marks in one regular expression: zero or more spaces
         # + one or more marks + zero or more spaces.
-        self._marks_re = re.compile(fr'(\s*[{self._marks}]+\s*)+')
+        self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
 
     def remove(self, text):
         """Returns the `text` with all punctuation marks replaced by spaces
@@ -180,5 +180,5 @@ class Punctuation:
                     [text[0] + current.mark + text[1]] + text[2:],
                     marks[1:], num)
             return restored
-        else:
-            return [text[0]] + cls._restore_aux(text[1:], marks, num + 1)
+
+        return [text[0]] + cls._restore_aux(text[1:], marks, num + 1)

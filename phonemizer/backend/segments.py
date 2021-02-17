@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -52,8 +52,14 @@ class SegmentsBackend(BaseBackend):
         return 'segments'
 
     @staticmethod
-    def version():
-        return segments.__version__
+    def version(as_tuple=False):
+        version = segments.__version__
+
+        if as_tuple:  # pragma: nocover
+            # ignore the '-dev' at the end
+            version = version.replace('-dev', '')
+            version = tuple(int(v) for v in version.split('.'))
+        return version
 
     @staticmethod
     def is_available():
@@ -99,12 +105,13 @@ class SegmentsBackend(BaseBackend):
         # load the mapping grapheme -> phoneme from the file, make sure all
         # lines are well formatted
         g2p = {}
-        for n, line in enumerate(codecs.open(language, 'r', encoding='utf8')):
+        for num, line in enumerate(
+                codecs.open(language, 'r', encoding='utf8')):
             elts = line.strip().split()
             if not len(elts) == 2:
                 raise RuntimeError(
                     'grapheme to phoneme file, line {} must have 2 rows '
-                    'but have {}: {}'.format(n+1, len(elts), language))
+                    'but have {}: {}'.format(num + 1, len(elts), language))
 
             g2p[elts[0]] = elts[1]
 
@@ -116,7 +123,7 @@ class SegmentsBackend(BaseBackend):
         # tokenize the input text per utterance
         phonemized = (
             self.tokenizer(line, column='mapping', errors='strict')
-            for line in text.split('\n') if line)
+            for line in text.split('\n'))
 
         # the output of segments is always strip, so we need to add
         # token separation at the end when strip is False.
