@@ -201,37 +201,53 @@ class EspeakBackend(BaseEspeakBackend):
             text, lang_switches = self._phonemize_aux(
                 list2str(text), separator, strip)
         else:
-            # If using parallel jobs, disable the log as stderr is not
-            # picklable.
-            self.logger.info('running %s on %s jobs', self.name(), njobs)
-            log_storage = self.logger
-            self.logger = None
-
-            # divide the input text in chunks, each chunk being processed in a
-            # separate job
-            text_chunks = chunks(text, njobs)
-
-            # offset used below to recover the line numbers in the input text
-            # wrt the chunks
+            text_chunks = text.split('\n')
             offset = [0] + cumsum((c.count('\n')+1 for c in text_chunks[:-1]))
-
-            # we have here a list of (phonemized chunk, lang_switches)
             output = joblib.Parallel(n_jobs=njobs)(
                 joblib.delayed(self._phonemize_aux)(t, separator, strip)
                 for t in text_chunks)
 
-            # flatten both the phonemized chunks and language switches in a
-            # list. For language switches lines we need to add an offset to
-            # have the correct lines numbers wrt the input text.
             text = list(itertools.chain(*(chunk[0] for chunk in output)))
             lang_switches = [chunk[1] for chunk in output]
+            
             for i, _ in enumerate(lang_switches):
                 for j, _ in enumerate(lang_switches[i]):
                     lang_switches[i][j] += offset[i]
             lang_switches = list(itertools.chain(*lang_switches))
 
-            # restore the log as it was before parallel processing
-            self.logger = log_storage
+
+        # else:
+        #     # If using parallel jobs, disable the log as stderr is not
+        #     # picklable.
+        #     self.logger.info('running %s on %s jobs', self.name(), njobs)
+        #     log_storage = self.logger
+        #     self.logger = None
+
+        #     # divide the input text in chunks, each chunk being processed in a
+        #     # separate job
+        #     text_chunks = chunks(text, njobs)
+
+        #     # offset used below to recover the line numbers in the input text
+        #     # wrt the chunks
+        #     offset = [0] + cumsum((c.count('\n')+1 for c in text_chunks[:-1]))
+
+        #     # we have here a list of (phonemized chunk, lang_switches)
+        #     output = joblib.Parallel(n_jobs=njobs)(
+        #         joblib.delayed(self._phonemize_aux)(t, separator, strip)
+        #         for t in text_chunks)
+
+        #     # flatten both the phonemized chunks and language switches in a
+        #     # list. For language switches lines we need to add an offset to
+        #     # have the correct lines numbers wrt the input text.
+        #     text = list(itertools.chain(*(chunk[0] for chunk in output)))
+        #     lang_switches = [chunk[1] for chunk in output]
+        #     for i, _ in enumerate(lang_switches):
+        #         for j, _ in enumerate(lang_switches[i]):
+        #             lang_switches[i][j] += offset[i]
+        #     lang_switches = list(itertools.chain(*lang_switches))
+
+        #     # restore the log as it was before parallel processing
+        #     self.logger = log_storage
 
         # warn the user if language switches occured during phonemization
         self._warn_on_lang_switch(lang_switches)
