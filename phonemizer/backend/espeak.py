@@ -226,11 +226,11 @@ class EspeakBackend(BaseEspeakBackend):
         #             lang_switches[i][j] += offset[i]
         #     lang_switches = list(itertools.chain(*lang_switches))
         else:
-            text_chunks = chunks(text, njobs)
+            cpu_count = min(len(text), os.cpu_count())
+            text_chunks = chunks(text, cpu_count)
             logging.warn(text)
             logging.warn(text_chunks)
 
-            cpu_count = min(len(text_chunks), os.cpu_count())
             # If using parallel jobs, disable the log as stderr is not
             # picklable.
             self.logger.info('running %s on %s jobs', self.name(), cpu_count)
