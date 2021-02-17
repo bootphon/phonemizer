@@ -33,6 +33,9 @@ from phonemizer.separator import default_separator
 from phonemizer.utils import list2str, chunks, cumsum
 
 
+import logging
+
+
 # a regular expression to find language switching flags in espeak output,
 # Switches have the following form (here a switch from English to French):
 # "something (fr) quelque chose (en) another thing".
@@ -196,65 +199,78 @@ class EspeakBackend(BaseEspeakBackend):
         text, text_type, punctuation_marks = self._phonemize_preprocess(text)
         lang_switches = []
 
+        import time
+        start = time.time()
+
         if njobs == 1:
             # phonemize the text forced as a string
             text, lang_switches = self._phonemize_aux(
                 list2str(text), separator, strip)
+        # else:
+        #     text_chunks = text
+        #     offset = [0] + cumsum((c.count('\n')+1 for c in text_chunks[:-1]))
+
+        #     print(f"BEFORE PARALLEL: {time.time() - start}")
+
+        #     jobs = min(len(text_chunks), njobs)
+        #     output = joblib.Parallel(n_jobs=jobs)(
+        #         joblib.delayed(self._phonemize_aux)(t, separator, strip)
+        #         for t in text_chunks)
+
+        #     print(f"AFTER PARALLEL: {time.time() - start}")
+        #     text = list(itertools.chain(*(chunk[0] for chunk in output)))
+        #     lang_switches = [chunk[1] for chunk in output]
+        #     print(f"PUT TOGETHER: {time.time() - start}")
+        #     for i, _ in enumerate(lang_switches):
+        #         for j, _ in enumerate(lang_switches[i]):
+        #             lang_switches[i][j] += offset[i]
+        #     lang_switches = list(itertools.chain(*lang_switches))
         else:
-            text_chunks = text
+            text_chunks = chunks(text, njobs)
+            logging.warn(text)
+            logging.warn(text_chunks)
+
+            cpu_count = min(len(text_chunks), os.cpu_count())
+            # If using parallel jobs, disable the log as stderr is not
+            # picklable.
+            self.logger.info('running %s on %s jobs', self.name(), cpu_count)
+            log_storage = self.logger
+            self.logger = None
+
+            # divide the input text in chunks, each chunk being processed in a
+            # separate job
+            
+
+            # offset used below to recover the line numbers in the input text
+            # wrt the chunks
             offset = [0] + cumsum((c.count('\n')+1 for c in text_chunks[:-1]))
-            output = joblib.Parallel(n_jobs=njobs)(
+
+            # we have here a list of (phonemized chunk, lang_switches)
+            output = joblib.Parallel(n_jobs=cpu_count)(
                 joblib.delayed(self._phonemize_aux)(t, separator, strip)
                 for t in text_chunks)
 
+            # flatten both the phonemized chunks and language switches in a
+            # list. For language switches lines we need to add an offset to
+            # have the correct lines numbers wrt the input text.
             text = list(itertools.chain(*(chunk[0] for chunk in output)))
             lang_switches = [chunk[1] for chunk in output]
-            
             for i, _ in enumerate(lang_switches):
                 for j, _ in enumerate(lang_switches[i]):
                     lang_switches[i][j] += offset[i]
             lang_switches = list(itertools.chain(*lang_switches))
 
-
-        # else:
-        #     # If using parallel jobs, disable the log as stderr is not
-        #     # picklable.
-        #     self.logger.info('running %s on %s jobs', self.name(), njobs)
-        #     log_storage = self.logger
-        #     self.logger = None
-
-        #     # divide the input text in chunks, each chunk being processed in a
-        #     # separate job
-        #     text_chunks = chunks(text, njobs)
-
-        #     # offset used below to recover the line numbers in the input text
-        #     # wrt the chunks
-        #     offset = [0] + cumsum((c.count('\n')+1 for c in text_chunks[:-1]))
-
-        #     # we have here a list of (phonemized chunk, lang_switches)
-        #     output = joblib.Parallel(n_jobs=njobs)(
-        #         joblib.delayed(self._phonemize_aux)(t, separator, strip)
-        #         for t in text_chunks)
-
-        #     # flatten both the phonemized chunks and language switches in a
-        #     # list. For language switches lines we need to add an offset to
-        #     # have the correct lines numbers wrt the input text.
-        #     text = list(itertools.chain(*(chunk[0] for chunk in output)))
-        #     lang_switches = [chunk[1] for chunk in output]
-        #     for i, _ in enumerate(lang_switches):
-        #         for j, _ in enumerate(lang_switches[i]):
-        #             lang_switches[i][j] += offset[i]
-        #     lang_switches = list(itertools.chain(*lang_switches))
-
-        #     # restore the log as it was before parallel processing
-        #     self.logger = log_storage
+            # restore the log as it was before parallel processing
+            self.logger = log_storage
 
         # warn the user if language switches occured during phonemization
         self._warn_on_lang_switch(lang_switches)
 
         # finally restore the punctuation
-        return self._phonemize_postprocess(
+        x = self._phonemize_postprocess(
             text, text_type, punctuation_marks)
+        logging.warn(f"AFTER _phonemize_postprocess: {time.time() - start}")
+        return x
 
     def _command(self, fname):
         return (
@@ -262,6 +278,8 @@ class EspeakBackend(BaseEspeakBackend):
             f'-q -f {fname} {self.sep}')
 
     def _phonemize_aux(self, text, separator, strip):
+        import time
+        start = time.time()
         output = []
         lang_switch_list = []
         for num, line in enumerate(text.split('\n'), start=1):
@@ -278,11 +296,13 @@ class EspeakBackend(BaseEspeakBackend):
                         self.logger.debug('running %s', command)
 
                     # run the command
+                    t = time.time()
                     completed = subprocess.run(
                         shlex.split(command, posix=False),
                         check=False,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE)
+                    logging.warn(f"SUBPRO: {time.time() - t}")
 
                     # retrieve the output line (raw phonemization)
                     line = completed.stdout.decode('utf8')
@@ -307,6 +327,7 @@ class EspeakBackend(BaseEspeakBackend):
                 if lang_switch:
                     lang_switch_list.append(num)
 
+        logging.warn(f"FINISHED: {time.time() - start}")
         return output, lang_switch_list
 
     def _postprocess_line(self, line, separator, strip):
