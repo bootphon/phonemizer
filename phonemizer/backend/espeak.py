@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,13 +17,14 @@
 import abc
 import distutils.spawn
 import itertools
-import joblib
 import os
 import re
 import shlex
 import subprocess
 import tempfile
 from functools import lru_cache
+
+import joblib
 
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
@@ -90,7 +91,7 @@ class BaseEspeakBackend(BaseBackend):
     @classmethod
     @lru_cache(maxsize=None)
     def is_available(cls):
-        return True if cls.espeak_path() else False
+        return bool(cls.espeak_path())
 
     @classmethod
     @lru_cache(maxsize=None)
@@ -135,7 +136,7 @@ class BaseEspeakBackend(BaseBackend):
         pass
 
     @abc.abstractmethod
-    def _postprocess_line(self, line, num, separator, strip):
+    def _postprocess_line(self, line, separator, strip):
         pass
 
 
@@ -200,23 +201,23 @@ class EspeakBackend(BaseEspeakBackend):
             text, lang_switches = self._phonemize_aux(
                 list2str(text), separator, strip)
         else:
+            # divide the input text in chunks, each chunk being processed in a
+            # separate job
+            cpu_count = min(len(text), os.cpu_count())
+            text_chunks = chunks(text, cpu_count)
+
             # If using parallel jobs, disable the log as stderr is not
             # picklable.
-            self.logger.info('running %s on %s jobs', self.name(), njobs)
+            self.logger.info('running %s on %s jobs', self.name(), cpu_count)
             log_storage = self.logger
             self.logger = None
 
-            # divide the input text in chunks, each chunk being processed in a
-            # separate job
-            text_chunks = chunks(text, njobs)
-
             # offset used below to recover the line numbers in the input text
             # wrt the chunks
-            offset = [0] + cumsum(
-                (c.count('\n') + 1 for c in text_chunks[:-1]))
+            offset = [0] + cumsum((c.count('\n')+1 for c in text_chunks[:-1]))
 
             # we have here a list of (phonemized chunk, lang_switches)
-            output = joblib.Parallel(n_jobs=njobs)(
+            output = joblib.Parallel(n_jobs=cpu_count)(
                 joblib.delayed(self._phonemize_aux)(t, separator, strip)
                 for t in text_chunks)
 
@@ -225,8 +226,8 @@ class EspeakBackend(BaseEspeakBackend):
             # have the correct lines numbers wrt the input text.
             text = list(itertools.chain(*(chunk[0] for chunk in output)))
             lang_switches = [chunk[1] for chunk in output]
-            for i in range(len(lang_switches)):
-                for j in range(len(lang_switches[i])):
+            for i, _ in enumerate(lang_switches):
+                for j, _ in enumerate(lang_switches[i]):
                     lang_switches[i][j] += offset[i]
             lang_switches = list(itertools.chain(*lang_switches))
 
@@ -264,6 +265,7 @@ class EspeakBackend(BaseEspeakBackend):
                     # run the command
                     completed = subprocess.run(
                         shlex.split(command, posix=False),
+                        check=False,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE)
 
@@ -284,15 +286,15 @@ class EspeakBackend(BaseEspeakBackend):
                     os.remove(data.name)
 
                 line, lang_switch = self._postprocess_line(
-                    line, num, separator, strip)
-                if line:
-                    output.append(line)
+                    line, separator, strip)
+                output.append(line)
+
                 if lang_switch:
                     lang_switch_list.append(num)
 
         return output, lang_switch_list
 
-    def _postprocess_line(self, line, num, separator, strip):
+    def _postprocess_line(self, line, separator, strip):
         # espeak can split an utterance into several lines because
         # of punctuation, here we merge the lines into a single one
         line = line.strip().replace('\n', ' ').replace('  ', ' ')
@@ -303,7 +305,7 @@ class EspeakBackend(BaseEspeakBackend):
         line = re.sub(r'_+', '_', line)
         line = re.sub(r'_ ', ' ', line)
 
-        line, lang_switch = self._process_lang_switch(num, line)
+        line, lang_switch = self._process_lang_switch(line)
         if not line:
             return '', lang_switch
 
@@ -328,17 +330,13 @@ class EspeakBackend(BaseEspeakBackend):
 
         return out_line, lang_switch
 
-    def _process_lang_switch(self, num, utt):
+    def _process_lang_switch(self, utt):
         # look for language swith in the current utterance
         flags = re.findall(_ESPEAK_FLAGS_RE, utt)
 
         # no language switch, nothing to do
         if not flags:
             return utt, False
-
-        # # language switch detected, register the line number
-        # print(f'append {num}')
-        # self._lang_switch_list.append(num)
 
         # ignore the language switch but warn if one is found
         if self._lang_switch == 'keep-flags':
@@ -386,8 +384,6 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
     # this will be initialized once, at the first call to supported_languages()
     _supported_languages = None
 
-    _lang_switch_list = []
-
     def __init__(self, language, logger=get_logger()):
         super().__init__(language, logger=logger)
         self.logger.debug('espeak is %s', self.espeak_path())
@@ -419,6 +415,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         completed = subprocess.run(
             shlex.split(command, posix=False),
             input=b'',
+            check=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         if completed.stderr.decode('utf8'):
@@ -439,7 +436,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
 
     def _phonemize_aux(self, text, separator, strip):
         output = []
-        for num, line in enumerate(text.split('\n'), start=1):
+        for line in text.split('\n'):
             with tempfile.NamedTemporaryFile(
                     'w+', encoding='utf8', delete=False) as data:
                 try:
@@ -455,6 +452,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
                     # run the command
                     completed = subprocess.run(
                         shlex.split(command, posix=False),
+                        check=False,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE)
 
@@ -474,13 +472,12 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
                 finally:
                     os.remove(data.name)
 
-                line = self._postprocess_line(line, num, separator, strip)
-                if line:
-                    output.append(line)
+                line = self._postprocess_line(line, separator, strip)
+                output.append(line)
 
         return output
 
-    def _postprocess_line(self, line, num, separator, strip):
+    def _postprocess_line(self, line, separator, strip):
         # retrieve the phonemes with the correct SAMPA alphabet (but
         # without word separation)
         phonemes = (

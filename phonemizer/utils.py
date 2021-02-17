@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,14 +19,14 @@ import pkg_resources
 import six
 
 
-def cumsum(l):
-    """Returns the cumulative sum of the list `l`"""
-    r = []
-    c = 0
-    for e in l:
-        c += e
-        r.append(c)
-    return r
+def cumsum(iterable):
+    """Returns the cumulative sum of the `iterable` as a list"""
+    res = []
+    cumulative = 0
+    for value in iterable:
+        cumulative += value
+        res.append(cumulative)
+    return res
 
 
 def str2list(s):
@@ -39,12 +39,12 @@ def list2str(s):
     return '\n'.join(s) if not isinstance(s, six.string_types) else s
 
 
-def chunks(text, n):
-    """Return a maximum of `n` equally sized chunks of a `text`
+def chunks(text, num):
+    """Return a maximum of `num` equally sized chunks of a `text`
 
     This method is usefull when phonemizing a single text on multiple jobs.
 
-    The exact number of chunks eturned is `m = min(n, len(str2list(text)))`.
+    The exact number of chunks returned is `m = min(num, len(str2list(text)))`.
     Only the m-1 first chunks have equal size. The last chunk can be longer.
     The input `text` can be a list or a string. Return a list of `m` strings.
 
@@ -52,7 +52,8 @@ def chunks(text, n):
     ----------
     text (str or list) : The text to divide in chunks
 
-    n (int) : The number of chunks to build, must be an integer greater than 0.
+    num (int) : The number of chunks to build, must be a strictly positive
+    integer.
 
     Returns
     -------
@@ -60,16 +61,16 @@ def chunks(text, n):
 
     """
     text = str2list(text)
-    size = int(max(1, len(text)/n))
-    m = min(n, len(text))
+    size = int(max(1, len(text) / num))
+    nchunks = min(num, len(text))
 
-    chunks = [list2str(text[i*size:(i+1)*size]) for i in range(m-1)]
+    result = [list2str(text[i*size:(i+1)*size]) for i in range(nchunks - 1)]
 
-    last = list2str(text[(m-1)*size:])
+    last = list2str(text[(nchunks - 1)*size:])
     if last:
-        chunks.append(last)
+        result.append(last)
 
-    return chunks
+    return result
 
 
 def get_package_resource(path):

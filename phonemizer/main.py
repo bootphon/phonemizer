@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ BACKENDS_MAP = {b.name(): b for b in (
         EspeakBackend, FestivalBackend, SegmentsBackend, EspeakMbrolaBackend)}
 
 
-class CatchExceptions(object):  # pragma: nocover
+class CatchExceptions:  # pragma: nocover
     """Decorator wrapping a function in a try/except block
 
     When an exception occurs, display a user friendly message on

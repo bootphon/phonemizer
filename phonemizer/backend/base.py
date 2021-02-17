@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonemizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@ from phonemizer.punctuation import Punctuation
 from phonemizer.utils import list2str, str2list, chunks
 
 
-class BaseBackend(object):
+class BaseBackend:
     """Abstract base class of all the phonemization backends
 
     Provides a common interface to all backends. The central method is
@@ -62,28 +62,27 @@ class BaseBackend(object):
     @abc.abstractmethod
     def name():
         """The name of the backend"""
-        pass
 
     @classmethod
     @abc.abstractmethod
     def is_available(cls):
         """Returns True if the backend is installed, False otherwise"""
-        pass
 
     @staticmethod
     @abc.abstractmethod
-    def version():
-        """Return the backend version as a string 'major.minor.patch'"""
-        pass
+    def version(as_tuple=False):
+        """Return the backend version as a string 'major.minor.patch'
+
+        If `as_tuple` is True, returns a tuple (major, minor, patch).
+
+        """
 
     @staticmethod
     @abc.abstractmethod
     def supported_languages():
         """Return a dict of language codes -> name supported by the backend"""
-        pass
 
     @classmethod
-    @abc.abstractmethod
     def is_supported_language(cls, language):
         """Returns True if `language` is supported by the backend"""
         return language in cls.supported_languages()
@@ -138,6 +137,9 @@ class BaseBackend(object):
         # restore the punctuation is asked for
         if self.preserve_punctuation:
             text = self._punctuator.restore(text, punctuation_marks)
+
+        # remove any empty line in output
+        text = [line for line in text if line]
 
         # output the result formatted as a string or a list of strings
         # according to type(text)

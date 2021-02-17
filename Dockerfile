@@ -22,6 +22,9 @@ WORKDIR /phonemizer
 # install dependencies
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         festival \
+        festvox-us1 \
+        festlex-cmu \
+        festlex-poslex \
         espeak-ng \
         git \
         mbrola \

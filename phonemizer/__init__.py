@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Mathieu Bernard
+# Copyright 2015-2021 Mathieu Bernard
 #
 # This file is part of phonologizer: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
 """Multilingual text to phones converter"""
 
-__version__ = '2.2.1-resemble'
+__version__ = '2.2.2-resemble'
 
 
 try:  # pragma: nocover
@@ -28,6 +28,7 @@ except NameError:
 
 if __PHONEMIZER_SETUP__:  # pragma: nocover
     import sys
-    sys.stderr.write('Partial import of phonemizer during the build process.\n')
+    sys.stderr.write(
+        'Partial import of phonemizer during the build process.\n')
 else:
     from .phonemize import phonemize
