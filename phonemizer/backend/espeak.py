@@ -201,7 +201,7 @@ class EspeakBackend(BaseEspeakBackend):
             text, lang_switches = self._phonemize_aux(
                 list2str(text), separator, strip)
         else:
-            text_chunks = text.split('\n')
+            text_chunks = text
             offset = [0] + cumsum((c.count('\n')+1 for c in text_chunks[:-1]))
             output = joblib.Parallel(n_jobs=njobs)(
                 joblib.delayed(self._phonemize_aux)(t, separator, strip)
