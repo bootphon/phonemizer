@@ -76,7 +76,7 @@ the phonemizer.
 ### Docker image
 
 Alternatively you can run the phonemizer within docker, using the
-provided `Dockerfile**. To build the docker image, have a:
+provided `Dockerfile`. To build the docker image, have a:
 
     $ git clone https://github.com/bootphon/phonemizer
     $ cd phonemizer
