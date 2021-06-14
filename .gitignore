@@ -8,3 +8,5 @@
 htmlcov/*
 .eggs/*
 test/htmlcov
+paper/paper.pdf
+paper/auto/*
