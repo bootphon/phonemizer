@@ -19,14 +19,48 @@ bibliography: paper.bib
 
 # Summary
 
-The `phonemizer` software is used to turn an input text into phonetic alphabet.
+The `phonemizer` software is used to turn an input text from its orthographic
+representation into a phonetic transcription.
+
 A wrapper on four different backends:
 
-- espeak
-- espeak-mbrola
-- Festival [@festival:2014]
-- Segments [@forkel:2019]
+- Espeak [@espeakng:2019] is the default backend used by ``phonemizer`. It is a
+  text-to-speech (TTS) software that supports more than a hundred languages.
 
+- Espeak-mbrola [@mbrola:2019]
+
+- Festival [@festival:2014] is another TTS software. It's backend in
+  ``phonemizer`` is available for American English and uses a [custom
+  phoneset](http://www.festvox.org/bsv/c4711.html) for transcription. This
+  backend is the only one to support tokenization at the syllable level.
+
+- Segments [@forkel:2019] is a Python package providing Unicode Standard
+  tokenization routines and orthography segmentation. It's `phonemizer` backend
+  relies on a grapheme to phoneme mapping to generate the phonemization. This
+  backend is mostly usefull for low-resource languages, where users can use
+  their own mappings. Six languages are provided as exemples with `phonemizer`:
+  Chintang, Cree, Inuktitut, Japanese, Sesotho and Yucatec.
+
+
+Avaibable functionalities:
+
+- Usage as a single function `phonemizer.phonemize` or using the command-line `phonemize`.
+
+- Customization of tokenization symbols at phone, syllable and word level. For instance
+
+<!-- A `hello world` example in Python: -->
+<!-- ```python -->
+<!-- >>> from phonemizer import phonemize -->
+<!-- >>> phonemize('hello world') -->
+<!-- 'hhaxlow werld ' -->
+<!-- ``` -->
+
+<!-- The same from command-line interface: -->
+
+<!-- ```bash -->
+<!-- $ echo "hello world" | phonemize --backend festival -->
+<!-- hhaxlow werld -->
+<!-- ``` -->
 
 # Statement of Need
 
@@ -34,7 +68,7 @@ Text phonemization is a preprocessing step required in different fields of
 natural language processing and speech processing. The `phonemizer` is used for
 word segmentation in the [wordseg toolbox](https://github.com/bootphon/wordseg)
 [@bernard:2020]. It is also in use in the preprocessing pipeline of deep
-learning text-to-speech systems [@zhang:2020; @mozilla:2021; @asideas:2021].
+learning TTS systems [@zhang:2020; @mozilla:2021; @asideas:2021].
 
 
 # Acknowledgements
