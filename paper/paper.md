@@ -9,6 +9,9 @@ authors:
   - name: Mathieu Bernard
     orcid: 0000-0001-7586-7133
     affiliation: 1
+  - name: Hadrien Titeux
+    orcid: 0000-0002-8511-1644
+    affiliation: 1
 affiliations:
   - name: LSCP/ENS/CNRS/EHESS/Inria/PSL Research University, Paris, France
     index: 1
