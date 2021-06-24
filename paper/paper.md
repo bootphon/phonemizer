@@ -27,21 +27,24 @@ are built. The transcription of texts from their orthographic form into a
 phonetic alphabet is an important requirement in various applications related to
 speech and language processing, for instance for text to speech systems.
 `Phonemizer` is a Python package addressing precisely this issue: it transcribes
-a text from it's orthographic representation into a phonetic one. The package is
+a text from its orthographic representation into a phonetic one. The package is
 user-friendly and exposes a single `phonemize` function, also available as a
 command-line interface. It supports about a hundred different languages and
 provides end-user functionalities such as punctuation preservation, phones
 accentuation, tokenization at phone/syllable/word levels, as well as parallel
-processing of large input texts. Whereas those high-level features are
-implemented directly by `phonemizer`, the phonetic transcription itself is
-delegated to third party backends, wrapped in an homogoneous interface by the
-package.
+processing of large input texts.
 
-The default backend used by `phonemizer` is eSpeak [@espeak:2019], a text to
-speech software built on linguistic expertise and hand written transcription
-rules. It transcribes text into the International Phonetic Alphabet and supports
-more than a hundred languages. Using MBROLA voices [@mbrola:2019], available for
-35 languages, the eSpeak backend transcribes text in the SAMPA computer readable
+
+# Statement of Need
+
+Whereas the high-level features introduced above are implemented directly by
+`phonemizer`, the phonetic transcription itself is delegated to third party
+backends, wrapped in an homogoneous interface by the package. The default
+backend used by `phonemizer` is eSpeak [@espeak:2019], a text to speech software
+built on linguistic expertise and hand written transcription rules. It
+transcribes text into the International Phonetic Alphabet and supports more than
+a hundred languages. Using MBROLA voices [@mbrola:2019], available for 35
+languages, the eSpeak backend transcribes text in the SAMPA computer readable
 phonetic alphabet. Festival [@festival:2014] is another text to speech software
 used as a backend for `phonemizer`. It is available for American English only,
 and uses a non standard phoneset for transcription, but this backend is the only
@@ -53,9 +56,6 @@ transcription. This backend is mostly usefull for low-resource languages, for
 which users with linguistic expertise can write their own mappings. Six
 languages are provided as exemples with `phonemizer`: Chintang, Cree, Inuktitut,
 Japanese, Sesotho and Yucatec.
-
-
-# Statement of Need
 
 Text to phones transcription is a critical need in different applications
 related to natural language and speech processing. So far, the `phonemizer`
