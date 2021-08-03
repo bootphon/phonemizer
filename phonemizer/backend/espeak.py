@@ -203,7 +203,7 @@ class EspeakBackend(BaseEspeakBackend):
         else:
             # divide the input text in chunks, each chunk being processed in a
             # separate job
-            cpu_count = min(len(text), os.cpu_count())
+            cpu_count = os.cpu_count() if njobs == -1 else njobs
             text_chunks = chunks(text, cpu_count)
 
             # If using parallel jobs, disable the log as stderr is not
