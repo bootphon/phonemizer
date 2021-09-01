@@ -27,6 +27,14 @@ def test_bad_backend():
     with pytest.raises(RuntimeError):
         phonemize('', backend='foo')
 
+    with pytest.raises(RuntimeError):
+        phonemize('', tie=True, backend='festival')
+    with pytest.raises(RuntimeError):
+        phonemize('', tie=True, backend='mbrola')
+    with pytest.raises(RuntimeError):
+        phonemize('', tie=True, backend='segments')
+
+
 
 def test_bad_language():
     with pytest.raises(RuntimeError):

@@ -206,6 +206,11 @@ Exemples:
 
     group = parser.add_argument_group('specific to espeak backend')
     group.add_argument(
+        '--tie', nargs='?', default=False, const=True, metavar='<chr>',
+        help='''when the option is set, use a tie character within multi-letter
+        phoneme names, default to U+361 (as in d͡ʒ), 'z' means ZWJ character,
+        only compatible with espeak>1.48''')
+    group.add_argument(
         '--with-stress', action='store_true',
         help='''when the option is set, the stresses on phonemes are present
         (stresses characters are ˈ'ˌ). By default stresses are removed.''')
@@ -331,6 +336,7 @@ def main():
         preserve_punctuation=args.preserve_punctuation,
         punctuation_marks=args.punctuation_marks,
         with_stress=args.with_stress,
+        tie=args.tie,
         language_switch=args.language_switch,
         njobs=args.njobs,
         logger=log)

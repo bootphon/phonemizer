@@ -38,6 +38,7 @@ def phonemize(
         preserve_punctuation=False,
         punctuation_marks=Punctuation.default_marks(),
         with_stress=False,
+        tie=False,
         language_switch='keep-flags',
         njobs=1,
         logger=get_logger()):
@@ -82,6 +83,11 @@ def phonemize(
       When True the stresses on phonemes are present (stresses characters are
       ˈ'ˌ). When False stresses are removed. Default to False.
 
+    tie (bool or char): This option is only valid for the 'espeak' backend,
+      with espeak>1.48. When not False, use a tie character within multi-letter
+      phoneme names. When True, the char 'U+361' is used (as in d͡ʒ), 'z' means
+      ZWJ character, default to False.
+
     language_switch (str): Espeak can output some words in another language
       (typically English) when phonemizing a text. This option setups the
       policy to use when such a language switch occurs. Three values are
@@ -125,6 +131,12 @@ def phonemize(
             'the "with_stress" option is available for espeak backend only, '
             'but you are using {} backend'.format(backend))
 
+    # tie option only valid for espeak
+    if tie and backend != 'espeak':
+        raise RuntimeError(
+            'the "tie" option is available for espeak backend only, '
+            'but you are using {} backend'.format(backend))
+
     # language_switch option only valid for espeak
     if (
             language_switch != 'keep-flags'
@@ -157,6 +169,7 @@ def phonemize(
             punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation,
             with_stress=with_stress,
+            tie=tie,
             language_switch=language_switch,
             logger=logger)
     elif backend == 'espeak-mbrola':

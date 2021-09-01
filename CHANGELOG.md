@@ -4,10 +4,17 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 ## not yet released
 
-* **improvements**
+* **new features**
+
+  * New option `--tie` for the `espeak` backend to display a tie character
+    withiin multi-letter phonemes. (see issue
+    [#74](https://github.com/bootphon/phonemizer/issues/74)).
+
+* **bugfixes**
 
   * phonemizer's logger no more conflicts with other loggers when imported from
     Python (see PR [#61](https://github.com/bootphon/phonemizer/pull/61)).
+
 
 ## phonemizer-2.2.2
 

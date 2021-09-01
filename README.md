@@ -148,6 +148,8 @@ See the installed backends with the `--version` option:
         həloʊ wɜːld
         $ echo "hello world" | phonemize -l en-us -b espeak
         həloʊ wɜːld
+        $ echo 'hello world' | phonemize -l en-us -b espeak --tie
+        həlo͡ʊ wɜːld
 
 * Use **festival** US English instead
 

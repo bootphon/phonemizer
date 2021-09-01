@@ -327,3 +327,22 @@ def test_french_sampa():
     reason='mbrola not installed')
 def test_mbrola_bad_language():
     assert not EspeakMbrolaBackend.is_supported_language('foo-bar')
+
+
+
+@pytest.mark.skipif(
+    EspeakBackend.version(as_tuple=True)[1] <= 48,
+    reason='tie option requires espeak>1.48')
+@pytest.mark.parametrize(
+    'tie, expected', [
+        (False, 'dʒæki tʃæn '), (True, 'd͡ʒæki t͡ʃæn '), ('8', 'd8ʒæki t8ʃæn ')])
+def test_tie(tie, expected):
+    assert EspeakBackend('en-us', tie=tie).phonemize('Jackie Chan') == expected
+
+
+@pytest.mark.skipif(
+    EspeakBackend.version(as_tuple=True)[1] <= 48,
+    reason='tie option requires espeak>1.48')
+def test_tie_bad():
+    with pytest.raises(RuntimeError):
+        EspeakBackend('en-us', tie='abc')

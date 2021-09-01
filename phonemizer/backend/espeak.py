@@ -140,8 +140,9 @@ class EspeakBackend(BaseEspeakBackend):
     def __init__(self, language,
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
-                 language_switch='keep-flags',
                  with_stress=False,
+                 tie=False,
+                 language_switch='keep-flags',
                  logger=get_logger()):
         super().__init__(
             language, punctuation_marks=punctuation_marks,
@@ -151,6 +152,22 @@ class EspeakBackend(BaseEspeakBackend):
         # adapt some command line option to the espeak version (for
         # phoneme separation and IPA output)
         version = self.version()
+
+        # ensure espeak is compatible with tie option
+        if tie and version.split('.')[1] <= '48':  # pragma: nocover
+            raise RuntimeError(
+                '"tie" option requires espeak>1.48 but you are using espeak-{}'
+                .format(version))
+        if tie is False:
+            self.tie = ''
+        elif tie is True:  # default U+361 tie character
+            self.tie = '--tie'
+        else:  # non default tie charcacter
+            if len(str(tie)) != 1:
+                raise RuntimeError(
+                    'explicit tie must be a single charcacter but is {}'
+                    .format(tie))
+            self.tie = '--tie={}'.format(tie)
 
         self.sep = '--sep=_'
         if version == '1.48.03' or version.split('.')[1] <= '47':
@@ -237,7 +254,7 @@ class EspeakBackend(BaseEspeakBackend):
     def _command(self, fname):
         return (
             f'{self.espeak_path()} -v{self.language} {self.ipa} '
-            f'-q -f {fname} {self.sep}')
+            f'-q -f {fname} {self.sep} {self.tie}' )
 
     def _phonemize_aux(self, text, separator, strip):
         output = []
