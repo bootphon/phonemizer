@@ -15,10 +15,10 @@
 """Festival backend for the phonemizer"""
 
 
-import distutils
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import tempfile
 
@@ -80,7 +80,7 @@ class FestivalBackend(BaseBackend):
         if _FESTIVAL_DEFAULT_PATH:
             return _FESTIVAL_DEFAULT_PATH
 
-        return distutils.spawn.find_executable('festival')
+        return shutil.which('festival')
 
     @classmethod
     def is_available(cls):

@@ -14,8 +14,8 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the festival backend"""
 
-import distutils.spawn
 import os
+import shutil
 import pytest
 from phonemizer import separator
 from phonemizer.backend import FestivalBackend
@@ -64,7 +64,7 @@ def test_im():
 
 def test_path_good():
     try:
-        binary = distutils.spawn.find_executable('festival')
+        binary = shutil.which('festival')
         FestivalBackend.set_festival_path(binary)
 
         test_im()
@@ -77,7 +77,7 @@ def test_path_good():
 def test_path_bad():
     try:
         # corrupt the default espeak path, try to use python executable instead
-        binary = distutils.spawn.find_executable('python')
+        binary = shutil.which('python')
         FestivalBackend.set_festival_path(binary)
 
         with pytest.raises(RuntimeError):
@@ -98,7 +98,7 @@ def test_path_bad():
     reason='cannot modify environment')
 def test_path_venv():
     try:
-        os.environ['PHONEMIZER_FESTIVAL_PATH'] = distutils.spawn.find_executable('python')
+        os.environ['PHONEMIZER_FESTIVAL_PATH'] = shutil.which('python')
         with pytest.raises(RuntimeError):
             FestivalBackend('en-us').phonemize('hello')
         with pytest.raises(RuntimeError):

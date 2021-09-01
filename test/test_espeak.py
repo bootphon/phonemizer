@@ -15,7 +15,7 @@
 """Test of the espeak backend"""
 
 
-import distutils.spawn
+import shutil
 import os
 import re
 import pytest
@@ -190,7 +190,7 @@ def test_path_good():
         EspeakBackend.set_espeak_path(None)
         assert espeak == EspeakBackend.espeak_path()
 
-        binary = distutils.spawn.find_executable('espeak')
+        binary = shutil.which('espeak')
         EspeakBackend.set_espeak_path(binary)
 
         test_english()
@@ -207,7 +207,7 @@ def test_path_bad():
     espeak = EspeakBackend.espeak_path()
     try:
         # corrupt the default espeak path, try to use python executable instead
-        binary = distutils.spawn.find_executable('python')
+        binary = shutil.which('python')
         EspeakBackend.set_espeak_path(binary)
 
         with pytest.raises(RuntimeError):
@@ -229,7 +229,7 @@ def test_path_bad():
 def test_path_venv():
     try:
         os.environ['PHONEMIZER_ESPEAK_PATH'] = (
-            distutils.spawn.find_executable('python'))
+            shutil.which('python'))
         with pytest.raises(RuntimeError):
             EspeakBackend('en-us').phonemize('hello')
         with pytest.raises(RuntimeError):

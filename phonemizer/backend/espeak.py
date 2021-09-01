@@ -15,11 +15,11 @@
 """Espeak backend for the phonemizer"""
 
 import abc
-import distutils.spawn
 import itertools
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import tempfile
 
@@ -82,9 +82,9 @@ class BaseEspeakBackend(BaseBackend):
         if _ESPEAK_DEFAULT_PATH:
             return _ESPEAK_DEFAULT_PATH
 
-        espeak = distutils.spawn.find_executable('espeak-ng')
+        espeak = shutil.which('espeak-ng')
         if not espeak:  # pragma: nocover
-            espeak = distutils.spawn.find_executable('espeak')
+            espeak = shutil.which('espeak')
         return espeak
 
     @classmethod
@@ -389,7 +389,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
     def is_available():
         return (
             BaseEspeakBackend.is_available() and
-            distutils.spawn.find_executable('mbrola') is not None)
+            shutil.which('mbrola') is not None)
 
     @classmethod
     def _all_supported_languages(cls):
