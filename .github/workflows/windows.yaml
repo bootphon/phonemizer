@@ -50,7 +50,7 @@ jobs:
           Invoke-WebRequest -Uri $source -OutFile $destination
           Start-Process msiexec.exe -Wait -ArgumentList '/I $destination /qn /L*v espeak-ng.log'
           Get-Content -Path espeak-ng.log
-          Start-Process espeak-ng.exe -Wait -ArgumentList '--version'
+          Start-Process espeak-ng -Wait -ArgumentList '--version'
 
       - name: test espeak
         run: espeak-ng.exe --version
