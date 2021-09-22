@@ -49,7 +49,7 @@ jobs:
           Invoke-WebRequest -Uri $source -OutFile espeak.msi
           Start-Process msiexec.exe -Wait -ArgumentList '/I espeak.msi /qn /L*v espeak.log'
           Get-Content -Path espeak.log
-          Start-Process espeak-ng -Wait -ArgumentList '--version'
+          Start-Process espeak-ng.exe -Wait -ArgumentList '--version'
 
       - name: test espeak
         run: espeak-ng.exe --version
