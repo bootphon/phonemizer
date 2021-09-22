@@ -38,7 +38,6 @@ jobs:
         env:
           PHONEMIZER_PATH: ${{ github.workspace }}/phonemizer
 
-
       # - name: Install phonemizer
       #   run: |
       #     pip install --upgrade pip
