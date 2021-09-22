@@ -9,11 +9,14 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: checkout phonemizer
-        uses: actions/checkout@v2
+      # - name: checkout phonemizer
+      #   uses: actions/checkout@v2
 
-      - name: setup python
-        uses: actions/setup-python@v2
+      # - name: setup python
+      #   uses: actions/setup-python@v2
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.3
 
       - name: checkout espeak
         uses: actions/checkout@v2
@@ -34,14 +37,18 @@ jobs:
           msbuild espeak-ng.sln
         shell: cmd
 
-      - name: install phonemizer
-        run: |
-          pip install --upgrade pip
-          python setup.py install
-          pip install --upgrade pytest
+      - name: test espeak
+        run: espeak-ng.exe --version
 
-      - name: version phonemizer
-        run: phonemize --version
 
-      - name: test phonemizer
-        run: pytest
+      # - name: install phonemizer
+      #   run: |
+      #     pip install --upgrade pip
+      #     python setup.py install
+      #     pip install --upgrade pytest
+
+      # - name: version phonemizer
+      #   run: phonemize --version
+
+      # - name: test phonemizer
+      #   run: pytest
