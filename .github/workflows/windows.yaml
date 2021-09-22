@@ -15,14 +15,24 @@ jobs:
       - name: setup python
         uses: actions/setup-python@v2
 
+      - name: checkout espeak
+        uses: actions/checkout@v2
+        with:
+          repository: espeak-ng/espeak-ng
+          path: espeak-ng
+
+      - name: checkout pcaudiolib
+        uses: actions/checkout@v2
+        with:
+          repository: espeak-ng/pcaudiolib
+          path: espeak-ng/src
+
       - name: install espeak
         run: |
-          $source = 'https://github.com/espeak-ng/espeak-ng/releases/download/1.50/espeak-ng-20191129-b702b03-x64.msi'
-          $destination = 'espeak-ng-20191129-b702b03-x64.msi'
-          Invoke-WebRequest -Uri $source -OutFile $destination
-          Start-Process msiexec.exe -Wait -ArgumentList '/I $destination /qn /L*v espeak-ng.log'
-          Get-Content -Path espeak-ng.log
-          Start-Process espeak-ng.exe -Wait -ArgumentList '--version'
+          choco install wixtoolset
+          cd espeak-ng\src\windows
+          msbuild espeak-ng.sln
+        shell: cmd
 
       - name: install phonemizer
         run: |
