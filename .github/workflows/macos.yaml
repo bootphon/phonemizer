@@ -33,9 +33,10 @@ jobs:
 
       - name: debug CI
         run: |
-          echo "$PHONEMIZER_FESTIVAL_PATH"
+          echo $PHONEMIZER_PATH
+          ls -lA $PHONEMIZER_PATH
         env:
-          PHONEMIZER_FESTIVAL_PATH: "{{ env.GITHUB_WORKSPACE }}/festival/build/build_festival/festival/bin/festival"
+          PHONEMIZER_PATH: ${{ env.GITHUB_WORKSPACE }}/phonemizer
 
 
       # - name: Install phonemizer
