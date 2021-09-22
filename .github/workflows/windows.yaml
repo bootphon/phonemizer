@@ -26,12 +26,6 @@ jobs:
 
       - name: install festival
         run: |
-          # Install 7zip module
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-          Set-PSRepository -Name 'PSGallery' -SourceLocation "https://www.powershellgallery.com/api/v2" -InstallationPolicy Trusted
-          Install-Module -Name 7Zip4PowerShell -Force
-
           # Extract 7zip file
           $sourcefile = "https://sourceforge.net/projects/e-guidedog/files/related-third-party-software/0.3/festival-2.5-win.7z"
           Expand-7Zip -ArchiveFileName $sourcefile -TargetPath 'C:\festival'
