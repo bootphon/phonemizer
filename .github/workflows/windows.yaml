@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: espeak-ng/pcaudiolib
-          path: ${{ github.workspace }}/espeak-ng/src
+          path: ${{ github.workspace }}/espeak-ng/src/pcaudiolib
 
       - name: install espeak
         run: |
