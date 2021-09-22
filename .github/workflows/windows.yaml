@@ -53,7 +53,7 @@ jobs:
       - name: test espeak
         run: |
           ls "C:\Program Files\eSpeak NG"
-          C:\Program Files\eSpeak NG\espeak-ng.exe --version
+          "C:\Program Files\eSpeak NG\espeak-ng.exe" --version
           espeak-ng.exe --version
 
 
