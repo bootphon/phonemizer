@@ -34,8 +34,8 @@ jobs:
           $webclient.DownloadFile("$uri" + "/speech_tools-2.5-win.7z", "speech_tools-2.5.7z")
 
           set-alias sz "$env:ProgramFiles\7-Zip\7z.exe"
-          sz x festival-2.5.7z -o C:\
-          sz x speech_tools-2.5.7z -o C:\
+          sz x -oC:\ festival-2.5.7z
+          sz x -oC:\ speech_tools-2.5.7z
 
       - name: test festival
         run: |
