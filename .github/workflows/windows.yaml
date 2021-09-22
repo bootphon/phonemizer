@@ -8,63 +8,30 @@ jobs:
   test:
     runs-on: windows-latest
 
+    env:
+      PHONEMIZER_ESPEAK_PATH: "C:\Program Files\eSpeak NG\espeak-ng.exe"
+
     steps:
-      # - name: checkout phonemizer
-      #   uses: actions/checkout@v2
+      - name: checkout phonemizer
+        uses: actions/checkout@v2
 
-      # - name: setup python
-      #   uses: actions/setup-python@v2
-
-      # - name: Add msbuild to PATH
-      #   uses: microsoft/setup-msbuild@v1.0.3
-
-      # - name: checkout espeak
-      #   uses: actions/checkout@v2
-      #   with:
-      #     repository: espeak-ng/espeak-ng
-      #     path: ${{ github.workspace }}/espeak-ng
-
-      # - name: checkout pcaudiolib
-      #   uses: actions/checkout@v2
-      #   with:
-      #     repository: espeak-ng/pcaudiolib
-      #     path: ${{ github.workspace }}/espeak-ng/src/pcaudiolib
-
-      # # from https://github.com/actions/virtual-environments/issues/842#issuecomment-643382166
-      # - name: Install Windows 8.1 SDK
-      #   shell: powershell
-      #   run: |
-      #     Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
-      #     Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
-
-      # - name: install espeak
-      #   run: |
-      #     cd %GITHUB_WORKSPACE%\espeak-ng\src\windows
-      #     msbuild /p:PlatformToolset=v141 espeak-ng.sln
-      #   shell: cmd
+      - name: setup python
+        uses: actions/setup-python@v2
 
       - name: install espeak
         run: |
           $source = 'https://github.com/espeak-ng/espeak-ng/releases/download/1.50/espeak-ng-20191129-b702b03-x64.msi'
           Invoke-WebRequest -Uri $source -OutFile espeak.msi
-          Start-Process msiexec.exe -Wait -ArgumentList '/I espeak.msi /qn /L*v espeak.log'
-          #Get-Content -Path espeak.log
+          Start-Process msiexec.exe -Wait -ArgumentList '/I espeak.msi /qn'
 
-      - name: test espeak
-        # run: |
-        #   Start-Process -FilePath "C:\Program Files\eSpeak NG\espeak-ng.exe" -Wait -ArgumentList '--version'
+      - name: install phonemizer
         run: |
-          "C:\Program Files\eSpeak NG\espeak-ng.exe" --version
-        shell: bash
+          pip install --upgrade pip
+          python setup.py install
+          pip install --upgrade pytest
 
-      # - name: install phonemizer
-      #   run: |
-      #     pip install --upgrade pip
-      #     python setup.py install
-      #     pip install --upgrade pytest
+      - name: version phonemizer
+        run: phonemize --version
 
-      # - name: version phonemizer
-      #   run: phonemize --version
-
-      # - name: test phonemizer
-      #   run: pytest
+      - name: test phonemizer
+        run: pytest
