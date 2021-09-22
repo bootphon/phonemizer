@@ -36,12 +36,12 @@ jobs:
           repository: BoniLindsley/espeak-ng-cmake
           path: ${{ github.workspace }}/espeak-ng-cmake
 
-       name: install espeak
-       run: |
-         cd %GITHUB_WORKSPACE%\espeak-ng-cmake
-         cmake .
-         cmake --build .
-         cmake --build . --target install
+      - name: install espeak
+        run: |
+          cd %GITHUB_WORKSPACE%\espeak-ng-cmake
+          cmake .
+          cmake --build .
+          cmake --build . --target install
 
       # # from https://github.com/actions/virtual-environments/issues/842#issuecomment-643382166
       # - name: Install Windows 8.1 SDK
