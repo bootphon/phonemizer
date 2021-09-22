@@ -20,7 +20,9 @@ jobs:
           $source = 'https://github.com/espeak-ng/espeak-ng/releases/download/1.50/espeak-ng-20191129-b702b03-x64.msi'
           $destination = 'espeak-ng-20191129-b702b03-x64.msi'
           Invoke-WebRequest -Uri $source -OutFile $destination
-          Start-Process msiexec.exe -Wait -ArgumentList '/I $destination /quiet'
+          Start-Process msiexec.exe -Wait -ArgumentList '/I $destination /qn /L*v espeak-ng.log'
+          Get-Content -Path espeak-ng.log
+          Start-Process espeak-ng.exe -Wait -ArgumentList '--version'
 
       - name: install phonemizer
         run: |
