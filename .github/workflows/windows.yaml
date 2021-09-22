@@ -6,7 +6,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: windows-2016
 
     steps:
       # - name: checkout phonemizer
@@ -30,19 +30,6 @@ jobs:
           repository: espeak-ng/pcaudiolib
           path: ${{ github.workspace }}/espeak-ng/src/pcaudiolib
 
-      - name: checkout espeak-cmake
-        uses: actions/checkout@v2
-        with:
-          repository: BoniLindsley/espeak-ng-cmake
-          path: ${{ github.workspace }}/espeak-ng-cmake
-
-      - name: install espeak
-        run: |
-          cd espeak-ng-cmake
-          cmake .
-          cmake --build .
-          cmake --build . --target install
-
       # # from https://github.com/actions/virtual-environments/issues/842#issuecomment-643382166
       # - name: Install Windows 8.1 SDK
       #   shell: powershell
@@ -50,11 +37,11 @@ jobs:
       #     Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
       #     Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
 
-      # - name: install espeak
-      #   run: |
-      #     cd %GITHUB_WORKSPACE%\espeak-ng\src\windows
-      #     msbuild /p:PlatformToolset=v142 espeak-ng.sln
-      #   shell: cmd
+      - name: install espeak
+        run: |
+          cd %GITHUB_WORKSPACE%\espeak-ng\src\windows
+          msbuild /p:PlatformToolset=v142 espeak-ng.sln
+        shell: cmd
 
       - name: test espeak
         run: espeak-ng.exe --version
