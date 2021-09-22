@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      PHONEMIZER_ESPEAK_PATH: "C:\Program Files\eSpeak NG\espeak-ng.exe"
+      PHONEMIZER_ESPEAK_PATH: "C:\\Program Files\\eSpeak NG\\espeak-ng.exe"
 
     steps:
       - name: checkout phonemizer
