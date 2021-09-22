@@ -40,7 +40,7 @@ jobs:
       - name: install espeak
         run: |
           cd %GITHUB_WORKSPACE%\espeak-ng\src\windows
-          msbuild /p:PlatformToolset=v142 espeak-ng.sln
+          msbuild espeak-ng.sln
         shell: cmd
 
       - name: test espeak
