@@ -74,6 +74,9 @@ def test_path_good():
         FestivalBackend.set_festival_path(None)
 
 
+@pytest.mark.skipif(
+    'PHONEMIZER_FESTIVAL_PATH' in os.environ,
+    reason='environment variable precedence')
 def test_path_bad():
     try:
         # corrupt the default espeak path, try to use python executable instead

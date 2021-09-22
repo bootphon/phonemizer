@@ -8,6 +8,9 @@ jobs:
   test:
     runs-on: macos-latest
 
+    env:
+      PHONEMIZER_FESTIVAL_PATH: ${{ github.workspace }}/festival/build_festival/festival/bin/festival
+
     steps:
       - name: checkout phonemizer
         uses: actions/checkout@v2
@@ -20,13 +23,22 @@ jobs:
           brew update
           brew install espeak
 
-      - name: checkout festival-setup
+      - name: cache festival
+        uses: actions/cache@v2
+        id: cache-festival
+        with:
+          path: ${{ github.workspace }}/festival
+          key: ${{ runner.os }}-festival
+
+      - name: checkout festival
+        if: steps.cache-festival.outputs.cache-hit != 'true'
         uses: actions/checkout@v2
         with:
           repository: pettarin/setup-festival-mbrola
           path: festival
 
       - name: install festival
+        if: steps.cache-festival.outputs.cache-hit != 'true'
         run: |
           cd festival
           bash setup_festival_mbrola.sh . festival
@@ -39,10 +51,6 @@ jobs:
 
       - name: version phonemizer
         run: phonemize --version
-        env:
-          PHONEMIZER_FESTIVAL_PATH: ${{ github.workspace }}/festival/build_festival/festival/bin/festival
 
       - name: test phonemizer
         run: pytest
-        env:
-          PHONEMIZER_FESTIVAL_PATH: ${{ github.workspace }}/festival/build_festival/festival/bin/festival
