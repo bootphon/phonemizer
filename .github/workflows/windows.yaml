@@ -36,7 +36,7 @@ jobs:
           $sourcefile = "https://sourceforge.net/projects/e-guidedog/files/related-third-party-software/0.3/festival-2.5-win.7z"
           Expand-7Zip -ArchiveFileName $sourcefile -TargetPath 'C:\festival'
 
-          $sourcefile = "https://sourceforge.net/projects/e-guidedog/files/related-third-party-software/0.3/speech_tools-2.5-win.7z
+          $sourcefile = "https://sourceforge.net/projects/e-guidedog/files/related-third-party-software/0.3/speech_tools-2.5-win.7z"
           Expand-7Zip -ArchiveFileName $sourcefile -TargetPath 'C:\speech_tools'
 
       - name: install phonemizer
