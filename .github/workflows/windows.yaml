@@ -32,9 +32,7 @@ jobs:
 
       - name: install espeak
         run: |
-          choco install wixtoolset
-          cd espeak-ng\src\windows
-          msbuild espeak-ng.sln
+          msbuild espeak-ng\src\windows\espeak-ng.sln
         shell: cmd
 
       - name: test espeak
