@@ -26,6 +26,8 @@ jobs:
 
       - name: install festival
         run: |
+          Install-Module -Name 7Zip4Powershell -RequiredVersion 1.9.0
+
           # Extract 7zip file
           $sourcefile = "https://sourceforge.net/projects/e-guidedog/files/related-third-party-software/0.3/festival-2.5-win.7z"
           Expand-7Zip -ArchiveFileName $sourcefile -TargetPath 'C:\festival'
