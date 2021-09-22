@@ -51,9 +51,10 @@ jobs:
           #Get-Content -Path espeak.log
 
       - name: test espeak
-        run: |
-          Start-Process -FilePath "C:\Program Files\eSpeak NG\espeak-ng.exe" -Wait -ArgumentList '--version' -PassThru
-
+        # run: |
+        #   Start-Process -FilePath "C:\Program Files\eSpeak NG\espeak-ng.exe" -Wait -ArgumentList '--version'
+        run: espeak-ng.exe --version
+        shell: bash
 
       # - name: install phonemizer
       #   run: |
