@@ -8,41 +8,41 @@ jobs:
   test:
     runs-on: macos-latest
 
-  steps:
-    - name: checkout phonemizer
-      uses: actions/checkout@v2
+    steps:
+      - name: checkout phonemizer
+        uses: actions/checkout@v2
 
-    - name: setup python
-      uses: actions/setup-python@v2
+      - name: setup python
+        uses: actions/setup-python@v2
 
-    - name: install espeak-1.48
-      run: |
-        brew update
-        brew install espeak
+      - name: install espeak-1.48
+        run: |
+          brew update
+          brew install espeak
 
-    - name: checkout festival-setup
-      uses: actions/checkout@v2
-      with:
-        repository: pettarin/setup-festival-mbrola
-        path: festival
+      - name: checkout festival-setup
+        uses: actions/checkout@v2
+        with:
+          repository: pettarin/setup-festival-mbrola
+          path: festival
 
-    - name: install festival
-      run: |
-        cd festival
-        bash setup_festival_mbrola.sh ./build festival
+      - name: install festival
+        run: |
+          cd festival
+          bash setup_festival_mbrola.sh ./build festival
 
-    - name: Install phonemizer
-      run: |
-        pip install --upgrade pip
-        python setup.py install
-        pip install --upgrade pytest
+      - name: Install phonemizer
+        run: |
+          pip install --upgrade pip
+          python setup.py install
+          pip install --upgrade pytest
 
-    - name: Phonemizer version
-      run: phonemize --version
-      env:
-        PHONEMIZER_FESTIVAL_PATH: ${GITHUB_WORKSPACE}/festival/build/build_festival/festival/bin/festival
+      - name: Phonemizer version
+        run: phonemize --version
+        env:
+          PHONEMIZER_FESTIVAL_PATH: ${GITHUB_WORKSPACE}/festival/build/build_festival/festival/bin/festival
 
-    - name: Test phonemizer
-      run: pytest
-      env:
-        PHONEMIZER_FESTIVAL_PATH: ${GITHUB_WORKSPACE}/festival/build/build_festival/festival/bin/festival
+      - name: Test phonemizer
+        run: pytest
+        env:
+          PHONEMIZER_FESTIVAL_PATH: ${GITHUB_WORKSPACE}/festival/build/build_festival/festival/bin/festival
