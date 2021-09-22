@@ -32,6 +32,7 @@ jobs:
 
       - name: install espeak
         run: |
+          choco install windows-sdk-8.1
           cd %GITHUB_WORKSPACE%\espeak-ng\src\windows
           msbuild espeak-ng.sln
         shell: cmd
