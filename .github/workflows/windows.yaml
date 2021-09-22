@@ -38,7 +38,7 @@ jobs:
 
       - name: install espeak
         run: |
-          cd %GITHUB_WORKSPACE%\espeak-ng-cmake
+          cd espeak-ng-cmake
           cmake .
           cmake --build .
           cmake --build . --target install
