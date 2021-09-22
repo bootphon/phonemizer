@@ -22,7 +22,7 @@ jobs:
           repo: espeak-ng
           tag: 1.50
           file: espeak-ng-20191129-b702b03-x64.msi
-          path: ${{ github.workspace }}/espeak-ng
+          path: ${{ github.workspace }}\espeak-ng
 
       - name: install espeak
         run: |
