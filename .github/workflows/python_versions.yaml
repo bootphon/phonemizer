@@ -1,4 +1,6 @@
-name: linux
+# Test on Linux Ubuntu with various Python versions
+
+name: Python versions - Ubuntu
 
 on: [push, pull_request]
 
@@ -11,16 +13,25 @@ jobs:
         python-version: ['3.6', '3.7', '3.8', '3.9']
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: checkout phonemizer
+        uses: actions/checkout@v2
+
+      - name: setup python
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install system dependencies
+
+      - name: install system dependencies
         run: sudo apt-get install espeak-ng festival mbrola mbrola-fr1
-      - name: Install phonemizer
+
+      - name: install phonemizer
         run: |
           pip install --upgrade pip
           python setup.py install
           pip install --upgrade pytest
-      - name: Test phonemizer
+
+      - name: version phonemizer
+        run: phonemize --version
+
+      - name: test phonemizer
         run: pytest
