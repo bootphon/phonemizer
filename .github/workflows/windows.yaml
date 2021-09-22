@@ -6,7 +6,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: windows-2016
+    runs-on: windows-latest
 
     steps:
       # - name: checkout phonemizer
