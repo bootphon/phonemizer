@@ -68,8 +68,10 @@ def test_french():
 
 
 @pytest.mark.skipif(
-    not EspeakBackend.is_espeak_ng(),
-    reason='Arabic is only supported by espeak-ng')
+    (
+        not EspeakBackend.is_espeak_ng() or
+        not EspeakBackend.is_supported_language('ar'),
+    reason='Arabic is not supported')
 def test_arabic():
     backend = EspeakBackend('ar')
     text = u'السلام عليكم'

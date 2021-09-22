@@ -47,4 +47,4 @@ jobs:
         run: phonemize --version
 
       - name: test phonemizer
-        run: pytest
+        run: pytest -v
