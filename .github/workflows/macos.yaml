@@ -33,8 +33,6 @@ jobs:
 
       - name: debug CI
         run: |
-          ls -lA ${GITHUB_WORKSPACE}
-          ls -lA ${GITHUB_WORKSPACE}/festival/build/build_festival/festival/bin
           echo "$PHONEMIZER_FESTIVAL_PATH"
         env:
           PHONEMIZER_FESTIVAL_PATH: "{{ env.GITHUB_WORKSPACE }}/festival/build/build_festival/festival/bin/festival"
