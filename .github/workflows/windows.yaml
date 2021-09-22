@@ -1,0 +1,42 @@
+# Test on windows
+
+name: Windows
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+  steps:
+    - name: checkout phonemizer
+      uses: actions/checkout@v2
+
+    - name: setup python
+      uses: actions/setup-python@v2
+
+    - name: download espeak
+      uses: i3h/download-release-asset@v1
+      with:
+        owner: espeak-ng
+        repo: espeak-ng
+        tag: 1.50
+        file: espeak-ng-20191129-b702b03-x64.msi
+        path: ${{ github.workspace }}/espeak-ng
+
+    - name: install espeak
+      run: |
+        msiexec.exe /i ${{ github.workspace }}\espeak-ng\espeak-ng-20191129-b702b03-x64.msi /QN
+      shell: bash
+
+    - name: install phonemizer
+      run: |
+        pip install --upgrade pip
+        python setup.py install
+        pip install --upgrade pytest
+
+    - name: version phonemizer
+      run: phonemize --version
+
+    - name: test phonemizer
+      run: pytest

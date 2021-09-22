@@ -1,4 +1,5 @@
-# Test on macos with festival compiled from source and espeak-1.48 from homebrew
+# Test on macos with festival-2.4 compiled from source and espeak-1.48 from
+# homebrew. To save time and ressources, festival is cached across runs.
 
 name: MacOS
 
