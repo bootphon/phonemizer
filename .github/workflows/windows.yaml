@@ -13,17 +13,17 @@ jobs:
       PHONEMIZER_FESTIVAL_PATH: "C:\\festival\\src\\main\\festival.exe"
 
     steps:
-      - name: checkout phonemizer
-        uses: actions/checkout@v2
+      # - name: checkout phonemizer
+      #   uses: actions/checkout@v2
 
-      - name: setup python
-        uses: actions/setup-python@v2
+      # - name: setup python
+      #   uses: actions/setup-python@v2
 
-      - name: install espeak
-        run: |
-          $source = 'https://github.com/espeak-ng/espeak-ng/releases/download/1.50/espeak-ng-20191129-b702b03-x64.msi'
-          Invoke-WebRequest -Uri $source -OutFile espeak.msi
-          Start-Process msiexec.exe -Wait -ArgumentList '/I espeak.msi /qn'
+      # - name: install espeak
+      #   run: |
+      #     $source = 'https://github.com/espeak-ng/espeak-ng/releases/download/1.50/espeak-ng-20191129-b702b03-x64.msi'
+      #     Invoke-WebRequest -Uri $source -OutFile espeak.msi
+      #     Start-Process msiexec.exe -Wait -ArgumentList '/I espeak.msi /qn'
 
       - name: install festival
         run: |
@@ -37,14 +37,25 @@ jobs:
           sz x -oC:\ festival-2.5.7z
           sz x -oC:\ speech_tools-2.5.7z
 
-      - name: install phonemizer
+      - name: test festival
         run: |
-          pip install --upgrade pip
-          python setup.py install
-          pip install --upgrade pytest
+          $env:PHONEMIZER_FESTIVAL_PATH --version
 
-      - name: version phonemizer
-        run: phonemize --version
+          $hello = '"hello world"'
+          $hello > hello.txt
+          cat hello.txt
 
-      - name: test phonemizer
-        run: pytest -v
+          (Get-Content .\phonemizer\share\festival\script.scm).replace('{}', 'hello.txt') | Set-Content script.scm
+          $env:PHONEMIZER_FESTIVAL_PATH -b script.scm
+
+      # - name: install phonemizer
+      #   run: |
+      #     pip install --upgrade pip
+      #     python setup.py install
+      #     pip install --upgrade pytest
+
+      # - name: version phonemizer
+      #   run: phonemize --version
+
+      # - name: test phonemizer
+      #   run: pytest -v
