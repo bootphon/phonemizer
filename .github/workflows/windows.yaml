@@ -16,8 +16,8 @@ jobs:
       - name: checkout phonemizer
         uses: actions/checkout@v2
 
-      # - name: setup python
-      #   uses: actions/setup-python@v2
+      - name: setup python
+        uses: actions/setup-python@v2
 
       # - name: install espeak
       #   run: |
@@ -37,23 +37,28 @@ jobs:
           sz x -oC:\ festival-2.5.7z
           sz x -oC:\ speech_tools-2.5.7z
 
-      - name: test festival
-        run: |
-          & "$env:PHONEMIZER_FESTIVAL_PATH" '--version'
-
-          Write-Output '"hello world"' | Set-Content hello.txt
-          (Get-Content .\phonemizer\share\festival\phonemize.scm).replace('{}', 'hello.txt') | Set-Content script.scm
-
-          & "$env:PHONEMIZER_FESTIVAL_PATH" '-b' 'script.scm'
-
-      # - name: install phonemizer
+      # - name: test festival
       #   run: |
-      #     pip install --upgrade pip
-      #     python setup.py install
-      #     pip install --upgrade pytest
+      #     & "$env:PHONEMIZER_FESTIVAL_PATH" '--version'
+      #     Write-Output '"hello world"' | Set-Content hello.txt
+      #     (Get-Content .\phonemizer\share\festival\phonemize.scm).replace('{}', 'hello.txt') | Set-Content script.scm
+      #     & "$env:PHONEMIZER_FESTIVAL_PATH" '-b' 'script.scm'
 
-      # - name: version phonemizer
-      #   run: phonemize --version
+      - name: install phonemizer
+        run: |
+          pip install --upgrade pip pytest
+          python setup.py install
+
+      - name: version phonemizer
+        run: phonemize --version
+
+      - name: test festival
+        shell: python
+        run: |
+          from phonemizer.backend import FestivalBackend
+          from phonemizer.logger import get_logger
+          backend = FestivalBackend('en-us', logger=get_logger('verbose'))
+          print(backend.phonemize('hello world'))
 
       # - name: test phonemizer
       #   run: pytest -v
