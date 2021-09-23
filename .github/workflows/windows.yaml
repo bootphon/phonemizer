@@ -41,11 +41,12 @@ jobs:
         run: |
           & "$env:PHONEMIZER_FESTIVAL_PATH" '--version'
 
-          # $hello = '"hello world"'
-          # $hello > hello.txt
+          Write-Output '"hello world"' | Set-Content hello.txt
+          (Get-Content .\share\festival\script.scm).replace('{}', 'hello.txt') | Set-Content script.scm
 
-          # (Get-Content .\share\festival\script.scm).replace('{}', 'hello.txt') | Set-Content script.scm
-          # Invoke-Process -FilePath $env:PHONEMIZER_FESTIVAL_PATH -ArgumentList '-b script.scm'
+          cat hello.txt
+          cat script.scm
+          & "$env:PHONEMIZER_FESTIVAL_PATH" '-b script.scm'
 
       # - name: install phonemizer
       #   run: |
