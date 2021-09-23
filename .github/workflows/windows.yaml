@@ -42,15 +42,10 @@ jobs:
           & "$env:PHONEMIZER_FESTIVAL_PATH" '--version'
 
           Write-Output '"hello world"' | Set-Content hello.txt
-
-          ls .
-          ls .\phonemizer
-          ls .\phonemizer\share
           (Get-Content .\phonemizer\share\festival\phonemize.scm).replace('{}', 'hello.txt') | Set-Content script.scm
 
-          cat hello.txt
-          cat script.scm
-          & "$env:PHONEMIZER_FESTIVAL_PATH" '-b script.scm'
+          # & "$env:PHONEMIZER_FESTIVAL_PATH" '-b script.scm'
+          & "$env:PHONEMIZER_FESTIVAL_PATH" '-h'
 
       # - name: install phonemizer
       #   run: |
