@@ -13,8 +13,8 @@ jobs:
       PHONEMIZER_FESTIVAL_PATH: "C:\\festival\\src\\main\\festival.exe"
 
     steps:
-      # - name: checkout phonemizer
-      #   uses: actions/checkout@v2
+      - name: checkout phonemizer
+        uses: actions/checkout@v2
 
       # - name: setup python
       #   uses: actions/setup-python@v2
