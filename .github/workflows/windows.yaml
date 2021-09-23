@@ -42,6 +42,9 @@ jobs:
           & "$env:PHONEMIZER_FESTIVAL_PATH" '--version'
 
           Write-Output '"hello world"' | Set-Content hello.txt
+
+          ls .\phonemizer
+          ls .\phonemizer\share
           (Get-Content .\phonemizer\share\festival\phonemize.scm).replace('{}', 'hello.txt') | Set-Content script.scm
 
           cat hello.txt
