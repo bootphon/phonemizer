@@ -43,6 +43,7 @@ jobs:
 
           Write-Output '"hello world"' | Set-Content hello.txt
 
+          ls .
           ls .\phonemizer
           ls .\phonemizer\share
           (Get-Content .\phonemizer\share\festival\phonemize.scm).replace('{}', 'hello.txt') | Set-Content script.scm
