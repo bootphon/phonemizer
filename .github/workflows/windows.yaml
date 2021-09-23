@@ -39,7 +39,7 @@ jobs:
 
       - name: test festival
         run: |
-          & '$env:PHONEMIZER_FESTIVAL_PATH' '--version'
+          & "$env:PHONEMIZER_FESTIVAL_PATH" '--version'
 
           # $hello = '"hello world"'
           # $hello > hello.txt
