@@ -46,7 +46,7 @@ jobs:
           cat hello.txt
 
           (Get-Content .\phonemizer\share\festival\script.scm).replace('{}', 'hello.txt') | Set-Content script.scm
-          $env:PHONEMIZER_FESTIVAL_PATH -b script.scm
+          Start-Process $env:PHONEMIZER_FESTIVAL_PATH -Wait -ArgumentList '-b script.scm'
 
       # - name: install phonemizer
       #   run: |
