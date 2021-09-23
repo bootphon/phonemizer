@@ -39,14 +39,15 @@ jobs:
 
       - name: test festival
         run: |
-          Start-Process $env:PHONEMIZER_FESTIVAL_PATH -Wait -ArgumentList '--version'
+          Install-Script 'Invoke-Process'
+          . Invoke-Process.ps1
+          Invoke-Process -FilePath $env:PHONEMIZER_FESTIVAL_PATH -ArgumentList '--version'
 
           $hello = '"hello world"'
           $hello > hello.txt
-          cat hello.txt
 
-          (Get-Content .\phonemizer\share\festival\script.scm).replace('{}', 'hello.txt') | Set-Content script.scm
-          Start-Process $env:PHONEMIZER_FESTIVAL_PATH -Wait -ArgumentList '-b script.scm'
+          (Get-Content .\share\festival\script.scm).replace('{}', 'hello.txt') | Set-Content script.scm
+          Invoke-Process -FilePath $env:PHONEMIZER_FESTIVAL_PATH -ArgumentList '-b script.scm'
 
       # - name: install phonemizer
       #   run: |
