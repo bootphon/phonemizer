@@ -17,6 +17,7 @@
 import abc
 import itertools
 import os
+import pathlib
 import re
 import shlex
 import shutil
@@ -72,20 +73,20 @@ class BaseEspeakBackend(BaseBackend):
     def espeak_path():
         """Returns the absolute path to the espeak executable"""
         if 'PHONEMIZER_ESPEAK_PATH' in os.environ:
-            espeak = os.environ['PHONEMIZER_ESPEAK_PATH']
-            if not (os.path.isfile(espeak) and os.access(espeak, os.X_OK)):
+            espeak = pathlib.Path(os.environ['PHONEMIZER_ESPEAK_PATH'])
+            if not (espeak.is_file() and os.access(str(espeak), os.X_OK)):
                 raise ValueError(
                     f'PHONEMIZER_ESPEAK_PATH={espeak} '
                     f'is not an executable file')
-            return os.path.abspath(espeak)
+            return espeak.resolve()
 
         if _ESPEAK_DEFAULT_PATH:
-            return _ESPEAK_DEFAULT_PATH
+            return pathlib.Path(_ESPEAK_DEFAULT_PATH)
 
         espeak = shutil.which('espeak-ng')
         if not espeak:  # pragma: nocover
             espeak = shutil.which('espeak')
-        return espeak
+        return pathlib.Path(espeak)
 
     @classmethod
     def is_available(cls):

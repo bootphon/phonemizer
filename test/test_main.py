@@ -130,7 +130,7 @@ def test_espeak_mbrola():
 
 
 def test_espeak_path():
-    espeak = pathlib.Path(backend.EspeakBackend.espeak_path())
+    espeak = backend.EspeakBackend.espeak_path()
     _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
 
 
