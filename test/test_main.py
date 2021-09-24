@@ -33,8 +33,8 @@ def _test(input, expected_output, args=''):
 
         input_file = pathlib.Path(tmpdir) / 'input.txt'
         output_file = pathlib.Path(tmpdir) / 'output.txt'
-        with open(input_file, 'w') as finput:
-            finput.write(input)
+        with open(input_file, 'wb') as finput:
+            finput.write(input.encode('utf8'))
 
         sys.argv = ['unused', f'{input_file}', '-o', f'{output_file}']
         if args:
