@@ -185,7 +185,8 @@ class FestivalBackend(BaseBackend):
                 data.close()
 
                 # the Scheme script to be send to festival
-                scm_script = open(self.script, 'r').read().format(data.name)
+                scm_script = open(self.script, 'r').read().format(
+                    data.name.replace('\\', '\\\\'))
                 for line in scm_script.split('\n'):
                     print(line)
 
