@@ -25,7 +25,7 @@ from phonemizer import main, backend, logger
 
 
 def _test(input, expected_output, args=''):
-    with tempfile.NamedTemporaryFile('w+') as finput:
+    with tempfile.NamedTemporaryFile('w') as finput:
         # python2 needs additional utf8 encoding
         if sys.version_info[0] == 2:
             input = input.encode('utf8')
@@ -134,10 +134,10 @@ def test_espeak_mbrola():
 
 def test_espeak_path():
     espeak = backend.EspeakBackend.espeak_path()
-    _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
+    _test(u'hello world', u'həloʊ wɜːld ', rf'--espeak-path={espeak}')
 
 
 def test_festival_path():
     festival = backend.FestivalBackend.festival_path()
     _test(u'hello world', u'hhaxlow werld ',
-          f'--festival-path={festival} -b festival')
+          rf'--festival-path={festival} -b festival')
