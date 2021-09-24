@@ -258,7 +258,7 @@ Exemples:
     return parser.parse_args()
 
 
-@CatchExceptions
+# @CatchExceptions
 def main():
     """Phonemize a text from command-line arguments"""
     args = parse_args()
