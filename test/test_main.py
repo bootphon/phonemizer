@@ -35,7 +35,9 @@ def _test(input, expected_output, args=''):
         with open(input_file, 'w') as finput:
             finput.write(input)
 
-        sys.argv = ['unused', f'{input_file}', '-o', f'{output_file}', args]
+        sys.argv = ['unused', f'{input_file}', '-o', f'{output_file}']
+        if args:
+            sys.argv.append(args)
         print(sys.argv)
         main.main()
 
