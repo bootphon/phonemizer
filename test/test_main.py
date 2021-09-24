@@ -26,29 +26,27 @@ from phonemizer import main, backend, logger
 
 
 def _test(input, expected_output, args=''):
-    with tempfile.NamedTemporaryFile('w') as finput:
+    with tempfile.TemporaryDirectory() as tmpdir:
         # python2 needs additional utf8 encoding
         if sys.version_info[0] == 2:
             input = input.encode('utf8')
-        finput.write(input)
-        finput.seek(0)
 
-        with tempfile.NamedTemporaryFile('w+') as foutput:
-            # finput_name = finput.name
-            # foutput_name = foutput.name
-            # if sys.platform == 'win32':
-            #     finput_name = finput_name.replace('\\', '\\\\')
-            #     foutput_name = foutput_name.replace('\\', '\\\\')
+        input_file = os.path.join(tmpdir, 'input.txt')
+        output_file = os.path.join(tmpdir, 'output.txt')
+        with open(input_file, 'w') as finput:
+            finput.write(input)
 
-            opts = '{} -o {} {}'.format(finput.name, foutput.name, args)
-            sys.argv = ['foo'] + shlex.split(opts)
-            main.main()
+        opts = f'{input_file} -o {output_file} {args}'
+        sys.argv = ['unused'] + shlex.split(opts)
+        main.main()
 
+        with open(output_file, 'r') as foutput:
             output = foutput.read()
-            if expected_output == '':
-                assert output == ''
-            else:
-                assert output == expected_output + '\n'
+
+        if expected_output == '':
+            assert output == ''
+        else:
+            assert output == expected_output + '\n'
 
 
 def test_help():
@@ -135,18 +133,16 @@ def test_espeak_mbrola():
 
 def test_espeak_path():
     espeak = backend.EspeakBackend.espeak_path()
-    assert os.path.isfile(espeak)
 
-    if sys.platform == 'win32':
-        espeak.replace('\\', '\\\\')
+    # if sys.platform == 'win32':
+    #     espeak.replace('\\', '\\\\')
     _test(u'hello world', u'həloʊ wɜːld ', rf'--espeak-path={espeak}')
 
 
 def test_festival_path():
     festival = backend.FestivalBackend.festival_path()
-    assert os.path.isfile(festival)
 
-    if sys.platform == 'win32':
-        festival.replace('\\', '\\\\')
+    # if sys.platform == 'win32':
+    #     festival.replace('\\', '\\\\')
     _test(u'hello world', u'hhaxlow werld ',
           rf'--festival-path={festival} -b festival')
