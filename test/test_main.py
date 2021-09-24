@@ -32,7 +32,7 @@ def _test(input, expected_output, args=''):
 
         input_file = pathlib.Path(tmpdir) / 'input.txt'
         output_file = pathlib.Path(tmpdir) / 'output.txt'
-        with open(input_file, 'w') as finput:
+        with open(input_file, 'wb') as finput:
             finput.write(input)
 
         sys.argv = ['unused', f'{input_file}', '-o', f'{output_file}']
@@ -41,7 +41,7 @@ def _test(input, expected_output, args=''):
         print(sys.argv)
         main.main()
 
-        with open(output_file, 'r') as foutput:
+        with open(output_file, 'rb') as foutput:
             output = foutput.read()
 
         if expected_output == '':
