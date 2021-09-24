@@ -1,16 +1,17 @@
 # Test on Linux Ubuntu with various espeak versions
 
-name: Ubuntu - Python versions
+name: Ubuntu - Espeak versions
 
 on: [push, pull_request]
 
 jobs:
-  test:
+  espeak:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        espeak-version: ['1.48', '1.49', '1.50']
+  strategy:
+    matrix:
+      # espeak-version: ['1.48', '1.49.2', '1.50']
+      espeak-version: ['1.49.2', '1.50']
 
     steps:
       - name: Checkout phonemizer
@@ -22,26 +23,36 @@ jobs:
       - name: Install system dependencies
         run: sudo apt-get install festival mbrola mbrola-fr1
 
-      - name: Install espeak-1.48
-        if: ${{ matrix.espeak-version == '1.48' }}
-        run: sudo apt-get install espeak
+      # - name: Install espeak-1.48
+      #   if: ${{ matrix.espeak-version == '1.48' }}
+      #   run:
 
-      - name: Checkout espeak>=1.49
-        uses: actions/checkout@v2
-        with:
-          repository: espeak-ng/espeak-ng
-          path: espeak-ng
-          ref: ${{ matrix.espeak-version }}
-
-      - name: Install espeak>=1.49
-        if: ${{ matrix.espeak-version >= '1.49' }}
+      - name: Install espeak-1.49.2
+        if: ${{ matrix.espeak-version == '1.49.2' }}
         run: |
-          sudo apt-get install libsonic-dev libpcaudio-dev
+          sudo apt-get install make autoconf automake libtool pkg-config gcc libsonic-dev libpcaudio-dev git
+          git clone --depth 1 --branch 1.49.2 https://github.com/espeak-ng/espeak-ng.git
           cd espeak-ng
           ./autogen.sh
           ./configure
           make
-          sudo make install
+          make install
+          ldconfig
+          espeak --version
+
+
+      - name: Install espeak-1.50
+        if: ${{ matrix.espeak-version == '1.50' }}
+        run: |
+          sudo apt-get install make autoconf automake libtool pkg-config gcc libsonic-dev libpcaudio-dev git
+          git clone --depth 1 --branch 1.50 https://github.com/espeak-ng/espeak-ng.git
+          cd espeak-ng
+          ./autogen.sh
+          ./configure
+          make
+          make install
+          ldconfig
+          espeak --version
 
       - name: Install phonemizer
         run: |
@@ -53,3 +64,13 @@ jobs:
 
       - name: Test phonemizer
         run: pytest -v
+
+
+export TZ=Europe/Paris
+apt-get update
+apt-get install -y make autoconf automake libtool pkg-config gcc libsonic-dev libpcaudio-dev git
+git clone --depth 1 --branch 1.49.2 https://github.com/espeak-ng/espeak-ng.git
+cd espeak-ng
+./autogen.sh
+./configure
+make
