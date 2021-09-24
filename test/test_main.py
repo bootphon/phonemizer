@@ -31,7 +31,7 @@ def _test(input, expected_output, args=''):
         if sys.version_info[0] == 2:
             input = input.encode('utf8')
 
-        input_file = pathlib.path(tmpdir) / 'input.txt'
+        input_file = pathlib.Path(tmpdir) / 'input.txt'
         output_file = pathlib.Path(tmpdir) / 'output.txt'
         with open(input_file, 'w') as finput:
             finput.write(input)

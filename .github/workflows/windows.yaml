@@ -65,4 +65,4 @@ jobs:
           phonemize --version
 
       - name: Test phonemizer
-        run: pytest -v
+        run: pytest -v test\test_main.py
