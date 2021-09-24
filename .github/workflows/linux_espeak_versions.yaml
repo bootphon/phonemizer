@@ -64,13 +64,3 @@ jobs:
 
       - name: Test phonemizer
         run: pytest -v
-
-
-export TZ=Europe/Paris
-apt-get update
-apt-get install -y make autoconf automake libtool pkg-config gcc libsonic-dev libpcaudio-dev git
-git clone --depth 1 --branch 1.49.2 https://github.com/espeak-ng/espeak-ng.git
-cd espeak-ng
-./autogen.sh
-./configure
-make
