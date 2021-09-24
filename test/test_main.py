@@ -33,13 +33,13 @@ def _test(input, expected_output, args=''):
         finput.seek(0)
 
         with tempfile.NamedTemporaryFile('w+') as foutput:
-            finput_name = finput.name
-            foutput_name = foutput.name
-            if sys.platform == 'win32':
-                finput_name = finput_name.replace('\\', '\\\\')
-                foutput_name = foutput_name.replace('\\', '\\\\')
+            # finput_name = finput.name
+            # foutput_name = foutput.name
+            # if sys.platform == 'win32':
+            #     finput_name = finput_name.replace('\\', '\\\\')
+            #     foutput_name = foutput_name.replace('\\', '\\\\')
 
-            opts = '{} -o {} {}'.format(finput_name, foutput_name, args)
+            opts = '{} -o {} {}'.format(finput.name, foutput.name, args)
             sys.argv = ['foo'] + shlex.split(opts)
             main.main()
 

@@ -61,7 +61,9 @@ jobs:
           python setup.py install
 
       - name: Version phonemizer
-        run: phonemize --version
+        run: |
+          phonemize --version
+          & echo "hello world" | phonemize -b festival -l en-us
 
       - name: Test phonemizer
         run: pytest -v
