@@ -1,8 +1,12 @@
-[![Build Status](https://travis-ci.com/bootphon/phonemizer.svg?branch=master)](
-https://travis-ci.com/bootphon/phonemizer)
+[![Linux](https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml/badge.svg?branch=master)](
+https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml)
+[![MacOS](https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml/badge.svg?branch=master)](
+https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml)
+[![Windows](https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml/badge.svg?branch=master)](
+https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml)
 [![Codecov](https://img.shields.io/codecov/c/github/bootphon/phonemizer)](
-https://codecov.io/gh/bootphon/phonemizer)
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/bootphon/phonemizer)](
+https://codecov.io/gh/bootphon/phonemizer) [![GitHub release (latest
+SemVer)](https://img.shields.io/github/v/release/bootphon/phonemizer)](
 https://github.com/bootphon/phonemizer/releases/latest)
 [![DOI](https://zenodo.org/badge/56728069.svg)](
 https://doi.org/10.5281/zenodo.1045825)
