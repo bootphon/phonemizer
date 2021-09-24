@@ -25,7 +25,7 @@ from phonemizer import main, backend, logger
 
 
 def _test(input, expected_output, args=''):
-    with tempfile.NamedTemporaryFile('w') as finput:
+    with tempfile.NamedTemporaryFile('w+') as finput:
         # python2 needs additional utf8 encoding
         if sys.version_info[0] == 2:
             input = input.encode('utf8')
