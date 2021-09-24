@@ -131,6 +131,9 @@ def test_espeak_mbrola():
 
 def test_espeak_path():
     espeak = backend.EspeakBackend.espeak_path()
+    if sys.platform == 'win32':
+        espeak = str(espeak).replace('\\', '\\\\').replace(' ', '\\ ')
+    print(espeak)
     _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
 
 
