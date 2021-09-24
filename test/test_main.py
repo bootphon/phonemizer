@@ -36,7 +36,7 @@ def _test(input, expected_output, args=''):
         with open(input_file, 'w') as finput:
             finput.write(input)
 
-        opts = f'{input_file} -o {output_file} {args}'
+        opts = rf'{input_file} -o {output_file} {args}'
         sys.argv = ['unused'] + shlex.split(opts)
         main.main()
 
