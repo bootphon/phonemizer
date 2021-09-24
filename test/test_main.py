@@ -27,10 +27,6 @@ from phonemizer import main, backend, logger
 
 def _test(input, expected_output, args=''):
     with tempfile.TemporaryDirectory() as tmpdir:
-        # python2 needs additional utf8 encoding
-        if sys.version_info[0] == 2:
-            input = input.encode('utf8')
-
         input_file = pathlib.Path(tmpdir) / 'input.txt'
         output_file = pathlib.Path(tmpdir) / 'output.txt'
         with open(input_file, 'wb') as finput:
@@ -134,17 +130,11 @@ def test_espeak_mbrola():
 
 
 def test_espeak_path():
-    espeak = backend.EspeakBackend.espeak_path()
-
-    # if sys.platform == 'win32':
-    #     espeak.replace('\\', '\\\\')
-    _test(u'hello world', u'həloʊ wɜːld ', rf'--espeak-path={espeak}')
+    espeak = pathlib.Path(backend.EspeakBackend.espeak_path())
+    _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
 
 
 def test_festival_path():
-    festival = backend.FestivalBackend.festival_path()
-
-    # if sys.platform == 'win32':
-    #     festival.replace('\\', '\\\\')
+    festival = pathlib.Path(backend.FestivalBackend.festival_path())
     _test(u'hello world', u'hhaxlow werld ',
-          rf'--festival-path={festival} -b festival')
+          f'--festival-path={festival} -b festival')
