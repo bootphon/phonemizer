@@ -1,4 +1,4 @@
-# Test on Linux Ubuntu with festival-2.4 with various Python and espeak versions
+# Test on Linux Ubuntu with festival-2.5 with various Python and espeak versions
 
 name: Linux
 
@@ -39,7 +39,7 @@ jobs:
         if: ${{ matrix.python-version == '3.9' }}
         uses: codecov/codecov-action@v2
 
-  espeak-versions:
+  espeak-version:
     runs-on: ubuntu-latest
 
     strategy:
@@ -61,25 +61,13 @@ jobs:
       #   if: ${{ matrix.espeak-version == '1.48' }}
       #   run:
 
-      - name: Install espeak-1.49.2
-        if: ${{ matrix.espeak-version == '1.49.2' }}
+      - name: Install espeak>=1.49
+        if: ${{ matrix.espeak-version == '1.49.2' || matrix.espeak-version == '1.50' }}
+        env:
+          ESPEAK_VERSION: ${{ matrix.espeak-version }}
         run: |
           sudo apt-get install make autoconf automake libtool pkg-config gcc libsonic-dev libpcaudio-dev git
-          git clone --depth 1 --branch 1.49.2 https://github.com/espeak-ng/espeak-ng.git
-          cd espeak-ng
-          ./autogen.sh
-          ./configure
-          make
-          make install
-          ldconfig
-          espeak --version
-
-
-      - name: Install espeak-1.50
-        if: ${{ matrix.espeak-version == '1.50' }}
-        run: |
-          sudo apt-get install make autoconf automake libtool pkg-config gcc libsonic-dev libpcaudio-dev git
-          git clone --depth 1 --branch 1.50 https://github.com/espeak-ng/espeak-ng.git
+          git clone --depth 1 --branch $ESPEAK_VERSION https://github.com/espeak-ng/espeak-ng.git
           cd espeak-ng
           ./autogen.sh
           ./configure
