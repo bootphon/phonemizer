@@ -37,5 +37,5 @@ jobs:
         run: pytest -v --cov=./phonemizer --cov-report=xml
 
       - name: Upload coverage to Codecov
-        if: ${{ matrix.python_version == '3.9' }}
+        if: ${{ matrix.python-version == '3.9' }}
         uses: codecov/codecov-action@v2
