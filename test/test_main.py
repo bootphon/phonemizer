@@ -14,7 +14,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the command line interface"""
 
-import os
+import pathlib
 import tempfile
 import shlex
 import sys
@@ -31,8 +31,8 @@ def _test(input, expected_output, args=''):
         if sys.version_info[0] == 2:
             input = input.encode('utf8')
 
-        input_file = os.path.join(tmpdir, 'input.txt')
-        output_file = os.path.join(tmpdir, 'output.txt')
+        input_file = pathlib.path(tmpdir) / 'input.txt'
+        output_file = pathlib.Path(tmpdir) / 'output.txt'
         with open(input_file, 'w') as finput:
             finput.write(input)
 
