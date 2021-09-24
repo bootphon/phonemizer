@@ -14,6 +14,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the command line interface"""
 
+import os
 import tempfile
 import shlex
 import sys
@@ -134,6 +135,8 @@ def test_espeak_mbrola():
 
 def test_espeak_path():
     espeak = backend.EspeakBackend.espeak_path()
+    assert os.path.isfile(espeak)
+
     if sys.platform == 'win32':
         espeak.replace('\\', '\\\\')
     _test(u'hello world', u'həloʊ wɜːld ', rf'--espeak-path={espeak}')
@@ -141,6 +144,8 @@ def test_espeak_path():
 
 def test_festival_path():
     festival = backend.FestivalBackend.festival_path()
+    assert os.path.isfile(festival)
+
     if sys.platform == 'win32':
         festival.replace('\\', '\\\\')
     _test(u'hello world', u'hhaxlow werld ',
