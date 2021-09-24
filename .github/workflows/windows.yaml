@@ -13,19 +13,37 @@ jobs:
       PHONEMIZER_FESTIVAL_PATH: "C:\\festival\\src\\main\\festival.exe"
 
     steps:
-      - name: checkout phonemizer
+      - name: Checkout phonemizer
         uses: actions/checkout@v2
 
-      - name: setup python
+      - name: Setup python
         uses: actions/setup-python@v2
 
-      - name: install espeak
+      - name: Cache espeak
+        uses: actions/cache@v2
+        id: cache-espeak
+        with:
+          path: C:\Program Files\eSpeak NG
+          key: ${{ runner.os }}-espeak
+
+      - name: Cache festival
+        uses: actions/cache@v2
+        id: cache-festival
+        with:
+          path: |
+            C:\festival
+            C:\speech_tools
+          key: ${{ runner.os }}-festival
+
+      - name: Install espeak
+        if: steps.cache-espeak.outputs.cache-hit != 'true'
         run: |
           $source = 'https://github.com/espeak-ng/espeak-ng/releases/download/1.50/espeak-ng-20191129-b702b03-x64.msi'
           Invoke-WebRequest -Uri $source -OutFile espeak.msi
           Start-Process msiexec.exe -Wait -ArgumentList '/I espeak.msi /qn'
 
-      - name: install festival
+      - name: Install festival
+        if: steps.cache-festival.outputs.cache-hit != 'true'
         run: |
           $uri = "https://sourceforge.net/projects/e-guidedog/files/related-third-party-software/0.3"
 
@@ -37,28 +55,13 @@ jobs:
           sz x -oC:\ festival-2.5.7z
           sz x -oC:\ speech_tools-2.5.7z
 
-      # - name: test festival
-      #   run: |
-      #     & "$env:PHONEMIZER_FESTIVAL_PATH" '--version'
-      #     Write-Output '"hello world"' | Set-Content hello.txt
-      #     (Get-Content .\phonemizer\share\festival\phonemize.scm).replace('{}', 'hello.txt') | Set-Content script.scm
-      #     & "$env:PHONEMIZER_FESTIVAL_PATH" '-b' 'script.scm'
-
-      - name: install phonemizer
+      - name: Install phonemizer
         run: |
           pip install --upgrade pip pytest
           python setup.py install
 
-      - name: version phonemizer
+      - name: Version phonemizer
         run: phonemize --version
 
-      - name: test festival
-        shell: python
-        run: |
-          from phonemizer.backend import FestivalBackend
-          from phonemizer.logger import get_logger
-          backend = FestivalBackend('en-us', logger=get_logger('verbose'))
-          print(backend.phonemize('hello world'))
-
-      # - name: test phonemizer
-      #   run: pytest -v
+      - name: Test phonemizer
+        run: pytest -v

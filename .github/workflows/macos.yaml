@@ -13,45 +13,45 @@ jobs:
       PHONEMIZER_FESTIVAL_PATH: ${{ github.workspace }}/festival/build_festival/festival/bin/festival
 
     steps:
-      - name: checkout phonemizer
+      - name: Checkout phonemizer
         uses: actions/checkout@v2
 
-      - name: setup python
+      - name: Setup python
         uses: actions/setup-python@v2
 
-      - name: install espeak-1.48
+      - name: Install espeak-1.48
         run: |
           brew update
           brew install espeak
 
-      - name: cache festival
+      - name: Cache festival
         uses: actions/cache@v2
         id: cache-festival
         with:
           path: ${{ github.workspace }}/festival
           key: ${{ runner.os }}-festival
 
-      - name: checkout festival
+      - name: Checkout festival
         if: steps.cache-festival.outputs.cache-hit != 'true'
         uses: actions/checkout@v2
         with:
           repository: pettarin/setup-festival-mbrola
           path: festival
 
-      - name: install festival
+      - name: Install festival
         if: steps.cache-festival.outputs.cache-hit != 'true'
         run: |
           cd festival
           bash setup_festival_mbrola.sh . festival
 
-      - name: install phonemizer
+      - name: Install phonemizer
         run: |
           pip install --upgrade pip
           python setup.py install
           pip install --upgrade pytest
 
-      - name: version phonemizer
+      - name: Version phonemizer
         run: phonemize --version
 
-      - name: test phonemizer
+      - name: Test phonemizer
         run: pytest -v

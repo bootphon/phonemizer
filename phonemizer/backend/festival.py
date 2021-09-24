@@ -20,6 +20,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
 
 import phonemizer.lispy as lispy
@@ -184,11 +185,13 @@ class FestivalBackend(BaseBackend):
                 data.write(text)
                 data.close()
 
+                # fix the path name for windows
+                name = data.name
+                if sys.platform == 'win32':
+                    name = name.replace('\\', '\\\\')
+
                 # the Scheme script to be send to festival
-                scm_script = open(self.script, 'r').read().format(
-                    data.name.replace('\\', '\\\\'))
-                for line in scm_script.split('\n'):
-                    print(line)
+                scm_script = open(self.script, 'r').read().format(name)
 
                 with tempfile.NamedTemporaryFile('w+', delete=False) as scm:
                     try:

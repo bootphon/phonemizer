@@ -13,25 +13,25 @@ jobs:
         python-version: ['3.6', '3.7', '3.8', '3.9']
 
     steps:
-      - name: checkout phonemizer
+      - name: Checkout phonemizer
         uses: actions/checkout@v2
 
-      - name: setup python
+      - name: Setup python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: install system dependencies
+      - name: Install system dependencies
         run: sudo apt-get install espeak-ng festival mbrola mbrola-fr1
 
-      - name: install phonemizer
+      - name: Install phonemizer
         run: |
           pip install --upgrade pip
           python setup.py install
           pip install --upgrade pytest
 
-      - name: version phonemizer
+      - name: Version phonemizer
         run: phonemize --version
 
-      - name: test phonemizer
+      - name: Test phonemizer
         run: pytest -v
