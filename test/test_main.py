@@ -35,7 +35,6 @@ def _test(input, expected_output, args=''):
         sys.argv = ['unused', f'{input_file}', '-o', f'{output_file}']
         if args:
             sys.argv += shlex.split(args)
-        print(sys.argv)
         main.main()
 
         with open(output_file, 'rb') as foutput:
@@ -133,11 +132,13 @@ def test_espeak_path():
     espeak = backend.EspeakBackend.espeak_path()
     if sys.platform == 'win32':
         espeak = str(espeak).replace('\\', '\\\\').replace(' ', '\\ ')
-    print(espeak)
     _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
 
 
 def test_festival_path():
     festival = pathlib.Path(backend.FestivalBackend.festival_path())
+    if sys.platform == 'win32':
+        festival = str(festival).replace('\\', '\\\\').replace(' ', '\\ ')
+
     _test(u'hello world', u'hhaxlow werld ',
           f'--festival-path={festival} -b festival')
