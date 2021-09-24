@@ -187,7 +187,7 @@ class FestivalBackend(BaseBackend):
 
                 # fix the path name for windows
                 name = data.name
-                if sys.platform == 'win32':
+                if sys.platform == 'win32':  # pragma: nocover
                     name = name.replace('\\', '\\\\')
 
                 # the Scheme script to be send to festival

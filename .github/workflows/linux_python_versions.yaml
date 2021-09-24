@@ -1,7 +1,7 @@
 # Test on Linux Ubuntu (festival-2.4 and espeak-ng-1.50) with various Python
 # versions
 
-name: Python versions - Ubuntu
+name: Ubuntu - Python versions
 
 on: [push, pull_request]
 
@@ -27,12 +27,15 @@ jobs:
 
       - name: Install phonemizer
         run: |
-          pip install --upgrade pip
+          pip install --upgrade pip pytest pytest-cov
           python setup.py install
-          pip install --upgrade pytest
 
       - name: Version phonemizer
         run: phonemize --version
 
       - name: Test phonemizer
-        run: pytest -v
+        run: pytest -v --cov=./phonemizer --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.python_version == '3.9' }}
+        uses: codecov/codecov-action@v2
