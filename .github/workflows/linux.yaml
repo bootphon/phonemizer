@@ -84,8 +84,8 @@ jobs:
           ./autogen.sh
           ./configure
           make
-          make install
-          ldconfig
+          sudo make install
+          sudo ldconfig
           espeak --version
 
       - name: Install phonemizer
