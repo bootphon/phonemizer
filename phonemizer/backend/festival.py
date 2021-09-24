@@ -186,6 +186,8 @@ class FestivalBackend(BaseBackend):
 
                 # the Scheme script to be send to festival
                 scm_script = open(self.script, 'r').read().format(data.name)
+                for line in scm_script.split('\n'):
+                    print(line)
 
                 with tempfile.NamedTemporaryFile('w+', delete=False) as scm:
                     try:
