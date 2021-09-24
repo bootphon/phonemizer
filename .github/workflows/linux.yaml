@@ -44,7 +44,7 @@ jobs:
 
     strategy:
       matrix:
-        espeak-version: ['1.48', '1.49.2', '1.50']
+        espeak-version: ['1.48.03', '1.49.2', '1.50', 'master']
 
     steps:
       - name: Checkout phonemizer
@@ -57,11 +57,11 @@ jobs:
         run: sudo apt-get install festival mbrola mbrola-fr1
 
       - name: Install espeak-1.48
-        if: ${{ matrix.espeak-version == '1.48' }}
+        if: ${{ matrix.espeak-version == '1.48.03' }}
         run: sudo apt install espeak
 
       - name: Install espeak>=1.49
-        if: ${{ matrix.espeak-version == '1.49.2' || matrix.espeak-version == '1.50' }}
+        if: ${{ matrix.espeak-version != '1.48.03' }}
         env:
           ESPEAK_VERSION: ${{ matrix.espeak-version }}
         run: |
