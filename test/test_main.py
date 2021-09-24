@@ -134,10 +134,14 @@ def test_espeak_mbrola():
 
 def test_espeak_path():
     espeak = backend.EspeakBackend.espeak_path()
+    if sys.platform == 'win32':
+        espeak.replace('\\', '\\\\')
     _test(u'hello world', u'həloʊ wɜːld ', rf'--espeak-path={espeak}')
 
 
 def test_festival_path():
     festival = backend.FestivalBackend.festival_path()
+    if sys.platform == 'win32':
+        festival.replace('\\', '\\\\')
     _test(u'hello world', u'hhaxlow werld ',
           rf'--festival-path={festival} -b festival')

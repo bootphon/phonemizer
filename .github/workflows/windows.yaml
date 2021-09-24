@@ -63,7 +63,6 @@ jobs:
       - name: Version phonemizer
         run: |
           phonemize --version
-          & echo "hello world" | phonemize -b festival -l en-us
 
       - name: Test phonemizer
         run: pytest -v
