@@ -16,6 +16,7 @@
 
 import pathlib
 import tempfile
+import shlex
 import sys
 
 import pytest
@@ -32,17 +33,17 @@ def _test(input, expected_output, args=''):
 
         input_file = pathlib.Path(tmpdir) / 'input.txt'
         output_file = pathlib.Path(tmpdir) / 'output.txt'
-        with open(input_file, 'wb') as finput:
+        with open(input_file, 'w') as finput:
             finput.write(input)
 
         sys.argv = ['unused', f'{input_file}', '-o', f'{output_file}']
         if args:
-            sys.argv.append(args)
+            sys.argv += shlex.split(args)
         print(sys.argv)
         main.main()
 
         with open(output_file, 'rb') as foutput:
-            output = foutput.read()
+            output = foutput.read().decode()
 
         if expected_output == '':
             assert output == ''
