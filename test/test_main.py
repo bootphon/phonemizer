@@ -16,7 +16,6 @@
 
 import pathlib
 import tempfile
-import shlex
 import sys
 
 import pytest
@@ -36,8 +35,7 @@ def _test(input, expected_output, args=''):
         with open(input_file, 'w') as finput:
             finput.write(input)
 
-        opts = f'{input_file} -o {output_file} {args}'
-        sys.argv = ['unused'] + shlex.split(opts)
+        sys.argv = ['unused', f'{input_file}', '-o', f'{output_file}', args]
         print(sys.argv)
         main.main()
 
