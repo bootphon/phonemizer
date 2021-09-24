@@ -14,10 +14,11 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the command line interface"""
 
-import pytest
 import tempfile
 import shlex
 import sys
+
+import pytest
 
 from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
 from phonemizer import main, backend, logger
@@ -32,7 +33,13 @@ def _test(input, expected_output, args=''):
         finput.seek(0)
 
         with tempfile.NamedTemporaryFile('w+') as foutput:
-            opts = '{} -o {} {}'.format(finput.name, foutput.name, args)
+            finput_name = finput.name
+            foutput_name = foutput.name
+            if sys.platform == 'win32':
+                finput_name = finput_name.replace('\\', '\\\\')
+                foutput_name = foutput_name.replace('\\', '\\\\')
+
+            opts = '{} -o {} {}'.format(finput_name, foutput_name, args)
             sys.argv = ['foo'] + shlex.split(opts)
             main.main()
 

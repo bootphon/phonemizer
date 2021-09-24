@@ -1,4 +1,5 @@
-# Test on Linux Ubuntu with various Python versions
+# Test on Linux Ubuntu (festival-2.4 and espeak-ng-1.50) with various Python
+# versions
 
 name: Python versions - Ubuntu
 
