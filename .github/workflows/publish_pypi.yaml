@@ -5,7 +5,6 @@ name: Publish to Pypi
 on:
   push:
     tags: v*
-    branches: master
 
 jobs:
   publish:
@@ -23,7 +22,7 @@ jobs:
 
       - name: Build phonemizer
         run: |
-          pip install --upgrade pip pytest
+          pip install --upgrade pip pytest wheel
           python setup.py install
           pytest
           python setup.py sdist bdist_wheel
