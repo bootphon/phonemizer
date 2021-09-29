@@ -1,0 +1,57 @@
+# Test on macos with festival-2.4 compiled from source and espeak-1.48 from
+# homebrew. To save time and ressources, festival is cached across runs.
+
+name: MacOS
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: macos-latest
+
+    env:
+      PHONEMIZER_FESTIVAL_PATH: ${{ github.workspace }}/festival/build_festival/festival/bin/festival
+
+    steps:
+      - name: Checkout phonemizer
+        uses: actions/checkout@v2
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+
+      - name: Install espeak-1.48
+        run: |
+          brew update
+          brew install espeak
+
+      - name: Cache festival
+        uses: actions/cache@v2
+        id: cache-festival
+        with:
+          path: ${{ github.workspace }}/festival
+          key: ${{ runner.os }}-festival
+
+      - name: Checkout festival
+        if: steps.cache-festival.outputs.cache-hit != 'true'
+        uses: actions/checkout@v2
+        with:
+          repository: pettarin/setup-festival-mbrola
+          path: festival
+
+      - name: Install festival
+        if: steps.cache-festival.outputs.cache-hit != 'true'
+        run: |
+          cd festival
+          bash setup_festival_mbrola.sh . festival
+
+      - name: Install phonemizer
+        run: |
+          pip install --upgrade pip
+          python setup.py install
+          pip install --upgrade pytest
+
+      - name: Version phonemizer
+        run: phonemize --version
+
+      - name: Test phonemizer
+        run: pytest -v

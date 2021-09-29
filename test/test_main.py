@@ -14,33 +14,36 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the command line interface"""
 
-import pytest
+import pathlib
 import tempfile
 import shlex
 import sys
+
+import pytest
 
 from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
 from phonemizer import main, backend, logger
 
 
 def _test(input, expected_output, args=''):
-    with tempfile.NamedTemporaryFile('w') as finput:
-        # python2 needs additional utf8 encoding
-        if sys.version_info[0] == 2:
-            input = input.encode('utf8')
-        finput.write(input)
-        finput.seek(0)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_file = pathlib.Path(tmpdir) / 'input.txt'
+        output_file = pathlib.Path(tmpdir) / 'output.txt'
+        with open(input_file, 'wb') as finput:
+            finput.write(input.encode('utf8'))
 
-        with tempfile.NamedTemporaryFile('w+') as foutput:
-            opts = '{} -o {} {}'.format(finput.name, foutput.name, args)
-            sys.argv = ['foo'] + shlex.split(opts)
-            main.main()
+        sys.argv = ['unused', f'{input_file}', '-o', f'{output_file}']
+        if args:
+            sys.argv += shlex.split(args)
+        main.main()
 
-            output = foutput.read()
-            if expected_output == '':
-                assert output == ''
-            else:
-                assert output == expected_output + '\n'
+        with open(output_file, 'rb') as foutput:
+            output = foutput.read().decode()
+
+        if expected_output == '':
+            assert output == ''
+        else:
+            assert output == expected_output + '\n'
 
 
 def test_help():
@@ -127,10 +130,15 @@ def test_espeak_mbrola():
 
 def test_espeak_path():
     espeak = backend.EspeakBackend.espeak_path()
+    if sys.platform == 'win32':
+        espeak = str(espeak).replace('\\', '\\\\').replace(' ', '\\ ')
     _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
 
 
 def test_festival_path():
-    festival = backend.FestivalBackend.festival_path()
+    festival = pathlib.Path(backend.FestivalBackend.festival_path())
+    if sys.platform == 'win32':
+        festival = str(festival).replace('\\', '\\\\').replace(' ', '\\ ')
+
     _test(u'hello world', u'hhaxlow werld ',
           f'--festival-path={festival} -b festival')
