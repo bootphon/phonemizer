@@ -15,6 +15,7 @@
 """Wrapper on espeak-ng library"""
 
 import ctypes
+import ctypes.util
 import functools
 import os
 import pathlib

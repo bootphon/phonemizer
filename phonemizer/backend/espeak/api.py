@@ -21,9 +21,10 @@ import sys
 import tempfile
 import weakref
 
-import dlinfo
-
 from phonemizer.backend.espeak.voice import EspeakVoice
+
+if sys.platform != 'win32':
+    import dlinfo
 
 
 class EspeakAPI:
