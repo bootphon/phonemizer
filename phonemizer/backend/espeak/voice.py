@@ -1,0 +1,58 @@
+# Copyright 2015-2021 Mathieu Bernard
+#
+# This file is part of phonemizer: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# Phonemizer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
+"""Voice struct from Espeak API exposed to Python"""
+
+import ctypes
+import dataclasses
+
+
+@dataclasses.dataclass(frozen=True)
+class EspeakVoice:
+    """A helper class to expose voice structures within C and Python"""
+    name: str = ''
+    language: str = ''
+    identifier: str = ''
+
+    def __str__(self):
+        return f'{self.name} ({self.language}, {self.identifier})'
+
+    class Struct(ctypes.Structure):  # pylint: disable=too-few-public-methods
+        """A helper class to fetch voices information from the espeak library.
+
+        The espeak_VOICE struct is defined in speak_lib.h from the espeak code.
+        Here we use only name (voice name), languages (language code) and
+        identifier (voice file) information.
+
+        """
+        _fields_ = [
+            ('name', ctypes.c_char_p),
+            ('languages', ctypes.c_char_p),
+            ('identifier', ctypes.c_char_p)]
+
+    def to_ctypes(self):
+        """Converts the Voice instance to  an espeak ctypes structure"""
+        return self.Struct(
+            self.name.encode('utf8') if self.name else None,
+            self.language.encode('utf8') if self.language else None,
+            self.identifier.encode('utf8') if self.identifier else None)
+
+    @classmethod
+    def from_ctypes(cls, struct):
+        """Returns a Voice instance built from an espeak ctypes structure"""
+        return cls(
+            name=(struct.name or b'').decode(),
+            # discard a useless char prepended by espeak
+            language=(struct.languages or b'0').decode()[1:],
+            identifier=(struct.identifier or b'').decode())

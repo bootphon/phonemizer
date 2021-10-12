@@ -12,11 +12,4 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
-"""Multilingual text to phonemes converter"""
-
-# pylint: disable=unused-import
-
-from .espeak.espeak import EspeakBackend
-from .espeak.mbrola import EspeakMbrolaBackend
-from .festival import FestivalBackend
-from .segments import SegmentsBackend
+"""Phonemizer module for espeak backend implementation"""

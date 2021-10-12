@@ -14,6 +14,8 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the phonemizer.phonemize function"""
 
+# pylint: disable=missing-docstring
+
 import pytest
 
 from phonemizer.phonemize import phonemize
@@ -35,7 +37,6 @@ def test_bad_backend():
         phonemize('', tie=True, backend='segments')
 
 
-
 def test_bad_language():
     with pytest.raises(RuntimeError):
         phonemize('', language='fr-fr', backend='festival')
@@ -51,15 +52,15 @@ def test_bad_language():
 
 
 def test_text_type():
-    t1 = ['one two', 'three', 'four five']
-    t2 = '\n'.join(t1)
+    text1 = ['one two', 'three', 'four five']
+    text2 = '\n'.join(text1)
 
-    p1 = phonemize(t1, language='en-us', backend='espeak', strip=True)
-    p2 = phonemize(t2, language='en-us', backend='espeak', strip=True)
+    phn1 = phonemize(text1, language='en-us', backend='espeak', strip=True)
+    phn2 = phonemize(text2, language='en-us', backend='espeak', strip=True)
 
-    assert isinstance(p1, list)
-    assert isinstance(p2, str)
-    assert '\n'.join(p1) == p2
+    assert isinstance(phn1, list)
+    assert isinstance(phn2, str)
+    assert '\n'.join(phn1) == phn2
 
 
 @pytest.mark.parametrize('njobs', [2, 4])

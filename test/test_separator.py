@@ -14,6 +14,8 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the Separator class"""
 
+# pylint: disable=missing-docstring
+
 import pytest
 
 from phonemizer.separator import Separator, default_separator

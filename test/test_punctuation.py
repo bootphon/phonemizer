@@ -14,6 +14,8 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the punctuation processing"""
 
+# pylint: disable=missing-docstring
+
 import pytest
 
 from phonemizer.backend import EspeakBackend, FestivalBackend, SegmentsBackend
@@ -23,9 +25,6 @@ from phonemizer.phonemize import phonemize
 
 # True if we are using espeak>=1.49.3
 ESPEAK_143 = (EspeakBackend.version(as_tuple=True) >= (1, 49, 3))
-
-# True if we are using espeak>=1.50
-ESPEAK_150 = (EspeakBackend.version(as_tuple=True) >= (1, 50))
 
 # True if we are using festival>=2.5
 FESTIVAL_25 = (FestivalBackend.version(as_tuple=True) >= (2, 5))
@@ -54,39 +53,37 @@ def test_remove(inp, out):
         ["!?"],
         ["!'"]])
 def test_preserve(inp):
-    p = Punctuation()
-    t, m = p.preserve(inp)
-    assert inp == p.restore(t, m)
+    punct = Punctuation()
+    text, marks = punct.preserve(inp)
+    assert inp == punct.restore(text, marks)
 
 
 @pytest.mark.parametrize(
-    'text, output', [
+    'text, expected', [
         (['hi; ho,"'], ['haɪ ; hoʊ ,']),
         (['hi; "ho,'], ['haɪ ; hoʊ ,'] if ESPEAK_143 else ['haɪ ;  hoʊ ,']),
         (['"hi; ho,'], ['haɪ ; hoʊ ,'] if ESPEAK_143 else [' haɪ ; hoʊ ,'])])
-def test_preserve_2(text, output):
+def test_preserve_2(text, expected):
     marks = ".!;:,?"
-    p = Punctuation(marks=marks)
-    t, m = p.preserve(text)
-    assert text == p.restore(t, m)
+    punct = Punctuation(marks=marks)
+    assert text == punct.restore(*punct.preserve(text))
 
-    o = phonemize(
+    output = phonemize(
         text, backend="espeak",
         preserve_punctuation=True, punctuation_marks=marks)
-    assert o == output
+    assert output == expected
 
 
 def test_custom():
-    p = Punctuation()
-    m = p.marks
-    assert set(m) == set(p.default_marks())
-    assert p.remove('a,b.c') == 'a b c'
+    punct = Punctuation()
+    assert set(punct.marks) == set(punct.default_marks())
+    assert punct.remove('a,b.c') == 'a b c'
 
     with pytest.raises(ValueError):
-        p.marks = ['?', '.']
-    p.marks = '?.'
-    assert len(p.marks) == 2
-    assert p.remove('a,b.c') == 'a,b c'
+        punct.marks = ['?', '.']
+    punct.marks = '?.'
+    assert len(punct.marks) == 2
+    assert punct.remove('a,b.c') == 'a,b c'
 
 
 def test_espeak():
@@ -174,8 +171,7 @@ def test_issue_54(text):
 @pytest.mark.parametrize(
     'backend, marks, text, expected', [
         ('espeak', 'default', ['"Hey! "', '"hey,"'], ['"heɪ ! "', '"heɪ ,"']),
-        ('espeak', '.!;:,?', ['"Hey! "', '"hey,"'],
-         ['heɪ ! ', 'heɪ ,'] if ESPEAK_150 else [' heɪ ! ', ' heɪ ,']),
+        ('espeak', '.!;:,?', ['"Hey! "', '"hey,"'], ['heɪ ! ', 'heɪ ,']),
         ('espeak', 'default', ['! ?', 'hey!'], ['! ?', 'heɪ !']),
         ('espeak', '!', ['! ?', 'hey!'], ['! ', 'heɪ !']),
         ('segments', 'default', ['! ?', 'hey!'], ['! ?', 'heːj !']),

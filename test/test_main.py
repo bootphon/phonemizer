@@ -14,6 +14,8 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the command line interface"""
 
+# pylint: disable=missing-docstring
+
 import pathlib
 import tempfile
 import shlex
@@ -25,12 +27,12 @@ from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
 from phonemizer import main, backend, logger
 
 
-def _test(input, expected_output, args=''):
+def _test(text, expected_output, args=''):
     with tempfile.TemporaryDirectory() as tmpdir:
         input_file = pathlib.Path(tmpdir) / 'input.txt'
         output_file = pathlib.Path(tmpdir) / 'output.txt'
         with open(input_file, 'wb') as finput:
-            finput.write(input.encode('utf8'))
+            finput.write(text.encode('utf8'))
 
         sys.argv = ['unused', f'{input_file}', '-o', f'{output_file}']
         if args:
@@ -83,13 +85,13 @@ def test_readme_festival_syll():
           u"-p ' ' -s ';esyll ' -w ';eword ' -b festival -l en-us")
 
 
-def test_njobs():
-    for njobs in range(1, 6):
-        _test(
-            u'hello world\ngoodbye\nthird line\nyet another',
-            u'h-ə-l-oʊ w-ɜː-l-d\nɡ-ʊ-d-b-aɪ\nθ-ɜː-d l-aɪ-n\nj-ɛ-t ɐ-n-ʌ-ð-ɚ',
-            u'--strip -j {} -l en-us -b espeak -p "-" -s "|" -w " "'
-            .format(njobs))
+@pytest.mark.parametrize('njobs', range(1, 6))
+def test_njobs(njobs):
+    _test(
+        u'hello world\ngoodbye\nthird line\nyet another',
+        u'h-ə-l-oʊ w-ɜː-l-d\nɡ-ʊ-d-b-aɪ\nθ-ɜː-d l-aɪ-n\nj-ɛ-t ɐ-n-ʌ-ð-ɚ',
+        u'--strip -j {} -l en-us -b espeak -p "-" -s "|" -w " "'
+        .format(njobs))
 
 
 def test_unicode():
@@ -125,20 +127,20 @@ def test_logger():
     reason='mbrola or mb-fr1 voice not installed')
 def test_espeak_mbrola():
     _test(u'coucou toi!', u'k u k u t w a ',
-          f'-b espeak-mbrola -l mb-fr1 -p" " --preserve-punctuation')
+          '-b espeak-mbrola -l mb-fr1 -p" " --preserve-punctuation')
 
 
 def test_espeak_path():
-    espeak = backend.EspeakBackend.espeak_path()
+    espeak = pathlib.Path(backend.EspeakBackend.library())
     if sys.platform == 'win32':
         espeak = str(espeak).replace('\\', '\\\\').replace(' ', '\\ ')
-    _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
+    _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-library={espeak}')
 
 
 def test_festival_path():
-    festival = pathlib.Path(backend.FestivalBackend.festival_path())
+    festival = pathlib.Path(backend.FestivalBackend.executable())
     if sys.platform == 'win32':
         festival = str(festival).replace('\\', '\\\\').replace(' ', '\\ ')
 
     _test(u'hello world', u'hhaxlow werld ',
-          f'--festival-path={festival} -b festival')
+          f'--festival-executable={festival} -b festival')

@@ -1,6 +1,7 @@
 """Tests to import the phonemize function"""
 
-import pytest
+# pylint: disable=missing-docstring
+# pylint: disable=import-outside-toplevel
 
 
 def test_relative():
