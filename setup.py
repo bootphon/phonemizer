@@ -37,7 +37,7 @@ setuptools.setup(
     version=phonemizer.__version__,
 
     # python package dependancies
-    install_requires=['joblib', 'segments', 'attrs>=18.1'],
+    install_requires=['joblib', 'segments', 'attrs>=18.1', 'dlinfo'],
 
     # include Python code and any files in phonemizer/share
     packages=setuptools.find_packages(),

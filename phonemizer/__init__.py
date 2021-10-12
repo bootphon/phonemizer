@@ -15,7 +15,8 @@
 """Multilingual text to phones converter"""
 
 
-__version__ = '2.2.2'
+__version__ = '2.3-dev0'
+"""Phonemizer version"""
 
 
 try:  # pragma: nocover
@@ -32,4 +33,5 @@ if __PHONEMIZER_SETUP__:  # pragma: nocover
     sys.stderr.write(
         'Partial import of phonemizer during the build process.\n')
 else:
+    # pylint: disable=unused-import
     from .phonemize import phonemize

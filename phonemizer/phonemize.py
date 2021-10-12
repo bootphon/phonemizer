@@ -22,14 +22,17 @@ To use it in your own code, type:
 
 import sys
 
-from phonemizer.logger import get_logger
-from phonemizer.separator import default_separator
 from phonemizer.backend import (
-    EspeakBackend, EspeakMbrolaBackend, FestivalBackend, SegmentsBackend)
+    EspeakBackend,
+    EspeakMbrolaBackend,
+    FestivalBackend,
+    SegmentsBackend)
+from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
+from phonemizer.separator import default_separator
 
 
-def phonemize(
+def phonemize(  # pylint: disable=too-many-arguments
         text,
         language='en-us',
         backend='festival',

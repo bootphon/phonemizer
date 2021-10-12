@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
-"""Abstract class for phonemization backends"""
+"""Abstract base class for phonemization backends"""
 
 import abc
 import itertools
@@ -25,15 +25,14 @@ from phonemizer.punctuation import Punctuation
 from phonemizer.utils import list2str, str2list, chunks
 
 
-class BaseBackend:
+class BaseBackend(abc.ABC):
     """Abstract base class of all the phonemization backends
 
     Provides a common interface to all backends. The central method is
     `phonemize()`
 
     """
-    __metaclass__ = abc.ABCMeta
-
+    # TODO doc on parameters
     def __init__(self, language,
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
@@ -43,20 +42,34 @@ class BaseBackend:
             raise RuntimeError(  # pragma: nocover
                 '{} not installed on your system'.format(self.name()))
 
-        self.logger = logger
-        self.logger.info(
+        self._logger = logger
+        self._logger.info(
             'initializing backend %s-%s', self.name(), self.version())
 
         # ensure the backend support the requested language
-        if not self.is_supported_language(language):
-            raise RuntimeError(
-                'language "{}" is not supported by the {} backend'
-                .format(language, self.name()))
-        self.language = language
+        self._language = self._init_language(language)
 
         # setup punctuation processing
-        self.preserve_punctuation = preserve_punctuation
+        self._preserve_punctuation = preserve_punctuation
         self._punctuator = Punctuation(punctuation_marks)
+
+    @classmethod
+    def _init_language(cls, language):
+        if not cls.is_supported_language(language):
+            raise RuntimeError(
+                f'language "{language}" is not supported by the '
+                f'{cls.name()} backend')
+        return language
+
+    @property
+    def logger(self):
+        """A logging.Logger instance where to send messages"""
+        return self._logger
+
+    @property
+    def language(self):
+        """The language code configured to be used for phonemization"""
+        return self._language
 
     @staticmethod
     @abc.abstractmethod
@@ -68,9 +81,9 @@ class BaseBackend:
     def is_available(cls):
         """Returns True if the backend is installed, False otherwise"""
 
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
-    def version(as_tuple=False):
+    def version(cls, as_tuple=False):
         """Return the backend version as a string 'major.minor.patch'
 
         If `as_tuple` is True, returns a tuple (major, minor, patch).
@@ -90,58 +103,67 @@ class BaseBackend:
     def phonemize(self, text, separator=default_separator,
                   strip=False, njobs=1):
         """Returns the `text` phonemized for the given language"""
+        # TODO doc
         text, text_type, punctuation_marks = self._phonemize_preprocess(text)
 
         if njobs == 1:
             # phonemize the text forced as a string
-            text = self._phonemize_aux(list2str(text), separator, strip)
+            phonemized = self._phonemize_aux(
+                list2str(text), 0, separator, strip)
         else:
             # If using parallel jobs, disable the log as stderr is not
             # picklable.
             self.logger.info('running %s on %s jobs', self.name(), njobs)
-            log_storage = self.logger
-            self.logger = None
 
             # we have here a list of phonemized chunks
-            text = joblib.Parallel(n_jobs=njobs)(
-                joblib.delayed(self._phonemize_aux)(t, separator, strip)
-                for t in chunks(text, njobs))
+            phonemized = joblib.Parallel(n_jobs=njobs)(
+                joblib.delayed(self._phonemize_aux)(
+                    # chunk[0] is the text, chunk[1] is the offset
+                    chunk[0], chunk[1], separator, strip)
+                for chunk in zip(*chunks(text, njobs)))
 
             # flatten them in a single list
-            text = list(itertools.chain(*text))
+            phonemized = self._flatten(phonemized)
 
-            # restore the log as it was before parallel processing
-            self.logger = log_storage
+        return self._phonemize_postprocess(
+            phonemized, text_type, punctuation_marks)
 
-        return self._phonemize_postprocess(text, text_type, punctuation_marks)
+    @staticmethod
+    def _flatten(phonemized):
+        # TODO doc
+        return list(itertools.chain(*phonemized))
 
     @abc.abstractmethod
-    def _phonemize_aux(self, text, separator, strip):
+    def _phonemize_aux(self, text, offset, separator, strip):
+        # TODO doc
         pass
 
     def _phonemize_preprocess(self, text):
+        # TODO doc
         # remember the text type for output (either list or string)
         text_type = type(text)
 
         # deals with punctuation: remove it and keep track of it for
         # restoration at the end if asked for
         punctuation_marks = []
-        if self.preserve_punctuation:
+        if self._preserve_punctuation:
             text, punctuation_marks = self._punctuator.preserve(text)
         else:
             text = self._punctuator.remove(text)
 
         return text, text_type, punctuation_marks
 
-    def _phonemize_postprocess(self, text, text_type, punctuation_marks):
+    def _phonemize_postprocess(self, phonemized, text_type, punctuation_marks):
+        # TODO doc
         # restore the punctuation is asked for
-        if self.preserve_punctuation:
-            text = self._punctuator.restore(text, punctuation_marks)
+        if self._preserve_punctuation:
+            phonemized = self._punctuator.restore(
+                phonemized, punctuation_marks)
 
         # remove any empty line in output
-        text = [line for line in text if line]
+        phonemized = [line for line in phonemized if line]
 
         # output the result formatted as a string or a list of strings
         # according to type(text)
-        return (list2str(text) if text_type in six.string_types
-                else str2list(text))
+        return (list2str(phonemized) if text_type in six.string_types
+                else str2list(phonemized))

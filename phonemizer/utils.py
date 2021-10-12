@@ -14,7 +14,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Provides utility functions for the phonemizer"""
 
-import os
+import pathlib
 import pkg_resources
 import six
 
@@ -29,14 +29,16 @@ def cumsum(iterable):
     return res
 
 
-def str2list(s):
-    """Returns the string `s` as a list of lines, split by \n"""
-    return s.strip().split('\n') if isinstance(s, six.string_types) else s
+def str2list(text):
+    """Returns the string `text` as a list of lines, split by \n"""
+    return (
+        text.strip().split('\n') if isinstance(text, six.string_types)
+        else text)
 
 
-def list2str(s):
-    """Returns the list of lines `s` as a single string separated by \n"""
-    return '\n'.join(s) if not isinstance(s, six.string_types) else s
+def list2str(text):
+    """Returns the list of lines `text` as a single string separated by \n"""
+    return '\n'.join(text) if not isinstance(text, six.string_types) else text
 
 
 def chunks(text, num):
@@ -57,20 +59,25 @@ def chunks(text, num):
 
     Returns
     -------
-    The chunked text as a list of str.
+    chunks (list of str) : The chunked text with utterances separated by '\n.
+
+    offsets (list of int) : offset used below to recover the line numbers in
+        the input text wrt the chunks
 
     """
     text = str2list(text)
     size = int(max(1, len(text) / num))
     nchunks = min(num, len(text))
 
-    result = [list2str(text[i*size:(i+1)*size]) for i in range(nchunks - 1)]
+    text_chunks = [
+        list2str(text[i*size:(i+1)*size]) for i in range(nchunks - 1)]
 
     last = list2str(text[(nchunks - 1)*size:])
     if last:
-        result.append(last)
+        text_chunks.append(last)
 
-    return result
+    offsets = [0] + cumsum((c.count('\n') + 1 for c in text_chunks[:-1]))
+    return text_chunks, offsets
 
 
 def get_package_resource(path):
@@ -91,15 +98,25 @@ def get_package_resource(path):
 
     Returns
     -------
-    The absolute path to the required resource
+    The absolute path to the required resource as a `pathlib.Path`
 
     """
-    path = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('phonemizer'),
-        'phonemizer/share/{}'.format(path))
+    path = pathlib.Path(
+        pkg_resources.resource_filename(
+            pkg_resources.Requirement.parse('phonemizer'),
+            f'phonemizer/share/{path}'))
 
-    if not os.path.exists(path):  # pragma: nocover
-        raise ValueError(
-            'the requested resource does not exist: {}'.format(path))
+    if not path.exists():  # pragma: nocover
+        raise ValueError(f'the requested resource does not exist: {path}')
 
-    return os.path.abspath(path)
+    return path.resolve()
+
+
+def version_as_tuple(version):
+    """Returns a tuple of integers from a version string
+
+    Any '-dev' in version string is ignored. For instance, returns (1, 2, 3)
+    from '1.2.3' or (0, 2) from '0.2-dev'
+
+    """
+    return tuple(int(v) for v in version.replace('-dev', '').split('.'))

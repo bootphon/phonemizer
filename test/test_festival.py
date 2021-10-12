@@ -14,21 +14,25 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the festival backend"""
 
+# pylint: disable=missing-docstring
+
+
 import os
 import shutil
 import pytest
-from phonemizer import separator
+from phonemizer.separator import Separator
 from phonemizer.backend import FestivalBackend
 
 
-def _test(text, separator=separator.Separator(
+def _test(text, separator=Separator(
         word=' ', syllable='|', phone='-')):
     backend = FestivalBackend('en-us')
-    return backend._phonemize_aux(text, separator, True)
+    # pylint: disable=protected-access
+    return backend._phonemize_aux(text, 0, separator, True)
 
 
 @pytest.mark.skipif(
-    '2.1' in FestivalBackend.version(),
+    '2.1' in FestivalBackend.version(FestivalBackend),
     reason='festival-2.1 gives different results than further versions '
     'for syllable boundaries')
 def test_hello():
@@ -55,7 +59,7 @@ def test_its():
 
 
 def test_im():
-    sep = separator.Separator(word=' ', syllable='', phone='')
+    sep = Separator(word=' ', syllable='', phone='')
     assert _test("I'm looking for an image", sep) \
         == ['aym luhkaxng faor axn ihmaxjh']
     assert _test("Im looking for an image", sep) \
@@ -65,13 +69,13 @@ def test_im():
 def test_path_good():
     try:
         binary = shutil.which('festival')
-        FestivalBackend.set_festival_path(binary)
+        FestivalBackend.set_executable(binary)
 
         test_im()
 
     # restore the festival path to default
     finally:
-        FestivalBackend.set_festival_path(None)
+        FestivalBackend.set_executable(None)
 
 
 @pytest.mark.skipif(
@@ -81,19 +85,19 @@ def test_path_bad():
     try:
         # corrupt the default espeak path, try to use python executable instead
         binary = shutil.which('python')
-        FestivalBackend.set_festival_path(binary)
+        FestivalBackend.set_executable(binary)
 
         with pytest.raises(RuntimeError):
             FestivalBackend('en-us').phonemize('hello')
         with pytest.raises(RuntimeError):
             FestivalBackend.version()
 
-        with pytest.raises(ValueError):
-            FestivalBackend.set_festival_path(__file__)
+        with pytest.raises(RuntimeError):
+            FestivalBackend.set_executable(__file__)
 
     # restore the festival path to default
     finally:
-        FestivalBackend.set_festival_path(None)
+        FestivalBackend.set_executable(None)
 
 
 @pytest.mark.skipif(
@@ -108,7 +112,7 @@ def test_path_venv():
             FestivalBackend.version()
 
         os.environ['PHONEMIZER_FESTIVAL_PATH'] = __file__
-        with pytest.raises(ValueError):
+        with pytest.raises(RuntimeError):
             FestivalBackend.version()
 
     finally:

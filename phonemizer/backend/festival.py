@@ -16,6 +16,7 @@
 
 
 import os
+import pathlib
 import re
 import shlex
 import shutil
@@ -23,76 +24,136 @@ import subprocess
 import sys
 import tempfile
 
-import phonemizer.lispy as lispy
+from phonemizer import lispy
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
-from phonemizer.utils import get_package_resource
-
-
-# a global variable being used to overload the default festival installed on
-# the system. The user can choose an alternative espeak with the method
-# FestivalBackend.set_festival_path().
-_FESTIVAL_DEFAULT_PATH = None
+from phonemizer.utils import get_package_resource, version_as_tuple
 
 
 class FestivalBackend(BaseBackend):
     """Festival backend for the phonemizer"""
+    # a static variable used to overload the default festival binary installed
+    # on the system. The user can choose an alternative festival binary with
+    # the method FestivalBackend.set_executable().
+    _FESTIVAL_EXECUTABLE = None
+
     def __init__(self, language,
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
                  logger=get_logger()):
         super().__init__(
-            language, punctuation_marks=punctuation_marks,
-            preserve_punctuation=preserve_punctuation, logger=logger)
+            language,
+            punctuation_marks=punctuation_marks,
+            preserve_punctuation=preserve_punctuation,
+            logger=logger)
 
-        self.script = get_package_resource('festival/phonemize.scm')
-        self.logger.info('loaded %s', self.script)
+        self.logger.debug('festival executable is %s', self.executable())
+
+        # the Scheme script to be send to festival
+        script_file = get_package_resource('festival/phonemize.scm')
+        with open(script_file, 'r') as fscript:
+            self._script = fscript.read()
+        self.logger.debug('loaded %s', script_file)
 
     @staticmethod
     def name():
         return 'festival'
 
-    @staticmethod
-    def set_festival_path(fpath):
-        """Sets the festival path as `fpath`"""
-        global _FESTIVAL_DEFAULT_PATH
-        if not fpath:
-            _FESTIVAL_DEFAULT_PATH = None
+    @classmethod
+    def set_executable(cls, executable):
+        """Sets the festival backend to use `executable`
+
+        If this is not set, the backend uses the default festival executable
+        from the system installation.
+
+        Parameters
+        ----------
+        executable (str) : the path to the festival executable to use as
+            backend. Set `executable` to None to restore the default.
+
+        Raises
+        ------
+        RuntimeError if `executable` is not an executable file.
+
+        """
+        if executable is None:
+            cls._FESTIVAL_EXECUTABLE = None
             return
 
-        if not (os.path.isfile(fpath) and os.access(fpath, os.X_OK)):
-            raise ValueError(
-                f'{fpath} is not an executable file')
+        executable = pathlib.Path(executable)
+        if not (executable.is_file() and os.access(executable, os.X_OK)):
+            raise RuntimeError(
+                f'{executable} is not an executable file')
 
-        _FESTIVAL_DEFAULT_PATH = os.path.abspath(fpath)
+        cls._FESTIVAL_EXECUTABLE = executable.resolve()
 
-    @staticmethod
-    def festival_path():
-        """Returns the absolute path to the festival executable"""
+    @classmethod
+    def executable(cls):
+        """Returns the absolute path to the festival executable used as backend
+
+        The following precedence rule applies for executable lookup:
+
+        1. As specified by FestivalBackend.set_executable()
+        2. Or as specified by the environment variable PHONEMIZER_FESTIVAL_PATH
+        3. Or the default 'festival' binary found on the system with
+          `shutil.which('festival')`
+
+        Raises
+        ------
+        RuntimeError if the festival executable cannot be found or if the
+            environment variable PHONEMIZER_FESTIVAL_PATH is set to a
+            non-executable file
+
+        """
+        if cls._FESTIVAL_EXECUTABLE:
+            return cls._FESTIVAL_EXECUTABLE
+
         if 'PHONEMIZER_FESTIVAL_PATH' in os.environ:
-            festival = os.environ['PHONEMIZER_FESTIVAL_PATH']
-            if not (os.path.isfile(festival) and os.access(festival, os.X_OK)):
-                raise ValueError(
-                    f'PHONEMIZER_FESTIVAL_PATH={festival} '
+            executable = pathlib.Path(os.environ['PHONEMIZER_FESTIVAL_PATH'])
+            if not (
+                    executable.is_file()
+                    and os.access(executable, mode=os.X_OK)
+            ):
+                raise RuntimeError(
+                    f'PHONEMIZER_FESTIVAL_PATH={executable} '
                     f'is not an executable file')
-            return os.path.abspath(festival)
+            return executable.resolve()
 
-        if _FESTIVAL_DEFAULT_PATH:
-            return _FESTIVAL_DEFAULT_PATH
-
-        return shutil.which('festival')
+        executable = shutil.which('festival')
+        if not executable:
+            raise RuntimeError(
+                'failed to find festival executable')
+        return pathlib.Path(executable).resolve()
 
     @classmethod
     def is_available(cls):
-        return bool(cls.festival_path())
+        """True if the festival executable is available, False otherwise"""
+        try:
+            cls.executable()
+        except RuntimeError:
+            return False
+        return True
 
     @classmethod
     def version(cls, as_tuple=False):
+        """Festival version as a string 'major.minor.patch'
+
+        If `as_tuple` is True, returns a tuple (major, minor, patch).
+
+        Raises
+        ------
+        RuntimeError if FestivalBackend.is_available() is False or if the
+            version cannot be extracted for some reason.
+
+        """
+
+        festival = cls.executable()
+
         # the full version version string includes extra information
         # we don't need
         long_version = subprocess.check_output(
-            [cls.festival_path(), '--version']).decode('latin1').strip()
+            [festival, '--version']).decode('latin1').strip()
 
         # extract the version number with a regular expression
         festival_version_re = r'.* ([0-9\.]+[0-9]):'
@@ -100,20 +161,23 @@ class FestivalBackend(BaseBackend):
             version = re.match(festival_version_re, long_version).group(1)
         except AttributeError:
             raise RuntimeError(
-                f'cannot extract festival version from {cls.festival_path()}')
+                f'cannot extract festival version from {festival}') from None
 
         if as_tuple:
-            # ignore the '-dev' at the end
-            version = version.replace('-dev', '')
-            version = tuple(int(v) for v in version.split('.'))
+            return version_as_tuple(version)
         return version
-
 
     @staticmethod
     def supported_languages():
+        """A dictionnary of language codes -> name supported by festival
+
+        Actually only en-us (American English) is supported.
+
+        """
         return {'en-us': 'english-us'}
 
-    def _phonemize_aux(self, text, separator, strip):
+    # pylint: disable=unused-argument
+    def _phonemize_aux(self, text, offset, separator, strip):
         """Return a phonemized version of `text` with festival
 
         This function is a wrapper on festival, a text to speech
@@ -195,10 +259,10 @@ class FestivalBackend(BaseBackend):
 
                 with tempfile.NamedTemporaryFile('w+', delete=False) as scm:
                     try:
-                        scm.write(scm_script)
+                        scm.write(self._script.format(data.name))
                         scm.close()
 
-                        cmd = '{} -b {}'.format(self.festival_path(), scm.name)
+                        cmd = f'{self.executable()} -b {scm.name}'
                         if self.logger:
                             self.logger.debug('running %s', cmd)
 
@@ -232,8 +296,8 @@ class FestivalBackend(BaseBackend):
         except subprocess.CalledProcessError as err:  # pragma: nocover
             fstderr.seek(0)
             raise RuntimeError(
-                'Command "{}" returned exit status {}, output is:\n{}'
-                .format(cmd, err.returncode, fstderr.read()))
+                f'Command "{cmd}" returned exit status {err.returncode}, '
+                f'output is:\n{fstderr.read()}') from None
 
     @staticmethod
     def _postprocess_syll(syll, separator, strip):

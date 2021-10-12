@@ -14,7 +14,6 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Phonemizer version description"""
 
-
 import pkg_resources
 
 from phonemizer.backend import (

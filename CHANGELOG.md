@@ -4,10 +4,23 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 ## not yet released
 
+* **breaking change**
+
+  * `espeak-mbrola` backend now requires `espeak>=1.49`
+  * `--espeak-path` option renamed as `--espeak-library`
+  * `--festival-path` option renamed as `--festival-executable`
+
+* **improvements**
+
+  * `espeak` and `mbrola` backends now rely on the `espeak` shared library using
+    the `ctypes` Python module, instead of reliying on the `espeak` executable
+    through subprocesses. This implies drastic speed improvments, up to 40 times
+    faster.
+
 * **new features**
 
   * New option `--tie` for the `espeak` backend to display a tie character
-    withiin multi-letter phonemes. (see issue
+    within multi-letter phonemes. (see issue
     [#74](https://github.com/bootphon/phonemizer/issues/74)).
 
 * **bugfixes**

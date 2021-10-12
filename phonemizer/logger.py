@@ -18,7 +18,7 @@ import logging
 import sys
 
 
-def get_logger(verbosity='quiet'):
+def get_logger(verbosity='quiet', name='phonemizer'):
     """Returns a configured logging.Logger instance
 
     The logger is configured to output messages on the standard error stream
@@ -29,6 +29,7 @@ def get_logger(verbosity='quiet'):
     verbosity (str) : The level of verbosity, must be 'verbose' (displays
       debug/info and warning messages), 'normal' (warnings only) or 'quiet' (do
       not display anything).
+    name (str) : The logger name, default to 'phonemizer'
 
     Raises
     ------
@@ -41,8 +42,8 @@ def get_logger(verbosity='quiet'):
         raise RuntimeError(
             f'verbosity is {verbosity} but must be in '
             f'{", ".join(valid_verbosity)}')
-    
-    logger = logging.getLogger('phonemizer')
+
+    logger = logging.getLogger(name)
 
     # setup output to stderr
     logger.handlers = []

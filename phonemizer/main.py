@@ -16,7 +16,6 @@
 """Command-line phonemizer tool, have a 'phonemizer --help' to get in"""
 
 import argparse
-import codecs
 import sys
 
 import pkg_resources
@@ -168,7 +167,7 @@ Exemples:
         '-b', '--backend', metavar='<str>', default=None,
         choices=['espeak', 'espeak-mbrola', 'festival', 'segments'],
         help="""the phonemization backend, must be 'espeak', 'espeak-mbrola',
-        'festival' or 'segments'. Default is espeak.""")
+        'festival' or 'segments'. Default is 'espeak'.""")
 
     group.add_argument(
         '-L', '--list-languages', action='store_true',
@@ -226,21 +225,22 @@ Exemples:
         the 'remove-utterance' policy removes the whole line of text including
         a language switch.""")
     group.add_argument(
-        '--espeak-path', default=None, type=str, metavar='<executable>',
-        help=f'''the path to the espeak executable to use (useful to overload
-        the default espeak/espeak-ng installed on the system).
-        Default to {EspeakBackend.espeak_path()}.
-        This path can also be specified using the
-        $PHONEMIZER_ESPEAK_PATH environment variable.''')
+        '--espeak-library', default=None, type=str, metavar='<library>',
+        help=f'''the path to the espeak shared library to use (*.so on Linux,
+        *.dylib on Mac and *.dll on Windows, useful to overload the default
+        espeak version installed on the system). Default to
+        {EspeakBackend.library()}. This path can also be specified using
+        the PHONEMIZER_ESPEAK_PATH environment variable.''')
 
     group = parser.add_argument_group('specific to festival backend')
     group.add_argument(
-        '--festival-path', default=None, type=str, metavar='<executable>',
+        '--festival-executable', default=None, type=str,
+        metavar='<executable>',
         help=f'''the path to the festival executable to use (useful to overload
         the default festival installed on the system).
-        Default to {FestivalBackend.festival_path()}.
+        Default to {FestivalBackend.executable()}.
         This path can also be specified using the
-        $PHONEMIZER_FESTIVAL_PATH environment variable.''')
+        PHONEMIZER_FESTIVAL_PATH environment variable.''')
 
     group = parser.add_argument_group(
         'punctuation processing',
@@ -265,10 +265,10 @@ def main():
 
     # setup a custom path to espeak and festival if required (this must be done
     # before generating the version message)
-    if args.espeak_path:
-        EspeakBackend.set_espeak_path(args.espeak_path)
-    if args.festival_path:
-        FestivalBackend.set_festival_path(args.festival_path)
+    if args.espeak_library:
+        EspeakBackend.set_library(args.espeak_library)
+    if args.festival_executable:
+        FestivalBackend.set_executable(args.festival_executable)
 
     # display version information and exit
     if args.version:
@@ -301,13 +301,15 @@ def main():
     # configure input as a readable stream
     streamin = args.input
     if isinstance(streamin, str):
-        streamin = codecs.open(streamin, 'r', encoding='utf8')
+        # pylint: disable=consider-using-with
+        streamin = open(streamin, 'r', encoding='utf8')
     log.debug('reading from %s', streamin.name)
 
     # configure output as a writable stream
     streamout = args.output
     if isinstance(streamout, str):
-        streamout = codecs.open(streamout, 'w', 'utf8')
+        # pylint: disable=consider-using-with
+        streamout = open(streamout, 'w', encoding='utf8')
     log.debug('writing to %s', streamout.name)
 
     # configure the separator for phonemes, syllables and words.

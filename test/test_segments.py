@@ -14,16 +14,20 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the segments backend"""
 
+# pylint: disable=missing-docstring
+
 import os
 import pkg_resources
 import pytest
 
-import phonemizer.separator as separator
+from phonemizer.separator import Separator, default_separator
 from phonemizer.backend import SegmentsBackend
 
 
 def test_multiline():
     backend = SegmentsBackend('cree')
+    assert backend.language == 'cree'
+
     assert backend.phonemize('a') == u'ʌ '
     assert backend.phonemize('aa') == u'ʌʌ '
     assert backend.phonemize('a\n') == u'ʌ '
@@ -41,7 +45,7 @@ def test_separator():
     backend = SegmentsBackend('cree')
     text = 'achi acho'
 
-    sep = separator.default_separator
+    sep = default_separator
     assert backend.phonemize(text, separator=sep) == u'ʌtʃɪ ʌtʃʊ '
     assert backend.phonemize(text, separator=sep, strip=True) == u'ʌtʃɪ ʌtʃʊ'
 
@@ -50,7 +54,7 @@ def test_separator_2():
     backend = SegmentsBackend('cree')
     text = 'achi acho'
 
-    sep = separator.Separator(word='_', phone=' ')
+    sep = Separator(word='_', phone=' ')
     assert backend.phonemize(text, separator=sep) == u'ʌ tʃ ɪ _ʌ tʃ ʊ _'
     assert backend.phonemize(text, separator=sep, strip=True) \
         == u'ʌ tʃ ɪ_ʌ tʃ ʊ'
@@ -60,7 +64,7 @@ def test_separator_3():
     backend = SegmentsBackend('cree')
     text = 'achi acho'
 
-    sep = separator.Separator(word=' ', syllable=None, phone='_')
+    sep = Separator(word=' ', syllable=None, phone='_')
     assert backend.phonemize(text, separator=sep) == u'ʌ_tʃ_ɪ_ ʌ_tʃ_ʊ_ '
     assert backend.phonemize(text, separator=sep, strip=True) \
         == u'ʌ_tʃ_ɪ ʌ_tʃ_ʊ'
@@ -71,7 +75,7 @@ def test_separator_4():
     text = 'achi acho'
 
     # TODO bug when sep.phone == ' ' with no sep.word
-    sep = separator.Separator(phone=' ', word='')
+    sep = Separator(phone=' ', word='')
     assert backend.phonemize(text, separator=sep) == u'ʌ tʃ ɪ ʌ tʃ ʊ '
     assert backend.phonemize(text, separator=sep, strip=True) \
         == u'ʌ tʃ ɪʌ tʃ ʊ'
@@ -81,7 +85,7 @@ def test_separator_5():
     backend = SegmentsBackend('cree')
     text = 'achi acho'
 
-    sep = separator.Separator(phone=' ', word='_')
+    sep = Separator(phone=' ', word='_')
     assert backend.phonemize(text, separator=sep) == u'ʌ tʃ ɪ _ʌ tʃ ʊ _'
     assert backend.phonemize(text, separator=sep, strip=True) \
         == u'ʌ tʃ ɪ_ʌ tʃ ʊ'
