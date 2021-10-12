@@ -254,9 +254,6 @@ class FestivalBackend(BaseBackend):
                 if sys.platform == 'win32':  # pragma: nocover
                     name = name.replace('\\', '\\\\')
 
-                # the Scheme script to be send to festival
-                scm_script = open(self.script, 'r').read().format(name)
-
                 with tempfile.NamedTemporaryFile('w+', delete=False) as scm:
                     try:
                         scm.write(self._script.format(data.name))
