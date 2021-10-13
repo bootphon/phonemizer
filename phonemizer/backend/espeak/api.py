@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
-"""Low-level bindings to the espeak-ng API"""
+"""Low-level bindings to the espeak API"""
 
 import atexit
 import ctypes
@@ -29,6 +29,12 @@ if sys.platform != 'win32':
 
 
 class EspeakAPI:
+    """Exposes the espeak API to the EspeakWrapper
+
+    This class exposes only low-level bindings to the API and should not be
+    used directly.
+
+    """
     def __init__(self, library):
         self._library = None
 
@@ -58,11 +64,6 @@ class EspeakAPI:
 
         espeak_copy = pathlib.Path(self._tempdir) / library_path.name
         shutil.copy(library_path, espeak_copy, follow_symlinks=False)
-        # # On Windows it is required to remove the readonly flag so as to
-        # # properly clean up at exit
-        # if sys.platform == 'win32':
-        #     os.chmod(espeak_copy, 0o777)
-        #     os.chmod(self._tempdir, 0o777)
 
         # finally load the library copy and initialize it. 0x02 is
         # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
@@ -80,20 +81,25 @@ class EspeakAPI:
         self._library_path = library_path
 
     def _terminate(self):
-        # clean up the espeak library allocated memory and the tempdir
-        # containing the copy of the library
         try:
+            # clean up the espeak library allocated memory
             self._library.espeak_Terminate()
         except AttributeError:  # library not loaded
             pass
 
         try:
+            # clean up the tempdir containing the copy of the library
             shutil.rmtree(self._tempdir)
         except PermissionError:
+            # On Windows the library copy within the tempdir cannot be deleted
+            # because a handler to this file still exists... We need to wait
+            # for the wrapper to be completely destroyed, and so the tempdir
+            # deletion is postponed to program exit
             atexit.register(shutil.rmtree, self._tempdir)
 
     @property
     def library_path(self):
+        """Absolute path to the espeak library being in use"""
         return self._library_path
 
     @staticmethod
@@ -117,6 +123,14 @@ class EspeakAPI:
                 f'failed to retrieve the path to {library} library') from None
 
     def info(self):
+        """Bindings to espeak_Info
+
+        Returns
+        -------
+        version, data_path: encoded strings containing the espeak version
+            number and data path respectively
+
+        """
         f_info = self._library.espeak_Info
         f_info.restype = ctypes.c_char_p
         data_path = ctypes.c_char_p()
@@ -124,6 +138,17 @@ class EspeakAPI:
         return version, data_path.value
 
     def list_voices(self, name):
+        """Bindings to espeak_ListVoices
+
+        Parameters
+        ----------
+        name (str or None): if specified, a filter on voices to be listed
+
+        Returns
+        -------
+        voices: a pointer to EspeakVoice.Struct instances
+
+        """
         f_list_voices = self._library.espeak_ListVoices
         f_list_voices.argtypes = [ctypes.POINTER(EspeakVoice.Struct)]
         f_list_voices.restype = ctypes.POINTER(
@@ -131,16 +156,48 @@ class EspeakAPI:
         return f_list_voices(name)
 
     def set_voice_by_name(self, name):
+        """Bindings to espeak_SetVoiceByName
+
+        Parameters
+        ----------
+        name (str) : the voice name to setup
+
+        Returns
+        -------
+        0 on success, non-zero integer on failure
+
+        """
         f_set_voice_by_name = self._library.espeak_SetVoiceByName
         f_set_voice_by_name.argtypes = [ctypes.c_char_p]
         return f_set_voice_by_name(name)
 
     def get_current_voice(self):
+        """Bindings to espeak_GetCurrentVoice
+
+        Returns
+        -------
+        a EspeakVoice.Struct instance or None if no voice has been setup
+
+        """
         f_get_current_voice = self._library.espeak_GetCurrentVoice
         f_get_current_voice.restype = ctypes.POINTER(EspeakVoice.Struct)
         return f_get_current_voice().contents
 
     def text_to_phonemes(self, text_ptr, text_mode, phonemes_mode):
+        """Bindings to espeak_TextToPhonemes
+
+        Parameters
+        ----------
+        text_ptr (pointer): the text to be phonemized, as a pointer to a
+            pointer of chars
+        text_mode (bits field): see espeak sources for details
+        phonemes_mode (bits field): see espeak sources for details
+
+        Returns
+        -------
+        an encoded string containing the computed phonemes
+
+        """
         f_text_to_phonemes = self._library.espeak_TextToPhonemes
         f_text_to_phonemes.restype = ctypes.c_char_p
         f_text_to_phonemes.argtypes = [
@@ -150,13 +207,40 @@ class EspeakAPI:
         return f_text_to_phonemes(text_ptr, text_mode, phonemes_mode)
 
     def set_phoneme_trace(self, mode, file_pointer):
+        """"Bindings on espeak_SetPhonemeTrace
+
+        This method must be called before any call to synthetize()
+
+        Parameters
+        ----------
+        mode (bits field): see espeak sources for details
+        file_pointer (FILE*): a pointer to an opened file in which to output
+            the phoneme trace
+
+        """
         f_set_phoneme_trace = self._library.espeak_SetPhonemeTrace
         f_set_phoneme_trace.argtypes = [
             ctypes.c_int,
             ctypes.c_void_p]
         f_set_phoneme_trace(mode, file_pointer)
 
-    def synthetize(self, text, size, mode):
+    def synthetize(self, text_ptr, size, mode):
+        """Bindings on espeak_Synth
+
+        The output phonemes are sent to the file specified by a call to
+        set_phoneme_trace().
+
+        Parameters
+        ----------
+        text (pointer) : a pointer to chars
+        size (int) : number of chars in `text`
+        mode (bits field) : see espeak sources for details
+
+        Returns
+        -------
+        0 on success, non-zero integer on failure
+
+        """
         f_synthetize = self._library.espeak_Synth
         f_synthetize.argtypes = [
             ctypes.c_void_p,
@@ -166,4 +250,4 @@ class EspeakAPI:
             ctypes.c_uint,
             ctypes.POINTER(ctypes.c_uint),
             ctypes.c_void_p]
-        return f_synthetize(text, size, 0, 1, 0, mode, None, None)
+        return f_synthetize(text_ptr, size, 0, 1, 0, mode, None, None)

@@ -261,7 +261,8 @@ class EspeakWrapper:
     def text_to_phonemes(self, text):
         """Translates a text into phonemes, must call set_voice() first.
 
-        Wrapper on the espeak_TextToPhonemes function.
+        This method is used by the Espeak backend. Wrapper on the
+        espeak_TextToPhonemes function.
 
         Parameters
         ----------
@@ -331,6 +332,7 @@ class EspeakWrapper:
         # to redirect to stdout). See comments for the function
         # espeak_SetPhonemeTrace in speak_lib.h of the espeak sources for
         # details.
+        self._tempfile.truncate(0)
         file_p = self._libc.fopen(
             self._tempfile.name.encode(),
             self._tempfile.mode.encode())
@@ -347,5 +349,4 @@ class EspeakWrapper:
 
         self._tempfile.seek(0)
         phonemized = self._tempfile.read().decode().strip()
-        self._tempfile.truncate(0)
         return phonemized

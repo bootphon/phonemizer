@@ -135,11 +135,10 @@ class EspeakBackend(BaseEspeakBackend):
 
     @staticmethod
     def _flatten(phonemized):
+        # TODO optimize, test and comment
         flattened = []
         for i in range(len(phonemized[0])):
             flattened.append(
                 list(itertools.chain(
                     c for chunk in phonemized for c in chunk[i])))
-        print(phonemized)
-        print(flattened)
         return flattened
