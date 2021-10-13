@@ -90,7 +90,7 @@ class EspeakAPI:
 
         def remove_readonly(func, path, _):
             "Clear the readonly bit and reattempt the removal"
-            os.chmod(path, stat.S_IWRITE)
+            os.chmod(path, 0o777)
             func(path)
 
         if os.path.isdir(self._tempdir):
