@@ -34,6 +34,7 @@ jobs:
           $source = 'https://github.com/espeak-ng/espeak-ng/releases/download/1.50/espeak-ng-20191129-b702b03-x64.msi'
           Invoke-WebRequest -Uri $source -OutFile espeak.msi
           Start-Process msiexec.exe -Wait -ArgumentList '/I espeak.msi /qn'
+          tree "C:\\Program Files\\eSpeak" NG \f
 
       - name: Install festival
         if: steps.cache-festival.outputs.cache-hit != 'true'
