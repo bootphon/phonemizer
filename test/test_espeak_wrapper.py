@@ -113,5 +113,3 @@ def test_twice():
 
     # pylint: disable=protected-access
     assert wrapper1._espeak._tempdir != wrapper2._espeak._tempdir
-    assert (
-        wrapper1._espeak._library._handle != wrapper2._espeak._library._handle)

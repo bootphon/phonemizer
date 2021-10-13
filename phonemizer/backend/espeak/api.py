@@ -58,9 +58,13 @@ class EspeakAPI:
         # finally load the library copy and initialize it. 0x02 is
         # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
         self._library = ctypes.cdll.LoadLibrary(espeak_copy)
-        if self._library.espeak_Initialize(0x02, 0, None, 0) <= 0:
+        try:
+            if self._library.espeak_Initialize(0x02, 0, None, 0) <= 0:
+                raise RuntimeError(
+                    'failed to initialize espeak shared library')
+        except AttributeError:
             raise RuntimeError(
-                'failed to initialize espeak shared library')
+                'failed to load espeak library') from None
 
         # the path to the original one (the copy is considered an
         # implementation detail and is not exposed)
