@@ -16,6 +16,7 @@
 
 # pylint: disable=missing-docstring
 
+import os
 import pathlib
 import tempfile
 import shlex
@@ -45,7 +46,8 @@ def _test(text, expected_output, args=''):
         if expected_output == '':
             assert output == ''
         else:
-            assert output == expected_output + '\n'
+            # linesep is \n on Linux/MacOS and \r\n on Windows
+            assert output == expected_output + os.linesep
 
 
 def test_help():
@@ -88,8 +90,16 @@ def test_readme_festival_syll():
 @pytest.mark.parametrize('njobs', range(1, 6))
 def test_njobs(njobs):
     _test(
-        u'hello world\ngoodbye\nthird line\nyet another',
-        u'h-ə-l-oʊ w-ɜː-l-d\nɡ-ʊ-d-b-aɪ\nθ-ɜː-d l-aɪ-n\nj-ɛ-t ɐ-n-ʌ-ð-ɚ',
+        os.linsep.join(
+            u'hello world',
+            u'goodbye',
+            u'third line',
+            u'yet another',
+        os.linesep.join(
+            u'h-ə-l-oʊ w-ɜː-l-d',
+            u'ɡ-ʊ-d-b-aɪ',
+            u'θ-ɜː-d l-aɪ-n',
+            u'j-ɛ-t ɐ-n-ʌ-ð-ɚ',
         u'--strip -j {} -l en-us -b espeak -p "-" -s "|" -w " "'
         .format(njobs))
 
