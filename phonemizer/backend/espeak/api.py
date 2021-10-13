@@ -44,8 +44,9 @@ class EspeakAPI:
         # tweak is therefore to make a copy of the original library in a
         # different (temporary) directory.
         try:
-            # load the original library in order to retrieve its full path
-            espeak = ctypes.cdll.LoadLibrary(library)
+            # load the original library in order to retrieve its full path?
+            # Forced as str as it is required on Windows.
+            espeak = ctypes.cdll.LoadLibrary(str(library))
             library_path = self._shared_library_path(espeak)
             del espeak
         except OSError as error:
