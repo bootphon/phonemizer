@@ -87,6 +87,8 @@ class EspeakAPI:
         except AttributeError:  # library not loaded
             pass
 
+        del self._library
+
         if os.path.isdir(self._tempdir):
             for path in os.listdir(self._tempdir):
                 path = os.path.join(self._tempdir, path)
