@@ -90,18 +90,17 @@ def test_readme_festival_syll():
 @pytest.mark.parametrize('njobs', range(1, 6))
 def test_njobs(njobs):
     _test(
-        os.linsep.join(
+        os.linesep.join((
             u'hello world',
             u'goodbye',
             u'third line',
-            u'yet another',
-        os.linesep.join(
+            u'yet another')),
+        os.linesep.join((
             u'h-ə-l-oʊ w-ɜː-l-d',
             u'ɡ-ʊ-d-b-aɪ',
             u'θ-ɜː-d l-aɪ-n',
-            u'j-ɛ-t ɐ-n-ʌ-ð-ɚ',
-        u'--strip -j {} -l en-us -b espeak -p "-" -s "|" -w " "'
-        .format(njobs))
+            u'j-ɛ-t ɐ-n-ʌ-ð-ɚ')),
+        f'--strip -j {njobs} -l en-us -b espeak -p "-" -s "|" -w " "')
 
 
 def test_unicode():
