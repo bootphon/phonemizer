@@ -69,8 +69,11 @@ class EspeakAPI:
     def _terminate(self):
         # clean up the espeak library allocated memory and the tempdir
         # containing the copy of the library
-        if self._library:
+        try:
             self._library.espeak_Terminate()
+        except AttributeError:  # library not loaded
+            pass
+
         shutil.rmtree(self._tempdir)
 
     @property
@@ -85,15 +88,15 @@ class EspeakAPI:
         Raises a RuntimeError if the library path cannot be retrieved
 
         """
-        # Windows
-        if sys.platform == 'win32':  # pragma: nocover
-            # pylint: disable=protected-access
-            return pathlib.Path(library._name).resolve()
+        # pylint: disable=protected-access
+        path = pathlib.Path(library._name).resolve()
+        if path.is_file():
+            return path
 
-        # Linux or MacOS
         try:
+            # Linux or MacOS only, ImportError on Windows
             return pathlib.Path(dlinfo.DLInfo(library).path).resolve()
-        except Exception:
+        except (Exception, ImportError):
             raise RuntimeError(
                 f'failed to retrieve the path to {library} library') from None
 
