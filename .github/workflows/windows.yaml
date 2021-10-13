@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      PHONEMIZER_ESPEAK_PATH: "C:\\Program Files\\eSpeak NG\\espeak-ng.exe"
+      PHONEMIZER_ESPEAK_PATH: "C:\\Program Files\\eSpeak NG\\espeak-ng.dll"
       PHONEMIZER_FESTIVAL_PATH: "C:\\festival\\src\\main\\festival.exe"
 
     steps:
