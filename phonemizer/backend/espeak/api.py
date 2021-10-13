@@ -30,7 +30,9 @@ if sys.platform != 'win32':
 class EspeakAPI:
     def __init__(self, library):
         self._library = None
-        self._tempdir = tempfile.mkdtemp()
+
+        # will be automatically destroyed after use
+        self._tempdir = tempfile.TemporaryDirectory()
 
         # properly exit when the wrapper object is destoyed (see
         # https://docs.python.org/3/library/weakref.html#comparing-finalizers-with-del-methods)
@@ -53,7 +55,7 @@ class EspeakAPI:
             raise RuntimeError(
                 f'failed to load espeak library: {str(error)}') from None
 
-        espeak_copy = pathlib.Path(self._tempdir) / library_path.name
+        espeak_copy = pathlib.Path(self._tempdir.name) / library_path.name
         shutil.copy(library_path, espeak_copy, follow_symlinks=False)
 
         # finally load the library copy and initialize it. 0x02 is
@@ -78,8 +80,6 @@ class EspeakAPI:
             self._library.espeak_Terminate()
         except AttributeError:  # library not loaded
             pass
-
-        shutil.rmtree(self._tempdir)
 
     @property
     def library_path(self):
