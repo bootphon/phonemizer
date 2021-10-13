@@ -52,11 +52,15 @@ def test_set_get_voice(wrapper):
 
     wrapper.set_voice('fr-fr')
     assert wrapper.voice.language == 'fr-fr'
-    assert wrapper.voice.name == 'French (France)'
+    assert wrapper.voice.name in (
+        'French (France)',  # >1.48.3
+        'french')           # older espeak
 
     wrapper.set_voice('en-us')
     assert wrapper.voice.language == 'en-us'
-    assert wrapper.voice.name == 'English (America)'
+    assert wrapper.voice.name in (
+        'English (America)',  # >1.48.3
+        'english-us')         # older espeak
 
     wrapper.set_voice('mb-af1')
     assert wrapper.voice.language == 'af'

@@ -285,8 +285,8 @@ class EspeakWrapper:
         # output phonemes in IPA and separated by _. See comments for the
         # function espeak_TextToPhonemes in speak_lib.h of the espeak sources
         # for details.
-        if self.version <= (1, 48):
-            phonemes_mode = 0x01 << 4 | 0x03
+        if self.version <= (1, 48, 3):
+            phonemes_mode = 0x03 | 0x01 << 4
         else:
             phonemes_mode = ord('_') << 8 | 0x02
 

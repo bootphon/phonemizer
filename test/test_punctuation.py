@@ -22,6 +22,8 @@ from phonemizer.backend import EspeakBackend, FestivalBackend, SegmentsBackend
 from phonemizer.punctuation import Punctuation
 from phonemizer.phonemize import phonemize
 
+# True if we are using espeak>=1.50
+ESPEAK_150 = (EspeakBackend.version(as_tuple=True) >= (1, 50))
 
 # True if we are using espeak>=1.49.3
 ESPEAK_143 = (EspeakBackend.version(as_tuple=True) >= (1, 49, 3))
@@ -171,7 +173,8 @@ def test_issue_54(text):
 @pytest.mark.parametrize(
     'backend, marks, text, expected', [
         ('espeak', 'default', ['"Hey! "', '"hey,"'], ['"heɪ ! "', '"heɪ ,"']),
-        ('espeak', '.!;:,?', ['"Hey! "', '"hey,"'], ['heɪ ! ', 'heɪ ,']),
+        ('espeak', '.!;:,?', ['"Hey! "', '"hey,"'],
+         ['heɪ ! ', 'heɪ ,'] if ESPEAK_150 else [' heɪ ! ', ' heɪ ,']),
         ('espeak', 'default', ['! ?', 'hey!'], ['! ?', 'heɪ !']),
         ('espeak', '!', ['! ?', 'hey!'], ['! ', 'heɪ !']),
         ('segments', 'default', ['! ?', 'hey!'], ['! ?', 'heːj !']),
