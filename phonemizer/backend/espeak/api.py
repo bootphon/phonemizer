@@ -14,6 +14,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Low-level bindings to the espeak-ng API"""
 
+import atexit
 import ctypes
 import pathlib
 import shutil
@@ -30,6 +31,8 @@ if sys.platform != 'win32':
 class EspeakAPI:
     def __init__(self, library):
         self._library = None
+
+        # will be automatically destroyed after use
         self._tempdir = tempfile.mkdtemp()
 
         # properly exit when the wrapper object is destoyed (see
@@ -44,8 +47,9 @@ class EspeakAPI:
         # tweak is therefore to make a copy of the original library in a
         # different (temporary) directory.
         try:
-            # load the original library in order to retrieve its full path
-            espeak = ctypes.cdll.LoadLibrary(library)
+            # load the original library in order to retrieve its full path?
+            # Forced as str as it is required on Windows.
+            espeak = ctypes.cdll.LoadLibrary(str(library))
             library_path = self._shared_library_path(espeak)
             del espeak
         except OSError as error:
@@ -54,13 +58,22 @@ class EspeakAPI:
 
         espeak_copy = pathlib.Path(self._tempdir) / library_path.name
         shutil.copy(library_path, espeak_copy, follow_symlinks=False)
+        # # On Windows it is required to remove the readonly flag so as to
+        # # properly clean up at exit
+        # if sys.platform == 'win32':
+        #     os.chmod(espeak_copy, 0o777)
+        #     os.chmod(self._tempdir, 0o777)
 
         # finally load the library copy and initialize it. 0x02 is
         # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
-        self._library = ctypes.cdll.LoadLibrary(espeak_copy)
-        if self._library.espeak_Initialize(0x02, 0, None, 0) <= 0:
+        self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
+        try:
+            if self._library.espeak_Initialize(0x02, 0, None, 0) <= 0:
+                raise RuntimeError(
+                    'failed to initialize espeak shared library')
+        except AttributeError:
             raise RuntimeError(
-                'failed to initialize espeak shared library')
+                'failed to load espeak library') from None
 
         # the path to the original one (the copy is considered an
         # implementation detail and is not exposed)
@@ -69,9 +82,15 @@ class EspeakAPI:
     def _terminate(self):
         # clean up the espeak library allocated memory and the tempdir
         # containing the copy of the library
-        if self._library:
+        try:
             self._library.espeak_Terminate()
-        shutil.rmtree(self._tempdir)
+        except AttributeError:  # library not loaded
+            pass
+
+        try:
+            shutil.rmtree(self._tempdir)
+        except PermissionError:
+            atexit.register(shutil.rmtree, self._tempdir)
 
     @property
     def library_path(self):
@@ -85,15 +104,15 @@ class EspeakAPI:
         Raises a RuntimeError if the library path cannot be retrieved
 
         """
-        # Windows
-        if sys.platform == 'win32':  # pragma: nocover
-            # pylint: disable=protected-access
-            return pathlib.Path(library._name).resolve()
+        # pylint: disable=protected-access
+        path = pathlib.Path(library._name).resolve()
+        if path.is_file():
+            return path
 
-        # Linux or MacOS
         try:
+            # Linux or MacOS only, ImportError on Windows
             return pathlib.Path(dlinfo.DLInfo(library).path).resolve()
-        except Exception:
+        except (Exception, ImportError):
             raise RuntimeError(
                 f'failed to retrieve the path to {library} library') from None
 

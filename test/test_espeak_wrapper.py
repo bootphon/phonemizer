@@ -19,6 +19,8 @@
 
 import os
 import pickle
+import sys
+
 import pytest
 
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
@@ -39,9 +41,13 @@ def test_basic(wrapper):
 
 def test_available_voices(wrapper):
     espeak = set(wrapper.available_voices())
+    assert espeak
+
     mbrola = set(wrapper.available_voices('mbrola'))
-    assert espeak and mbrola
-    assert not espeak.intersection(mbrola)
+    # can be empty if no mbrola voice installed (occurs only on Windows, at
+    # least within the github CI pipeline)
+    if mbrola:
+        assert not espeak.intersection(mbrola)
 
 
 def test_set_get_voice(wrapper):
@@ -52,15 +58,22 @@ def test_set_get_voice(wrapper):
 
     wrapper.set_voice('fr-fr')
     assert wrapper.voice.language == 'fr-fr'
-    assert wrapper.voice.name == 'French (France)'
+    assert wrapper.voice.name in (
+        'French (France)',  # >1.48.3
+        'french')           # older espeak
 
     wrapper.set_voice('en-us')
     assert wrapper.voice.language == 'en-us'
-    assert wrapper.voice.name == 'English (America)'
+    assert wrapper.voice.name in (
+        'English (America)',  # >1.48.3
+        'english-us')         # older espeak
 
-    wrapper.set_voice('mb-af1')
-    assert wrapper.voice.language == 'af'
-    assert wrapper.voice.name == 'afrikaans-mbrola-1'
+    # no mbrola voices available on Windows by default (at least on the github
+    # CI pipeline)
+    if sys.platform != 'win32':
+        wrapper.set_voice('mb-af1')
+        assert wrapper.voice.language == 'af'
+        assert wrapper.voice.name == 'afrikaans-mbrola-1'
 
     with pytest.raises(RuntimeError) as err:
         wrapper.set_voice('some non existant voice code')
@@ -109,5 +122,3 @@ def test_twice():
 
     # pylint: disable=protected-access
     assert wrapper1._espeak._tempdir != wrapper2._espeak._tempdir
-    assert (
-        wrapper1._espeak._library._handle != wrapper2._espeak._library._handle)

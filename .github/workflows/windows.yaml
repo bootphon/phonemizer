@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      PHONEMIZER_ESPEAK_PATH: "C:\\Program Files\\eSpeak NG\\espeak-ng.exe"
+      PHONEMIZER_ESPEAK_PATH: "C:\\Program Files\\eSpeak NG\\libespeak-ng.dll"
       PHONEMIZER_FESTIVAL_PATH: "C:\\festival\\src\\main\\festival.exe"
 
     steps:
@@ -50,7 +50,7 @@ jobs:
 
       - name: Install phonemizer
         run: |
-          pip install --upgrade pip pytest
+          pip install pytest
           python setup.py install
 
       - name: Version phonemizer

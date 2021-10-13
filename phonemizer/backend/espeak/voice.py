@@ -15,18 +15,43 @@
 """Voice struct from Espeak API exposed to Python"""
 
 import ctypes
-import dataclasses
 
 
-@dataclasses.dataclass(frozen=True)
+# This class can be a dataclass for compatibility with python-3.6 we don't use
+# the dataclasses module.
 class EspeakVoice:
     """A helper class to expose voice structures within C and Python"""
-    name: str = ''
-    language: str = ''
-    identifier: str = ''
+    def __init__(self, name='', language='', identifier=''):
+        self._name = name
+        self._language = language
+        self._identifier = identifier
+
+    @property
+    def name(self):
+        "Voice name"
+        return self._name
+
+    @property
+    def language(self):
+        """Language code"""
+        return self._language
+
+    @property
+    def identifier(self):
+        """Path to the voice file wrt espeak data path"""
+        return self._identifier
 
     def __str__(self):
         return f'{self.name} ({self.language}, {self.identifier})'
+
+    def __eq__(self, other):
+        return (
+            self.name == other.name and
+            self.language == other.language and
+            self.identifier == other.identifier)
+
+    def __hash__(self):
+        return hash((self.name, self.language, self.identifier))
 
     class Struct(ctypes.Structure):  # pylint: disable=too-few-public-methods
         """A helper class to fetch voices information from the espeak library.

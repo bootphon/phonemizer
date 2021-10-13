@@ -256,7 +256,7 @@ class FestivalBackend(BaseBackend):
 
                 with tempfile.NamedTemporaryFile('w+', delete=False) as scm:
                     try:
-                        scm.write(self._script.format(data.name))
+                        scm.write(self._script.format(name))
                         scm.close()
 
                         cmd = f'{self.executable()} -b {scm.name}'
