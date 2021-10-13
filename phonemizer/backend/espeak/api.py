@@ -58,7 +58,7 @@ class EspeakAPI:
 
         # finally load the library copy and initialize it. 0x02 is
         # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
-        self._library = ctypes.cdll.LoadLibrary(espeak_copy)
+        self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
         try:
             if self._library.espeak_Initialize(0x02, 0, None, 0) <= 0:
                 raise RuntimeError(
