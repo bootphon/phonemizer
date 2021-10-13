@@ -18,7 +18,6 @@ import ctypes
 import os
 import pathlib
 import shutil
-import stat
 import sys
 import tempfile
 import weakref
@@ -88,13 +87,12 @@ class EspeakAPI:
         except AttributeError:  # library not loaded
             pass
 
-        def remove_readonly(func, path, _):
-            "Clear the readonly bit and reattempt the removal"
-            os.chmod(path, 0o777)
-            func(path)
-
         if os.path.isdir(self._tempdir):
-            shutil.rmtree(self._tempdir, onerror=remove_readonly)
+            for path in os.listdir(self._tempdir):
+                path = os.path.join(self._tempdir, path)
+                os.chmod(path, 0o777)
+                os.remove(path)
+            os.rmdir(self._tempdir)
 
     @property
     def library_path(self):
