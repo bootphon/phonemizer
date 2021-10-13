@@ -18,7 +18,6 @@ import ctypes
 import os
 import pathlib
 import shutil
-import stat
 import sys
 import tempfile
 import weakref
@@ -62,7 +61,8 @@ class EspeakAPI:
         # On Windows it is required to remove the readonly flag so as to
         # properly clean up at exit
         if sys.platform == 'win32':
-            os.chmod(espeak_copy, stat.S_IWRITE | stat.S_IREAD)
+            os.chmod(espeak_copy, 0o777)
+            os.chmod(self._tempdir, 0o777)
 
         # finally load the library copy and initialize it. 0x02 is
         # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
