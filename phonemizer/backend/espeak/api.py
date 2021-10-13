@@ -14,8 +14,8 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Low-level bindings to the espeak-ng API"""
 
+import atexit
 import ctypes
-import os
 import pathlib
 import shutil
 import sys
@@ -87,14 +87,10 @@ class EspeakAPI:
         except AttributeError:  # library not loaded
             pass
 
-        del self._library
-
-        if os.path.isdir(self._tempdir):
-            for path in os.listdir(self._tempdir):
-                path = os.path.join(self._tempdir, path)
-                os.chmod(path, 0o777)
-                os.remove(path)
-            os.rmdir(self._tempdir)
+        try:
+            shutil.rmtree(self._tempdir)
+        except PermissionError:
+            atexit.register(shutil.rmtree, self._tempdir)
 
     @property
     def library_path(self):
