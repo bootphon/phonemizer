@@ -90,7 +90,7 @@ class EspeakAPI:
 
         # on Windows it is required to unload the library or the .dll file
         # cannot be erased from the temporary directory
-        if sys.platform == 'win32':
+        if sys.platform == 'win32' and library:
             # pylint: disable=import-outside-toplevel
             # pylint: disable=protected-access
             # pylint: disable=no-member
