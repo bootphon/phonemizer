@@ -17,7 +17,9 @@
 # pylint: disable=missing-docstring
 # pylint: disable=redefined-outer-name
 
+import gc
 import os
+import pathlib
 import pickle
 import sys
 
@@ -122,3 +124,11 @@ def test_twice():
 
     # pylint: disable=protected-access
     assert wrapper1._espeak._tempdir != wrapper2._espeak._tempdir
+
+
+def test_deletion():
+    # pylint: disable=protected-access
+    wrapper = EspeakWrapper()
+    path = pathlib.Path(wrapper._espeak._tempdir)
+    del wrapper
+    assert not path.exists()

@@ -42,7 +42,8 @@ class EspeakAPI:
 
         # properly exit when the wrapper object is destoyed (see
         # https://docs.python.org/3/library/weakref.html#comparing-finalizers-with-del-methods)
-        weakref.finalize(self, self._terminate)
+        weakref.finalize(
+            self, EspeakAPI._terminate, self._library, self._tempdir)
 
         # Because the library is not designed to be wrapped nor to be used in
         # multithreaded/multiprocess contexts (massive use of global variables)
@@ -79,10 +80,11 @@ class EspeakAPI:
         # implementation detail and is not exposed)
         self._library_path = library_path
 
-    def _terminate(self):
+    @staticmethod
+    def _terminate(library, tempdir):
         try:
             # clean up the espeak library allocated memory
-            self._library.espeak_Terminate()
+            library.espeak_Terminate()
         except AttributeError:  # library not loaded
             pass
 
@@ -93,10 +95,10 @@ class EspeakAPI:
             # pylint: disable=protected-access
             # pylint: disable=no-member
             import _ctypes
-            _ctypes.FreeLibrary(self._library._handle)
+            _ctypes.FreeLibrary(library._handle)
 
         # clean up the tempdir containing the copy of the library
-        shutil.rmtree(self._tempdir)
+        shutil.rmtree(tempdir)
 
     @property
     def library_path(self):
