@@ -20,6 +20,11 @@ from phonemizer.backend import (
     EspeakBackend, EspeakMbrolaBackend, FestivalBackend, SegmentsBackend)
 
 
+def _version_as_str(vers):
+    """From (1, 49, 3) to '1.49.3'"""
+    return '.'.join(str(v) for v in vers)
+
+
 def version():
     """Return version information for front and backends"""
     # version of the phonemizer
@@ -33,7 +38,7 @@ def version():
     if EspeakBackend.is_available():
         available.append(
             'espeak-' + ('ng-' if EspeakBackend.is_espeak_ng() else '')
-            + EspeakBackend.version())
+            + _version_as_str(EspeakBackend.version()))
     else:  # pragma: nocover
         unavailable.append('espeak')
 
@@ -43,12 +48,14 @@ def version():
         unavailable.append('espeak-mbrola')
 
     if FestivalBackend.is_available():
-        available.append('festival-' + FestivalBackend.version())
+        available.append(
+            'festival-' + _version_as_str(FestivalBackend.version()))
     else:  # pragma: nocover
         unavailable.append('festival')
 
     if SegmentsBackend.is_available():
-        available.append('segments-' + SegmentsBackend.version())
+        available.append(
+            'segments-' + _version_as_str(SegmentsBackend.version()))
     else:  # pragma: nocover
         unavailable.append('segments')
 

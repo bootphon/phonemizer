@@ -83,12 +83,8 @@ class BaseBackend(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def version(cls, as_tuple=False):
-        """Return the backend version as a string 'major.minor.patch'
-
-        If `as_tuple` is True, returns a tuple (major, minor, patch).
-
-        """
+    def version(cls):
+        """Return the backend version as a tuple (major, minor, patch)"""
 
     @staticmethod
     @abc.abstractmethod

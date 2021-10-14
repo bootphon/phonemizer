@@ -23,13 +23,13 @@ from phonemizer.punctuation import Punctuation
 from phonemizer.phonemize import phonemize
 
 # True if we are using espeak>=1.50
-ESPEAK_150 = (EspeakBackend.version(as_tuple=True) >= (1, 50))
+ESPEAK_150 = (EspeakBackend.version() >= (1, 50))
 
 # True if we are using espeak>=1.49.3
-ESPEAK_143 = (EspeakBackend.version(as_tuple=True) >= (1, 49, 3))
+ESPEAK_143 = (EspeakBackend.version() >= (1, 49, 3))
 
 # True if we are using festival>=2.5
-FESTIVAL_25 = (FestivalBackend.version(as_tuple=True) >= (2, 5))
+FESTIVAL_25 = (FestivalBackend.version() >= (2, 5))
 
 
 @pytest.mark.parametrize(

@@ -74,6 +74,7 @@ class EspeakWrapper:
     def _tempfile(self):
         if self._tempfile_ is None:
             # this will automatically removed at exit
+            # pylint: disable=consider-using-with
             self._tempfile_ = tempfile.NamedTemporaryFile()
             weakref.finalize(self._tempfile_, self._tempfile_.close)
         return self._tempfile_
@@ -183,7 +184,7 @@ class EspeakWrapper:
 
     @property
     def voice(self):
-        """The configured voice as a EspeakVoice instance
+        """The configured voice as an EspeakVoice instance
 
         If `set_voice` has not been called, returns None
 
@@ -214,7 +215,8 @@ class EspeakWrapper:
 
         Parameters
         ----------
-        voice (str) : Must be in `available_voices()` TODO
+        voice_code (str) : Must be a valid language code that is actually
+            supported by espeak
 
         Raises
         ------
@@ -228,7 +230,9 @@ class EspeakWrapper:
                 voice.identifier[3:]: voice.identifier
                 for voice in self.available_voices('mbrola')}
         else:
-            # consider only the first voice of a given code
+            # this are espeak voices. Select the voice using it's attached
+            # language code. Consider only the first voice of a given code as
+            # they are sorted by relevancy
             available = {}
             for voice in self.available_voices():
                 if voice.language not in available:

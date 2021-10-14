@@ -88,13 +88,11 @@ class BaseEspeakBackend(BaseBackend):
     def is_espeak_ng(cls):
         """Returns True if using espeak-ng, False otherwise"""
         # espeak-ng starts with version 1.49
-        return cls.version(as_tuple=True)[1] >= 49
+        return cls.version() >= (1, 49)
 
     @classmethod
-    def version(cls, as_tuple=False):
-        """Espeak version as a string 'major.minor.patch'
-
-        If `as_tuple` is True, returns a tuple (major, minor, patch).
+    def version(cls):
+        """Espeak version as a tuple (major, minor, patch)
 
         Raises
         ------
@@ -102,10 +100,7 @@ class BaseEspeakBackend(BaseBackend):
             version cannot be extracted for some reason.
 
         """
-        version = EspeakWrapper().version
-        if as_tuple:
-            return version
-        return '.'.join((str(c) for c in version))
+        return EspeakWrapper().version
 
     @abc.abstractmethod
     def _postprocess_line(self, line, num, separator, strip):

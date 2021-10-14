@@ -6,9 +6,11 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 * **breaking change**
 
-  * `espeak-mbrola` backend now requires `espeak>=1.49`
-  * `--espeak-path` option renamed as `--espeak-library`
-  * `--festival-path` option renamed as `--festival-executable`
+  * `espeak-mbrola` backend now requires `espeak>=1.49`.
+  * `--espeak-path` option renamed as `--espeak-library`.
+  * `--festival-path` option renamed as `--festival-executable`.
+  * the methods `version()` from the backend classes returns a tuple of int
+    instead of a str.
 
 * **improvements**
 

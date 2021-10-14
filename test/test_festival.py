@@ -32,7 +32,7 @@ def _test(text, separator=Separator(
 
 
 @pytest.mark.skipif(
-    '2.1' in FestivalBackend.version(FestivalBackend),
+    FestivalBackend.version() <= (2, 1),
     reason='festival-2.1 gives different results than further versions '
     'for syllable boundaries')
 def test_hello():

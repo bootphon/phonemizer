@@ -55,12 +55,8 @@ class SegmentsBackend(BaseBackend):
         return 'segments'
 
     @staticmethod
-    def version(as_tuple=False):
-        version = segments.__version__
-
-        if as_tuple:  # pragma: nocover
-            version = version_as_tuple(version)
-        return version
+    def version():
+        return version_as_tuple(segments.__version__)
 
     @staticmethod
     def is_available():

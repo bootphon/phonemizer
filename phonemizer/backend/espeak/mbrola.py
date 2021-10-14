@@ -42,7 +42,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         return (
             BaseEspeakBackend.is_available() and
             shutil.which('mbrola') and
-            BaseEspeakBackend.version(as_tuple=True) >= (1, 49))
+            BaseEspeakBackend.is_espeak_ng())
 
     @classmethod
     def _all_supported_languages(cls):

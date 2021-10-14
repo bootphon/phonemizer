@@ -65,7 +65,7 @@ def test_arabic():
     sep = Separator()
 
     # Arabic seems to have changed starting at espeak-ng-1.49.3
-    if tuple(EspeakBackend.version().split('.')) >= ('1', '49', '3'):
+    if EspeakBackend.version() >= (1, 49, 3):
         expected = u'ʔassalaːm ʕliːkm '
     else:
         expected = u'ʔassalaam ʕaliijkum '

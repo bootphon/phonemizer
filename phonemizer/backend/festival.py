@@ -136,10 +136,8 @@ class FestivalBackend(BaseBackend):
         return True
 
     @classmethod
-    def version(cls, as_tuple=False):
-        """Festival version as a string 'major.minor.patch'
-
-        If `as_tuple` is True, returns a tuple (major, minor, patch).
+    def version(cls):
+        """Festival version as a tupe of integers (major, minor, patch)
 
         Raises
         ------
@@ -163,9 +161,7 @@ class FestivalBackend(BaseBackend):
             raise RuntimeError(
                 f'cannot extract festival version from {festival}') from None
 
-        if as_tuple:
-            return version_as_tuple(version)
-        return version
+        return version_as_tuple(version)
 
     @staticmethod
     def supported_languages():
