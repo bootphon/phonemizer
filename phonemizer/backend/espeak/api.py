@@ -14,7 +14,6 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Low-level bindings to the espeak API"""
 
-import atexit
 import ctypes
 import pathlib
 import shutil
@@ -87,15 +86,17 @@ class EspeakAPI:
         except AttributeError:  # library not loaded
             pass
 
-        try:
-            # clean up the tempdir containing the copy of the library
-            shutil.rmtree(self._tempdir)
-        except PermissionError:
-            # On Windows the library copy within the tempdir cannot be deleted
-            # because a handler to this file still exists... We need to wait
-            # for the wrapper to be completely destroyed, and so the tempdir
-            # deletion is postponed to program exit
-            atexit.register(shutil.rmtree, self._tempdir)
+        # on Windows it is required to unload the library or the .dll file
+        # cannot be erased from the temporary directory
+        if sys.platform == 'win32':
+            # pylint: disable=import-outside-toplevel
+            # pylint: disable=protected-access
+            # pylint: disable=no-member
+            import _ctypes
+            _ctypes.FreeLibrary(self._library._handle)
+
+        # clean up the tempdir containing the copy of the library
+        shutil.rmtree(self._tempdir)
 
     @property
     def library_path(self):
