@@ -81,7 +81,7 @@ class BaseEspeakBackend(BaseBackend):
     def is_available(cls):
         try:
             EspeakWrapper()
-        except RuntimeError:
+        except RuntimeError:  # pragma: nocover
             return False
         return True
 

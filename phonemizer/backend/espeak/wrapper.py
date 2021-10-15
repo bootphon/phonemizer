@@ -137,7 +137,7 @@ class EspeakWrapper:
         if 'PHONEMIZER_ESPEAK_LIBRARY' in os.environ:
             library = pathlib.Path(os.environ['PHONEMIZER_ESPEAK_LIBRARY'])
             if not (library.is_file() and os.access(library, os.R_OK)):
-                raise RuntimeError(
+                raise RuntimeError(  # pragma: nocover
                     f'PHONEMIZER_ESPEAK_LIBRARY={library} '
                     f'is not a readable file')
             return library.resolve()
@@ -145,7 +145,7 @@ class EspeakWrapper:
         library = (
             ctypes.util.find_library('espeak-ng') or
             ctypes.util.find_library('espeak'))
-        if not library:
+        if not library:  # pragma: nocover
             raise RuntimeError(
                 'failed to find espeak library')
         return library
@@ -156,7 +156,7 @@ class EspeakWrapper:
 
         # pylint: disable=no-member
         self._data_path = pathlib.Path(data_path.decode())
-        if not self._data_path.is_dir():
+        if not self._data_path.is_dir():  # pragma: nocover
             raise RuntimeError('failed to retrieve espeak data directory')
 
         # espeak-1.48 appends the release date to version number, here we
@@ -245,10 +245,11 @@ class EspeakWrapper:
             raise RuntimeError(f'invalid voice code "{voice_code}"') from None
 
         if self._espeak.set_voice_by_name(voice_name.encode('utf8')) != 0:
-            raise RuntimeError(f'failed to load voice "{voice_code}"')
+            raise RuntimeError(  # pragma: nocover
+                f'failed to load voice "{voice_code}"')
 
         voice = self._get_voice()
-        if not voice:
+        if not voice:  # pragma: nocover
             raise RuntimeError(f'failed to load voice "{voice_code}"')
         self._voice = voice
 
@@ -261,7 +262,7 @@ class EspeakWrapper:
         voice = self._espeak.get_current_voice()
         if voice.name:
             return EspeakVoice.from_ctypes(voice)
-        return None
+        return None  # pragma: nocover
 
     def text_to_phonemes(self, text):
         """Translates a text into phonemes, must call set_voice() first.
@@ -279,7 +280,7 @@ class EspeakWrapper:
             phonemes separator and ' ' as word separator.
 
         """
-        if self.voice is None:
+        if self.voice is None:  # pragma: nocover
             raise RuntimeError('no voice specified')
 
         # from Python string to C void** (a pointer to a pointer to chars)
@@ -291,7 +292,7 @@ class EspeakWrapper:
         # output phonemes in IPA and separated by _. See comments for the
         # function espeak_TextToPhonemes in speak_lib.h of the espeak sources
         # for details.
-        if self.version <= (1, 48, 3):
+        if self.version <= (1, 48, 3):  # pragma: nocover
             phonemes_mode = 0x03 | 0x01 << 4
         else:
             phonemes_mode = ord('_') << 8 | 0x02
@@ -321,9 +322,9 @@ class EspeakWrapper:
 
         """
 
-        if self.version < (1, 49):
+        if self.version < (1, 49):  # pragma: nocover
             raise RuntimeError('not compatible with espeak<=1.48')
-        if self.voice is None:
+        if self.voice is None:  # pragma: nocover
             raise RuntimeError('no voice specified')
 
         # init libc fopen and fclose functions
@@ -349,7 +350,7 @@ class EspeakWrapper:
             ctypes.c_uint(0x01))
         self._libc.fclose(file_p)  # because flush does not work...
 
-        if status != 0:
+        if status != 0:  # pragma: nocover
             raise RuntimeError('failed to synthetize')
 
         self._tempfile.seek(0)

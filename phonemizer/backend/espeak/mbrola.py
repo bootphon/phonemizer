@@ -58,7 +58,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         voice = language[3:]  # remove mb- prefix
 
         if pathlib.Path(data_path / 'mbrola' / voice).is_file():
-            return True
+            return True  # pragma: nocover
 
         if sys.platform != 'win32':
             candidates = [

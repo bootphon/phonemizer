@@ -227,7 +227,7 @@ Exemples:
 
     try:
         espeak_library = EspeakBackend.library()
-    except RuntimeError:
+    except RuntimeError:  # pragma: nocover
         espeak_library = None
 
     group.add_argument(
@@ -241,7 +241,7 @@ Exemples:
     group = parser.add_argument_group('specific to festival backend')
     try:
         festival_executable = FestivalBackend.executable()
-    except RuntimeError:
+    except RuntimeError:  # pragma: nocover
         festival_executable = None
 
     group.add_argument(

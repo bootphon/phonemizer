@@ -123,7 +123,7 @@ class FestivalBackend(BaseBackend):
             return executable.resolve()
 
         executable = shutil.which('festival')
-        if not executable:
+        if not executable:  # pragma: nocover
             raise RuntimeError(
                 'failed to find festival executable')
         return pathlib.Path(executable).resolve()
@@ -133,7 +133,7 @@ class FestivalBackend(BaseBackend):
         """True if the festival executable is available, False otherwise"""
         try:
             cls.executable()
-        except RuntimeError:
+        except RuntimeError:  # pragma: nocover
             return False
         return True
 

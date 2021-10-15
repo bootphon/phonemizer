@@ -67,7 +67,7 @@ class EspeakAPI:
         # the cleanup with atexit. This means that, on Windows, all the
         # temporary directories created by EspeakAPI instances will remain on
         # disk until the Python process exit.
-        if sys.platform == 'win32':
+        if sys.platform == 'win32':  # pragma: nocover
             atexit.register(self._delete_win32)
         else:
             weakref.finalize(self, self._delete, self._library, self._tempdir)
@@ -80,9 +80,9 @@ class EspeakAPI:
         self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
         try:
             if self._library.espeak_Initialize(0x02, 0, None, 0) <= 0:
-                raise RuntimeError(
+                raise RuntimeError(  # pragma: nocover
                     'failed to initialize espeak shared library')
-        except AttributeError:
+        except AttributeError:  # pragma: nocover
             raise RuntimeError(
                 'failed to load espeak library') from None
 
@@ -90,7 +90,7 @@ class EspeakAPI:
         # implementation detail and is not exposed)
         self._library_path = library_path
 
-    def _delete_win32(self):
+    def _delete_win32(self):  # pragma: nocover
         # Windows does not support static methods with ctypes libraries
         # (library == None) so we use a proxy method...
         self._delete(self._library, self._tempdir)
@@ -105,7 +105,7 @@ class EspeakAPI:
 
         # on Windows it is required to unload the library or the .dll file
         # cannot be erased from the temporary directory
-        if sys.platform == 'win32':
+        if sys.platform == 'win32':  # pragma: nocover
             # pylint: disable=import-outside-toplevel
             # pylint: disable=protected-access
             # pylint: disable=no-member
@@ -136,7 +136,7 @@ class EspeakAPI:
         try:
             # Linux or MacOS only, ImportError on Windows
             return pathlib.Path(dlinfo.DLInfo(library).path).resolve()
-        except (Exception, ImportError):
+        except (Exception, ImportError):  # pragma: nocover
             raise RuntimeError(
                 f'failed to retrieve the path to {library} library') from None
 
