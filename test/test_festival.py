@@ -79,7 +79,7 @@ def test_path_good():
 
 
 @pytest.mark.skipif(
-    'PHONEMIZER_FESTIVAL_PATH' in os.environ,
+    'PHONEMIZER_FESTIVAL_EXECUTABLE' in os.environ,
     reason='environment variable precedence')
 def test_path_bad():
     try:
@@ -101,22 +101,22 @@ def test_path_bad():
 
 
 @pytest.mark.skipif(
-    'PHONEMIZER_FESTIVAL_PATH' in os.environ,
+    'PHONEMIZER_FESTIVAL_EXECUTABLE' in os.environ,
     reason='cannot modify environment')
 def test_path_venv():
     try:
-        os.environ['PHONEMIZER_FESTIVAL_PATH'] = shutil.which('python')
+        os.environ['PHONEMIZER_FESTIVAL_EXECUTABLE'] = shutil.which('python')
         with pytest.raises(RuntimeError):
             FestivalBackend('en-us').phonemize('hello')
         with pytest.raises(RuntimeError):
             FestivalBackend.version()
 
-        os.environ['PHONEMIZER_FESTIVAL_PATH'] = __file__
+        os.environ['PHONEMIZER_FESTIVAL_EXECUTABLE'] = __file__
         with pytest.raises(RuntimeError):
             FestivalBackend.version()
 
     finally:
         try:
-            del os.environ['PHONEMIZER_FESTIVAL_PATH']
+            del os.environ['PHONEMIZER_FESTIVAL_EXECUTABLE']
         except KeyError:
             pass

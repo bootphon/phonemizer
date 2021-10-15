@@ -228,7 +228,7 @@ def test_phone_separator(text, expected):
 
 
 @pytest.mark.skipif(
-    'PHONEMIZER_ESPEAK_PATH' in os.environ,
+    'PHONEMIZER_ESPEAK_LIBRARY' in os.environ,
     reason='cannot modify environment')
 def test_path_good():
     espeak = EspeakBackend.library()
@@ -247,7 +247,7 @@ def test_path_good():
 
 
 @pytest.mark.skipif(
-    'PHONEMIZER_ESPEAK_PATH' in os.environ,
+    'PHONEMIZER_ESPEAK_LIBRARY' in os.environ,
     reason='cannot modify environment')
 def test_path_bad():
     try:
@@ -270,24 +270,24 @@ def test_path_bad():
 
 
 @pytest.mark.skipif(
-    'PHONEMIZER_ESPEAK_PATH' in os.environ,
+    'PHONEMIZER_ESPEAK_LIBRARY' in os.environ,
     reason='cannot modify environment')
 def test_path_venv():
     try:
-        os.environ['PHONEMIZER_ESPEAK_PATH'] = (
+        os.environ['PHONEMIZER_ESPEAK_LIBRARY'] = (
             shutil.which('python'))
         with pytest.raises(RuntimeError):
             EspeakBackend('en-us').phonemize('hello')
         with pytest.raises(RuntimeError):
             EspeakBackend.version()
 
-        os.environ['PHONEMIZER_ESPEAK_PATH'] = __file__
+        os.environ['PHONEMIZER_ESPEAK_LIBRARY'] = __file__
         with pytest.raises(RuntimeError):
             EspeakBackend.version()
 
     finally:
         try:
-            del os.environ['PHONEMIZER_ESPEAK_PATH']
+            del os.environ['PHONEMIZER_ESPEAK_LIBRARY']
         except KeyError:
             pass
 

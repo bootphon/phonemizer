@@ -7,8 +7,15 @@ Version numbers follow [semantic versioning](https://semver.org)
 * **breaking change**
 
   * `espeak-mbrola` backend now requires `espeak>=1.49`.
-  * `--espeak-path` option renamed as `--espeak-library`.
-  * `--festival-path` option renamed as `--festival-executable`.
+
+  * `--espeak-path` option renamed as `--espeak-library`and
+    `PHONEMIZER_ESPEAK_PATH` environment variable renamed as
+    `PHONEMIZER_ESPEAK_LIBRARY`.
+
+  * `--festival-path` option renamed as `--festival-executable` and
+    `PHONEMIZER_FESTIVAL_PATH` environment variable renamed as
+    `PHONEMIZER_FESTIVAL_EXECUTABLE`.
+
   * the methods `version()` from the backend classes returns a tuple of int
     instead of a str.
 

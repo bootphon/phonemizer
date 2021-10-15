@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      PHONEMIZER_FESTIVAL_PATH: ${{ github.workspace }}/festival/build_festival/festival/bin/festival
+      PHONEMIZER_FESTIVAL_EXECUTABLE: ${{ github.workspace }}/festival/build_festival/festival/bin/festival
 
     steps:
       - name: Checkout phonemizer

@@ -64,13 +64,14 @@ class BaseEspeakBackend(BaseBackend):
         The following precedence rule applies for library lookup:
 
         1. As specified by BaseEspeakBackend.set_library()
-        2. Or as specified by the environment variable PHONEMIZER_ESPEAK_PATH
+        2. Or as specified by the environment variable
+           PHONEMIZER_ESPEAK_LIBRARY
         3. Or the default espeak library found on the system
 
         Raises
         ------
         RuntimeError if the espeak library cannot be found or if the
-            environment variable PHONEMIZER_ESPEAK_PATH is set to a
+            environment variable PHONEMIZER_ESPEAK_LIBRARY is set to a
             non-readable file
 
         """

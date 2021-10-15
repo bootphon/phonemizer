@@ -163,7 +163,7 @@ class Punctuation:
             return [current.mark] + cls._restore_aux(text, marks[1:], num + 1)
 
         # position == 'I'
-        if len(text) == 1:
+        if len(text) == 1:  # pragma: nocover
             # a corner case where the final part of an intermediate
             # mark (I) has not been phonemized
             return cls._restore_aux([text[0] + current.mark], marks[1:], num)

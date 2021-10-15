@@ -95,28 +95,30 @@ class FestivalBackend(BaseBackend):
         The following precedence rule applies for executable lookup:
 
         1. As specified by FestivalBackend.set_executable()
-        2. Or as specified by the environment variable PHONEMIZER_FESTIVAL_PATH
+        2. Or as specified by the environment variable
+           PHONEMIZER_FESTIVAL_EXECUTABLE
         3. Or the default 'festival' binary found on the system with
           `shutil.which('festival')`
 
         Raises
         ------
         RuntimeError if the festival executable cannot be found or if the
-            environment variable PHONEMIZER_FESTIVAL_PATH is set to a
+            environment variable PHONEMIZER_FESTIVAL_EXECUTABLE is set to a
             non-executable file
 
         """
         if cls._FESTIVAL_EXECUTABLE:
             return cls._FESTIVAL_EXECUTABLE
 
-        if 'PHONEMIZER_FESTIVAL_PATH' in os.environ:
-            executable = pathlib.Path(os.environ['PHONEMIZER_FESTIVAL_PATH'])
+        if 'PHONEMIZER_FESTIVAL_EXECUTABLE' in os.environ:
+            executable = pathlib.Path(os.environ[
+                'PHONEMIZER_FESTIVAL_EXECUTABLE'])
             if not (
                     executable.is_file()
                     and os.access(executable, mode=os.X_OK)
             ):
                 raise RuntimeError(
-                    f'PHONEMIZER_FESTIVAL_PATH={executable} '
+                    f'PHONEMIZER_FESTIVAL_EXECUTABLE={executable} '
                     f'is not an executable file')
             return executable.resolve()
 

@@ -224,23 +224,33 @@ Exemples:
         (en) or (jp), in the output. The 'remove-flags' policy removes them and
         the 'remove-utterance' policy removes the whole line of text including
         a language switch.""")
+
+    try:
+        espeak_library = EspeakBackend.library()
+    except RuntimeError:
+        espeak_library = None
+
     group.add_argument(
         '--espeak-library', default=None, type=str, metavar='<library>',
         help=f'''the path to the espeak shared library to use (*.so on Linux,
         *.dylib on Mac and *.dll on Windows, useful to overload the default
         espeak version installed on the system). Default to
-        {EspeakBackend.library()}. This path can also be specified using
-        the PHONEMIZER_ESPEAK_PATH environment variable.''')
+        {espeak_library}. This path can also be specified
+        using the PHONEMIZER_ESPEAK_LIBRARY environment variable.''')
 
     group = parser.add_argument_group('specific to festival backend')
+    try:
+        festival_executable = FestivalBackend.executable()
+    except RuntimeError:
+        festival_executable = None
+
     group.add_argument(
         '--festival-executable', default=None, type=str,
         metavar='<executable>',
-        help=f'''the path to the festival executable to use (useful to overload
-        the default festival installed on the system).
-        Default to {FestivalBackend.executable()}.
-        This path can also be specified using the
-        PHONEMIZER_FESTIVAL_PATH environment variable.''')
+        help=f'''the path to the festival executable to use (useful to
+        overload the default festival installed on the system). Default to
+        {festival_executable}. This path can also be specified using the
+        PHONEMIZER_FESTIVAL_EXCUTABLE environment variable.''')
 
     group = parser.add_argument_group(
         'punctuation processing',

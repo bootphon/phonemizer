@@ -120,24 +120,25 @@ class EspeakWrapper:
         The following precedence rule applies for library lookup:
 
         1. As specified by BaseEspeakBackend.set_library()
-        2. Or as specified by the environment variable PHONEMIZER_ESPEAK_PATH
+        2. Or as specified by the environment variable
+           PHONEMIZER_ESPEAK_LIBRARY
         3. Or the default espeak library found on the system
 
         Raises
         ------
         RuntimeError if the espeak library cannot be found or if the
-            environment variable PHONEMIZER_ESPEAK_PATH is set to a
+            environment variable PHONEMIZER_ESPEAK_LIBRARY is set to a
             non-readable file
 
         """
         if cls._ESPEAK_LIBRARY:
             return cls._ESPEAK_LIBRARY
 
-        if 'PHONEMIZER_ESPEAK_PATH' in os.environ:
-            library = pathlib.Path(os.environ['PHONEMIZER_ESPEAK_PATH'])
+        if 'PHONEMIZER_ESPEAK_LIBRARY' in os.environ:
+            library = pathlib.Path(os.environ['PHONEMIZER_ESPEAK_LIBRARY'])
             if not (library.is_file() and os.access(library, os.R_OK)):
                 raise RuntimeError(
-                    f'PHONEMIZER_ESPEAK_PATH={library} '
+                    f'PHONEMIZER_ESPEAK_LIBRARY={library} '
                     f'is not a readable file')
             return library.resolve()
 
