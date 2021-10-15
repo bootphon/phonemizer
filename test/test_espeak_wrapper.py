@@ -17,7 +17,6 @@
 # pylint: disable=missing-docstring
 # pylint: disable=redefined-outer-name
 
-import gc
 import os
 import pathlib
 import pickle
@@ -126,6 +125,7 @@ def test_twice():
     assert wrapper1._espeak._tempdir != wrapper2._espeak._tempdir
 
 
+@pytest.mark.skipif(sys.platform == 'win32', reason='not supported on Windows')
 def test_deletion():
     # pylint: disable=protected-access
     wrapper = EspeakWrapper()

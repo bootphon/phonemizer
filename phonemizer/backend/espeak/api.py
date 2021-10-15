@@ -14,6 +14,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Low-level bindings to the espeak API"""
 
+import atexit
 import ctypes
 import pathlib
 import shutil
@@ -24,6 +25,7 @@ import weakref
 from phonemizer.backend.espeak.voice import EspeakVoice
 
 if sys.platform != 'win32':
+    # cause a crash on Windows
     import dlinfo
 
 
@@ -35,15 +37,9 @@ class EspeakAPI:
 
     """
     def __init__(self, library):
+        # set to None to avoid an AttributeError in _delete if the __init__
+        # method raises, will be properly initialized below
         self._library = None
-
-        # will be automatically destroyed after use
-        self._tempdir = tempfile.mkdtemp()
-
-        # properly exit when the wrapper object is destoyed (see
-        # https://docs.python.org/3/library/weakref.html#comparing-finalizers-with-del-methods)
-        weakref.finalize(
-            self, EspeakAPI._terminate, self._library, self._tempdir)
 
         # Because the library is not designed to be wrapped nor to be used in
         # multithreaded/multiprocess contexts (massive use of global variables)
@@ -61,6 +57,20 @@ class EspeakAPI:
         except OSError as error:
             raise RuntimeError(
                 f'failed to load espeak library: {str(error)}') from None
+
+        # will be automatically destroyed after use
+        self._tempdir = tempfile.mkdtemp()
+
+        # properly exit when the wrapper object is destroyed (see
+        # https://docs.python.org/3/library/weakref.html#comparing-finalizers-with-del-methods).
+        # But... weakref implementation does not work on windows so we register
+        # the cleanup with atexit. This means that, on Windows, all the
+        # temporary directories created by EspeakAPI instances will remain on
+        # disk until the Python process exit.
+        if sys.platform == 'win32':
+            atexit.register(self._delete_win32)
+        else:
+            weakref.finalize(self, self._delete, self._library, self._tempdir)
 
         espeak_copy = pathlib.Path(self._tempdir) / library_path.name
         shutil.copy(library_path, espeak_copy, follow_symlinks=False)
@@ -80,8 +90,13 @@ class EspeakAPI:
         # implementation detail and is not exposed)
         self._library_path = library_path
 
+    def _delete_win32(self):
+        # Windows does not support static methods with ctypes libraries
+        # (library == None) so we use a proxy method...
+        self._delete(self._library, self._tempdir)
+
     @staticmethod
-    def _terminate(library, tempdir):
+    def _delete(library, tempdir):
         try:
             # clean up the espeak library allocated memory
             library.espeak_Terminate()
@@ -90,7 +105,7 @@ class EspeakAPI:
 
         # on Windows it is required to unload the library or the .dll file
         # cannot be erased from the temporary directory
-        if sys.platform == 'win32' and library:
+        if sys.platform == 'win32':
             # pylint: disable=import-outside-toplevel
             # pylint: disable=protected-access
             # pylint: disable=no-member
