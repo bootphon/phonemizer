@@ -10,7 +10,7 @@ jobs:
 
     env:
       PHONEMIZER_ESPEAK_LIBRARY: "C:\\Program Files\\eSpeak NG\\libespeak-ng.dll"
-      PHONEMIZER_FESTIVAL_EXCUTABLE: "C:\\festival\\src\\main\\festival.exe"
+      PHONEMIZER_FESTIVAL_EXECUTABLE: "C:\\festival\\src\\main\\festival.exe"
 
     steps:
       - name: Checkout phonemizer
