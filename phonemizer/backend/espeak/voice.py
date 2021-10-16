@@ -41,9 +41,6 @@ class EspeakVoice:
         """Path to the voice file wrt espeak data path"""
         return self._identifier
 
-    def __str__(self):
-        return f'{self.name} ({self.language}, {self.identifier})'
-
     def __eq__(self, other):
         return (
             self.name == other.name and
