@@ -36,9 +36,10 @@ def _test(text, separator=Separator(
     reason='festival-2.1 gives different results than further versions '
     'for syllable boundaries')
 def test_hello():
-    assert _test('hello world') == ['hh-ax|l-ow w-er-l-d']
-    assert _test('hello\nworld') == ['hh-ax|l-ow', 'w-er-l-d']
-    assert _test('hello\nworld\n') == ['hh-ax|l-ow', 'w-er-l-d']
+    assert _test(['hello world']) == ['hh-ax|l-ow w-er-l-d']
+    assert _test(['hello\nworld']) == ['hh-ax|l-ow w-er-l-d']
+    assert _test(['hello', 'world']) == ['hh-ax|l-ow', 'w-er-l-d']
+    assert _test(['hello\nworld\n']) == ['hh-ax|l-ow w-er-l-d']
 
 
 @pytest.mark.parametrize('text', ['', ' ', '  ', '(', '()', '"', "'"])
@@ -47,22 +48,22 @@ def test_bad_input(text):
 
 
 def test_quote():
-    assert _test("here a 'quote") == ['hh-ih-r ax k-w-ow-t']
-    assert _test('here a "quote') == ['hh-ih-r ax k-w-ow-t']
+    assert _test(["here a 'quote"]) == ['hh-ih-r ax k-w-ow-t']
+    assert _test(['here a "quote']) == ['hh-ih-r ax k-w-ow-t']
 
 
 def test_its():
-    assert _test("it's") == ['ih-t-s']
-    assert _test("its") == ['ih-t-s']
-    assert _test("it s") == ['ih-t eh-s']
-    assert _test('it "s') == ['ih-t eh-s']
+    assert _test(["it's"]) == ['ih-t-s']
+    assert _test(["its"]) == ['ih-t-s']
+    assert _test(["it s"]) == ['ih-t eh-s']
+    assert _test(['it "s']) == ['ih-t eh-s']
 
 
 def test_im():
     sep = Separator(word=' ', syllable='', phone='')
-    assert _test("I'm looking for an image", sep) \
+    assert _test(["I'm looking for an image"], sep) \
         == ['aym luhkaxng faor axn ihmaxjh']
-    assert _test("Im looking for an image", sep) \
+    assert _test(["Im looking for an image"], sep) \
         == ['ihm luhkaxng faor axn ihmaxjh']
 
 
@@ -88,7 +89,7 @@ def test_path_bad():
         FestivalBackend.set_executable(binary)
 
         with pytest.raises(RuntimeError):
-            FestivalBackend('en-us').phonemize('hello')
+            FestivalBackend('en-us').phonemize(['hello'])
         with pytest.raises(RuntimeError):
             FestivalBackend.version()
 
@@ -107,7 +108,7 @@ def test_path_venv():
     try:
         os.environ['PHONEMIZER_FESTIVAL_EXECUTABLE'] = shutil.which('python')
         with pytest.raises(RuntimeError):
-            FestivalBackend('en-us').phonemize('hello')
+            FestivalBackend('en-us').phonemize(['hello'])
         with pytest.raises(RuntimeError):
             FestivalBackend.version()
 

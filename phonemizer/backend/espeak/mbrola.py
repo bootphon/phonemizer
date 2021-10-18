@@ -83,12 +83,10 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
 
     def _phonemize_aux(self, text, offset, separator, strip):
         output = []
-        for num, line in enumerate(text.split('\n')):
+        for num, line in enumerate(text, start=1):
             line = self._espeak.synthetize(line)
-            line = self._postprocess_line(
-                line, offset + num + 1, separator, strip)
+            line = self._postprocess_line(line, offset + num, separator, strip)
             output.append(line)
-
         return output
 
     def _postprocess_line(self, line, num, separator, strip):

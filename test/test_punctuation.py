@@ -96,19 +96,19 @@ def test_espeak():
     expected4 = 'həloʊ , wɜːld !'
 
     out1 = EspeakBackend('en-us', preserve_punctuation=False).phonemize(
-        text, strip=True)
+        [text], strip=True)[0]
     assert out1 == expected1
 
     out2 = EspeakBackend('en-us', preserve_punctuation=True).phonemize(
-        text, strip=True)
+        [text], strip=True)[0]
     assert out2 == expected2
 
     out3 = EspeakBackend('en-us', preserve_punctuation=False).phonemize(
-        text, strip=False)
+        [text], strip=False)[0]
     assert out3 == expected3
 
     out4 = EspeakBackend('en-us', preserve_punctuation=True).phonemize(
-        text, strip=False)
+        [text], strip=False)[0]
     assert out4 == expected4
 
 
@@ -120,19 +120,19 @@ def test_festival():
     expected4 = 'hhaxlow , werld !'
 
     out1 = FestivalBackend('en-us', preserve_punctuation=False).phonemize(
-        text, strip=True)
+        [text], strip=True)[0]
     assert out1 == expected1
 
     out2 = FestivalBackend('en-us', preserve_punctuation=True).phonemize(
-        text, strip=True)
+        [text], strip=True)[0]
     assert out2 == expected2
 
     out3 = FestivalBackend('en-us', preserve_punctuation=False).phonemize(
-        text, strip=False)
+        [text], strip=False)[0]
     assert out3 == expected3
 
     out4 = FestivalBackend('en-us', preserve_punctuation=True).phonemize(
-        text, strip=False)
+        [text], strip=False)[0]
     assert out4 == expected4
 
 
@@ -144,19 +144,19 @@ def test_segments():
     expected4 = 'ʌtʃɪ , ʌtʃʊ !'
 
     out1 = SegmentsBackend('cree', preserve_punctuation=False).phonemize(
-        text, strip=True)
+        [text], strip=True)[0]
     assert out1 == expected1
 
     out2 = SegmentsBackend('cree', preserve_punctuation=True).phonemize(
-        text, strip=True)
+        [text], strip=True)[0]
     assert out2 == expected2
 
     out3 = SegmentsBackend('cree', preserve_punctuation=False).phonemize(
-        text, strip=False)
+        [text], strip=False)[0]
     assert out3 == expected3
 
     out4 = SegmentsBackend('cree', preserve_punctuation=True).phonemize(
-        text, strip=False)
+        [text], strip=False)[0]
     assert out4 == expected4
 
 
@@ -165,7 +165,8 @@ def test_segments():
     'text', ["!'", "'!", "!'!", "'!'"])
 def test_issue_54(text):
     output = phonemize(
-        text, language='en-us', backend='espeak', preserve_punctuation=True)
+        [text], language='en-us', backend='espeak',
+        preserve_punctuation=True)[0]
     assert text.replace("'", '') == output
 
 

@@ -58,6 +58,10 @@ class Separator:
         """Words separator"""
         return self._word
 
+    def __contains__(self, value):
+        """Returns True if the separator has `value` as token separation"""
+        return value in (self.phone, self.syllable, self.word)
+
 
 default_separator = Separator(phone='', syllable='', word=' ')
 """The default separation characters for phonemes, syllables and words"""

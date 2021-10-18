@@ -28,26 +28,26 @@ from phonemizer.separator import Separator, default_separator
 
 def test_english():
     backend = EspeakBackend('en-us')
-    text = u'hello world\ngoodbye\nthird line\nyet another'
+    text = ['hello world', 'goodbye', 'third line', 'yet another']
     out = backend.phonemize(text, default_separator, True)
-    assert out == u'həloʊ wɜːld\nɡʊdbaɪ\nθɜːd laɪn\njɛt ɐnʌðɚ'
+    assert out == ['həloʊ wɜːld', 'ɡʊdbaɪ', 'θɜːd laɪn', 'jɛt ɐnʌðɚ']
 
 
 def test_stress():
     backend = EspeakBackend('en-us', with_stress=False)
     assert backend.phonemize(
-        'hello world', default_separator, True) == u'həloʊ wɜːld'
+        ['hello world'], default_separator, True) == ['həloʊ wɜːld']
 
     backend = EspeakBackend('en-us', with_stress=True)
     assert backend.phonemize(
-        u'hello world', default_separator, True) == u'həlˈoʊ wˈɜːld'
+        ['hello world'], default_separator, True) == ['həlˈoʊ wˈɜːld']
 
 
 def test_french():
     backend = EspeakBackend('fr-fr')
-    text = u'bonjour le monde'
+    text = ['bonjour le monde']
     sep = Separator(word=';eword ', syllable=None, phone=' ')
-    expected = u'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword '
+    expected = ['b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword ']
     out = backend.phonemize(text, sep, False)
     assert out == expected
 
@@ -61,14 +61,14 @@ def test_french():
     reason='Arabic is not supported')
 def test_arabic():
     backend = EspeakBackend('ar')
-    text = u'السلام عليكم'
+    text = ['السلام عليكم']
     sep = Separator()
 
     # Arabic seems to have changed starting at espeak-ng-1.49.3
     if EspeakBackend.version() >= (1, 49, 3):
-        expected = u'ʔassalaːm ʕliːkm '
+        expected = ['ʔassalaːm ʕliːkm ']
     else:
-        expected = u'ʔassalaam ʕaliijkum '
+        expected = ['ʔassalaam ʕaliijkum ']
     out = backend.phonemize(text, sep, False)
     assert out == expected
 
@@ -90,22 +90,23 @@ def test_punctuation(text, strip, sep):
         expected = (
             'ɐ_k ɑː m ə_ɐ_p ɔɪ n t' if strip else 'ɐ _k ɑː m ə _ɐ _p ɔɪ n t _')
 
-    output = EspeakBackend('en-us').phonemize(text, strip=strip, separator=sep)
+    output = EspeakBackend('en-us').phonemize(
+        [text], strip=strip, separator=sep)[0]
     assert expected == output
 
 
 # see https://github.com/bootphon/phonemizer/issues/31
 def test_phone_separator_simple():
-    text = 'The lion and the tiger ran'
+    text = ['The lion and the tiger ran']
     sep = Separator(phone='_')
     backend = EspeakBackend('en-us')
 
     output = backend.phonemize(text, separator=sep, strip=True)
-    expected = 'ð_ə l_aɪə_n æ_n_d ð_ə t_aɪ_ɡ_ɚ ɹ_æ_n'
+    expected = ['ð_ə l_aɪə_n æ_n_d ð_ə t_aɪ_ɡ_ɚ ɹ_æ_n']
     assert expected == output
 
     output = backend.phonemize(text, separator=sep, strip=False)
-    expected = 'ð_ə_ l_aɪə_n_ æ_n_d_ ð_ə_ t_aɪ_ɡ_ɚ_ ɹ_æ_n_ '
+    expected = ['ð_ə_ l_aɪə_n_ æ_n_d_ ð_ə_ t_aɪ_ɡ_ɚ_ ɹ_æ_n_ ']
     assert expected == output
 
 
@@ -118,7 +119,7 @@ def test_phone_separator_simple():
 def test_phone_separator(text, expected):
     sep = Separator(phone='_')
     backend = EspeakBackend('en-us')
-    output = backend.phonemize(text, separator=sep, strip=True)
+    output = backend.phonemize([text], separator=sep, strip=True)[0]
     assert output == expected
 
 
@@ -172,7 +173,7 @@ def test_path_venv():
         os.environ['PHONEMIZER_ESPEAK_LIBRARY'] = (
             shutil.which('python'))
         with pytest.raises(RuntimeError):
-            EspeakBackend('en-us').phonemize('hello')
+            EspeakBackend('en-us').phonemize(['hello'])
         with pytest.raises(RuntimeError):
             EspeakBackend.version()
 
@@ -193,7 +194,8 @@ def test_path_venv():
         (True, 'd͡ʒæki t͡ʃæn '),
         ('8', 'd8ʒæki t8ʃæn ')])
 def test_tie(tie, expected):
-    assert EspeakBackend('en-us', tie=tie).phonemize('Jackie Chan') == expected
+    assert EspeakBackend('en-us', tie=tie).phonemize(
+        ['Jackie Chan'])[0] == expected
 
 
 def test_tie_bad():

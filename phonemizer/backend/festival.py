@@ -226,7 +226,7 @@ class FestivalBackend(BaseBackend):
 
         """
         cleaned_text = (
-            cls._cleaned(line) for line in text.split('\n') if line != '')
+            cls._cleaned(line) for line in text if line != '')
 
         return '\n'.join(
             cls._double_quoted(line) for line in cleaned_text if line != '')

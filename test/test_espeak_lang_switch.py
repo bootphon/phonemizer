@@ -115,7 +115,7 @@ def test_language_switch_remove_utterance(caplog, langswitch_text, njobs):
     backend = EspeakBackend('fr-fr', language_switch='remove-utterance')
     out = backend.phonemize(
         langswitch_text, separator=Separator(), strip=True, njobs=njobs)
-    assert out == ['ʒɛm lɑ̃ɡlɛ']
+    assert out == ['ʒɛm lɑ̃ɡlɛ', '', '', '', '']
 
     messages = [msg[2] for msg in caplog.record_tuples]
     assert (

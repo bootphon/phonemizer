@@ -44,7 +44,7 @@ def _test(text, expected_output, args=''):
             output = foutput.read().decode()
 
         if expected_output == '':
-            assert output == ''
+            assert output == os.linesep
         else:
             # linesep is \n on Linux/MacOS and \r\n on Windows
             assert output == expected_output + os.linesep

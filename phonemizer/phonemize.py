@@ -20,6 +20,7 @@ To use it in your own code, type:
 
 """
 
+import six
 import sys
 
 from phonemizer.backend import (
@@ -30,6 +31,7 @@ from phonemizer.backend import (
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
 from phonemizer.separator import default_separator
+from phonemizer.utils import list2str, str2list
 
 
 def phonemize(  # pylint: disable=too-many-arguments
@@ -38,6 +40,7 @@ def phonemize(  # pylint: disable=too-many-arguments
         backend='festival',
         separator=default_separator,
         strip=False,
+        prepend_input=False,
         preserve_punctuation=False,
         punctuation_marks=Punctuation.default_marks(),
         with_stress=False,
@@ -72,6 +75,9 @@ def phonemize(  # pylint: disable=too-many-arguments
 
     strip (bool): If True, don't output the last word and phone separators of a
       token, default to False.
+
+    prepend_input (bool): When True, returns a pair (input utterance,
+      phonemized utterance) for each line of the input text.
 
     preserve_punctuation (bool): When True, will keep the punctuation in the
         phonemized output. Not supported by the 'espeak-mbrola' backend.
@@ -109,9 +115,11 @@ def phonemize(  # pylint: disable=too-many-arguments
 
     Returns
     -------
-    phonemized text (str or list of str) : The input `text` phonemized
-      for the given `language` and `backend`. The returned value has
-      the same type of the input text (either a list or a string).
+    phonemized text (str or list of str) : The input `text` phonemized for the
+      given `language` and `backend`. The returned value has the same type of
+      the input text (either a list or a string), excepted if `prepend_input`
+      is True where the output is forced as a list of pairs (input_text,
+      phonemized text).
 
     Raises
     ------
@@ -185,6 +193,15 @@ def phonemize(  # pylint: disable=too-many-arguments
             preserve_punctuation=preserve_punctuation,
             logger=logger)
 
-    # phonemize the input text
-    return phonemizer.phonemize(
-        text, separator=separator, strip=strip, njobs=njobs)
+    # remember the text type for output (either list or string)
+    text_type = type(text)
+
+    # force the text as a list and phonemize it
+    phonemized = phonemizer.phonemize(
+        str2list(text), separator=separator, strip=strip, njobs=njobs)
+
+    print(phonemized)
+
+    return (
+        list2str(phonemized) if text_type in six.string_types
+        else phonemized)

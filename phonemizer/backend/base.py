@@ -17,12 +17,11 @@
 import abc
 import itertools
 import joblib
-import six
 
 from phonemizer.separator import default_separator
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
-from phonemizer.utils import list2str, str2list, chunks
+from phonemizer.utils import chunks
 
 
 class BaseBackend(abc.ABC):
@@ -128,11 +127,9 @@ class BaseBackend(abc.ABC):
 
         Parameters
         ----------
-        text (str or list of str): The text to be phonemized. Any empty line
-          will be ignored. If `text` is an str, it can be multiline (lines
-          being separated by \n). If `text` is a list, each element is
-          considered as a separated line. Each line is considered as a text
-          utterance.
+        text (list of str): The text to be phonemized. Each string in the list
+          is considered as a separated line. Each line is considered as a text
+          utterance. Any empty utterance will be ignored.
 
         separator (Separator): string separators between phonemes, syllables
           and words, default to separator.default_separator. Syllable separator
@@ -148,21 +145,24 @@ class BaseBackend(abc.ABC):
 
         Returns
         -------
-        phonemized text (str or list of str) : The input `text` phonemized for
-          the given `language` and `backend`. The returned value has the same
-          type of the input text (either a list or a string).
+        phonemized text (list of str) : The input `text` phonemized for the
+          given `language` and `backend`.
 
         Raises
         ------
         RuntimeError if something went wrong during the phonemization
 
         """
-        text, text_type, punctuation_marks = self._phonemize_preprocess(text)
+        if isinstance(text, str):
+            # changed in phonemizer-3.0, warn the user
+            self.logger.error(
+                'input text to phonemize() is str but must be list')
+
+        text, punctuation_marks = self._phonemize_preprocess(text)
 
         if njobs == 1:
             # phonemize the text forced as a string
-            phonemized = self._phonemize_aux(
-                list2str(text), 0, separator, strip)
+            phonemized = self._phonemize_aux(text, 0, separator, strip)
         else:
             # If using parallel jobs, disable the log as stderr is not
             # picklable.
@@ -178,8 +178,7 @@ class BaseBackend(abc.ABC):
             # flatten them in a single list
             phonemized = self._flatten(phonemized)
 
-        return self._phonemize_postprocess(
-            phonemized, text_type, punctuation_marks)
+        return self._phonemize_postprocess(phonemized, punctuation_marks)
 
     @staticmethod
     def _flatten(phonemized):
@@ -207,13 +206,10 @@ class BaseBackend(abc.ABC):
     def _phonemize_preprocess(self, text):
         """Preprocess the text before phonemization
 
-        Converts it to a list of str and removes the punctuation (keep trace of
-        punctuation marks for further restoration if required)
+        Removes the punctuation (keep trace of punctuation marks for further
+        restoration if required by the `preserve_punctuation` option).
 
         """
-        # remember the text type for output (either list or string)
-        text_type = type(text)
-
         # deals with punctuation: remove it and keep track of it for
         # restoration at the end if asked for
         punctuation_marks = []
@@ -222,24 +218,16 @@ class BaseBackend(abc.ABC):
         else:
             text = self._punctuator.remove(text)
 
-        return text, text_type, punctuation_marks
+        return text, punctuation_marks
 
-    def _phonemize_postprocess(self, phonemized, text_type, punctuation_marks):
+    def _phonemize_postprocess(self, phonemized, punctuation_marks):
         """Postprocess the raw phonemized output
 
-        Restores the punctuation as needed and converts back the text to it's
-        original type (list or str).
+        Restores the punctuation as needed.
 
         """
-        # restore the punctuation is asked for
         if self._preserve_punctuation:
             phonemized = self._punctuator.restore(
                 phonemized, punctuation_marks)
 
-        # remove any empty line in output
-        phonemized = [line for line in phonemized if line]
-
-        # output the result formatted as a string or a list of strings
-        # according to type(text)
-        return (list2str(phonemized) if text_type in six.string_types
-                else str2list(phonemized))
+        return phonemized

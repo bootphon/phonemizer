@@ -162,6 +162,14 @@ Exemples:
         '-o', '--output', default=sys.stdout, metavar='<file>',
         help='output text file to write, if not specified write to stdout.')
 
+    group.add_argument(
+        '--prepend-input', default=False, nargs='?', metavar='<str>',
+        help='''prepend each line of the phonemized output text with its
+        matching input text. If a string is specified as option value, use it
+        as field separator, else use one of "|", "||", "|||", "||||" by
+        selecting the first one that is not configured as a token separator
+        (see -p/-s/-w options).''')
+
     group = parser.add_argument_group('backends')
     group.add_argument(
         '-b', '--backend', metavar='<str>', default=None,
@@ -345,6 +353,7 @@ def main():
         backend=args.backend,
         separator=sep,
         strip=args.strip,
+        prepend_input=args.prepend_input,
         preserve_punctuation=args.preserve_punctuation,
         punctuation_marks=args.punctuation_marks,
         with_stress=args.with_stress,

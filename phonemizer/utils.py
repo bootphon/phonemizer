@@ -14,6 +14,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Provides utility functions for the phonemizer"""
 
+import os
 import pathlib
 import pkg_resources
 import six
@@ -32,13 +33,15 @@ def cumsum(iterable):
 def str2list(text):
     """Returns the string `text` as a list of lines, split by \n"""
     return (
-        text.strip().split('\n') if isinstance(text, six.string_types)
+        text.strip().split(os.linesep) if isinstance(text, six.string_types)
         else text)
 
 
 def list2str(text):
     """Returns the list of lines `text` as a single string separated by \n"""
-    return '\n'.join(text) if not isinstance(text, six.string_types) else text
+    return (
+        text if isinstance(text, six.string_types)
+        else os.linesep.join(text))
 
 
 def chunks(text, num):
@@ -59,7 +62,8 @@ def chunks(text, num):
 
     Returns
     -------
-    chunks (list of str) : The chunked text with utterances separated by '\n.
+    chunks (list of list of str) : The chunked text with utterances separated
+        by '\n.
 
     offsets (list of int) : offset used below to recover the line numbers in
         the input text wrt the chunks
@@ -70,13 +74,13 @@ def chunks(text, num):
     nchunks = min(num, len(text))
 
     text_chunks = [
-        list2str(text[i*size:(i+1)*size]) for i in range(nchunks - 1)]
+        text[i*size:(i+1)*size] for i in range(nchunks - 1)]
 
-    last = list2str(text[(nchunks - 1)*size:])
+    last = text[(nchunks - 1)*size:]
     if last:
         text_chunks.append(last)
 
-    offsets = [0] + cumsum((c.count('\n') + 1 for c in text_chunks[:-1]))
+    offsets = [0] + cumsum((len(c) for c in text_chunks[:-1]))
     return text_chunks, offsets
 
 

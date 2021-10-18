@@ -30,19 +30,21 @@ def test_str2list():
 
 def test_chunks():
     for i in range(1, 5):
-        assert chunks(['a'], i) == (['a'], [0])
+        assert chunks(['a'], i) == ([['a']], [0])
 
-    assert chunks(['a', 'a'], 1) == (['a\na'], [0])
-    assert chunks(['a', 'a'], 2) == (['a', 'a'], [0, 1])
-    assert chunks(['a', 'a'], 10) == (['a', 'a'], [0, 1])
+    assert chunks(['a', 'a'], 1) == ([['a', 'a']], [0])
+    assert chunks(['a', 'a'], 2) == ([['a'], ['a']], [0, 1])
+    assert chunks(['a', 'a'], 10) == ([['a'], ['a']], [0, 1])
 
-    assert chunks(['a', 'a', 'a'], 1) == (['a\na\na'], [0])
-    assert chunks(['a', 'a', 'a'], 2) == (['a', 'a\na'], [0, 1])
-    assert chunks(['a', 'a', 'a'], 3) == (['a', 'a', 'a'], [0, 1, 2])
-    assert chunks(['a', 'a', 'a'], 10) == (['a', 'a', 'a'], [0, 1, 2])
+    assert chunks(['a', 'a', 'a'], 1) == ([['a', 'a', 'a']], [0])
+    assert chunks(['a', 'a', 'a'], 2) == ([['a'], ['a', 'a']], [0, 1])
+    assert chunks(['a', 'a', 'a'], 3) == ([['a'], ['a'], ['a']], [0, 1, 2])
+    assert chunks(['a', 'a', 'a'], 10) == ([['a'], ['a'], ['a']], [0, 1, 2])
 
-    assert chunks(['a', 'a', 'a', 'a'], 1) == (['a\na\na\na'], [0])
-    assert chunks(['a', 'a', 'a', 'a'], 2) == (['a\na', 'a\na'], [0, 2])
-    assert chunks(['a', 'a', 'a', 'a'], 3) == (['a', 'a', 'a\na'], [0, 1, 2])
+    assert chunks(['a', 'a', 'a', 'a'], 1) == ([['a', 'a', 'a', 'a']], [0])
+    assert chunks(['a', 'a', 'a', 'a'], 2) == (
+        [['a', 'a'], ['a', 'a']], [0, 2])
+    assert chunks(['a', 'a', 'a', 'a'], 3) == (
+        [['a'], ['a'], ['a', 'a']], [0, 1, 2])
     assert chunks(['a', 'a', 'a', 'a'], 10) == (
-        ['a', 'a', 'a', 'a'], [0, 1, 2, 3])
+        [['a'], ['a'], ['a'], ['a']], [0, 1, 2, 3])

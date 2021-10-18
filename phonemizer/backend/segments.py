@@ -121,7 +121,7 @@ class SegmentsBackend(BaseBackend):
         # tokenize the input text per utterance
         phonemized = (
             self._tokenizer(line, column='mapping', errors='strict')
-            for line in text.split('\n'))
+            for line in text)
 
         # the output of segments is always strip, so we need to add
         # token separation at the end when strip is False.

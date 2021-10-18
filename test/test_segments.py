@@ -28,11 +28,13 @@ def test_multiline():
     backend = SegmentsBackend('cree')
     assert backend.language == 'cree'
 
-    assert backend.phonemize('a') == u'ʌ '
-    assert backend.phonemize('aa') == u'ʌʌ '
-    assert backend.phonemize('a\n') == u'ʌ '
-    assert backend.phonemize('a\na') == u'ʌ \nʌ '
-    assert backend.phonemize('a\na\n') == u'ʌ \nʌ '
+    assert backend.phonemize(['a']) == [u'ʌ ']
+    assert backend.phonemize(['aa']) == [u'ʌʌ ']
+    assert backend.phonemize(['a\n']) == [u'ʌ ']
+    assert backend.phonemize(['a\na']) == [u'ʌ ʌ ']
+    assert backend.phonemize(['a\na\n']) == [u'ʌ ʌ ']
+    assert backend.phonemize(['a', 'a']) == [u'ʌ ', 'ʌ ']
+    assert backend.phonemize(['a\n', 'a\n']) == [u'ʌ ', 'ʌ ']
 
 
 def test_bad_morpheme():
@@ -43,52 +45,52 @@ def test_bad_morpheme():
 
 def test_separator():
     backend = SegmentsBackend('cree')
-    text = 'achi acho'
+    text = ['achi acho']
 
     sep = default_separator
-    assert backend.phonemize(text, separator=sep) == u'ʌtʃɪ ʌtʃʊ '
-    assert backend.phonemize(text, separator=sep, strip=True) == u'ʌtʃɪ ʌtʃʊ'
+    assert backend.phonemize(text, separator=sep) == [u'ʌtʃɪ ʌtʃʊ ']
+    assert backend.phonemize(text, separator=sep, strip=True) == [u'ʌtʃɪ ʌtʃʊ']
 
 
 def test_separator_2():
     backend = SegmentsBackend('cree')
-    text = 'achi acho'
+    text = ['achi acho']
 
     sep = Separator(word='_', phone=' ')
-    assert backend.phonemize(text, separator=sep) == u'ʌ tʃ ɪ _ʌ tʃ ʊ _'
+    assert backend.phonemize(text, separator=sep) == [u'ʌ tʃ ɪ _ʌ tʃ ʊ _']
     assert backend.phonemize(text, separator=sep, strip=True) \
-        == u'ʌ tʃ ɪ_ʌ tʃ ʊ'
+        == [u'ʌ tʃ ɪ_ʌ tʃ ʊ']
 
 
 def test_separator_3():
     backend = SegmentsBackend('cree')
-    text = 'achi acho'
+    text = ['achi acho']
 
     sep = Separator(word=' ', syllable=None, phone='_')
-    assert backend.phonemize(text, separator=sep) == u'ʌ_tʃ_ɪ_ ʌ_tʃ_ʊ_ '
+    assert backend.phonemize(text, separator=sep) == [u'ʌ_tʃ_ɪ_ ʌ_tʃ_ʊ_ ']
     assert backend.phonemize(text, separator=sep, strip=True) \
-        == u'ʌ_tʃ_ɪ ʌ_tʃ_ʊ'
+        == [u'ʌ_tʃ_ɪ ʌ_tʃ_ʊ']
 
 
 def test_separator_4():
     backend = SegmentsBackend('cree')
-    text = 'achi acho'
+    text = ['achi acho']
 
     # TODO bug when sep.phone == ' ' with no sep.word
     sep = Separator(phone=' ', word='')
-    assert backend.phonemize(text, separator=sep) == u'ʌ tʃ ɪ ʌ tʃ ʊ '
+    assert backend.phonemize(text, separator=sep) == [u'ʌ tʃ ɪ ʌ tʃ ʊ ']
     assert backend.phonemize(text, separator=sep, strip=True) \
-        == u'ʌ tʃ ɪʌ tʃ ʊ'
+        == [u'ʌ tʃ ɪʌ tʃ ʊ']
 
 
 def test_separator_5():
     backend = SegmentsBackend('cree')
-    text = 'achi acho'
+    text = ['achi acho']
 
     sep = Separator(phone=' ', word='_')
-    assert backend.phonemize(text, separator=sep) == u'ʌ tʃ ɪ _ʌ tʃ ʊ _'
+    assert backend.phonemize(text, separator=sep) == [u'ʌ tʃ ɪ _ʌ tʃ ʊ _']
     assert backend.phonemize(text, separator=sep, strip=True) \
-        == u'ʌ tʃ ɪ_ʌ tʃ ʊ'
+        == [u'ʌ tʃ ɪ_ʌ tʃ ʊ']
 
 
 def test_language(tmpdir):
@@ -108,6 +110,6 @@ def test_language(tmpdir):
         os.path.join(directory, 'unexisting.g2p'))
 
     # bad syntax in g2p file
-    p = tmpdir.join('foo.g2p')
-    p.write('\n'.join(['a a', 'b b b', 'c']))
-    assert not SegmentsBackend.is_supported_language(p)
+    g2p = tmpdir.join('foo.g2p')
+    g2p.write('\n'.join(['a a', 'b b b', 'c']))
+    assert not SegmentsBackend.is_supported_language(g2p)

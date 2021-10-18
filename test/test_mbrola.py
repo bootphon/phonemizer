@@ -79,7 +79,7 @@ def backend():
         ('brun', 'bR9~')])
 def test_sampa_fr(backend, text, expected):
     assert expected == backend.phonemize(
-        text, strip=True, separator=Separator(phone=''))
+        [text], strip=True, separator=Separator(phone=''))[0]
 
 
 @pytest.mark.skipif(
@@ -87,19 +87,19 @@ def test_sampa_fr(backend, text, expected):
     not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
     reason='mbrola or mb-fr1 voice not installed')
 def test_french_sampa(backend):
-    text = u'bonjour le monde'
+    text = ['bonjour le monde']
     sep = Separator(word=None, phone=' ')
 
-    expected = 'b o~ Z u R l @ m o~ d '
+    expected = ['b o~ Z u R l @ m o~ d ']
     out = backend.phonemize(text, separator=sep, strip=False)
     assert out == expected
 
-    expected = 'b o~ Z u R l @ m o~ d'
+    expected = ['b o~ Z u R l @ m o~ d']
     out = backend.phonemize(text, separator=sep, strip=True)
     assert out == expected
 
-    assert backend.phonemize('', separator=sep, strip=True) == ''
-    assert backend.phonemize('"', separator=sep, strip=True) == ''
+    assert backend.phonemize([''], separator=sep, strip=True) == ['']
+    assert backend.phonemize(['"'], separator=sep, strip=True) == ['']
 
 
 @pytest.mark.skipif(

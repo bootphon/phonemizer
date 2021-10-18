@@ -76,7 +76,7 @@ class EspeakBackend(BaseEspeakBackend):
     def _phonemize_aux(self, text, offset, separator, strip):
         output = []
         lang_switches = []
-        for num, line in enumerate(text.split('\n'), start=1):
+        for num, line in enumerate(text, start=1):
             line = self._espeak.text_to_phonemes(line)
             line, has_switch = self._postprocess_line(
                 line, num, separator, strip)
@@ -126,18 +126,17 @@ class EspeakBackend(BaseEspeakBackend):
 
         return out_line, has_switch
 
-    def _phonemize_postprocess(self, phonemized, text_type, punctuation_marks):
+    def _phonemize_postprocess(self, phonemized, punctuation_marks):
         text = phonemized[0]
         switches = phonemized[1]
         self._lang_switch.warning(switches)
-        return super()._phonemize_postprocess(
-            text, text_type, punctuation_marks)
+        return super()._phonemize_postprocess(text, punctuation_marks)
 
     @staticmethod
     def _flatten(phonemized):
         """Specialization of BaseBackend._flatten for the espeak backend
 
-        From [([1, 2], ['a', 'b']), ([3],), ([4], ['c])] to [[1, 2, 3, 4],
+        From [([1, 2], ['a', 'b']), ([3],), ([4], ['c'])] to [[1, 2, 3, 4],
         ['a', 'b', 'c']].
 
         """
