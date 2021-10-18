@@ -31,8 +31,29 @@ class BaseBackend(abc.ABC):
     Provides a common interface to all backends. The central method is
     `phonemize()`
 
+    Parameters
+    ----------
+    language (str): The language code of the input text, must be supported by
+      the backend. If `backend` is 'segments', the language can be a file with
+      a grapheme to phoneme mapping.
+
+    preserve_punctuation (bool): When True, will keep the punctuation in the
+      phonemized output. Not supported by the 'espeak-mbrola' backend. Default
+      to False and remove all the punctuation.
+
+    punctuation_marks (str): The punctuation marks to consider when dealing
+      with punctuation, either for removal or preservation. Default to
+      Punctuation.default_marks().
+
+    logger (logging.Logger): the logging instance where to send
+      messages. If not specified, use the default system logger.
+
+    Raises
+    ------
+    RuntimeError if the backend is not available of if the `language` cannot be
+    initialized.
+
     """
-    # TODO doc on parameters
     def __init__(self, language,
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
@@ -55,6 +76,11 @@ class BaseBackend(abc.ABC):
 
     @classmethod
     def _init_language(cls, language):
+        """Language initialization
+
+        This method may be overloaded in child classes (see Segments backend)
+
+        """
         if not cls.is_supported_language(language):
             raise RuntimeError(
                 f'language "{language}" is not supported by the '
@@ -98,8 +124,39 @@ class BaseBackend(abc.ABC):
 
     def phonemize(self, text, separator=default_separator,
                   strip=False, njobs=1):
-        """Returns the `text` phonemized for the given language"""
-        # TODO doc
+        """Returns the `text` phonemized for the given language
+
+        Parameters
+        ----------
+        text (str or list of str): The text to be phonemized. Any empty line
+          will be ignored. If `text` is an str, it can be multiline (lines
+          being separated by \n). If `text` is a list, each element is
+          considered as a separated line. Each line is considered as a text
+          utterance.
+
+        separator (Separator): string separators between phonemes, syllables
+          and words, default to separator.default_separator. Syllable separator
+          is considered only for the festival backend. Word separator is
+          ignored by the 'espeak-mbrola' backend.
+
+        strip (bool): If True, don't output the last word and phone separators
+          of a token, default to False.
+
+        njobs (int): The number of parallel jobs to launch. The input text is
+          split in `njobs` parts, phonemized on parallel instances of the
+          backend and the outputs are finally collapsed.
+
+        Returns
+        -------
+        phonemized text (str or list of str) : The input `text` phonemized for
+          the given `language` and `backend`. The returned value has the same
+          type of the input text (either a list or a string).
+
+        Raises
+        ------
+        RuntimeError if something went wrong during the phonemization
+
+        """
         text, text_type, punctuation_marks = self._phonemize_preprocess(text)
 
         if njobs == 1:
@@ -126,16 +183,34 @@ class BaseBackend(abc.ABC):
 
     @staticmethod
     def _flatten(phonemized):
-        # TODO doc
+        """Flatten a list of lists into a single one
+
+        From [[1, 2], [3], [4]] returns [1, 2, 3, 4]. This method is used to
+        format the output as obtained using multiple jobs.
+
+        """
         return list(itertools.chain(*phonemized))
 
     @abc.abstractmethod
     def _phonemize_aux(self, text, offset, separator, strip):
-        # TODO doc
-        pass
+        """The "concrete" phonemization method
+
+        Must be implemented in child classes. `separator` and `strip`
+        parameters are as given to the phonemize() method. `text` is as
+        returned by _phonemize_preprocess(). `offset` is line number of the
+        first line in `text` with respect to the original text (this is only
+        usefull with running on chunks in multiple jobs. When using a single
+        jobs the offset is 0).
+
+        """
 
     def _phonemize_preprocess(self, text):
-        # TODO doc
+        """Preprocess the text before phonemization
+
+        Converts it to a list of str and removes the punctuation (keep trace of
+        punctuation marks for further restoration if required)
+
+        """
         # remember the text type for output (either list or string)
         text_type = type(text)
 
@@ -150,7 +225,12 @@ class BaseBackend(abc.ABC):
         return text, text_type, punctuation_marks
 
     def _phonemize_postprocess(self, phonemized, text_type, punctuation_marks):
-        # TODO doc
+        """Postprocess the raw phonemized output
+
+        Restores the punctuation as needed and converts back the text to it's
+        original type (list or str).
+
+        """
         # restore the punctuation is asked for
         if self._preserve_punctuation:
             phonemized = self._punctuator.restore(

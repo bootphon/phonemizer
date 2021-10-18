@@ -135,7 +135,12 @@ class EspeakBackend(BaseEspeakBackend):
 
     @staticmethod
     def _flatten(phonemized):
-        # TODO optimize, test and comment
+        """Specialization of BaseBackend._flatten for the espeak backend
+
+        From [([1, 2], ['a', 'b']), ([3],), ([4], ['c])] to [[1, 2, 3, 4],
+        ['a', 'b', 'c']].
+
+        """
         flattened = []
         for i in range(len(phonemized[0])):
             flattened.append(
