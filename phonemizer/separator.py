@@ -62,6 +62,28 @@ class Separator:
         """Returns True if the separator has `value` as token separation"""
         return value in (self.phone, self.syllable, self.word)
 
+    def input_output_separator(self, field_separator):
+        if not field_separator:
+            return False
+
+        if isinstance(field_separator, str):
+            if field_separator in self:
+                raise RuntimeError(
+                    f'cannot prepend input with "{field_separator}" because '
+                    f'it is already a token separator: {self}')
+            return field_separator
+
+        if field_separator is True:
+            field_separator = '|'
+            while field_separator in self:
+                field_separator += '|'
+            return field_separator
+
+        # not a bool nor a str
+        raise RuntimeError(
+            'invalid input/output separator, must be bool or str but is'
+            f'{field_separator}')
+
 
 default_separator = Separator(phone='', syllable='', word=' ')
 """The default separation characters for phonemes, syllables and words"""

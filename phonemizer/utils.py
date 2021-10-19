@@ -30,11 +30,19 @@ def cumsum(iterable):
     return res
 
 
-def str2list(text):
-    """Returns the string `text` as a list of lines, split by \n"""
-    return (
+def str2list(text, ignore_empty=False):
+    """Returns the string `text` as a list of lines, split by \n
+
+    If `ignore_empty` is True, remove empty lines from the text
+
+    """
+    text = (
         text.strip().split(os.linesep) if isinstance(text, six.string_types)
         else text)
+    if ignore_empty:
+        text = (line.strip() for line in text)
+        return [line for line in text if line]
+    return [line.strip() for line in text]
 
 
 def list2str(text):

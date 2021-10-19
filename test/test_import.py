@@ -6,9 +6,9 @@
 
 def test_relative():
     from phonemizer import phonemize
-    assert phonemize('a') == 'ax '
+    assert phonemize('a') == 'eɪ '
 
 
 def test_absolute():
     from phonemizer.phonemize import phonemize
-    assert phonemize('a') == 'ax '
+    assert phonemize('a') == 'eɪ '

@@ -16,6 +16,7 @@
 """Command-line phonemizer tool, have a 'phonemizer --help' to get in"""
 
 import argparse
+import os
 import sys
 
 import pkg_resources
@@ -163,7 +164,7 @@ Exemples:
         help='output text file to write, if not specified write to stdout.')
 
     group.add_argument(
-        '--prepend-input', default=False, nargs='?', metavar='<str>',
+        '--prepend-text', default=False, nargs='?', metavar='<str>',
         help='''prepend each line of the phonemized output text with its
         matching input text. If a string is specified as option value, use it
         as field separator, else use one of "|", "||", "|||", "||||" by
@@ -344,16 +345,22 @@ def main():
             word=args.word_separator)
     log.debug('separator is %s', sep)
 
-    text = [line.strip() for line in streamin]
+    if args.prepend_text:
+        input_output_separator = sep.input_output_separator(args.prepend_text)
+        log.debug(
+            'prepend input text to output, separator is "%s"',
+            input_output_separator)
+    else:
+        input_output_separator = False
 
     # phonemize the input text
     out = phonemize(
-        text,
+        streamin.readlines(),
         language=args.language,
         backend=args.backend,
         separator=sep,
         strip=args.strip,
-        prepend_input=args.prepend_input,
+        prepend_text=args.prepend_text,
         preserve_punctuation=args.preserve_punctuation,
         punctuation_marks=args.punctuation_marks,
         with_stress=args.with_stress,
@@ -362,8 +369,15 @@ def main():
         njobs=args.njobs,
         logger=log)
 
+    if out and input_output_separator:
+        streamout.write(
+            os.linesep.join(
+                f'{line[0]} {input_output_separator} {line[1]}'
+                for line in out)
+            + os.linesep)
+        return
     if out:
-        streamout.write('\n'.join(out) + '\n')
+        streamout.write(os.linesep.join(out) + os.linesep)
 
 
 if __name__ == '__main__':  # pragma: nocover

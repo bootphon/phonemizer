@@ -20,7 +20,6 @@ To use it in your own code, type:
 
 """
 
-import six
 import sys
 
 from phonemizer.backend import (
@@ -37,10 +36,10 @@ from phonemizer.utils import list2str, str2list
 def phonemize(  # pylint: disable=too-many-arguments
         text,
         language='en-us',
-        backend='festival',
+        backend='espeak',
         separator=default_separator,
         strip=False,
-        prepend_input=False,
+        prepend_text=False,
         preserve_punctuation=False,
         punctuation_marks=Punctuation.default_marks(),
         with_stress=False,
@@ -64,41 +63,42 @@ def phonemize(  # pylint: disable=too-many-arguments
       the backend. If `backend` is 'segments', the language can be a file with
       a grapheme to phoneme mapping.
 
-    backend (str): The software backend to use for phonemization, must be
-      'festival' (US English only is supported, coded 'en-us'), 'espeak',
-      'espeak-mbrola' or 'segments'.
+    backend (str, optional): The software backend to use for phonemization,
+      must be 'festival' (US English only is supported, coded 'en-us'),
+      'espeak', 'espeak-mbrola' or 'segments'.
 
     separator (Separator): string separators between phonemes, syllables and
       words, default to separator.default_separator. Syllable separator is
       considered only for the festival backend. Word separator is ignored by
       the 'espeak-mbrola' backend.
 
-    strip (bool): If True, don't output the last word and phone separators of a
-      token, default to False.
+    strip (bool, optional): If True, don't output the last word and phone
+      separators of a token, default to False.
 
-    prepend_input (bool): When True, returns a pair (input utterance,
-      phonemized utterance) for each line of the input text.
+    prepend_text (bool, optional): When True, returns a pair (input utterance,
+      phonemized utterance) for each line of the input text. When False,
+      returns only the phonemized utterances. Default to False
 
-    preserve_punctuation (bool): When True, will keep the punctuation in the
-        phonemized output. Not supported by the 'espeak-mbrola' backend.
+    preserve_punctuation (bool, optional): When True, will keep the punctuation
+        in the phonemized output. Not supported by the 'espeak-mbrola' backend.
         Default to False and remove all the punctuation.
 
-    punctuation_marks (str): The punctuation marks to consider when dealing
-        with punctuation, either for removal or preservation. Default to
-        Punctuation.default_marks().
+    punctuation_marks (str, optional): The punctuation marks to consider when
+        dealing with punctuation, either for removal or preservation. Default
+        to Punctuation.default_marks().
 
-    with_stress (bool): This option is only valid for the 'espeak' backend.
-      When True the stresses on phonemes are present (stresses characters are
-      ˈ'ˌ). When False stresses are removed. Default to False.
+    with_stress (bool, optional): This option is only valid for the 'espeak'
+      backend. When True the stresses on phonemes are present (stresses
+      characters are ˈ'ˌ). When False stresses are removed. Default to False.
 
-    tie (bool or char): This option is only valid for the 'espeak' backend,
-      with espeak>1.48. When not False, use a tie character within multi-letter
-      phoneme names. When True, the char 'U+361' is used (as in d͡ʒ), 'z' means
-      ZWJ character, default to False.
+    tie (bool or char, optional): This option is only valid for the 'espeak'
+      backend, with espeak>1.48. When not False, use a tie character within
+      multi-letter phoneme names. When True, the char 'U+361' is used (as in
+      d͡ʒ), 'z' means ZWJ character, default to False.
 
-    language_switch (str): Espeak can output some words in another language
-      (typically English) when phonemizing a text. This option setups the
-      policy to use when such a language switch occurs. Three values are
+    language_switch (str, optional): Espeak can output some words in another
+      language (typically English) when phonemizing a text. This option setups
+      the policy to use when such a language switch occurs. Three values are
       available: 'keep-flags' (the default), 'remove-flags' or
       'remove-utterance'. The 'keep-flags' policy keeps the language switching
       flags, for example "(en) or (jp)", in the output. The 'remove-flags'
@@ -128,6 +128,12 @@ def phonemize(  # pylint: disable=too-many-arguments
       `language_switch` are used but the backend is not 'espeak'.
 
     """
+    # ensure we are using a compatible Python version
+    if sys.version_info < (3, 6):  # pragma: nocover
+        logger.error(
+            'Your are using python-%s which is unsupported by the phonemizer, '
+            'please update to python>=3.6', ".".join(sys.version_info))
+
     # ensure the backend is either espeak, festival or segments
     if backend not in ('espeak', 'espeak-mbrola', 'festival', 'segments'):
         raise RuntimeError(
@@ -162,12 +168,6 @@ def phonemize(  # pylint: disable=too-many-arguments
     if backend == 'espeak-mbrola' and separator.word:
         logger.warning('espeak-mbrola backend cannot preserve word separation')
 
-    # python2 needs additional utf8 encoding
-    if sys.version_info[0] == 2:  # pragma: nocover
-        logger.warning(
-            'Your are using python2 but unsupported by the phonemizer, '
-            'please update to python>=3.6')
-
     # instanciate the requested backend for the given language (raises
     # a RuntimeError if the language is not supported).
     backends = {b.name(): b for b in (
@@ -193,15 +193,17 @@ def phonemize(  # pylint: disable=too-many-arguments
             preserve_punctuation=preserve_punctuation,
             logger=logger)
 
-    # remember the text type for output (either list or string)
+    # remember the text type for output (either list or string), force the text
+    # as a list and phonemize it
     text_type = type(text)
-
-    # force the text as a list and phonemize it
+    text = str2list(text, ignore_empty=True)
     phonemized = phonemizer.phonemize(
-        str2list(text), separator=separator, strip=strip, njobs=njobs)
+        text, separator=separator, strip=strip, njobs=njobs)
 
-    print(phonemized)
-
-    return (
-        list2str(phonemized) if text_type in six.string_types
-        else phonemized)
+    # at that point, the phonemized text is a list of str
+    if prepend_text:
+        assert len(text) == len(phonemized)
+        return zip(text, phonemized)
+    if text_type == str:
+        return list2str(phonemized)
+    return phonemized
