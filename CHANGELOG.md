@@ -6,6 +6,9 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 * **breaking change**
 
+  * Default backend in the `phonemize` function is now `espeak` (was
+    `festival`).
+
   * `espeak-mbrola` backend now requires `espeak>=1.49`.
 
   * `--espeak-path` option renamed as `--espeak-library`and
@@ -16,8 +19,11 @@ Version numbers follow [semantic versioning](https://semver.org)
     `PHONEMIZER_FESTIVAL_PATH` environment variable renamed as
     `PHONEMIZER_FESTIVAL_EXECUTABLE`.
 
-  * the methods `version()` from the backend classes returns a tuple of int
-    instead of a str.
+  * The methods `backend.phonemize()` from the backend classes take only a list
+    of str a input text (was either a str or a list of str).
+
+  * The methods `backend.version()` from the backend classes returns a tuple of
+    int instead of a str.
 
 * **improvements**
 
