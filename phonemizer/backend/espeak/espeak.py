@@ -74,10 +74,15 @@ class EspeakBackend(BaseEspeakBackend):
             for voice in EspeakWrapper().available_voices()}
 
     def _phonemize_aux(self, text, offset, separator, strip):
+        if self._tie and separator.phone:
+            self.logger.warning(
+                'cannot use ties AND phone separation, '
+                'ignoring phone separator')
+
         output = []
         lang_switches = []
         for num, line in enumerate(text, start=1):
-            line = self._espeak.text_to_phonemes(line)
+            line = self._espeak.text_to_phonemes(line, self._tie)
             line, has_switch = self._postprocess_line(
                 line, num, separator, strip)
             output.append(line)
@@ -93,10 +98,11 @@ class EspeakBackend(BaseEspeakBackend):
         return re.sub(self._ESPEAK_STRESS_RE, '', word)
 
     def _process_tie(self, word, separator):
-        if self._tie:
-            # merge consecutive chars of a phone with self._tie
-            return separator.phone.join(
-                self._tie.join(phn) for phn in word.split('_'))
+        # NOTE a bug in espeak append ties to (en) flags so as (͡e͡n).
+        # We do not correct it here.
+        if self._tie and self._tie != '͡':
+            # replace default '͡' by the requested one
+            word = word.replace('͡', self._tie)
         return word.replace('_', separator.phone)
 
     def _postprocess_line(self, line, num, separator, strip):

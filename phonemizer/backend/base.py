@@ -156,7 +156,7 @@ class BaseBackend(abc.ABC):
         if isinstance(text, str):
             # changed in phonemizer-3.0, warn the user
             self.logger.error(
-                'input text to phonemize() is str but must be list')
+                'input text to phonemize() is str but it must be list')
 
         text, punctuation_marks = self._phonemize_preprocess(text)
 
@@ -210,15 +210,10 @@ class BaseBackend(abc.ABC):
         restoration if required by the `preserve_punctuation` option).
 
         """
-        # deals with punctuation: remove it and keep track of it for
-        # restoration at the end if asked for
-        punctuation_marks = []
         if self._preserve_punctuation:
-            text, punctuation_marks = self._punctuator.preserve(text)
-        else:
-            text = self._punctuator.remove(text)
-
-        return text, punctuation_marks
+            # a tuple (text, punctuation marks)
+            return self._punctuator.preserve(text)
+        return self._punctuator.remove(text), []
 
     def _phonemize_postprocess(self, phonemized, punctuation_marks):
         """Postprocess the raw phonemized output
@@ -227,7 +222,5 @@ class BaseBackend(abc.ABC):
 
         """
         if self._preserve_punctuation:
-            phonemized = self._punctuator.restore(
-                phonemized, punctuation_marks)
-
+            return self._punctuator.restore(phonemized, punctuation_marks)
         return phonemized

@@ -17,7 +17,6 @@
 import os
 import pathlib
 import pkg_resources
-import six
 
 
 def cumsum(iterable):
@@ -30,26 +29,18 @@ def cumsum(iterable):
     return res
 
 
-def str2list(text, ignore_empty=False):
-    """Returns the string `text` as a list of lines, split by \n
-
-    If `ignore_empty` is True, remove empty lines from the text
-
-    """
-    text = (
-        text.strip().split(os.linesep) if isinstance(text, six.string_types)
-        else text)
-    if ignore_empty:
-        text = (line.strip() for line in text)
-        return [line for line in text if line]
-    return [line.strip() for line in text]
+def str2list(text):
+    """Returns the string `text` as a list of lines, split by \n"""
+    if isinstance(text, str):
+        return text.strip(os.linesep).split(os.linesep)
+    return text
 
 
 def list2str(text):
     """Returns the list of lines `text` as a single string separated by \n"""
-    return (
-        text if isinstance(text, six.string_types)
-        else os.linesep.join(text))
+    if isinstance(text, str):
+        return text
+    return os.linesep.join(text)
 
 
 def chunks(text, num):

@@ -108,7 +108,7 @@ class EspeakWrapper:
         Parameters
         ----------
         library (str or None) : the path to the espeak shared library to use as
-            backend. Set `library` to None to restore the default.
+          backend. Set `library` to None to restore the default.
 
         """
         cls._ESPEAK_LIBRARY = library
@@ -127,8 +127,8 @@ class EspeakWrapper:
         Raises
         ------
         RuntimeError if the espeak library cannot be found or if the
-            environment variable PHONEMIZER_ESPEAK_LIBRARY is set to a
-            non-readable file
+          environment variable PHONEMIZER_ESPEAK_LIBRARY is set to a
+          non-readable file
 
         """
         if cls._ESPEAK_LIBRARY:
@@ -217,7 +217,7 @@ class EspeakWrapper:
         Parameters
         ----------
         voice_code (str) : Must be a valid language code that is actually
-            supported by espeak
+          supported by espeak
 
         Raises
         ------
@@ -264,7 +264,7 @@ class EspeakWrapper:
             return EspeakVoice.from_ctypes(voice)
         return None  # pragma: nocover
 
-    def text_to_phonemes(self, text):
+    def text_to_phonemes(self, text, tie=False):
         """Translates a text into phonemes, must call set_voice() first.
 
         This method is used by the Espeak backend. Wrapper on the
@@ -274,10 +274,15 @@ class EspeakWrapper:
         ----------
         text (str) : the text to phonemize
 
+        tie (bool, optional) : When True use a '͡' character between
+          consecutive characters of a single phoneme. Else separate phoneme
+          with '_'. This option requires espeak>=1.49. Default to False.
+
         Returns
         -------
         phonemes (str) : the phonemes for the text encoded in IPA, with '_' as
-            phonemes separator and ' ' as word separator.
+          phonemes separator (excepted if ``tie`` is True) and ' ' as word
+          separator.
 
         """
         if self.voice is None:  # pragma: nocover
@@ -289,11 +294,16 @@ class EspeakWrapper:
         # input text is encoded as UTF8
         text_mode = 1
 
-        # output phonemes in IPA and separated by _. See comments for the
-        # function espeak_TextToPhonemes in speak_lib.h of the espeak sources
-        # for details.
+        # output phonemes in IPA and separated by _, or with a tie character if
+        # required. See comments for the function espeak_TextToPhonemes in
+        # speak_lib.h of the espeak sources for details.
         if self.version <= (1, 48, 3):  # pragma: nocover
             phonemes_mode = 0x03 | 0x01 << 4
+        elif tie:
+            if self.version < (1, 49):
+                raise RuntimeError(
+                    'tie option only compatible with espeak>=1.49')
+            phonemes_mode = 0x02 | 0x01 << 7 | ord('͡') << 8
         else:
             phonemes_mode = ord('_') << 8 | 0x02
 
@@ -318,7 +328,7 @@ class EspeakWrapper:
         Returns
         -------
         phonemes (str) : the phonemes for the text encoded in SAMPA, with '_'
-            as phonemes separator and no word separation.
+          as phonemes separator and no word separation.
 
         """
 

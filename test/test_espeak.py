@@ -193,9 +193,25 @@ def test_path_venv():
         (False, 'dʒæki tʃæn '),
         (True, 'd͡ʒæki t͡ʃæn '),
         ('8', 'd8ʒæki t8ʃæn ')])
-def test_tie(tie, expected):
+def test_tie_simple(tie, expected):
     assert EspeakBackend('en-us', tie=tie).phonemize(
         ['Jackie Chan'])[0] == expected
+
+
+def test_tie_utf8():
+    # NOTE this is a bug in espeak to append ties on (en) language switch
+    # flags. For now phonemizer does not fix it.
+    backend = EspeakBackend('fr-fr', tie=True)
+
+    # used to be 'bɔ̃͡ʒuʁ '
+    assert backend.phonemize(['bonjour']) == ['bɔ̃ʒuʁ ']
+
+    # used to be 'ty ɛm lə (͡e͡n͡)fʊtbɔ͡ːl(͡f͡r͡)'
+    assert backend.phonemize(
+        ['tu aimes le football']) == ['ty ɛm lə (͡e͡n)fʊtbɔːl(͡f͡r) ']
+
+    assert backend.phonemize(
+        ['bonjour apple']) == ['bɔ̃ʒuʁ (͡e͡n)apə͡l(͡f͡r) ']
 
 
 def test_tie_bad():

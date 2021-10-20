@@ -20,3 +20,8 @@ from .espeak.espeak import EspeakBackend
 from .espeak.mbrola import EspeakMbrolaBackend
 from .festival import FestivalBackend
 from .segments import SegmentsBackend
+
+
+BACKENDS = {b.name(): b for b in (
+    EspeakBackend, FestivalBackend, SegmentsBackend, EspeakMbrolaBackend)}
+"""The different phonemization backends as a mapping (name, class)"""

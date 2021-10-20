@@ -20,17 +20,64 @@ To use it in your own code, type:
 
 """
 
+import os
 import sys
 
-from phonemizer.backend import (
-    EspeakBackend,
-    EspeakMbrolaBackend,
-    FestivalBackend,
-    SegmentsBackend)
+from phonemizer.backend import BACKENDS
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
 from phonemizer.separator import default_separator
 from phonemizer.utils import list2str, str2list
+
+
+def _check_arguments(backend, with_stress, tie, separator, language_switch):
+    # ensure the backend is either espeak, festival or segments
+    if backend not in ('espeak', 'espeak-mbrola', 'festival', 'segments'):
+        raise RuntimeError(
+            '{} is not a supported backend, choose in {}.'
+            .format(backend, ', '.join(
+                ('espeak', 'espeak-mbrola', 'festival', 'segments'))))
+
+    # with_stress option only valid for espeak
+    if with_stress and backend != 'espeak':
+        raise RuntimeError(
+            'the "with_stress" option is available for espeak backend only, '
+            'but you are using {} backend'.format(backend))
+
+    # tie option only valid for espeak
+    if tie and backend != 'espeak':
+        raise RuntimeError(
+            'the "tie" option is available for espeak backend only, '
+            'but you are using {} backend'.format(backend))
+
+    # tie option incompatible with phone separator
+    if tie and separator.phone:
+        raise RuntimeError(
+            'the "tie" option is incompatible with phone separator '
+            f'(which is "{separator.phone}")')
+
+    # language_switch option only valid for espeak
+    if (
+            language_switch != 'keep-flags'
+            and backend not in ('espeak', 'espeak-mbrola')
+    ):
+        raise RuntimeError(
+            'the "language_switch" option is available for espeak backend '
+            'only, but you are using {} backend'.format(backend))
+
+
+def _prepare_text(text):
+    """Prepares the text before phonemization
+
+    Force the text to be a list of utterances (if `text` is a single string,
+    split it by lines). Ignore empty lines.
+
+    """
+    text_type = type(text)
+    text = str2list(text)
+    text = (line.strip(os.linesep) for line in text)
+    text = [line for line in text if line.strip()]
+    return text, text_type
 
 
 def phonemize(  # pylint: disable=too-many-arguments
@@ -55,9 +102,9 @@ def phonemize(  # pylint: disable=too-many-arguments
     Parameters
     ----------
     text (str or list of str): The text to be phonemized. Any empty line will
-       be ignored. If `text` is an str, it can be multiline (lines being
-       separated by \n). If `text` is a list, each element is considered as a
-       separated line. Each line is considered as a text utterance.
+      be ignored. If `text` is an str, it can be multiline (lines being
+      separated by \n). If `text` is a list, each element is considered as a
+      separated line. Each line is considered as a text utterance.
 
     language (str): The language code of the input text, must be supported by
       the backend. If `backend` is 'segments', the language can be a file with
@@ -80,21 +127,22 @@ def phonemize(  # pylint: disable=too-many-arguments
       returns only the phonemized utterances. Default to False
 
     preserve_punctuation (bool, optional): When True, will keep the punctuation
-        in the phonemized output. Not supported by the 'espeak-mbrola' backend.
-        Default to False and remove all the punctuation.
+      in the phonemized output. Not supported by the 'espeak-mbrola' backend.
+      Default to False and remove all the punctuation.
 
     punctuation_marks (str, optional): The punctuation marks to consider when
-        dealing with punctuation, either for removal or preservation. Default
-        to Punctuation.default_marks().
+      dealing with punctuation, either for removal or preservation. Default to
+      Punctuation.default_marks().
 
     with_stress (bool, optional): This option is only valid for the 'espeak'
       backend. When True the stresses on phonemes are present (stresses
       characters are ˈ'ˌ). When False stresses are removed. Default to False.
 
     tie (bool or char, optional): This option is only valid for the 'espeak'
-      backend, with espeak>1.48. When not False, use a tie character within
-      multi-letter phoneme names. When True, the char 'U+361' is used (as in
-      d͡ʒ), 'z' means ZWJ character, default to False.
+      backend with espeak>1.48. It is incompatible with phone separator. When
+      not False, use a tie character within multi-letter phoneme names. When
+      True, the char 'U+361' is used (as in d͡ʒ), 'z' means ZWJ character,
+      default to False.
 
     language_switch (str, optional): Espeak can output some words in another
       language (typically English) when phonemizing a text. This option setups
@@ -124,8 +172,8 @@ def phonemize(  # pylint: disable=too-many-arguments
     Raises
     ------
     RuntimeError if the `backend` is not valid or is valid but not installed,
-      if the `language` is not supported by the `backend`, if with_stress` or
-      `language_switch` are used but the backend is not 'espeak'.
+      if the `language` is not supported by the `backend`, if any incompatible
+      options are used.
 
     """
     # ensure we are using a compatible Python version
@@ -134,33 +182,8 @@ def phonemize(  # pylint: disable=too-many-arguments
             'Your are using python-%s which is unsupported by the phonemizer, '
             'please update to python>=3.6', ".".join(sys.version_info))
 
-    # ensure the backend is either espeak, festival or segments
-    if backend not in ('espeak', 'espeak-mbrola', 'festival', 'segments'):
-        raise RuntimeError(
-            '{} is not a supported backend, choose in {}.'
-            .format(backend, ', '.join(
-                ('espeak', 'espeak-mbrola', 'festival', 'segments'))))
-
-    # with_stress option only valid for espeak
-    if with_stress and backend != 'espeak':
-        raise RuntimeError(
-            'the "with_stress" option is available for espeak backend only, '
-            'but you are using {} backend'.format(backend))
-
-    # tie option only valid for espeak
-    if tie and backend != 'espeak':
-        raise RuntimeError(
-            'the "tie" option is available for espeak backend only, '
-            'but you are using {} backend'.format(backend))
-
-    # language_switch option only valid for espeak
-    if (
-            language_switch != 'keep-flags'
-            and backend not in ('espeak', 'espeak-mbrola')
-    ):
-        raise RuntimeError(
-            'the "language_switch" option is available for espeak backend '
-            'only, but you are using {} backend'.format(backend))
+    # ensure the arguments are valid
+    _check_arguments(backend, with_stress, tie, separator, language_switch)
 
     # preserve_punctuation and word separator not valid for espeak-mbrola
     if backend == 'espeak-mbrola' and preserve_punctuation:
@@ -168,13 +191,8 @@ def phonemize(  # pylint: disable=too-many-arguments
     if backend == 'espeak-mbrola' and separator.word:
         logger.warning('espeak-mbrola backend cannot preserve word separation')
 
-    # instanciate the requested backend for the given language (raises
-    # a RuntimeError if the language is not supported).
-    backends = {b.name(): b for b in (
-        EspeakBackend, FestivalBackend, SegmentsBackend, EspeakMbrolaBackend)}
-
     if backend == 'espeak':
-        phonemizer = backends[backend](
+        phonemizer = BACKENDS[backend](
             language,
             punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation,
@@ -183,11 +201,11 @@ def phonemize(  # pylint: disable=too-many-arguments
             language_switch=language_switch,
             logger=logger)
     elif backend == 'espeak-mbrola':
-        phonemizer = backends[backend](
+        phonemizer = BACKENDS[backend](
             language,
             logger=logger)
     else:  # festival or segments
-        phonemizer = backends[backend](
+        phonemizer = BACKENDS[backend](
             language,
             punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation,
@@ -195,14 +213,12 @@ def phonemize(  # pylint: disable=too-many-arguments
 
     # remember the text type for output (either list or string), force the text
     # as a list and phonemize it
-    text_type = type(text)
-    text = str2list(text, ignore_empty=True)
+    text, text_type = _prepare_text(text)
     phonemized = phonemizer.phonemize(
         text, separator=separator, strip=strip, njobs=njobs)
 
     # at that point, the phonemized text is a list of str
     if prepend_text:
-        assert len(text) == len(phonemized)
         return zip(text, phonemized)
     if text_type == str:
         return list2str(phonemized)
