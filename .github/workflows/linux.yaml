@@ -47,7 +47,7 @@ jobs:
 
     strategy:
       matrix:
-        espeak-version: ['1.48.03', '1.49.2', '1.50', 'master']
+        espeak-version: ['1.48.03', '1.49.2', '1.50']
 
     steps:
       - name: Checkout phonemizer
