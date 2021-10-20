@@ -314,7 +314,7 @@ def setup_stream(stream, mode):
     if isinstance(stream, str):
         # pylint: disable=consider-using-with
         return open(stream, mode, encoding='utf8')
-    return stream
+    return stream  # pragma: nocover
 
 
 @CatchExceptions

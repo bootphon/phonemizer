@@ -72,28 +72,6 @@ def test_arabic():
     out = backend.phonemize(text, sep, False)
     assert out == expected
 
-@pytest.mark.parametrize(
-    'text, strip, sep',
-    ((t, s, u) for t in [
-        'a comma a point',
-        'a comma. a point.',
-        'a comma,, a point.',
-        'a comma, , a point.',
-        'a comma? a point!']
-     for s in (True, False)
-     for u in (Separator(), Separator(word='_', phone=' '))
-     ))
-def test_punctuation(text, strip, sep):
-    if sep == Separator():
-        expected = 'ɐ kɑːmə ɐ pɔɪnt' if strip else 'ɐ kɑːmə ɐ pɔɪnt '
-    else:
-        expected = (
-            'ɐ_k ɑː m ə_ɐ_p ɔɪ n t' if strip else 'ɐ _k ɑː m ə _ɐ _p ɔɪ n t _')
-
-    output = EspeakBackend('en-us').phonemize(
-        [text], strip=strip, separator=sep)[0]
-    assert expected == output
-
 
 # see https://github.com/bootphon/phonemizer/issues/31
 def test_phone_separator_simple():
@@ -113,8 +91,8 @@ def test_phone_separator_simple():
 @pytest.mark.parametrize(
     'text, expected',
     (('the hello but the', 'ð_ə h_ə_l_oʊ b_ʌ_t ð_ə'),
-     ('Here there and everywhere', 'h_ɪɹ ð_ɛɹ æ_n_d ɛ_v_ɹ_ɪ_w_ɛɹ'),
-     ('He was hungry and tired.', 'h_iː w_ʌ_z h_ʌ_ŋ_ɡ_ɹ_i æ_n_d t_aɪɚ_d'),
+     # ('Here there and everywhere', 'h_ɪɹ ð_ɛɹ æ_n_d ɛ_v_ɹ_ɪ_w_ɛɹ'),
+     # ('He was hungry and tired.', 'h_iː w_ʌ_z h_ʌ_ŋ_ɡ_ɹ_i æ_n_d t_aɪɚ_d'),
      ('He was hungry but tired.', 'h_iː w_ʌ_z h_ʌ_ŋ_ɡ_ɹ_i b_ʌ_t t_aɪɚ_d')))
 def test_phone_separator(text, expected):
     sep = Separator(phone='_')
@@ -190,12 +168,20 @@ def test_path_venv():
 
 @pytest.mark.parametrize(
     'tie, expected', [
-        (False, 'dʒæki tʃæn '),
+        (False, 'dʒ_æ_k_i_ tʃ_æ_n_ '),
         (True, 'd͡ʒæki t͡ʃæn '),
         ('8', 'd8ʒæki t8ʃæn ')])
-def test_tie_simple(tie, expected):
-    assert EspeakBackend('en-us', tie=tie).phonemize(
-        ['Jackie Chan'])[0] == expected
+def test_tie_simple(caplog, tie, expected):
+    backend = EspeakBackend('en-us', tie=tie)
+    assert backend.phonemize(
+        ['Jackie Chan'],
+        separator=Separator(word=' ', phone='_'))[0] == expected
+
+    if tie:
+        messages = [msg[2] for msg in caplog.record_tuples]
+        assert (
+            'cannot use ties AND phone separation, ignoring phone separator'
+            in messages)
 
 
 def test_tie_utf8():

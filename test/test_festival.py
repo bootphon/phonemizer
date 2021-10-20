@@ -18,8 +18,11 @@
 
 
 import os
+import pathlib
 import shutil
+
 import pytest
+
 from phonemizer.separator import Separator
 from phonemizer.backend import FestivalBackend
 
@@ -37,9 +40,7 @@ def _test(text, separator=Separator(
     'for syllable boundaries')
 def test_hello():
     assert _test(['hello world']) == ['hh-ax|l-ow w-er-l-d']
-    assert _test(['hello\nworld']) == ['hh-ax|l-ow w-er-l-d']
     assert _test(['hello', 'world']) == ['hh-ax|l-ow', 'w-er-l-d']
-    assert _test(['hello\nworld\n']) == ['hh-ax|l-ow w-er-l-d']
 
 
 @pytest.mark.parametrize('text', ['', ' ', '  ', '(', '()', '"', "'"])
@@ -48,11 +49,6 @@ def test_bad_input(text):
 
 
 def test_quote():
-    assert _test(["here a 'quote"]) == ['hh-ih-r ax k-w-ow-t']
-    assert _test(['here a "quote']) == ['hh-ih-r ax k-w-ow-t']
-
-
-def test_its():
     assert _test(["it's"]) == ['ih-t-s']
     assert _test(["its"]) == ['ih-t-s']
     assert _test(["it s"]) == ['ih-t eh-s']
@@ -71,9 +67,7 @@ def test_path_good():
     try:
         binary = shutil.which('festival')
         FestivalBackend.set_executable(binary)
-
-        test_im()
-
+        assert FestivalBackend('en-us').executable() == pathlib.Path(binary)
     # restore the festival path to default
     finally:
         FestivalBackend.set_executable(None)

@@ -102,7 +102,7 @@ class EspeakBackend(BaseEspeakBackend):
         # We do not correct it here.
         if self._tie and self._tie != '͡':
             # replace default '͡' by the requested one
-            word = word.replace('͡', self._tie)
+            return word.replace('͡', self._tie)
         return word.replace('_', separator.phone)
 
     def _postprocess_line(self, line, num, separator, strip):
@@ -123,7 +123,9 @@ class EspeakBackend(BaseEspeakBackend):
         out_line = ''
         for word in line.split(' '):
             word = self._process_stress(word.strip())
-            word = self._process_tie(word if strip else word + '_', separator)
+            if not strip and not self._tie:
+                word += '_'
+            word = self._process_tie(word, separator)
             out_line += word + separator.word
 
         if strip and separator.word:

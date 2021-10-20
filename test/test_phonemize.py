@@ -16,10 +16,12 @@
 
 # pylint: disable=missing-docstring
 
+import os
 import pytest
 
 from phonemizer.phonemize import phonemize
-from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
+from phonemizer.separator import Separator
+from phonemizer.backend import EspeakMbrolaBackend
 
 
 def test_bad_backend():
@@ -35,6 +37,10 @@ def test_bad_backend():
         phonemize('', tie=True, backend='mbrola')
     with pytest.raises(RuntimeError):
         phonemize('', tie=True, backend='segments')
+    with pytest.raises(RuntimeError):
+        phonemize(
+            '', tie=True, backend='espeak',
+            separator=Separator(' ', None, '-'))
 
 
 def test_bad_language():
@@ -57,10 +63,27 @@ def test_text_type():
 
     phn1 = phonemize(text1, language='en-us', backend='espeak', strip=True)
     phn2 = phonemize(text2, language='en-us', backend='espeak', strip=True)
+    out3 = phonemize(text2, language='en-us', backend='espeak', strip=True,
+                     prepend_text=True)
+    text3 = [o[0] for o in out3]
+    phn3 = [o[1] for o in out3]
 
     assert isinstance(phn1, list)
     assert isinstance(phn2, str)
-    assert '\n'.join(phn1) == phn2
+    assert os.linesep.join(phn1) == phn2
+    assert os.linesep.join(phn3) == phn2
+    assert text3 == text1
+
+
+def test_lang_switch():
+    text = ['bonjour apple', 'bonjour toi']
+    out = phonemize(
+        text,
+        language='fr-fr',
+        backend='espeak',
+        prepend_text=True,
+        language_switch='remove-utterance')
+    assert out == [('bonjour apple', ''), ('bonjour toi', 'bɔ̃ʒuʁ twa ')]
 
 
 @pytest.mark.parametrize('njobs', [2, 4])
@@ -73,24 +96,9 @@ def test_espeak(njobs):
     assert out == ['wʌn tuː', 'θɹiː', 'foːɹ faɪv']
 
     out = phonemize(
-        text, language='en-us', backend='espeak',
-        strip=False, njobs=njobs)
-    assert out == ['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv ']
-
-    out = phonemize(
-        ' '.join(text), language='en-us', backend='espeak',
-        strip=True, njobs=njobs)
-    assert out == ' '.join(['wʌn tuː', 'θɹiː', 'foːɹ faɪv'])
-
-    out = phonemize(
         ' '.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
     assert out == ' '.join(['wʌn tuː', 'θɹiː', 'foːɹ faɪv '])
-
-    out = phonemize(
-        '\n'.join(text), language='en-us', backend='espeak',
-        strip=True, njobs=njobs)
-    assert out == '\n'.join(['wʌn tuː', 'θɹiː', 'foːɹ faɪv'])
 
     out = phonemize(
         '\n'.join(text), language='en-us', backend='espeak',
@@ -99,51 +107,29 @@ def test_espeak(njobs):
 
 
 @pytest.mark.skipif(
-    not EspeakBackend.is_espeak_ng(),
-    reason='Language switch better supported by espeak-ng')
-@pytest.mark.parametrize('njobs', [1, 2])
-def test_espeak_langswitch(njobs, caplog):
-    text = ["j'aime le football", "moi aussi", "moi aussi j'aime le football"]
-    out = phonemize(
-        text, language='fr-fr', backend='espeak', njobs=njobs, strip=True)
-
-    assert out == [
-        'ʒɛm lə (en)fʊtbɔːl(fr)',
-        'mwa osi',
-        'mwa osi ʒɛm lə (en)fʊtbɔːl(fr)']
-
-    assert (
-        '2 utterances containing language switches on lines 1, 3'
-        in caplog.text)
-
-
-@pytest.mark.skipif(
     not EspeakMbrolaBackend.is_available() or
     not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
     reason='mbrola or mb-fr1 voice not installed')
 @pytest.mark.parametrize('njobs', [2, 4])
-def test_espeak_mbrola(njobs):
+def test_espeak_mbrola(caplog, njobs):
     text = ['un deux', 'trois', 'quatre cinq']
 
     out = phonemize(
-        text, language='mb-fr1', backend='espeak-mbrola',
-        strip=True, njobs=njobs)
+        text,
+        language='mb-fr1',
+        backend='espeak-mbrola',
+        njobs=njobs,
+        preserve_punctuation=True)
     assert out == ['9~d2', 'tRwa', 'katRse~k']
 
-    out = phonemize(
-        text, language='mb-fr1', backend='espeak-mbrola',
-        strip=False, njobs=njobs)
-    assert out == ['9~d2', 'tRwa', 'katRse~k']
+    messages = [msg[2] for msg in caplog.record_tuples]
+    assert 'espeak-mbrola backend cannot preserve punctuation' in messages
+    assert 'espeak-mbrola backend cannot preserve word separation' in messages
 
 
 @pytest.mark.parametrize('njobs', [2, 4])
 def test_festival(njobs):
     text = ['one two', 'three', 'four five']
-
-    out = phonemize(
-        text, language='en-us', backend='festival',
-        strip=True, njobs=njobs)
-    assert out == ['wahn tuw', 'thriy', 'faor fayv']
 
     out = phonemize(
         text, language='en-us', backend='festival',
@@ -156,19 +142,9 @@ def test_festival(njobs):
     assert out == ' '.join(['wahn tuw', 'thriy', 'faor fayv'])
 
     out = phonemize(
-        ' '.join(text), language='en-us', backend='festival',
-        strip=False, njobs=njobs)
-    assert out == ' '.join(['wahn tuw', 'thriy', 'faor fayv '])
-
-    out = phonemize(
         '\n'.join(text), language='en-us', backend='festival',
         strip=True, njobs=njobs)
     assert out == '\n'.join(['wahn tuw', 'thriy', 'faor fayv'])
-
-    out = phonemize(
-        '\n'.join(text), language='en-us', backend='festival',
-        strip=False, njobs=njobs)
-    assert out == '\n'.join(['wahn tuw ', 'thriy ', 'faor fayv '])
 
 
 def test_festival_bad():
@@ -192,22 +168,9 @@ def test_segments(njobs):
 
     out = phonemize(
         text, language='yucatec', backend='segments',
-        strip=True, njobs=njobs)
-    assert out == [
-        'untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo']
-
-    out = phonemize(
-        text, language='yucatec', backend='segments',
         strip=False, njobs=njobs)
     assert out == [
         'untṵːlḛ ka̰ːpʼḛːl ', 'o̰ːʃpʼḛːl ', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo ']
-
-    out = phonemize(
-        u' '.join(text), language='yucatec', backend='segments',
-        strip=True, njobs=njobs)
-    assert out == ' '.join(
-        ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo'])
-
     out = phonemize(
         u' '.join(text), language='yucatec', backend='segments',
         strip=False, njobs=njobs)
@@ -219,9 +182,3 @@ def test_segments(njobs):
         strip=True, njobs=njobs)
     assert out == u'\n'.join(
         ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo'])
-
-    out = phonemize(
-        u'\n'.join(text), language='yucatec', backend='segments',
-        strip=False, njobs=njobs)
-    assert out == u'\n'.join(
-        ['untṵːlḛ ka̰ːpʼḛːl ', 'o̰ːʃpʼḛːl ', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo '])

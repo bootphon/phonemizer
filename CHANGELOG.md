@@ -34,6 +34,10 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 * **new features**
 
+  * New option `--prepend-text` to prepend the input text to phonemized
+    utterances, so as to have both orthographic and phonemized available at
+    output.
+
   * New option `--tie` for the `espeak` backend to display a tie character
     within multi-letter phonemes. (see issue
     [#74](https://github.com/bootphon/phonemizer/issues/74)).

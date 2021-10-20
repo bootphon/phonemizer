@@ -67,11 +67,10 @@ def test_list_languages():
 
 
 def test_readme():
-    _test(u'hello world', u'həloʊ wɜːld ')
     _test(u'hello world', u'həloʊ wɜːld ', '--verbose')
     _test(u'hello world', u'həloʊ wɜːld ', '--quiet')
+    _test(u'hello world', u'hello world | həloʊ wɜːld ', '--prepend-text')
     _test(u'hello world', u'hhaxlow werld', '-b festival --strip')
-    _test(u'hello world', u'həloʊ wɜːld ', '-l en-us')
     _test(u'bonjour le monde', u'bɔ̃ʒuʁ lə mɔ̃d ', '-l fr-fr')
     _test(u'bonjour le monde', u'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword ',
           '-l fr-fr -p " " -w ";eword "')
@@ -87,7 +86,7 @@ def test_readme_festival_syll():
           u"-p ' ' -s ';esyll ' -w ';eword ' -b festival -l en-us")
 
 
-@pytest.mark.parametrize('njobs', range(1, 6))
+@pytest.mark.parametrize('njobs', [1, 6])
 def test_njobs(njobs):
     _test(
         os.linesep.join((
@@ -104,25 +103,7 @@ def test_njobs(njobs):
 
 
 def test_unicode():
-    _test(u'untuʼule', u'untṵːle', '-l yucatec -b segments --strip')
-    _test(u'untuʼule', u'untṵːle ', '-l yucatec -b segments')
-
-
-@pytest.mark.skipif(
-    not EspeakBackend.is_espeak_ng(),
-    reason='language switch only exists for espeak-ng')
-def test_language_switch():
-    _test("j'aime le football", "ʒɛm lə (en)fʊtbɔːl(fr) ",
-          '-l fr-fr -b espeak')
-
-    _test("j'aime le football", "ʒɛm lə (en)fʊtbɔːl(fr) ",
-          '-l fr-fr -b espeak --language-switch keep-flags')
-
-    _test("j'aime le football", "ʒɛm lə fʊtbɔːl ",
-          '-l fr-fr -b espeak --language-switch remove-flags')
-
-    _test("j'aime le football", "",
-          '-l fr-fr -b espeak --language-switch remove-utterance')
+    _test('untuʼule', 'untṵːle ', '-l yucatec -b segments')
 
 
 def test_logger():

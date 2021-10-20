@@ -301,7 +301,7 @@ class EspeakWrapper:
             phonemes_mode = 0x03 | 0x01 << 4
         elif tie:
             if self.version < (1, 49):
-                raise RuntimeError(
+                raise RuntimeError(  # pragma: nocover
                     'tie option only compatible with espeak>=1.49')
             phonemes_mode = 0x02 | 0x01 << 7 | ord('͡') << 8
         else:

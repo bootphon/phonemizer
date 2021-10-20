@@ -219,7 +219,7 @@ def phonemize(  # pylint: disable=too-many-arguments
 
     # at that point, the phonemized text is a list of str
     if prepend_text:
-        return zip(text, phonemized)
+        return list(zip(text, phonemized))
     if text_type == str:
         return list2str(phonemized)
     return phonemized
