@@ -64,7 +64,8 @@ class BaseBackend(abc.ABC):
 
         self._logger = logger
         self._logger.info(
-            'initializing backend %s-%s', self.name(), self.version())
+            'initializing backend %s-%s',
+            self.name(), '.'.join(str(v) for v in self.version()))
 
         # ensure the backend support the requested language
         self._language = self._init_language(language)
