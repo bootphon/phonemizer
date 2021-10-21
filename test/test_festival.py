@@ -63,6 +63,8 @@ def test_im():
         == ['ihm luhkaxng faor axn ihmaxjh']
 
 
+@pytest.mark.skipif(
+    not shutil.which('festival'), reason='festival not in PATH')
 def test_path_good():
     try:
         binary = shutil.which('festival')

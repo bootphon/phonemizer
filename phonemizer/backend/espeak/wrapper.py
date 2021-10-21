@@ -288,6 +288,10 @@ class EspeakWrapper:
         if self.voice is None:  # pragma: nocover
             raise RuntimeError('no voice specified')
 
+        if tie and self.version <= (1, 48, 3):
+            raise RuntimeError(  # pragma: nocover
+                'tie option only compatible with espeak>=1.49')
+
         # from Python string to C void** (a pointer to a pointer to chars)
         text_ptr = ctypes.pointer(ctypes.c_char_p(text.encode('utf8')))
 
@@ -300,9 +304,6 @@ class EspeakWrapper:
         if self.version <= (1, 48, 3):  # pragma: nocover
             phonemes_mode = 0x03 | 0x01 << 4
         elif tie:
-            if self.version < (1, 49):
-                raise RuntimeError(  # pragma: nocover
-                    'tie option only compatible with espeak>=1.49')
             phonemes_mode = 0x02 | 0x01 << 7 | ord('͡') << 8
         else:
             phonemes_mode = ord('_') << 8 | 0x02

@@ -21,7 +21,7 @@ import pytest
 
 from phonemizer.phonemize import phonemize
 from phonemizer.separator import Separator
-from phonemizer.backend import EspeakMbrolaBackend
+from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
 
 
 def test_bad_backend():
@@ -59,7 +59,7 @@ def test_bad_language():
 
 def test_text_type():
     text1 = ['one two', 'three', 'four five']
-    text2 = '\n'.join(text1)
+    text2 = os.linesep.join(text1)
 
     phn1 = phonemize(text1, language='en-us', backend='espeak', strip=True)
     phn2 = phonemize(text2, language='en-us', backend='espeak', strip=True)
@@ -75,6 +75,9 @@ def test_text_type():
     assert text3 == text1
 
 
+@pytest.mark.skipif(
+    not EspeakBackend.is_espeak_ng(),
+    reason='language switch only exists for espeak-ng')
 def test_lang_switch():
     text = ['bonjour apple', 'bonjour toi']
     out = phonemize(
@@ -101,9 +104,9 @@ def test_espeak(njobs):
     assert out == ' '.join(['wʌn tuː', 'θɹiː', 'foːɹ faɪv '])
 
     out = phonemize(
-        '\n'.join(text), language='en-us', backend='espeak',
+        os.linesep.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
-    assert out == '\n'.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
+    assert out == os.linesep.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
 
 
 @pytest.mark.skipif(
@@ -142,9 +145,9 @@ def test_festival(njobs):
     assert out == ' '.join(['wahn tuw', 'thriy', 'faor fayv'])
 
     out = phonemize(
-        '\n'.join(text), language='en-us', backend='festival',
+        os.linesep.join(text), language='en-us', backend='festival',
         strip=True, njobs=njobs)
-    assert out == '\n'.join(['wahn tuw', 'thriy', 'faor fayv'])
+    assert out == os.linesep.join(['wahn tuw', 'thriy', 'faor fayv'])
 
 
 def test_festival_bad():
@@ -172,13 +175,13 @@ def test_segments(njobs):
     assert out == [
         'untṵːlḛ ka̰ːpʼḛːl ', 'o̰ːʃpʼḛːl ', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo ']
     out = phonemize(
-        u' '.join(text), language='yucatec', backend='segments',
+        ' '.join(text), language='yucatec', backend='segments',
         strip=False, njobs=njobs)
-    assert out == u' '.join(
+    assert out == ' '.join(
         ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo '])
 
     out = phonemize(
-        u'\n'.join(text), language='yucatec', backend='segments',
+        os.linesep.join(text), language='yucatec', backend='segments',
         strip=True, njobs=njobs)
-    assert out == u'\n'.join(
+    assert out == os.linesep.join(
         ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo'])

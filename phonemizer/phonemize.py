@@ -139,7 +139,7 @@ def phonemize(  # pylint: disable=too-many-arguments
       characters are ˈ'ˌ). When False stresses are removed. Default to False.
 
     tie (bool or char, optional): This option is only valid for the 'espeak'
-      backend with espeak>1.48. It is incompatible with phone separator. When
+      backend with espeak>=1.49. It is incompatible with phone separator. When
       not False, use a tie character within multi-letter phoneme names. When
       True, the char 'U+361' is used (as in d͡ʒ), 'z' means ZWJ character,
       default to False.

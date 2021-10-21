@@ -166,6 +166,9 @@ def test_path_venv():
             pass
 
 
+@pytest.mark.skipif(
+    not EspeakBackend.is_espeak_ng(),
+    reason='tie only compatible with espeak-ng')
 @pytest.mark.parametrize(
     'tie, expected', [
         (False, 'dʒ_æ_k_i_ tʃ_æ_n_ '),
@@ -184,6 +187,9 @@ def test_tie_simple(caplog, tie, expected):
             in messages)
 
 
+@pytest.mark.skipif(
+    not EspeakBackend.is_espeak_ng(),
+    reason='tie only compatible with espeak-ng')
 def test_tie_utf8():
     # NOTE this is a bug in espeak to append ties on (en) language switch
     # flags. For now phonemizer does not fix it.
@@ -200,6 +206,9 @@ def test_tie_utf8():
         ['bonjour apple']) == ['bɔ̃ʒuʁ (͡e͡n)apə͡l(͡f͡r) ']
 
 
+@pytest.mark.skipif(
+    not EspeakBackend.is_espeak_ng(),
+    reason='tie only compatible with espeak-ng')
 def test_tie_bad():
     with pytest.raises(RuntimeError):
         EspeakBackend('en-us', tie='abc')
