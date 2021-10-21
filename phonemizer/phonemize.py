@@ -66,18 +66,26 @@ def _check_arguments(backend, with_stress, tie, separator, language_switch):
             'only, but you are using {} backend'.format(backend))
 
 
-def _prepare_text(text):
-    """Prepares the text before phonemization
-
-    Force the text to be a list of utterances (if `text` is a single string,
-    split it by lines). Ignore empty lines.
-
-    """
+def _phonemize(  # pylint: disable=too-many-arguments
+        backend, text, separator, strip, njobs, prepend_text):
+    """Does the phonemization"""
+    # remember the text type for output (either list or string), force the text
+    # as a list and ignore empty lines
     text_type = type(text)
-    text = str2list(text)
-    text = (line.strip(os.linesep) for line in text)
+    text = (line.strip(os.linesep) for line in str2list(text))
     text = [line for line in text if line.strip()]
-    return text, text_type
+
+    # phonemize the text
+    phonemized = backend.phonemize(
+        text, separator=separator, strip=strip, njobs=njobs)
+
+    # at that point, the phonemized text is a list of str. Format it as
+    # expected by the parameters
+    if prepend_text:
+        return list(zip(text, phonemized))
+    if text_type == str:
+        return list2str(phonemized)
+    return phonemized
 
 
 def phonemize(  # pylint: disable=too-many-arguments
@@ -191,6 +199,7 @@ def phonemize(  # pylint: disable=too-many-arguments
     if backend == 'espeak-mbrola' and separator.word:
         logger.warning('espeak-mbrola backend cannot preserve word separation')
 
+    # initialize the phonemization backend
     if backend == 'espeak':
         phonemizer = BACKENDS[backend](
             language,
@@ -211,15 +220,5 @@ def phonemize(  # pylint: disable=too-many-arguments
             preserve_punctuation=preserve_punctuation,
             logger=logger)
 
-    # remember the text type for output (either list or string), force the text
-    # as a list and phonemize it
-    text, text_type = _prepare_text(text)
-    phonemized = phonemizer.phonemize(
-        text, separator=separator, strip=strip, njobs=njobs)
-
-    # at that point, the phonemized text is a list of str
-    if prepend_text:
-        return list(zip(text, phonemized))
-    if text_type == str:
-        return list2str(phonemized)
-    return phonemized
+    # do the phonemization
+    return _phonemize(phonemizer, text, separator, strip, njobs, prepend_text)

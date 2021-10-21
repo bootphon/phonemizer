@@ -63,6 +63,29 @@ class Separator:
         return value in (self.phone, self.syllable, self.word)
 
     def input_output_separator(self, field_separator):
+        """Returns a suitable input/output separator based on token separator
+
+        The input/output separator split orthographic and phonetic texts when
+        using the --prepend-text option from command-line.
+
+        Parameters
+        ----------
+
+        field_separator (bool or str): If str, ensures it's value is not
+          already defined as a token separator. If True choose one of "|",
+          "||", "|||", "||||" (the first one that is not defined as a token
+          separator)
+
+        Returns
+        -------
+        The input/output separator, or False if `field_separator` is False
+
+        Raises
+        ------
+        RuntimeError if `field_separator` is a str but is already registered as
+          token separator
+
+        """
         if not field_separator:
             return False
 
