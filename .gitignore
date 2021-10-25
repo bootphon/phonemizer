@@ -5,6 +5,7 @@
 /build/*
 /dist/*
 .coverage*
+coverage.xml
 htmlcov/*
 .eggs/*
 test/htmlcov

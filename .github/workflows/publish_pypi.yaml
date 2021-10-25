@@ -1,0 +1,34 @@
+# Uppload to pypi on new tags
+
+name: Publish to Pypi
+
+on:
+  push:
+    tags: v*
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout phonemizer
+        uses: actions/checkout@v2
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+
+      - name: Install system dependencies
+        run: sudo apt-get install espeak-ng festival mbrola mbrola-fr1
+
+      - name: Build phonemizer
+        run: |
+          pip install --upgrade pip pytest wheel
+          python setup.py install
+          pytest
+          python setup.py sdist bdist_wheel
+
+      - name: Publish to Pypi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}

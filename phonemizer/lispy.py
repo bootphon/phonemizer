@@ -47,13 +47,14 @@ def _read_from_tokens(tokens):
     "Read an expression from a sequence of tokens"
     if len(tokens) == 0:  # pragma: nocover
         raise SyntaxError('unexpected EOF while reading')
+
     token = tokens.pop(0)
     if token == '(':
-        L = []
+        expr = []
         while tokens[0] != ')':
-            L.append(_read_from_tokens(tokens))
+            expr.append(_read_from_tokens(tokens))
         tokens.pop(0)  # pop off ')'
-        return L
+        return expr
 
     if token == ')':  # pragma: nocover
         raise SyntaxError('unexpected )')
