@@ -6,6 +6,15 @@ Version numbers follow [semantic versioning](https://semver.org)
 
 * **breaking change**
 
+  * Do not remove empty lines from output. For example:
+
+  ```python
+  # this is now
+  phonemize(["hello", "!??"]) == ['həloʊ ', '']
+  # this was
+  phonemize(["hello", "!??"]) == ['həloʊ ']
+  ```
+
   * Default backend in the `phonemize` function is now `espeak` (was
     `festival`).
 
@@ -41,6 +50,12 @@ Version numbers follow [semantic versioning](https://semver.org)
   * New option `--tie` for the `espeak` backend to display a tie character
     within multi-letter phonemes. (see issue
     [#74](https://github.com/bootphon/phonemizer/issues/74)).
+
+  * New option `--words-mismatch` for the `espeak` backend. This allows to
+    detect when espeak merge consecutive words or drop a word from the
+    orthographic text. Possible actions are to ignore those misatches, to issue
+    a warning for each line where a mismatch is detectd, or to remove those
+    lines from the output.
 
 * **bugfixes**
 

@@ -16,6 +16,7 @@
 
 import os
 import pathlib
+
 import pkg_resources
 
 
@@ -62,7 +63,7 @@ def chunks(text, num):
     Returns
     -------
     chunks (list of list of str) : The chunked text with utterances separated
-        by '\n.
+        by '\n'.
 
     offsets (list of int) : offset used below to recover the line numbers in
         the input text wrt the chunks

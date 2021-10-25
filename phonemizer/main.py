@@ -219,6 +219,19 @@ Exemples:
         help='removes the end separators in phonemized tokens.')
 
     group = parser.add_argument_group('specific to espeak backend')
+    try:
+        espeak_library = BACKENDS['espeak'].library()
+    except RuntimeError:  # pragma: nocover
+        espeak_library = None
+
+    group.add_argument(
+        '--espeak-library',
+        default=None, type=str, metavar='<library>',
+        help=f'''the path to the espeak shared library to use (*.so on Linux,
+        *.dylib on Mac and *.dll on Windows, useful to overload the default
+        espeak version installed on the system). Default to
+        {espeak_library}. This path can also be specified
+        using the PHONEMIZER_ESPEAK_LIBRARY environment variable.''')
     group.add_argument(
         '--tie',
         nargs='?', default=False, const=True, metavar='<chr>',
@@ -243,20 +256,16 @@ Exemples:
         (en) or (jp), in the output. The 'remove-flags' policy removes them and
         the 'remove-utterance' policy removes the whole line of text including
         a language switch.""")
-
-    try:
-        espeak_library = BACKENDS['espeak'].library()
-    except RuntimeError:  # pragma: nocover
-        espeak_library = None
-
     group.add_argument(
-        '--espeak-library',
-        default=None, type=str, metavar='<library>',
-        help=f'''the path to the espeak shared library to use (*.so on Linux,
-        *.dylib on Mac and *.dll on Windows, useful to overload the default
-        espeak version installed on the system). Default to
-        {espeak_library}. This path can also be specified
-        using the PHONEMIZER_ESPEAK_LIBRARY environment variable.''')
+        '--words-mismatch',
+        default='ignore', choices=['ignore', 'warn', 'remove'],
+        help="""espeak can join two consecutive words or drop some words,
+        yielding a word count mismatch between orthographic and phonemized
+        text. This option setups the policy to use when such a words count
+        mismatch occurs. Three values are available: 'ignore' (the default)
+        which do nothing, 'warn' which issue a warning for each mismatched
+        line, and 'remove' which remove the mismatched lines from the
+        output.""")
 
     group = parser.add_argument_group('specific to festival backend')
     try:
@@ -386,6 +395,7 @@ def main():
         with_stress=args.with_stress,
         tie=args.tie,
         language_switch=args.language_switch,
+        words_mismatch=args.words_mismatch,
         njobs=args.njobs,
         logger=log)
 

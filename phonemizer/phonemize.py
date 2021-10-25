@@ -30,7 +30,8 @@ from phonemizer.separator import default_separator
 from phonemizer.utils import list2str, str2list
 
 
-def _check_arguments(backend, with_stress, tie, separator, language_switch):
+def _check_arguments(  # pylint: disable=too-many-arguments
+        backend, with_stress, tie, separator, language_switch, words_mismatch):
     # ensure the backend is either espeak, festival or segments
     if backend not in ('espeak', 'espeak-mbrola', 'festival', 'segments'):
         raise RuntimeError(
@@ -57,12 +58,15 @@ def _check_arguments(backend, with_stress, tie, separator, language_switch):
             f'(which is "{separator.phone}")')
 
     # language_switch option only valid for espeak
-    if (
-            language_switch != 'keep-flags'
-            and backend not in ('espeak', 'espeak-mbrola')
-    ):
+    if language_switch != 'keep-flags' and backend != 'espeak':
         raise RuntimeError(
             'the "language_switch" option is available for espeak backend '
+            'only, but you are using {} backend'.format(backend))
+
+    # words_mismatch option only valid for espeak
+    if words_mismatch != 'ignore' and backend != 'espeak':
+        raise RuntimeError(
+            'the "words_mismatch" option is available for espeak backend '
             'only, but you are using {} backend'.format(backend))
 
 
@@ -100,6 +104,7 @@ def phonemize(  # pylint: disable=too-many-arguments
         with_stress=False,
         tie=False,
         language_switch='keep-flags',
+        words_mismatch='ignore',
         njobs=1,
         logger=get_logger()):
     """Multilingual text to phonemes converter
@@ -162,6 +167,13 @@ def phonemize(  # pylint: disable=too-many-arguments
       line of text including a language switch. This option is only valid for
       the 'espeak' backend.
 
+    words_mismatch (str, optional): Espeak can join two consecutive words or
+      drop some words, yielding a word count mismatch between orthographic and
+      phonemized text. This option setups the policy to use when such a words
+      count mismatch occurs. Three values are available: 'ignore' (the default)
+      which do nothing, 'warn' which issue a warning for each mismatched line,
+      and 'remove' which remove the mismatched lines from the output.
+
     njobs (int): The number of parallel jobs to launch. The input text is split
       in `njobs` parts, phonemized on parallel instances of the backend and the
       outputs are finally collapsed.
@@ -191,7 +203,8 @@ def phonemize(  # pylint: disable=too-many-arguments
             'please update to python>=3.6', ".".join(sys.version_info))
 
     # ensure the arguments are valid
-    _check_arguments(backend, with_stress, tie, separator, language_switch)
+    _check_arguments(
+        backend, with_stress, tie, separator, language_switch, words_mismatch)
 
     # preserve_punctuation and word separator not valid for espeak-mbrola
     if backend == 'espeak-mbrola' and preserve_punctuation:
@@ -208,6 +221,7 @@ def phonemize(  # pylint: disable=too-many-arguments
             with_stress=with_stress,
             tie=tie,
             language_switch=language_switch,
+            words_mismatch=words_mismatch,
             logger=logger)
     elif backend == 'espeak-mbrola':
         phonemizer = BACKENDS[backend](

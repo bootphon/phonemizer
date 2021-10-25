@@ -39,7 +39,7 @@ import re
 
 
 def get_language_switch_processor(mode, logger, language):
-    """Return a language switch processor initialized from `mode`
+    """Returns a language switch processor initialized from `mode`
 
     The `mode` can be one of the following:
     - 'keep-flags' to preserve the switch flags

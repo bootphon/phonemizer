@@ -21,6 +21,8 @@ from phonemizer.backend.espeak.base import BaseEspeakBackend
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
 from phonemizer.backend.espeak.language_switch import (
     get_language_switch_processor)
+from phonemizer.backend.espeak.words_mismatch import (
+    get_words_mismatch_processor)
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
 
@@ -37,6 +39,7 @@ class EspeakBackend(BaseEspeakBackend):
                  with_stress=False,
                  tie=False,
                  language_switch='keep-flags',
+                 words_mismatch='ignore',
                  logger=get_logger()):
         super().__init__(
             language, punctuation_marks=punctuation_marks,
@@ -47,6 +50,8 @@ class EspeakBackend(BaseEspeakBackend):
         self._tie = self._init_tie(tie)
         self._lang_switch = get_language_switch_processor(
             language_switch, self.logger, self.language)
+        self._words_mismatch = get_words_mismatch_processor(
+            words_mismatch, self.logger)
 
     @staticmethod
     def _init_tie(tie):
@@ -134,11 +139,20 @@ class EspeakBackend(BaseEspeakBackend):
 
         return out_line, has_switch
 
+    def _phonemize_preprocess(self, text):
+        text, punctuation_marks = super()._phonemize_preprocess(text)
+        self._words_mismatch.count_text(text)
+        return text, punctuation_marks
+
     def _phonemize_postprocess(self, phonemized, punctuation_marks):
         text = phonemized[0]
         switches = phonemized[1]
+
+        self._words_mismatch.count_phonemized(text)
         self._lang_switch.warning(switches)
-        return super()._phonemize_postprocess(text, punctuation_marks)
+
+        phonemized = super()._phonemize_postprocess(text, punctuation_marks)
+        return self._words_mismatch.process(phonemized)
 
     @staticmethod
     def _flatten(phonemized):
