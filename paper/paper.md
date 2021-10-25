@@ -15,7 +15,7 @@ authors:
 affiliations:
   - name: LSCP/ENS/CNRS/EHESS/Inria/PSL Research University, Paris, France
     index: 1
-date: 11 June 2021
+date: 25 October 2021
 bibliography: paper.bib
 ---
 
