@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 
-from phonemizer import lispy
+from phonemizer.backend.festival import lispy
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation

@@ -2,7 +2,7 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-## not yet released
+## phonemizer-3.0
 
 * **breaking change**
 

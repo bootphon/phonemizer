@@ -18,7 +18,7 @@
 
 from .espeak.espeak import EspeakBackend
 from .espeak.mbrola import EspeakMbrolaBackend
-from .festival import FestivalBackend
+from .festival.festival import FestivalBackend
 from .segments import SegmentsBackend
 
 
