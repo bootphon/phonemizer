@@ -15,7 +15,7 @@
 """Multilingual text to phones converter"""
 
 
-__version__ = '3.0-dev0'
+__version__ = '3.0'
 """Phonemizer version"""
 
 
