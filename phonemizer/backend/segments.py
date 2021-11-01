@@ -14,14 +14,13 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Segments backend for the phonemizer"""
 
-import codecs
-import os
+import pathlib
 
 import segments
 from phonemizer.backend.base import BaseBackend
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
-from phonemizer.utils import get_package_resource
+from phonemizer.utils import get_package_resource, version_as_tuple
 
 
 class SegmentsBackend(BaseBackend):
@@ -35,31 +34,29 @@ class SegmentsBackend(BaseBackend):
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
                  logger=get_logger()):
-        self.logger = logger
-        self.logger.info(
-            'initializing backend %s-%s', self.name(), self.version())
+        # will be initialized in _init_language() from super().__init__()
+        self._tokenizer = None
+        super().__init__(
+            language,
+            punctuation_marks=punctuation_marks,
+            preserve_punctuation=preserve_punctuation,
+            logger=logger)
 
+    def _init_language(self, language):
         # load the grapheme to phoneme mapping
         profile = self._load_g2p_profile(language)
-        self.tokenizer = segments.Tokenizer(profile=profile)
+        self._tokenizer = segments.Tokenizer(profile=profile)
 
-        # setup punctuation processing
-        self.preserve_punctuation = preserve_punctuation
-        self._punctuator = Punctuation(punctuation_marks)
+        # this is the language code
+        return pathlib.Path(language).stem
 
     @staticmethod
     def name():
         return 'segments'
 
     @staticmethod
-    def version(as_tuple=False):
-        version = segments.__version__
-
-        if as_tuple:  # pragma: nocover
-            # ignore the '-dev' at the end
-            version = version.replace('-dev', '')
-            version = tuple(int(v) for v in version.split('.'))
-        return version
+    def version():
+        return version_as_tuple(segments.__version__)
 
     @staticmethod
     def is_available():
@@ -78,52 +75,53 @@ class SegmentsBackend(BaseBackend):
         directory = get_package_resource('segments')
 
         # supported languages are files with the 'g2p' extension
-        return {f.split('.')[0]: os.path.join(directory, f)
-                for f in os.listdir(directory) if f.endswith('g2p')}
+        return {g2p.stem: g2p
+                for g2p in directory.iterdir() if g2p.suffix == '.g2p'}
 
     @classmethod
     def is_supported_language(cls, language):
-        if os.path.isfile(language):
+        if pathlib.Path(language).is_file():
             try:
                 cls._load_g2p_profile(language)
                 return True
             except RuntimeError:
                 return False
-        return language in cls.supported_languages().keys()
+        return language in cls.supported_languages()
 
     @classmethod
     def _load_g2p_profile(cls, language):
         """Returns a segments profile from a `language`"""
         # make sure the g2p file exists
-        if not os.path.isfile(language):
+        if not pathlib.Path(language).is_file():
             try:
                 language = cls.supported_languages()[language]
             except KeyError:
                 raise RuntimeError(
-                    'grapheme to phoneme file not found: {}'.format(language))
+                    f'grapheme to phoneme file not found: '
+                    f'{language}') from None
 
         # load the mapping grapheme -> phoneme from the file, make sure all
         # lines are well formatted
         g2p = {}
-        for num, line in enumerate(
-                codecs.open(language, 'r', encoding='utf8')):
-            elts = line.strip().split()
-            if not len(elts) == 2:
-                raise RuntimeError(
-                    'grapheme to phoneme file, line {} must have 2 rows '
-                    'but have {}: {}'.format(num + 1, len(elts), language))
-
-            g2p[elts[0]] = elts[1]
+        with open(language, 'r', encoding='utf8') as flang:
+            for num, line in enumerate(flang):
+                elts = line.strip().split()
+                if not len(elts) == 2:
+                    raise RuntimeError(
+                        'grapheme to phoneme file, line {} must have 2 rows '
+                        'but have {}: {}'.format(num + 1, len(elts), language))
+                g2p[elts[0]] = elts[1]
 
         # build the segments profile from the g2p mapping
         return segments.Profile(
             *[{'Grapheme': k, 'mapping': v} for k, v in g2p.items()])
 
-    def _phonemize_aux(self, text, separator, strip):
+    # pylint: disable=unused-argument
+    def _phonemize_aux(self, text, offset, separator, strip):
         # tokenize the input text per utterance
         phonemized = (
-            self.tokenizer(line, column='mapping', errors='strict')
-            for line in text.split('\n'))
+            self._tokenizer(line, column='mapping', errors='strict')
+            for line in text)
 
         # the output of segments is always strip, so we need to add
         # token separation at the end when strip is False.

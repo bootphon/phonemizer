@@ -1,0 +1,61 @@
+# Test on windows with espeak-1.50 and festival-2.5
+
+name: Windows
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    env:
+      PHONEMIZER_ESPEAK_LIBRARY: "C:\\Program Files\\eSpeak NG\\libespeak-ng.dll"
+      PHONEMIZER_FESTIVAL_EXECUTABLE: "C:\\festival\\src\\main\\festival.exe"
+
+    steps:
+      - name: Checkout phonemizer
+        uses: actions/checkout@v2
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+
+      - name: Cache festival
+        uses: actions/cache@v2
+        id: cache-festival
+        with:
+          path: |
+            C:\festival
+            C:\speech_tools
+          key: ${{ runner.os }}-festival
+
+      - name: Install espeak
+        if: steps.cache-espeak.outputs.cache-hit != 'true'
+        run: |
+          $source = 'https://github.com/espeak-ng/espeak-ng/releases/download/1.50/espeak-ng-20191129-b702b03-x64.msi'
+          Invoke-WebRequest -Uri $source -OutFile espeak.msi
+          Start-Process msiexec.exe -Wait -ArgumentList '/I espeak.msi /qn'
+
+      - name: Install festival
+        if: steps.cache-festival.outputs.cache-hit != 'true'
+        run: |
+          $uri = "https://sourceforge.net/projects/e-guidedog/files/related-third-party-software/0.3"
+
+          $webclient = New-Object System.Net.WebClient
+          $webclient.DownloadFile("$uri" + "/festival-2.5-win.7z", "festival-2.5.7z")
+          $webclient.DownloadFile("$uri" + "/speech_tools-2.5-win.7z", "speech_tools-2.5.7z")
+
+          set-alias sz "$env:ProgramFiles\7-Zip\7z.exe"
+          sz x -oC:\ festival-2.5.7z
+          sz x -oC:\ speech_tools-2.5.7z
+
+      - name: Install phonemizer
+        run: |
+          pip install pytest
+          python setup.py install
+
+      - name: Version phonemizer
+        run: |
+          phonemize --version
+
+      - name: Test phonemizer
+        run: pytest -v

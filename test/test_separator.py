@@ -14,6 +14,8 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the Separator class"""
 
+# pylint: disable=missing-docstring
+
 import pytest
 
 from phonemizer.separator import Separator, default_separator
@@ -54,3 +56,27 @@ def test_equal():
     assert Separator() == Separator()
     assert default_separator == Separator(phone='', syllable='', word=' ')
     assert Separator(word='  ') != default_separator
+
+
+def test_field_separator():
+    sep = Separator(word='w', syllable='s', phone='p')
+    assert 'w' in sep
+    assert 'p' in sep
+    assert 'wp' not in sep
+    assert ' ' not in sep
+
+    assert sep.input_output_separator(False) is False
+    assert sep.input_output_separator(None) is False
+    assert sep.input_output_separator('') is False
+    assert sep.input_output_separator(True) == '|'
+    assert sep.input_output_separator('io') == 'io'
+
+    with pytest.raises(RuntimeError) as err:
+        sep.input_output_separator([1, 2])
+    assert 'invalid input/output separator' in str(err)
+    with pytest.raises(RuntimeError) as err:
+        sep.input_output_separator('w')
+    assert 'cannot prepend input with "w"' in str(err)
+
+    sep = Separator(phone='|', syllable='||', word='|||')
+    assert sep.input_output_separator(True) == '||||'

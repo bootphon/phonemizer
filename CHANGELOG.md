@@ -2,18 +2,72 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
-## not yet released
+## phonemizer-3.0
+
+* **breaking change**
+
+  * Do not remove empty lines from output. For example:
+
+  ```python
+  # this is now
+  phonemize(["hello", "!??"]) == ['həloʊ ', '']
+  # this was
+  phonemize(["hello", "!??"]) == ['həloʊ ']
+  ```
+
+  * Default backend in the `phonemize` function is now `espeak` (was
+    `festival`).
+
+  * `espeak-mbrola` backend now requires `espeak>=1.49`.
+
+  * `--espeak-path` option renamed as `--espeak-library`and
+    `PHONEMIZER_ESPEAK_PATH` environment variable renamed as
+    `PHONEMIZER_ESPEAK_LIBRARY`.
+
+  * `--festival-path` option renamed as `--festival-executable` and
+    `PHONEMIZER_FESTIVAL_PATH` environment variable renamed as
+    `PHONEMIZER_FESTIVAL_EXECUTABLE`.
+
+  * The methods `backend.phonemize()` from the backend classes take only a list
+    of str a input text (was either a str or a list of str).
+
+  * The methods `backend.version()` from the backend classes returns a tuple of
+    int instead of a str.
 
 * **improvements**
 
+  * `espeak` and `mbrola` backends now rely on the `espeak` shared library using
+    the `ctypes` Python module, instead of reliying on the `espeak` executable
+    through subprocesses. This implies drastic speed improvments, up to 40 times
+    faster.
+
+* **new features**
+
+  * New option `--prepend-text` to prepend the input text to phonemized
+    utterances, so as to have both orthographic and phonemized available at
+    output.
+
+  * New option `--tie` for the `espeak` backend to display a tie character
+    within multi-letter phonemes. (see issue
+    [#74](https://github.com/bootphon/phonemizer/issues/74)).
+
+  * New option `--words-mismatch` for the `espeak` backend. This allows to
+    detect when espeak merge consecutive words or drop a word from the
+    orthographic text. Possible actions are to ignore those misatches, to issue
+    a warning for each line where a mismatch is detectd, or to remove those
+    lines from the output.
+
+* **bugfixes**
+
   * phonemizer's logger no more conflicts with other loggers when imported from
     Python (see PR [#61](https://github.com/bootphon/phonemizer/pull/61)).
+
 
 ## phonemizer-2.2.2
 
 * **bugfixes**
 
-  * Fixed installation from source (bug introduced in 2.2.1, see
+  * fixed installation from source (bug introduced in 2.2.1, see
     issue [#52](https://github.com/bootphon/phonemizer/issues/52)).
 
   * Fixed a bug when trying to restore punctuation on an empty text (see issue

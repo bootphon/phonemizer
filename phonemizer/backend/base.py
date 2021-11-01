@@ -12,28 +12,47 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
-"""Abstract class for phonemization backends"""
+"""Abstract base class for phonemization backends"""
 
 import abc
 import itertools
 import joblib
-import six
 
 from phonemizer.separator import default_separator
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
-from phonemizer.utils import list2str, str2list, chunks
+from phonemizer.utils import chunks
 
 
-class BaseBackend:
+class BaseBackend(abc.ABC):
     """Abstract base class of all the phonemization backends
 
     Provides a common interface to all backends. The central method is
     `phonemize()`
 
-    """
-    __metaclass__ = abc.ABCMeta
+    Parameters
+    ----------
+    language (str): The language code of the input text, must be supported by
+      the backend. If `backend` is 'segments', the language can be a file with
+      a grapheme to phoneme mapping.
 
+    preserve_punctuation (bool): When True, will keep the punctuation in the
+      phonemized output. Not supported by the 'espeak-mbrola' backend. Default
+      to False and remove all the punctuation.
+
+    punctuation_marks (str): The punctuation marks to consider when dealing
+      with punctuation, either for removal or preservation. Default to
+      Punctuation.default_marks().
+
+    logger (logging.Logger): the logging instance where to send
+      messages. If not specified, use the default system logger.
+
+    Raises
+    ------
+    RuntimeError if the backend is not available of if the `language` cannot be
+    initialized.
+
+    """
     def __init__(self, language,
                  punctuation_marks=Punctuation.default_marks(),
                  preserve_punctuation=False,
@@ -43,20 +62,40 @@ class BaseBackend:
             raise RuntimeError(  # pragma: nocover
                 '{} not installed on your system'.format(self.name()))
 
-        self.logger = logger
-        self.logger.info(
-            'initializing backend %s-%s', self.name(), self.version())
+        self._logger = logger
+        self._logger.info(
+            'initializing backend %s-%s',
+            self.name(), '.'.join(str(v) for v in self.version()))
 
         # ensure the backend support the requested language
-        if not self.is_supported_language(language):
-            raise RuntimeError(
-                'language "{}" is not supported by the {} backend'
-                .format(language, self.name()))
-        self.language = language
+        self._language = self._init_language(language)
 
         # setup punctuation processing
-        self.preserve_punctuation = preserve_punctuation
+        self._preserve_punctuation = preserve_punctuation
         self._punctuator = Punctuation(punctuation_marks)
+
+    @classmethod
+    def _init_language(cls, language):
+        """Language initialization
+
+        This method may be overloaded in child classes (see Segments backend)
+
+        """
+        if not cls.is_supported_language(language):
+            raise RuntimeError(
+                f'language "{language}" is not supported by the '
+                f'{cls.name()} backend')
+        return language
+
+    @property
+    def logger(self):
+        """A logging.Logger instance where to send messages"""
+        return self._logger
+
+    @property
+    def language(self):
+        """The language code configured to be used for phonemization"""
+        return self._language
 
     @staticmethod
     @abc.abstractmethod
@@ -68,14 +107,10 @@ class BaseBackend:
     def is_available(cls):
         """Returns True if the backend is installed, False otherwise"""
 
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
-    def version(as_tuple=False):
-        """Return the backend version as a string 'major.minor.patch'
-
-        If `as_tuple` is True, returns a tuple (major, minor, patch).
-
-        """
+    def version(cls):
+        """Return the backend version as a tuple (major, minor, patch)"""
 
     @staticmethod
     @abc.abstractmethod
@@ -89,59 +124,104 @@ class BaseBackend:
 
     def phonemize(self, text, separator=default_separator,
                   strip=False, njobs=1):
-        """Returns the `text` phonemized for the given language"""
-        text, text_type, punctuation_marks = self._phonemize_preprocess(text)
+        """Returns the `text` phonemized for the given language
+
+        Parameters
+        ----------
+        text (list of str): The text to be phonemized. Each string in the list
+          is considered as a separated line. Each line is considered as a text
+          utterance. Any empty utterance will be ignored.
+
+        separator (Separator): string separators between phonemes, syllables
+          and words, default to separator.default_separator. Syllable separator
+          is considered only for the festival backend. Word separator is
+          ignored by the 'espeak-mbrola' backend.
+
+        strip (bool): If True, don't output the last word and phone separators
+          of a token, default to False.
+
+        njobs (int): The number of parallel jobs to launch. The input text is
+          split in `njobs` parts, phonemized on parallel instances of the
+          backend and the outputs are finally collapsed.
+
+        Returns
+        -------
+        phonemized text (list of str) : The input `text` phonemized for the
+          given `language` and `backend`.
+
+        Raises
+        ------
+        RuntimeError if something went wrong during the phonemization
+
+        """
+        if isinstance(text, str):
+            # changed in phonemizer-3.0, warn the user
+            self.logger.error(
+                'input text to phonemize() is str but it must be list')
+
+        text, punctuation_marks = self._phonemize_preprocess(text)
 
         if njobs == 1:
             # phonemize the text forced as a string
-            text = self._phonemize_aux(list2str(text), separator, strip)
+            phonemized = self._phonemize_aux(text, 0, separator, strip)
         else:
             # If using parallel jobs, disable the log as stderr is not
             # picklable.
             self.logger.info('running %s on %s jobs', self.name(), njobs)
-            log_storage = self.logger
-            self.logger = None
 
             # we have here a list of phonemized chunks
-            text = joblib.Parallel(n_jobs=njobs)(
-                joblib.delayed(self._phonemize_aux)(t, separator, strip)
-                for t in chunks(text, njobs))
+            phonemized = joblib.Parallel(n_jobs=njobs)(
+                joblib.delayed(self._phonemize_aux)(
+                    # chunk[0] is the text, chunk[1] is the offset
+                    chunk[0], chunk[1], separator, strip)
+                for chunk in zip(*chunks(text, njobs)))
 
             # flatten them in a single list
-            text = list(itertools.chain(*text))
+            phonemized = self._flatten(phonemized)
 
-            # restore the log as it was before parallel processing
-            self.logger = log_storage
+        return self._phonemize_postprocess(phonemized, punctuation_marks)
 
-        return self._phonemize_postprocess(text, text_type, punctuation_marks)
+    @staticmethod
+    def _flatten(phonemized):
+        """Flatten a list of lists into a single one
+
+        From [[1, 2], [3], [4]] returns [1, 2, 3, 4]. This method is used to
+        format the output as obtained using multiple jobs.
+
+        """
+        return list(itertools.chain(*phonemized))
 
     @abc.abstractmethod
-    def _phonemize_aux(self, text, separator, strip):
-        pass
+    def _phonemize_aux(self, text, offset, separator, strip):
+        """The "concrete" phonemization method
+
+        Must be implemented in child classes. `separator` and `strip`
+        parameters are as given to the phonemize() method. `text` is as
+        returned by _phonemize_preprocess(). `offset` is line number of the
+        first line in `text` with respect to the original text (this is only
+        usefull with running on chunks in multiple jobs. When using a single
+        jobs the offset is 0).
+
+        """
 
     def _phonemize_preprocess(self, text):
-        # remember the text type for output (either list or string)
-        text_type = type(text)
+        """Preprocess the text before phonemization
 
-        # deals with punctuation: remove it and keep track of it for
-        # restoration at the end if asked for
-        punctuation_marks = []
-        if self.preserve_punctuation:
-            text, punctuation_marks = self._punctuator.preserve(text)
-        else:
-            text = self._punctuator.remove(text)
+        Removes the punctuation (keep trace of punctuation marks for further
+        restoration if required by the `preserve_punctuation` option).
 
-        return text, text_type, punctuation_marks
+        """
+        if self._preserve_punctuation:
+            # a tuple (text, punctuation marks)
+            return self._punctuator.preserve(text)
+        return self._punctuator.remove(text), []
 
-    def _phonemize_postprocess(self, text, text_type, punctuation_marks):
-        # restore the punctuation is asked for
-        if self.preserve_punctuation:
-            text = self._punctuator.restore(text, punctuation_marks)
+    def _phonemize_postprocess(self, phonemized, punctuation_marks):
+        """Postprocess the raw phonemized output
 
-        # remove any empty line in output
-        text = [line for line in text if line]
+        Restores the punctuation as needed.
 
-        # output the result formatted as a string or a list of strings
-        # according to type(text)
-        return (list2str(text) if text_type in six.string_types
-                else str2list(text))
+        """
+        if self._preserve_punctuation:
+            return self._punctuator.restore(phonemized, punctuation_marks)
+        return phonemized

@@ -1,8 +1,12 @@
-[![Build Status](https://travis-ci.com/bootphon/phonemizer.svg?branch=master)](
-https://travis-ci.com/bootphon/phonemizer)
+[![Linux](https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml/badge.svg?branch=master)](
+https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml)
+[![MacOS](https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml/badge.svg?branch=master)](
+https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml)
+[![Windows](https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml/badge.svg?branch=master)](
+https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml)
 [![Codecov](https://img.shields.io/codecov/c/github/bootphon/phonemizer)](
-https://codecov.io/gh/bootphon/phonemizer)
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/bootphon/phonemizer)](
+https://codecov.io/gh/bootphon/phonemizer) [![GitHub release (latest
+SemVer)](https://img.shields.io/github/v/release/bootphon/phonemizer)](
 https://github.com/bootphon/phonemizer/releases/latest)
 [![DOI](https://zenodo.org/badge/56728069.svg)](
 https://doi.org/10.5281/zenodo.1045825)
@@ -76,7 +80,7 @@ the phonemizer.
 ### Docker image
 
 Alternatively you can run the phonemizer within docker, using the
-provided `Dockerfile**. To build the docker image, have a:
+provided `Dockerfile`. To build the docker image, have a:
 
     $ git clone https://github.com/bootphon/phonemizer
     $ cd phonemizer
@@ -116,8 +120,8 @@ For a complete list of available options, have a:
 See the installed backends with the `--version` option:
 
     $ phonemize --version
-    phonemizer-2.2
-    available backends: espeak-ng-1.49.3, espeak-mbrola, festival-2.5.0, segments-2.0.1
+    phonemizer-3.0
+    available backends: espeak-ng-1.50, espeak-mbrola, festival-2.5.0, segments-2.1.3
 
 
 ### Input/output exemples
@@ -126,6 +130,13 @@ See the installed backends with the `--version` option:
 
         $ echo "hello world" | phonemize
         həloʊ wɜːld
+
+* Prepend the input text to output:
+
+        $ echo "hello world" | phonemize --prepend-text
+        hello world | həloʊ wɜːld
+        $ echo "hello world" | phonemize --prepend-text=';'
+        hello world ; həloʊ wɜːld
 
 * from file to stdout
 
@@ -148,6 +159,8 @@ See the installed backends with the `--version` option:
         həloʊ wɜːld
         $ echo "hello world" | phonemize -l en-us -b espeak
         həloʊ wɜːld
+        $ echo 'hello world' | phonemize -l en-us -b espeak --tie
+        həlo͡ʊ wɜːld
 
 * Use **festival** US English instead
 
@@ -248,6 +261,11 @@ it using the ``--preserve-punctuation`` option (not supported by the
         $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
         həlˈoʊ wˈɜːld
 
+* The **espeak** backend can add tie on multi-characters phonemes:
+
+        $ echo "hello world" | phonemize -l en-us -b espeak --tie
+        həlo͡ʊ wɜːld
+
 * The **espeak** backend can switch languages during phonemization (below from
   French to English), use the ``--language-switch`` option to deal with it:
 
@@ -265,6 +283,14 @@ it using the ``--preserve-punctuation`` option (not supported by the
 
         $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch remove-utterance
         [WARNING] removed 1 utterances containing language switches (applying "remove-utterance" policy)
+
+
+* The **espeak** backend sometimes merge words together in the output, use the
+  `--words-mismatch` option to deal with it:
+
+        $ echo "that's it, words are merged" | phonemize -l en-us -b espeak
+        [WARNING] words count mismatch on 100.0% of the lines (1/1)
+        ðætsɪt wɜːdz ɑːɹ mɜːdʒd
 
 
 ## Licence

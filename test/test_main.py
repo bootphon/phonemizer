@@ -14,33 +14,38 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the command line interface"""
 
-import pytest
+# pylint: disable=missing-docstring
+
+import os
+import pathlib
 import tempfile
 import shlex
 import sys
 
-from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
+import pytest
+
+from phonemizer.backend import EspeakMbrolaBackend
 from phonemizer import main, backend, logger
 
 
-def _test(input, expected_output, args=''):
-    with tempfile.NamedTemporaryFile('w') as finput:
-        # python2 needs additional utf8 encoding
-        if sys.version_info[0] == 2:
-            input = input.encode('utf8')
-        finput.write(input)
-        finput.seek(0)
+def _test(text, expected_output, args=''):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_file = pathlib.Path(tmpdir) / 'input.txt'
+        output_file = pathlib.Path(tmpdir) / 'output.txt'
+        with open(input_file, 'wb') as finput:
+            finput.write(text.encode('utf8'))
 
-        with tempfile.NamedTemporaryFile('w+') as foutput:
-            opts = '{} -o {} {}'.format(finput.name, foutput.name, args)
-            sys.argv = ['foo'] + shlex.split(opts)
-            main.main()
+        sys.argv = ['unused', f'{input_file}', '-o', f'{output_file}']
+        if args:
+            sys.argv += shlex.split(args)
+        main.main()
 
-            output = foutput.read()
-            if expected_output == '':
-                assert output == ''
-            else:
-                assert output == expected_output + '\n'
+        with open(output_file, 'rb') as foutput:
+            output = foutput.read().decode()
+
+        # silly fix for windows
+        assert output.replace('\r', '').strip(os.linesep) \
+            == expected_output.replace('\r', '')
 
 
 def test_help():
@@ -60,13 +65,12 @@ def test_list_languages():
 
 
 def test_readme():
-    _test(u'hello world', u'həloʊ wɜːld ')
-    _test(u'hello world', u'həloʊ wɜːld ', '--verbose')
-    _test(u'hello world', u'həloʊ wɜːld ', '--quiet')
-    _test(u'hello world', u'hhaxlow werld', '-b festival --strip')
-    _test(u'hello world', u'həloʊ wɜːld ', '-l en-us')
-    _test(u'bonjour le monde', u'bɔ̃ʒuʁ lə mɔ̃d ', '-l fr-fr')
-    _test(u'bonjour le monde', u'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword ',
+    _test('hello world', 'həloʊ wɜːld ', '--verbose')
+    _test('hello world', 'həloʊ wɜːld ', '--quiet')
+    _test('hello world', 'hello world | həloʊ wɜːld ', '--prepend-text')
+    _test('hello world', 'hhaxlow werld', '-b festival --strip')
+    _test('bonjour le monde', 'bɔ̃ʒuʁ lə mɔ̃d ', '-l fr-fr')
+    _test('bonjour le monde', 'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword ',
           '-l fr-fr -p " " -w ";eword "')
 
 
@@ -75,40 +79,29 @@ def test_readme():
     reason='festival-2.1 gives different results than further versions '
     'for syllable boundaries')
 def test_readme_festival_syll():
-    _test(u'hello world',
-          u'hh ax ;esyll l ow ;esyll ;eword w er l d ;esyll ;eword ',
-          u"-p ' ' -s ';esyll ' -w ';eword ' -b festival -l en-us")
+    _test('hello world',
+          'hh ax ;esyll l ow ;esyll ;eword w er l d ;esyll ;eword ',
+          "-p ' ' -s ';esyll ' -w ';eword ' -b festival -l en-us")
 
 
-def test_njobs():
-    for njobs in range(1, 6):
-        _test(
-            u'hello world\ngoodbye\nthird line\nyet another',
-            u'h-ə-l-oʊ w-ɜː-l-d\nɡ-ʊ-d-b-aɪ\nθ-ɜː-d l-aɪ-n\nj-ɛ-t ɐ-n-ʌ-ð-ɚ',
-            u'--strip -j {} -l en-us -b espeak -p "-" -s "|" -w " "'
-            .format(njobs))
+@pytest.mark.parametrize('njobs', [1, 6])
+def test_njobs(njobs):
+    _test(
+        os.linesep.join((
+            'hello world',
+            'goodbye',
+            'third line',
+            'yet another')),
+        os.linesep.join((
+            'h-ə-l-oʊ w-ɜː-l-d',
+            'ɡ-ʊ-d-b-aɪ',
+            'θ-ɜː-d l-aɪ-n',
+            'j-ɛ-t ɐ-n-ʌ-ð-ɚ')),
+        f'--strip -j {njobs} -l en-us -b espeak -p "-" -s "|" -w " "')
 
 
 def test_unicode():
-    _test(u'untuʼule', u'untṵːle', '-l yucatec -b segments --strip')
-    _test(u'untuʼule', u'untṵːle ', '-l yucatec -b segments')
-
-
-@pytest.mark.skipif(
-    not EspeakBackend.is_espeak_ng(),
-    reason='language switch only exists for espeak-ng')
-def test_language_switch():
-    _test("j'aime le football", "ʒɛm lə (en)fʊtbɔːl(fr) ",
-          '-l fr-fr -b espeak')
-
-    _test("j'aime le football", "ʒɛm lə (en)fʊtbɔːl(fr) ",
-          '-l fr-fr -b espeak --language-switch keep-flags')
-
-    _test("j'aime le football", "ʒɛm lə fʊtbɔːl ",
-          '-l fr-fr -b espeak --language-switch remove-flags')
-
-    _test("j'aime le football", "",
-          '-l fr-fr -b espeak --language-switch remove-utterance')
+    _test('untuʼule', 'untṵːle ', '-l yucatec -b segments')
 
 
 def test_logger():
@@ -121,16 +114,21 @@ def test_logger():
     not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
     reason='mbrola or mb-fr1 voice not installed')
 def test_espeak_mbrola():
-    _test(u'coucou toi!', u'k u k u t w a ',
-          f'-b espeak-mbrola -l mb-fr1 -p" " --preserve-punctuation')
+    _test('coucou toi!', 'k u k u t w a ',
+          '-b espeak-mbrola -l mb-fr1 -p" " --preserve-punctuation')
 
 
 def test_espeak_path():
-    espeak = backend.EspeakBackend.espeak_path()
-    _test(u'hello world', u'həloʊ wɜːld ', f'--espeak-path={espeak}')
+    espeak = pathlib.Path(backend.EspeakBackend.library())
+    if sys.platform == 'win32':
+        espeak = str(espeak).replace('\\', '\\\\').replace(' ', '\\ ')
+    _test('hello world', 'həloʊ wɜːld ', f'--espeak-library={espeak}')
 
 
 def test_festival_path():
-    festival = backend.FestivalBackend.festival_path()
-    _test(u'hello world', u'hhaxlow werld ',
-          f'--festival-path={festival} -b festival')
+    festival = pathlib.Path(backend.FestivalBackend.executable())
+    if sys.platform == 'win32':
+        festival = str(festival).replace('\\', '\\\\').replace(' ', '\\ ')
+
+    _test('hello world', 'hhaxlow werld ',
+          f'--festival-executable={festival} -b festival')

@@ -14,7 +14,8 @@
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
 """Multilingual text to phones converter"""
 
-__version__ = '2.2.2a-resemble'
+__version__ = '3.0-resemble'
+"""Phonemizer version"""
 
 
 try:  # pragma: nocover
@@ -31,4 +32,5 @@ if __PHONEMIZER_SETUP__:  # pragma: nocover
     sys.stderr.write(
         'Partial import of phonemizer during the build process.\n')
 else:
+    # pylint: disable=unused-import
     from .phonemize import phonemize

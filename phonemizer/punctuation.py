@@ -149,6 +149,29 @@ class Punctuation:
         return cls._restore_aux(str2list(text), marks, 0)
 
     @classmethod
+    def _restore_current(cls, current, text, marks, num):
+        """Auxiliary method for Punctuation._restore_aux()"""
+        if current.position == 'B':
+            return cls._restore_aux(
+                [current.mark + text[0]] + text[1:], marks[1:], num)
+
+        if current.position == 'E':
+            return [text[0] + current.mark] + cls._restore_aux(
+                text[1:], marks[1:], num + 1)
+
+        if current.position == 'A':
+            return [current.mark] + cls._restore_aux(text, marks[1:], num + 1)
+
+        # position == 'I'
+        if len(text) == 1:  # pragma: nocover
+            # a corner case where the final part of an intermediate
+            # mark (I) has not been phonemized
+            return cls._restore_aux([text[0] + current.mark], marks[1:], num)
+
+        return cls._restore_aux(
+            [text[0] + current.mark + text[1]] + text[2:], marks[1:], num)
+
+    @classmethod
     def _restore_aux(cls, text, marks, num):
         """Auxiliary method for Punctuation.restore()"""
         if not marks:
@@ -160,25 +183,6 @@ class Punctuation:
 
         current = marks[0]
         if current.index == num:  # place the current mark here
-            if current.position == 'B':
-                return cls._restore_aux(
-                    [current.mark + text[0]] + text[1:], marks[1:], num)
-            if current.position == 'E':
-                return [text[0] + current.mark] + cls._restore_aux(
-                    text[1:], marks[1:], num + 1)
-            if current.position == 'A':
-                return [current.mark] + cls._restore_aux(
-                    text, marks[1:], num + 1)
-            # position == 'I'
-            if len(text) == 1:
-                # a corner case where the final part of an intermediate
-                # mark (I) has not been phonemized
-                restored = cls._restore_aux(
-                    [text[0] + current.mark], marks[1:], num)
-            else:
-                restored = cls._restore_aux(
-                    [text[0] + current.mark + text[1]] + text[2:],
-                    marks[1:], num)
-            return restored
+            return cls._restore_current(current, text, marks, num)
 
         return [text[0]] + cls._restore_aux(text[1:], marks, num + 1)

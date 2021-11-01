@@ -14,27 +14,33 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Test of the festival backend"""
 
-import distutils.spawn
+# pylint: disable=missing-docstring
+
+
 import os
+import pathlib
+import shutil
+
 import pytest
-from phonemizer import separator
+
+from phonemizer.separator import Separator
 from phonemizer.backend import FestivalBackend
 
 
-def _test(text, separator=separator.Separator(
+def _test(text, separator=Separator(
         word=' ', syllable='|', phone='-')):
     backend = FestivalBackend('en-us')
-    return backend._phonemize_aux(text, separator, True)
+    # pylint: disable=protected-access
+    return backend._phonemize_aux(text, 0, separator, True)
 
 
 @pytest.mark.skipif(
-    '2.1' in FestivalBackend.version(),
+    FestivalBackend.version() <= (2, 1),
     reason='festival-2.1 gives different results than further versions '
     'for syllable boundaries')
 def test_hello():
-    assert _test('hello world') == ['hh-ax|l-ow w-er-l-d']
-    assert _test('hello\nworld') == ['hh-ax|l-ow', 'w-er-l-d']
-    assert _test('hello\nworld\n') == ['hh-ax|l-ow', 'w-er-l-d']
+    assert _test(['hello world']) == ['hh-ax|l-ow w-er-l-d']
+    assert _test(['hello', 'world']) == ['hh-ax|l-ow', 'w-er-l-d']
 
 
 @pytest.mark.parametrize('text', ['', ' ', '  ', '(', '()', '"', "'"])
@@ -43,73 +49,71 @@ def test_bad_input(text):
 
 
 def test_quote():
-    assert _test("here a 'quote") == ['hh-ih-r ax k-w-ow-t']
-    assert _test('here a "quote') == ['hh-ih-r ax k-w-ow-t']
-
-
-def test_its():
-    assert _test("it's") == ['ih-t-s']
-    assert _test("its") == ['ih-t-s']
-    assert _test("it s") == ['ih-t eh-s']
-    assert _test('it "s') == ['ih-t eh-s']
+    assert _test(["it's"]) == ['ih-t-s']
+    assert _test(["its"]) == ['ih-t-s']
+    assert _test(["it s"]) == ['ih-t eh-s']
+    assert _test(['it "s']) == ['ih-t eh-s']
 
 
 def test_im():
-    sep = separator.Separator(word=' ', syllable='', phone='')
-    assert _test("I'm looking for an image", sep) \
+    sep = Separator(word=' ', syllable='', phone='')
+    assert _test(["I'm looking for an image"], sep) \
         == ['aym luhkaxng faor axn ihmaxjh']
-    assert _test("Im looking for an image", sep) \
+    assert _test(["Im looking for an image"], sep) \
         == ['ihm luhkaxng faor axn ihmaxjh']
 
 
+@pytest.mark.skipif(
+    not shutil.which('festival'), reason='festival not in PATH')
 def test_path_good():
     try:
-        binary = distutils.spawn.find_executable('festival')
-        FestivalBackend.set_festival_path(binary)
-
-        test_im()
-
+        binary = shutil.which('festival')
+        FestivalBackend.set_executable(binary)
+        assert FestivalBackend('en-us').executable() == pathlib.Path(binary)
     # restore the festival path to default
     finally:
-        FestivalBackend.set_festival_path(None)
-
-
-def test_path_bad():
-    try:
-        # corrupt the default espeak path, try to use python executable instead
-        binary = distutils.spawn.find_executable('python')
-        FestivalBackend.set_festival_path(binary)
-
-        with pytest.raises(RuntimeError):
-            FestivalBackend('en-us').phonemize('hello')
-        with pytest.raises(RuntimeError):
-            FestivalBackend.version()
-
-        with pytest.raises(ValueError):
-            FestivalBackend.set_festival_path(__file__)
-
-    # restore the festival path to default
-    finally:
-        FestivalBackend.set_festival_path(None)
+        FestivalBackend.set_executable(None)
 
 
 @pytest.mark.skipif(
-    'PHONEMIZER_FESTIVAL_PATH' in os.environ,
-    reason='cannot modify environment')
-def test_path_venv():
+    'PHONEMIZER_FESTIVAL_EXECUTABLE' in os.environ,
+    reason='environment variable precedence')
+def test_path_bad():
     try:
-        os.environ['PHONEMIZER_FESTIVAL_PATH'] = distutils.spawn.find_executable('python')
+        # corrupt the default espeak path, try to use python executable instead
+        binary = shutil.which('python')
+        FestivalBackend.set_executable(binary)
+
         with pytest.raises(RuntimeError):
-            FestivalBackend('en-us').phonemize('hello')
+            FestivalBackend('en-us').phonemize(['hello'])
         with pytest.raises(RuntimeError):
             FestivalBackend.version()
 
-        os.environ['PHONEMIZER_FESTIVAL_PATH'] = __file__
-        with pytest.raises(ValueError):
+        with pytest.raises(RuntimeError):
+            FestivalBackend.set_executable(__file__)
+
+    # restore the festival path to default
+    finally:
+        FestivalBackend.set_executable(None)
+
+
+@pytest.mark.skipif(
+    'PHONEMIZER_FESTIVAL_EXECUTABLE' in os.environ,
+    reason='cannot modify environment')
+def test_path_venv():
+    try:
+        os.environ['PHONEMIZER_FESTIVAL_EXECUTABLE'] = shutil.which('python')
+        with pytest.raises(RuntimeError):
+            FestivalBackend('en-us').phonemize(['hello'])
+        with pytest.raises(RuntimeError):
+            FestivalBackend.version()
+
+        os.environ['PHONEMIZER_FESTIVAL_EXECUTABLE'] = __file__
+        with pytest.raises(RuntimeError):
             FestivalBackend.version()
 
     finally:
         try:
-            del os.environ['PHONEMIZER_FESTIVAL_PATH']
+            del os.environ['PHONEMIZER_FESTIVAL_EXECUTABLE']
         except KeyError:
             pass
