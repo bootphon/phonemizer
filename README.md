@@ -104,9 +104,32 @@ suite from the root `phonemizer` folder (once you installed `pytest`):
 
 In Python import the `phonemize` function with `from phonemizer import
 phonemize`. See
-[here](https://github.com/bootphon/phonemizer/blob/master/phonemizer/phonemize.py#L32)
+[here](https://github.com/bootphon/phonemizer/blob/master/phonemizer/phonemize.py#L33)
 for function documentation.
 
+It is much more efficient to minimize the number of calls to the `phonemize`
+function. Indeed the initialization of the phonemization backend can be
+expensive, especially for espeak. In one exemple:
+
+```python
+from phonemizer import phonemize
+
+text = [line1, line2, ...]
+
+# Do this:
+phonemized = phonemize(text, ...)
+
+# Not this:
+phonemized = [phonemize(line, ...) for line in text]
+
+# An alternative is to directly instanciate the backend and to call the
+# phonemize function from it:
+
+from phonemizer.backend import EspeakBackend
+backend = EspeakBackend('en-us', ...)
+phonemized = [backend.phonemize(line, ...) for line in text]
+
+```
 
 ## Command-line examples
 
