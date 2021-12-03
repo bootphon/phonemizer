@@ -1,15 +1,17 @@
-[![Linux](https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml/badge.svg?branch=master)](
-https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml)
-[![MacOS](https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml/badge.svg?branch=master)](
-https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml)
-[![Windows](https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml/badge.svg?branch=master)](
-https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml)
-[![Codecov](https://img.shields.io/codecov/c/github/bootphon/phonemizer)](
-https://codecov.io/gh/bootphon/phonemizer) [![GitHub release (latest
-SemVer)](https://img.shields.io/github/v/release/bootphon/phonemizer)](
-https://github.com/bootphon/phonemizer/releases/latest)
-[![DOI](https://zenodo.org/badge/56728069.svg)](
-https://doi.org/10.5281/zenodo.1045825)
+**Tests**
+[![Linux][badge-test-linux]](https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml)
+[![MacOS][badge-test-macos]](https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml)
+[![Windows][badge-test-windows]](https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml) [![Codecov][badge-codecov]](https://codecov.io/gh/bootphon/phonemizer)
+
+**Release**
+[![GitHub release (latest SemVer)][badge-github-version]](https://github.com/bootphon/phonemizer/releases/latest)
+[![PyPI][badge-pypi-version]](https://pypi.python.org/pypi/phonemizer)
+
+**Citation**
+[![status][badge-joss]](https://joss.theoj.org/papers/08d1ffc14f233f56942f78f3742b266e)
+[![DOI][badge-zenodo]](https://doi.org/10.5281/zenodo.1045825)
+
+---
 
 # Phonemizer -- *foʊnmaɪzɚ*
 
@@ -332,3 +334,13 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+
+[badge-test-linux]: https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml/badge.svg?branch=master
+[badge-test-macos]: https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml/badge.svg?branch=master
+[badge-test-windows]: https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml/badge.svg?branch=master
+[badge-codecov]: https://img.shields.io/codecov/c/github/bootphon/phonemizer
+[badge-github-version]: https://img.shields.io/github/v/release/bootphon/phonemizer
+[badge-pypi-version]: https://img.shields.io/pypi/v/phonemizer
+[badge-joss]: https://joss.theoj.org/papers/08d1ffc14f233f56942f78f3742b266e/status.svg
+[badge-zenodo]: https://zenodo.org/badge/56728069.svg
