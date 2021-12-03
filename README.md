@@ -84,7 +84,7 @@ mbrola voices must be installed (see
 **espeak** is available on brew at version 1.48: `brew install espeak`. If you
 want a more recent version you have to [compile it from
 sources](https://github.com/espeak-ng/espeak-ng/blob/master/docs/building.md#linux-mac-bsd).
-To install **festival***, **mbrola** and additional mbrola voices, use the
+To install **festival**, **mbrola** and additional mbrola voices, use the
 script provided [here](https://github.com/pettarin/setup-festival-mbrola).
 
 </p>
@@ -97,7 +97,8 @@ Install **espeak-ng** with the `.msi` Windows installer provided with [espeak
 releases](https://github.com/espeak-ng/espeak-ng/releases). **festival** must be
 compiled from sources (see
 [here](https://github.com/festvox/festival/blob/master/INSTALL) and
-[here](https://www.eguidedog.net/doc/doc_build_win_festival.php)). **mbrola** is not available for Windows.
+[here](https://www.eguidedog.net/doc/doc_build_win_festival.php)). **mbrola** is
+not available for Windows.
 
 </p>
 </details>
@@ -154,7 +155,7 @@ pytest
 
 The `phonemizer` project is open-source and is welcoming constributions from
 evryone. Please look at the [contributors guidelines](CONTRIBUTING.md) if you
-which to contribute.
+wish to contribute.
 
 
 ## Python usage
