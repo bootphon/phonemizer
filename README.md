@@ -19,25 +19,40 @@
 * The phonemizer allows simple phonemization of words and texts in many languages.
 
 * Provides both the `phonemize` command-line tool and the Python function
-  `phonemizer.phonemize`.
+  `phonemizer.phonemize`. See [function documentation][phonemize-function].
 
-* It is using four backends: espeak, espeak-mbrola, festival and segments.
+* It is based on four backends: **espeak**, **espeak-mbrola**, **festival** and
+  **segments**. The backends have different properties and capabilities resumed
+  in table below. The backend choice is let to the user.
 
-  * [espeak-ng](https://github.com/espeak-ng/espeak-ng) supports a lot of
-    languages and IPA (International Phonetic Alphabet) output.
+  * [espeak-ng](https://github.com/espeak-ng/espeak-ng) is a Text-to-Speech
+    software supporting a lot of languages and IPA (International Phonetic
+    Alphabet) output.
 
   * [espeak-ng-mbrola](https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)
     uses the SAMPA phonetic alphabet instead of IPA but does not preserve word
     boundaries.
 
-  * [festival](http://www.cstr.ed.ac.uk/projects/festival) currently supports
-    only American English. It uses a [custom
-    phoneset](http://www.festvox.org/bsv/c4711.html), but it allows tokenization
-    at the syllable level.
+  * [festival](http://www.cstr.ed.ac.uk/projects/festival) is another
+    Tex-to-Speech engine. Its phonemizer backend currently supports only
+    American English. It uses a [custom phoneset][festival-phoneset], but it
+    allows tokenization at the syllable level.
 
   * [segments](https://github.com/cldf/segments) is a Unicode tokenizer that
     build a phonemization from a grapheme to phoneme mapping provided as a file
     by the user.
+
+  |                              | espeak                   | espeak-mbrola           | festival                    | segments           |
+  | ---:                         | ---                      | ---                     | ---                         | ---                |
+  | **phone set**                | [IPA]                    | [SAMPA]                 | [custom][festival-phoneset] | user defined       |
+  | **supported languages**      | [100+][espeak-languages] | [10+][mbrola-languages] | US English                  | user defined       |
+  | **processing speed**         | fast                     | slow                    | very slow                   | fast               |
+  | **phone tokens**             | :heavy_check_mark:       | :heavy_check_mark:      | :heavy_check_mark:          | :heavy_check_mark: |
+  | **syllable tokens**          | :x:                      | :x:                     | :heavy_check_mark:          | :x:                |
+  | **word tokens**              | :heavy_check_mark:       | :x:                     | :heavy_check_mark:          | :heavy_check_mark: |
+  | **punctuation preservation** | :heavy_check_mark:       | :x:                     | :heavy_check_mark:          | :heavy_check_mark: |
+  | **stressed phones**          | :heavy_check_mark:       | :x:                     | :x:                         | :x:                |
+  | [**tie**][tie-IPA]           | :heavy_check_mark:       | :x:                     | :x:                         | :x:                |
 
 
 ## Installation
@@ -161,9 +176,7 @@ wish to contribute.
 ## Python usage
 
 In Python import the `phonemize` function with `from phonemizer import
-phonemize`. See
-[here](https://github.com/bootphon/phonemizer/blob/master/phonemizer/phonemize.py#L33)
-for function documentation.
+phonemize`. See the [function documentation][phonemize-function].
 
 
 ### Advice for best performances
@@ -355,13 +368,11 @@ available backends: espeak-ng-1.50, espeak-mbrola, festival-2.5.0, segments-2.1.
 The exhaustive list of supported languages is available with the command
 `phonemize --list-languages [--backend <backend>]`.
 
-* Languages supported by **espeak** are available
-  [here](https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md).
+* Languages supported by **espeak** are available [here][espeak-languages].
 
 * Languages supported by **espeak-mbrola** are available
-  [here](https://github.com/numediart/MBROLA-voices). Please note that the
-  mbrola voices are not bundled with the phonemizer and must be installed
-  separately.
+  [here][mbrola-languages]. Please note that the mbrola voices are not bundled
+  with the phonemizer nor the mbrola binary and must be installed separately.
 
 * Languages supported by **festival** are:
 
@@ -433,21 +444,21 @@ həloʊ, wɜːld!
 
 ### Espeak specific options
 
-* The **espeak** backend can output the stresses on phones:
+* The espeak backend can output the **stresses** on phones:
 
   ```shell
   $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
   həlˈoʊ wˈɜːld
   ```
 
-* The **espeak** backend can add tie on multi-characters phonemes:
+* The espeak backend can add **tie** on multi-characters phonemes:
 
   ```shell
   $ echo "hello world" | phonemize -l en-us -b espeak --tie
   həlo͡ʊ wɜːld
   ```
 
-* The **espeak** backend can switch languages during phonemization (below from
+* :warning: The espeak backend can **switch languages** during phonemization (below from
   French to English), use the ``--language-switch`` option to deal with it:
 
   ```shell
@@ -467,7 +478,7 @@ həloʊ, wɜːld!
   [WARNING] removed 1 utterances containing language switches (applying "remove-utterance" policy)
   ```
 
-* The **espeak** backend sometimes merge words together in the output, use the
+* :warning: The espeak backend sometimes **merge words together** in the output, use the
   `--words-mismatch` option to deal with it:
 
   ```shell
@@ -504,3 +515,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 [badge-joss]: https://joss.theoj.org/papers/08d1ffc14f233f56942f78f3742b266e/status.svg
 [badge-zenodo]: https://zenodo.org/badge/56728069.svg
 [phonemizer-1.0]: https://github.com/bootphon/phonemizer/releases/tag/v1.0
+[festival-phoneset]: http://www.festvox.org/bsv/c4711.html
+[IPA]: https://en.wikipedia.org/wiki/International_Phonetic_Alphabet
+[SAMPA]: https://en.wikipedia.org/wiki/SAMPA
+[phonemize-function]: https://github.com/bootphon/phonemizer/blob/c5e2f3878d6db391ec7253173f44e4a85cfe41e3/phonemizer/phonemize.py#L33-L156
+[tie-IPA]: https://en.wikipedia.org/wiki/Tie_(typography)#International_Phonetic_Alphabet
+[espeak-languages]: https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md
+[mbrola-languages]: https://github.com/numediart/MBROLA-voices
