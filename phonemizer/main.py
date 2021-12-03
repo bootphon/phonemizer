@@ -279,7 +279,7 @@ Exemples:
         help=f'''the path to the festival executable to use (useful to
         overload the default festival installed on the system). Default to
         {festival_executable}. This path can also be specified using the
-        PHONEMIZER_FESTIVAL_EXCUTABLE environment variable.''')
+        PHONEMIZER_FESTIVAL_EXECUTABLE environment variable.''')
 
     group = parser.add_argument_group(
         'punctuation processing',

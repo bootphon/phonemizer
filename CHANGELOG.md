@@ -38,8 +38,8 @@ Version numbers follow [semantic versioning](https://semver.org)
 
   * `espeak` and `mbrola` backends now rely on the `espeak` shared library using
     the `ctypes` Python module, instead of reliying on the `espeak` executable
-    through subprocesses. This implies drastic speed improvments, up to 40 times
-    faster.
+    through subprocesses. This implies **drastic speed improvments, up to 40 times
+    faster**.
 
 * **new features**
 

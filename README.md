@@ -104,9 +104,32 @@ suite from the root `phonemizer` folder (once you installed `pytest`):
 
 In Python import the `phonemize` function with `from phonemizer import
 phonemize`. See
-[here](https://github.com/bootphon/phonemizer/blob/master/phonemizer/phonemize.py#L32)
+[here](https://github.com/bootphon/phonemizer/blob/master/phonemizer/phonemize.py#L33)
 for function documentation.
 
+It is much more efficient to minimize the number of calls to the `phonemize`
+function. Indeed the initialization of the phonemization backend can be
+expensive, especially for espeak. In one exemple:
+
+```python
+from phonemizer import phonemize
+
+text = [line1, line2, ...]
+
+# Do this:
+phonemized = phonemize(text, ...)
+
+# Not this:
+phonemized = [phonemize(line, ...) for line in text]
+
+# An alternative is to directly instanciate the backend and to call the
+# phonemize function from it:
+
+from phonemizer.backend import EspeakBackend
+backend = EspeakBackend('en-us', ...)
+phonemized = [backend.phonemize(line, ...) for line in text]
+
+```
 
 ## Command-line examples
 
@@ -120,8 +143,8 @@ For a complete list of available options, have a:
 See the installed backends with the `--version` option:
 
     $ phonemize --version
-    phonemizer-2.2
-    available backends: espeak-ng-1.49.3, espeak-mbrola, festival-2.5.0, segments-2.0.1
+    phonemizer-3.0
+    available backends: espeak-ng-1.50, espeak-mbrola, festival-2.5.0, segments-2.1.3
 
 
 ### Input/output exemples
@@ -130,6 +153,13 @@ See the installed backends with the `--version` option:
 
         $ echo "hello world" | phonemize
         həloʊ wɜːld
+
+* Prepend the input text to output:
+
+        $ echo "hello world" | phonemize --prepend-text
+        hello world | həloʊ wɜːld
+        $ echo "hello world" | phonemize --prepend-text=';'
+        hello world ; həloʊ wɜːld
 
 * from file to stdout
 
@@ -254,6 +284,11 @@ it using the ``--preserve-punctuation`` option (not supported by the
         $ echo "hello world" | phonemize -l en-us -b espeak --with-stress
         həlˈoʊ wˈɜːld
 
+* The **espeak** backend can add tie on multi-characters phonemes:
+
+        $ echo "hello world" | phonemize -l en-us -b espeak --tie
+        həlo͡ʊ wɜːld
+
 * The **espeak** backend can switch languages during phonemization (below from
   French to English), use the ``--language-switch`` option to deal with it:
 
@@ -271,6 +306,14 @@ it using the ``--preserve-punctuation`` option (not supported by the
 
         $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch remove-utterance
         [WARNING] removed 1 utterances containing language switches (applying "remove-utterance" policy)
+
+
+* The **espeak** backend sometimes merge words together in the output, use the
+  `--words-mismatch` option to deal with it:
+
+        $ echo "that's it, words are merged" | phonemize -l en-us -b espeak
+        [WARNING] words count mismatch on 100.0% of the lines (1/1)
+        ðætsɪt wɜːdz ɑːɹ mɜːdʒd
 
 
 ## Licence
