@@ -168,8 +168,8 @@ pytest
 
 ### Developers
 
-The `phonemizer` project is open-source and is welcoming constributions from
-evryone. Please look at the [contributors guidelines](CONTRIBUTING.md) if you
+The `phonemizer` project is open-source and is welcoming contributions from
+everyone. Please look at the [contributors guidelines](CONTRIBUTING.md) if you
 wish to contribute.
 
 
@@ -228,7 +228,7 @@ phn = phonemize(
     text,
     language='en-us',
     backend='festival',
-    separator=Separator(phone='', word=' ', syllable='|'),
+    separator=Separator(phone=None, word=' ', syllable='|'),
     strip=True,
     preserve_punctuation=True,
     njobs=4)
@@ -236,13 +236,14 @@ phn = phonemize(
 
 ### Exemple 2: build a lexicon with espeak
 
-The following exemple builds a list of words present in a text, ignoring
-punctuation, and builds a dictionary `word: [phones]`. We consider here the same
-text as in the previous exemple.
+The following exemple extracts a list of words present in a text, ignoring
+punctuation, and builds a dictionary `word: [phones]`, e.g. `{'students': 's t
+uː d ə n t s', 'cobb': 'k ɑː b', 'its': 'ɪ t s', 'put': 'p ʊ t', ...}`. We
+consider here the same text as in the previous exemple.
 
 ```python
-from phonemizer.punctuation import Punctuation
 from phonemizer.backend import EspeakBackend
+from phonemizer.punctuation import Punctuation
 from phonemizer.separator import Separator
 
 # remove all the punctuation from the text, condidering only the specified
@@ -258,9 +259,10 @@ backend = EspeakBackend('en-us')
 # separate phones by a space and ignoring words boundaries
 separator = Separator(phone=' ', word=None)
 
-# build the lexicon by phonemizing each word one by one
+# build the lexicon by phonemizing each word one by one. The backend.phonemize
+# function expect a list as input and outputs a list.
 lexicon = {
-    word: backend.phonemize(word, separator=separator, strip=True)
+    word: backend.phonemize([word], separator=separator, strip=True)[0]
     for word in words}
 ```
 
