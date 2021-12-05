@@ -39,7 +39,7 @@ processing of large input texts.
 
 Whereas the high-level features introduced above are implemented directly by
 `phonemizer`, the phonetic transcription itself is delegated to third party
-backends, wrapped in an homogoneous interface by the package. The default
+backends, wrapped in an homogeneous interface by the package. The default
 backend used by `phonemizer` is eSpeak [@espeak:2019], a text to speech software
 built on linguistic expertise and hand written transcription rules. It
 transcribes text into the International Phonetic Alphabet and supports more than
@@ -52,9 +52,9 @@ one to meet the requirement of some applications by preserving syllable
 boundaries. The third `phonemizer` backend is Segments [@forkel:2019], a Python
 package providing Unicode Standard tokenization routines and orthography
 segmentation. It relies on a grapheme to phoneme mapping to generate the
-transcription. This backend is mostly usefull for low-resource languages, for
+transcription. This backend is mostly useful for low-resource languages, for
 which users with linguistic expertise can write their own mappings. Six
-languages are provided as exemples with `phonemizer`: Chintang, Cree, Inuktitut,
+languages are provided as examples with `phonemizer`: Chintang, Cree, Inuktitut,
 Japanese, Sesotho and Yucatec.
 
 Text to phones transcription is a critical need in different applications
@@ -69,14 +69,14 @@ the Zero Speech Challenge 2017 [@dunbar:2017]. The `phonemizer` is also very
 suitable to prepare datasets for their use with the Kaldi speech recognition
 toolkit [@povey:2011], where a phonetic transcription of text is a requirement
 for various algorithms. Finally, the package can be used to generate forced
-alignements of speech corpora, an important part of the research pipeline
+alignments of speech corpora, an important part of the research pipeline
 whereby an acoustic signal is segmented and aligned with a text transcript. The
-most impactful softwares in this field [@rosenfelder:2014, mcauliffe:2017]
+most impactful software in this field [@rosenfelder:2014;@mcauliffe:2017]
 require a pronunciation dictionary to transcribe words into phonemes. Such
 dictionaries, when available, can be non-exhaustive, thus requiring experimenter
 transcription or data exclusion. Replacing the dictionary by the use of the
-`phonemizer` can therefore improve the alignament quality for compatible
-languages.
+`phonemizer` can therefore improve the overall pipeline and alignment quality
+for compatible languages.
 
 
 # Acknowledgements
