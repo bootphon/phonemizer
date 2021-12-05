@@ -45,7 +45,7 @@
   |                              | espeak                   | espeak-mbrola           | festival                    | segments           |
   | ---:                         | ---                      | ---                     | ---                         | ---                |
   | **phone set**                | [IPA]                    | [SAMPA]                 | [custom][festival-phoneset] | user defined       |
-  | **supported languages**      | [100+][espeak-languages] | [10+][mbrola-languages] | US English                  | user defined       |
+  | **supported languages**      | [100+][espeak-languages] | [35][mbrola-languages] | US English                  | user defined       |
   | **processing speed**         | fast                     | slow                    | very slow                   | fast               |
   | **phone tokens**             | :heavy_check_mark:       | :heavy_check_mark:      | :heavy_check_mark:          | :heavy_check_mark: |
   | **syllable tokens**          | :x:                      | :x:                     | :heavy_check_mark:          | :x:                |
