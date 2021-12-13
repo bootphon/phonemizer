@@ -62,9 +62,9 @@ def test_preserve(inp):
 
 @pytest.mark.parametrize(
     'text, expected', [
-        (['hi; ho,"'], ['haɪ ; hoʊ ,']),
-        (['hi; "ho,'], ['haɪ ; hoʊ ,'] if ESPEAK_143 else ['haɪ ;  hoʊ ,']),
-        (['"hi; ho,'], ['haɪ ; hoʊ ,'] if ESPEAK_143 else [' haɪ ; hoʊ ,'])])
+        (['hi; ho,"'], ['haɪ; hoʊ,']),
+        (['hi; "ho,'], ['haɪ; hoʊ,'] if ESPEAK_143 else ['haɪ;  hoʊ,']),
+        (['"hi; ho,'], ['haɪ; hoʊ,'] if ESPEAK_143 else [' haɪ; hoʊ,'])])
 def test_preserve_2(text, expected):
     marks = ".!;:,?"
     punct = Punctuation(marks=marks)
@@ -93,7 +93,7 @@ def test_espeak():
     expected1 = 'həloʊ wɜːld'
     expected2 = 'həloʊ, wɜːld!'
     expected3 = 'həloʊ wɜːld '
-    expected4 = 'həloʊ , wɜːld !'
+    expected4 = 'həloʊ, wɜːld!'
 
     out1 = EspeakBackend('en-us', preserve_punctuation=False).phonemize(
         [text], strip=True)[0]
@@ -117,7 +117,7 @@ def test_festival():
     expected1 = 'hhaxlow werld'
     expected2 = 'hhaxlow, werld!'
     expected3 = 'hhaxlow werld '
-    expected4 = 'hhaxlow , werld !'
+    expected4 = 'hhaxlow, werld!'
 
     out1 = FestivalBackend('en-us', preserve_punctuation=False).phonemize(
         [text], strip=True)[0]
@@ -141,7 +141,7 @@ def test_segments():
     expected1 = 'ʌtʃɪ ʌtʃʊ'
     expected2 = 'ʌtʃɪ, ʌtʃʊ!'
     expected3 = 'ʌtʃɪ ʌtʃʊ '
-    expected4 = 'ʌtʃɪ , ʌtʃʊ !'
+    expected4 = 'ʌtʃɪ, ʌtʃʊ!'
 
     out1 = SegmentsBackend('cree', preserve_punctuation=False).phonemize(
         [text], strip=True)[0]
@@ -173,15 +173,15 @@ def test_issue_54(text):
 # see https://github.com/bootphon/phonemizer/issues/55
 @pytest.mark.parametrize(
     'backend, marks, text, expected', [
-        ('espeak', 'default', ['"Hey! "', '"hey,"'], ['"heɪ ! "', '"heɪ ,"']),
+        ('espeak', 'default', ['"Hey! "', '"hey,"'], ['"heɪ! "', '"heɪ,"']),
         ('espeak', '.!;:,?', ['"Hey! "', '"hey,"'],
-         ['heɪ ! ', 'heɪ ,'] if ESPEAK_150 else [' heɪ ! ', ' heɪ ,']),
-        ('espeak', 'default', ['! ?', 'hey!'], ['! ?', 'heɪ !']),
-        ('espeak', '!', ['! ?', 'hey!'], ['! ', 'heɪ !']),
-        ('segments', 'default', ['! ?', 'hey!'], ['! ?', 'heːj !']),
+         ['heɪ! ', 'heɪ,'] if ESPEAK_150 else [' heɪ! ', ' heɪ,']),
+        ('espeak', 'default', ['! ?', 'hey!'], ['! ?', 'heɪ!']),
+        ('espeak', '!', ['! ?', 'hey!'], ['! ', 'heɪ!']),
+        ('segments', 'default', ['! ?', 'hey!'], ['! ?', 'heːj!']),
         ('segments', '!', ['! ?', 'hey!'], ValueError),
-        ('festival', 'default', ['! ?', 'hey!'], ['! ?', 'hhey !']),
-        ('festival', '!', ['! ?', 'hey!'], ['!  ', 'hhey !'])])
+        ('festival', 'default', ['! ?', 'hey!'], ['! ?', 'hhey!']),
+        ('festival', '!', ['! ?', 'hey!'], ['!  ', 'hhey!'])])
 def test_issue55(backend, marks, text, expected):
     if marks == 'default':
         marks = Punctuation.default_marks()

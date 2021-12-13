@@ -151,6 +151,7 @@ class Punctuation:
     @classmethod
     def _restore_current(cls, current, text, marks, num):
         """Auxiliary method for Punctuation._restore_aux()"""
+        text[0] = text[0].rstrip()
         if current.position == 'B':
             return cls._restore_aux(
                 [current.mark + text[0]] + text[1:], marks[1:], num)

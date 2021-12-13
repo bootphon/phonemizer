@@ -11,6 +11,11 @@ Version numbers follow [semantic versioning](https://semver.org)
     text s a str instead of a list of of str (was only logging an error
     message).
 
+  * Preserve punctuation alignement when using `--preserve-punctuation`, was
+    inserting a space before each punctation token, see [issue
+    #97](https://github.com/bootphon/phonemizer/issues/97).
+
+
 ## phonemizer-3.0
 
 * **breaking change**
