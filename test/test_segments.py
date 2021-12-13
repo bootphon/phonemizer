@@ -40,7 +40,7 @@ def test_multiline():
 def test_bad_morpheme():
     backend = SegmentsBackend('cree')
     with pytest.raises(ValueError):
-        backend.phonemize('A')
+        backend.phonemize(['A'])
 
 
 def test_separator():

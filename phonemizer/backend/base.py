@@ -156,8 +156,8 @@ class BaseBackend(abc.ABC):
         """
         if isinstance(text, str):
             # changed in phonemizer-3.0, warn the user
-            self.logger.error(
-                'input text to phonemize() is str but it must be list')
+            raise RuntimeError(
+                'input text to phonemize() is str but it must be list of str')
 
         text, punctuation_marks = self._phonemize_preprocess(text)
 

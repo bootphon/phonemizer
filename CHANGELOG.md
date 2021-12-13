@@ -2,6 +2,15 @@
 
 Version numbers follow [semantic versioning](https://semver.org)
 
+
+## not yet released
+
+* **bug fixes**
+
+  * The method `BaseBackend.phonemize` now raises a `RuntimeError` if the input
+    text s a str instead of a list of of str (was only logging an error
+    message).
+
 ## phonemizer-3.0
 
 * **breaking change**
