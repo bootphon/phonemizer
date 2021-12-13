@@ -26,6 +26,17 @@ from phonemizer.backend.espeak.wrapper import EspeakWrapper
 from phonemizer.separator import Separator, default_separator
 
 
+def test_bad_text():
+    backend = EspeakBackend('en-us')
+    text = 'hello world'
+    with pytest.raises(RuntimeError) as err:
+        backend.phonemize(text, default_separator, True)
+    assert 'input text to phonemize() is str' in str(err)
+
+    assert backend.phonemize(
+        [text], default_separator, True) == ['həloʊ wɜːld']
+
+
 def test_english():
     backend = EspeakBackend('en-us')
     text = ['hello world', 'goodbye', 'third line', 'yet another']
