@@ -3,16 +3,16 @@
 Version numbers follow [semantic versioning](https://semver.org)
 
 
-## not yet released
+## phonemizer-3.0.1
 
 * **bug fixes**
 
   * The method `BaseBackend.phonemize` now raises a `RuntimeError` if the input
-    text s a str instead of a list of of str (was only logging an error
+    text is a str instead of a list of of str (was only logging an error
     message).
 
   * Preserve punctuation alignement when using `--preserve-punctuation`, was
-    inserting a space before each punctation token, see [issue
+    inserting a space before each punctuation token, see [issue
     #97](https://github.com/bootphon/phonemizer/issues/97).
 
 
