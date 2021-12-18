@@ -22,7 +22,12 @@ bugfixes, improvements and new features, please follow these steps:
   code or change significantly a function, please test it by adding more unit
   tests.
 
-- Please confirm to the following conventions:
+- Ensure the tests are passing on Linux, MacOS and Windows on the [github
+  continuous integration page](https://github.com/bootphon/phonemizer/actions).
+  This is important because `phonemizer` is used on a wide range of systems and
+  configurations.
+
+- Please conform to the following conventions:
 
     - Python code follows [PEP 8 style](https://pep8.org).
     - Docstrings follow [Google
