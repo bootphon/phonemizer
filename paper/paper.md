@@ -55,7 +55,7 @@ routines and orthography segmentation. It relies on a grapheme to phoneme
 mapping to generate the transcription. This backend is mostly useful for
 low-resource languages, for which users with linguistic expertise can write
 their own mappings. Six languages are provided as examples with `phonemizer`:
-Chintang, Cree, Inuktitut, Japanese, Sesotho and Yucatec.
+Chintang, Cree, Inuktitut, Japanese, Sesotho, and Yucatec.
 
 Text to phones transcription is a critical need in different applications
 related to natural language and speech processing. So far, the `phonemizer`
@@ -72,9 +72,9 @@ for various algorithms. The package can also be used to generate forced
 alignments of speech corpora, an important part of the speech-related research
 pipeline whereby an acoustic signal is segmented and aligned with a text
 transcript. The most impactful software in this field
-[@rosenfelder:2014;@mcauliffe:2017] require a pronunciation dictionary to
+[@rosenfelder:2014;@mcauliffe:2017] requires a pronunciation dictionary to
 transcribe words into phonemes. Such dictionaries, when available, can be
-non-exhaustive, thus requiring experimenter transcription, model training and/or
+non-exhaustive, thus requiring experimenter transcription, model training, and/or
 data exclusion. Replacing the dictionary by the use of the `phonemizer` can
 therefore improve the overall pipeline and alignment quality for supported
 languages. Finally, the `phonemizer` shows promises for the linguistic analysis
@@ -87,12 +87,12 @@ compiling an exhaustive pronunciation dictionary.
 
 # Acknowledgements
 
-We are thankful to Alex Cristia who initiated this project and to Emmanuel
-Dupoux for his support and advices. We also thank the `phonemizer` users for their bug
+We are thankful to Alex Cristia, who initiated this project, and to Emmanuel
+Dupoux for his support and advice. We also thank the `phonemizer` users for their bug
 reports and features requests. This work is funded by the European Research
 Council (ERC-2011-AdG-295810 BOOTPHON), the Agence Nationale pour la Recherche
 (ANR-17-EURE-0017 Frontcog, ANR-10-IDEX-0001-02 PSL, ANR-19-P3IA-0001 PRAIRIE
-3IA Institute) and grants from CIFAR (Learning in Machines and Brains), Facebook
+3IA Institute), and grants from CIFAR (Learning in Machines and Brains), Facebook
 AI Research (Research Grant), Google (Faculty Research Award), Microsoft
 Research (Azure Credits and Grant), and Amazon Web Service (AWS Research
 Credits).
