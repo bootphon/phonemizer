@@ -1,16 +1,7 @@
-**Tests**
-[![Linux][badge-test-linux]](https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml)
-[![MacOS][badge-test-macos]](https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml)
-[![Windows][badge-test-windows]](https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml)
-[![Codecov][badge-codecov]](https://codecov.io/gh/bootphon/phonemizer)
-
-**Release**
-[![GitHub release (latest SemVer)][badge-github-version]](https://github.com/bootphon/phonemizer/releases/latest)
-[![PyPI][badge-pypi-version]](https://pypi.python.org/pypi/phonemizer)
-
-**Citation**
-[![status][badge-joss]](https://joss.theoj.org/papers/08d1ffc14f233f56942f78f3742b266e)
-[![DOI][badge-zenodo]](https://doi.org/10.5281/zenodo.1045825)
+| **Tests** | [![Linux][badge-test-linux]](https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml) [![MacOS][badge-test-macos]](https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml) [![Windows][badge-test-windows]](https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml) [![Codecov][badge-codecov]](https://codecov.io/gh/bootphon/phonemizer) |
+| ---: | --- |
+| **Release** | [![GitHub release (latest SemVer)][badge-github-version]](https://github.com/bootphon/phonemizer/releases/latest) [![PyPI][badge-pypi-version]](https://pypi.python.org/pypi/phonemizer) [![downloads][badge-pypi-downloads]](https://pypi.python.org/pypi/phonemizer) |
+| **Citation** | [![status][badge-joss]](https://joss.theoj.org/papers/08d1ffc14f233f56942f78f3742b266e) [![DOI][badge-zenodo]](https://doi.org/10.5281/zenodo.1045825) |
 
 ---
 
@@ -172,6 +163,26 @@ The `phonemizer` project is open-source and is welcoming contributions from
 everyone. Please look at the [contributors guidelines](CONTRIBUTING.md) if you
 wish to contribute.
 
+
+## Citation
+
+To refenrece the `phonemizer` in your own work, please cite the following [JOSS
+paper](https://joss.theoj.org/papers/10.21105/joss.03958).
+
+```bibtex
+@article{Bernard2021,
+  doi = {10.21105/joss.03958},
+  url = {https://doi.org/10.21105/joss.03958},
+  year = {2021},
+  publisher = {The Open Journal},
+  volume = {6},
+  number = {68},
+  pages = {3958},
+  author = {Mathieu Bernard and Hadrien Titeux},
+  title = {Phonemizer: Text to Phones Transcription for Multiple Languages in Python},
+  journal = {Journal of Open Source Software}
+}
+```
 
 ## Python usage
 
@@ -514,6 +525,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 [badge-codecov]: https://img.shields.io/codecov/c/github/bootphon/phonemizer
 [badge-github-version]: https://img.shields.io/github/v/release/bootphon/phonemizer
 [badge-pypi-version]: https://img.shields.io/pypi/v/phonemizer
+[badge-pypi-downloads]: https://img.shields.io/pypi/dm/phonemizer
 [badge-joss]: https://joss.theoj.org/papers/08d1ffc14f233f56942f78f3742b266e/status.svg
 [badge-zenodo]: https://zenodo.org/badge/56728069.svg
 [phonemizer-1.0]: https://github.com/bootphon/phonemizer/releases/tag/v1.0
