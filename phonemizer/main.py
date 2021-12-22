@@ -173,6 +173,12 @@ Exemples:
         selecting the first one that is not configured as a token separator
         (see -p/-s/-w options).''')
 
+    group.add_argument(
+        '--preserve-empty-lines',
+        action='store_true',
+        help='''preserve the empty lines in the phonemized output, default is
+        to remove them.''')
+
     group = parser.add_argument_group('backends')
     group.add_argument(
         '-b', '--backend',
@@ -390,6 +396,7 @@ def main():
         separator=sep,
         strip=args.strip,
         prepend_text=args.prepend_text,
+        preserve_empty_lines=args.preserve_empty_lines,
         preserve_punctuation=args.preserve_punctuation,
         punctuation_marks=args.punctuation_marks,
         with_stress=args.with_stress,

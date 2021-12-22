@@ -37,6 +37,7 @@ def phonemize(  # pylint: disable=too-many-arguments
         separator=default_separator,
         strip=False,
         prepend_text=False,
+        preserve_empty_lines=False,
         preserve_punctuation=False,
         punctuation_marks=Punctuation.default_marks(),
         with_stress=False,
@@ -96,6 +97,9 @@ def phonemize(  # pylint: disable=too-many-arguments
     prepend_text (bool, optional): When True, returns a pair (input utterance,
       phonemized utterance) for each line of the input text. When False,
       returns only the phonemized utterances. Default to False
+
+    preserve_empty_lines (bool, optional): When True, will keep the empty lines
+      in the phonemized output. Default to False and remove all empty lines.
 
     preserve_punctuation (bool, optional): When True, will keep the punctuation
       in the phonemized output. Not supported by the 'espeak-mbrola' backend.
@@ -193,7 +197,7 @@ def phonemize(  # pylint: disable=too-many-arguments
             logger=logger)
 
     # do the phonemization
-    return _phonemize(phonemizer, text, separator, strip, njobs, prepend_text)
+    return _phonemize(phonemizer, text, separator, strip, njobs, prepend_text, preserve_empty_lines)
 
 
 def _check_arguments(  # pylint: disable=too-many-arguments
@@ -243,22 +247,36 @@ def _check_arguments(  # pylint: disable=too-many-arguments
 
 
 def _phonemize(  # pylint: disable=too-many-arguments
-        backend, text, separator, strip, njobs, prepend_text):
+        backend, text, separator, strip, njobs, prepend_text, preserve_empty_lines):
     """Auxiliary function to phonemize()
 
     Does the phonemization and returns the phonemized text. Raises a
     RuntimeError on error.
 
     """
-    # remember the text type for output (either list or string), force the text
-    # as a list and ignore empty lines
+    # remember the text type for output (either list or string)
     text_type = type(text)
-    text = (line.strip(os.linesep) for line in str2list(text))
+
+    # force the text as a list
+    text = [line.strip(os.linesep) for line in str2list(text)]
+
+    # if preserving empty lines, note the index of each empty line
+    if preserve_empty_lines:
+        empty_lines = [n for n, line in enumerate(text) if not line.strip()]
+
+    # ignore empty lines
     text = [line for line in text if line.strip()]
 
     # phonemize the text
     phonemized = backend.phonemize(
         text, separator=separator, strip=strip, njobs=njobs)
+
+    # if preserving empty lines, reinsert them into text and phonemized lists
+    if preserve_empty_lines:
+        for i in empty_lines:
+            if prepend_text:
+                text.insert(i, '')
+            phonemized.insert(i, '')
 
     # at that point, the phonemized text is a list of str. Format it as
     # expected by the parameters

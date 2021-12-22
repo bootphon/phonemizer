@@ -185,3 +185,49 @@ def test_segments(njobs):
         strip=True, njobs=njobs)
     assert out == os.linesep.join(
         ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo'])
+
+
+@pytest.mark.parametrize(
+    'backend, empty_lines, punctuation, text, expected', [
+        ('espeak', False, False,
+            ['hello world!', '', 'goodbye'],
+            ['həloʊ wɜːld ', 'ɡʊdbaɪ ']),
+        ('espeak', False, True,
+            ['hello world!', '', 'goodbye'],
+            ['həloʊ wɜːld!', 'ɡʊdbaɪ ']),
+        ('espeak', True, False,
+            ['hello world!', '', 'goodbye'],
+            ['həloʊ wɜːld ', '', 'ɡʊdbaɪ ']),
+        ('espeak', True, True,
+            ['hello world!', '', 'goodbye'],
+            ['həloʊ wɜːld!', '', 'ɡʊdbaɪ ']),
+        ('segments', False, False,
+            ['achi acho?', '', 'achi acho'],
+            [u'ʌtʃɪ ʌtʃʊ ', u'ʌtʃɪ ʌtʃʊ ']),
+        ('segments', False, True,
+            ['achi acho?', '', 'achi acho'],
+            [u'ʌtʃɪ ʌtʃʊ?', u'ʌtʃɪ ʌtʃʊ ']),
+        ('segments', True, False,
+            ['achi acho?', '', 'achi acho'],
+            [u'ʌtʃɪ ʌtʃʊ ', '', u'ʌtʃɪ ʌtʃʊ ']),
+        ('segments', True, True,
+            ['achi acho?', '', 'achi acho'],
+            [u'ʌtʃɪ ʌtʃʊ?', '', u'ʌtʃɪ ʌtʃʊ ']),
+        ('festival', False, False,
+            ['hello world!', '', 'goodbye'],
+            ['hhaxlow werld ', 'guhdbay ']),
+        ('festival', False, True,
+            ['hello world!', '', 'goodbye'],
+            ['hhaxlow werld!', 'guhdbay ']),
+        ('festival', True, False,
+            ['hello world!', '', 'goodbye'],
+            ['hhaxlow werld ', '', 'guhdbay ']),
+        ('festival', True, True,
+            ['hello world!', '', 'goodbye'],
+            ['hhaxlow werld!', '', 'guhdbay '])])
+def test_preserve_empty_lines(backend, empty_lines, punctuation, text, expected):
+    language = 'cree' if backend == 'segments' else 'en-us'
+
+    assert expected == phonemize(
+        text, language=language, backend=backend,
+        preserve_punctuation=punctuation, preserve_empty_lines=empty_lines)
