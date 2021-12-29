@@ -267,9 +267,12 @@ def _phonemize(  # pylint: disable=too-many-arguments
     # ignore empty lines
     text = [line for line in text if line.strip()]
 
-    # phonemize the text
-    phonemized = backend.phonemize(
-        text, separator=separator, strip=strip, njobs=njobs)
+    if(text):
+        # phonemize the text
+        phonemized = backend.phonemize(
+            text, separator=separator, strip=strip, njobs=njobs)
+    else:
+        phonemized = []
 
     # if preserving empty lines, reinsert them into text and phonemized lists
     if preserve_empty_lines:
