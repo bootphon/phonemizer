@@ -17,10 +17,12 @@
 import pathlib
 import shutil
 import sys
+from logging import Logger
+from pathlib import Path
+from typing import Union, Optional
 
 from phonemizer.backend.espeak.base import BaseEspeakBackend
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
-from phonemizer.logger import get_logger
 
 
 class EspeakMbrolaBackend(BaseEspeakBackend):
@@ -28,7 +30,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
     # this will be initialized once, at the first call to supported_languages()
     _supported_languages = None
 
-    def __init__(self, language, logger=get_logger()):
+    def __init__(self, language: str, logger: Optional[Logger] = None):
         super().__init__(language, logger=logger)
         self._espeak.set_voice(language)
 
@@ -36,13 +38,13 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
     def name():
         return 'espeak-mbrola'
 
-    @staticmethod
-    def is_available():
+    @classmethod
+    def is_available(cls):
         """Mbrola backend is available for espeak>=1.49"""
         return (
-            BaseEspeakBackend.is_available() and
-            shutil.which('mbrola') and
-            BaseEspeakBackend.is_espeak_ng())
+                BaseEspeakBackend.is_available() and
+                shutil.which('mbrola') and
+                BaseEspeakBackend.is_espeak_ng())
 
     @classmethod
     def _all_supported_languages(cls):
@@ -51,7 +53,8 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         return {voice.identifier[3:]: voice.name for voice in voices}
 
     @classmethod
-    def _is_language_installed(cls, language, data_path):
+    def _is_language_installed(cls, language: str, data_path: Union[str, Path]) \
+            -> bool:
         """Returns True if the required mbrola voice is installed"""
         # this is a reimplementation of LoadMbrolaTable from espeak
         # synth_mbrola.h sources

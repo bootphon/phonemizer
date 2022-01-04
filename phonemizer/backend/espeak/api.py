@@ -168,9 +168,9 @@ class EspeakAPI:
 
         """
         f_list_voices = self._library.espeak_ListVoices
-        f_list_voices.argtypes = [ctypes.POINTER(EspeakVoice.Struct)]
+        f_list_voices.argtypes = [ctypes.POINTER(EspeakVoice.VoiceStruct)]
         f_list_voices.restype = ctypes.POINTER(
-            ctypes.POINTER(EspeakVoice.Struct))
+            ctypes.POINTER(EspeakVoice.VoiceStruct))
         return f_list_voices(name)
 
     def set_voice_by_name(self, name):
@@ -198,7 +198,7 @@ class EspeakAPI:
 
         """
         f_get_current_voice = self._library.espeak_GetCurrentVoice
-        f_get_current_voice.restype = ctypes.POINTER(EspeakVoice.Struct)
+        f_get_current_voice.restype = ctypes.POINTER(EspeakVoice.VoiceStruct)
         return f_get_current_voice().contents
 
     def text_to_phonemes(self, text_ptr, text_mode, phonemes_mode):

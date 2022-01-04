@@ -22,6 +22,7 @@ import pathlib
 import sys
 import tempfile
 import weakref
+from typing import Tuple, Optional, Dict
 
 from phonemizer.backend.espeak.api import EspeakAPI
 from phonemizer.backend.espeak.voice import EspeakVoice
@@ -51,7 +52,7 @@ class EspeakWrapper:
     def __init__(self):
         # the following attributes are accessed through properties and are
         # lazily initialized
-        self._version = None
+        self._version: Tuple[int, ...] = None
         self._data_path = None
         self._voice = None
 
@@ -86,7 +87,7 @@ class EspeakWrapper:
             'data_path': self._data_path,
             'voice': self._voice}
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: Dict):
         """For unpickling, when phonemizing on multiple jobs"""
         self.__init__()
         self._version = state['version']
@@ -99,7 +100,7 @@ class EspeakWrapper:
                 self.set_voice(self._voice.language)
 
     @classmethod
-    def set_library(cls, library):
+    def set_library(cls, library: str):
         """Sets the espeak backend to use `library`
 
         If this is not set, the backend uses the default espeak shared library
@@ -143,8 +144,8 @@ class EspeakWrapper:
             return library.resolve()
 
         library = (
-            ctypes.util.find_library('espeak-ng') or
-            ctypes.util.find_library('espeak'))
+                ctypes.util.find_library('espeak-ng') or
+                ctypes.util.find_library('espeak'))
         if not library:  # pragma: nocover
             raise RuntimeError(
                 'failed to find espeak library')
@@ -165,7 +166,7 @@ class EspeakWrapper:
         self._version = tuple(int(v) for v in version.split('.'))
 
     @property
-    def version(self):
+    def version(self) -> Tuple[int, int, int]:
         """The espeak version as a tuple of integers (major, minor, patch)"""
         if self._version is None:
             self._fetch_version_and_path()

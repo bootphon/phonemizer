@@ -23,11 +23,12 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from logging import Logger
+from pathlib import Path
+from typing import Optional
 
-from phonemizer.backend.festival import lispy
 from phonemizer.backend.base import BaseBackend
-from phonemizer.logger import get_logger
-from phonemizer.punctuation import Punctuation
+from phonemizer.backend.festival import lispy
 from phonemizer.utils import get_package_resource, version_as_tuple
 
 
@@ -38,10 +39,10 @@ class FestivalBackend(BaseBackend):
     # the method FestivalBackend.set_executable().
     _FESTIVAL_EXECUTABLE = None
 
-    def __init__(self, language,
-                 punctuation_marks=Punctuation.default_marks(),
-                 preserve_punctuation=False,
-                 logger=get_logger()):
+    def __init__(self, language: str,
+                 punctuation_marks: Optional[str] = None,
+                 preserve_punctuation: bool = False,
+                 logger: Optional[Logger] = None):
         super().__init__(
             language,
             punctuation_marks=punctuation_marks,
@@ -61,7 +62,7 @@ class FestivalBackend(BaseBackend):
         return 'festival'
 
     @classmethod
-    def set_executable(cls, executable):
+    def set_executable(cls, executable: str):
         """Sets the festival backend to use `executable`
 
         If this is not set, the backend uses the default festival executable
@@ -89,7 +90,7 @@ class FestivalBackend(BaseBackend):
         cls._FESTIVAL_EXECUTABLE = executable.resolve()
 
     @classmethod
-    def executable(cls):
+    def executable(cls) -> Path:
         """Returns the absolute path to the festival executable used as backend
 
         The following precedence rule applies for executable lookup:
@@ -126,7 +127,7 @@ class FestivalBackend(BaseBackend):
         if not executable:  # pragma: nocover
             raise RuntimeError(
                 'failed to find festival executable')
-        return pathlib.Path(executable).resolve()
+        return Path(executable).resolve()
 
     @classmethod
     def is_available(cls):

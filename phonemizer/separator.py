@@ -13,11 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Provides the Separator tuple and its default value"""
+from typing import Optional, Union
 
 
 class Separator:
     """Defines phone, syllable and word boundary tokens"""
-    def __init__(self, word=' ', syllable=None, phone=None):
+
+    def __init__(self, word: str = ' ',
+                 syllable: Optional[str] = None,
+                 phone: Optional[str] = None):
         # check we have different separators, None excluded
         sep1 = list(sep for sep in (phone, syllable, word) if sep)
         sep2 = set(sep for sep in (phone, syllable, word) if sep)
@@ -25,17 +29,17 @@ class Separator:
             raise ValueError(
                 'illegal separator with word="{}", syllable="{}" and '
                 'phone="{}", must be all differents if not empty'
-                .format(phone, syllable, word))
+                    .format(phone, syllable, word))
 
         self._phone = str(phone) if phone else ''
         self._syllable = str(syllable) if syllable else ''
         self._word = str(word) if word else ''
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'Separator'):
         return (
-            self.phone == other.phone
-            and self.syllable == other.syllable
-            and self.word == other.word)
+                self.phone == other.phone
+                and self.syllable == other.syllable
+                and self.word == other.word)
 
     def __str__(self):
         return (
@@ -58,11 +62,12 @@ class Separator:
         """Words separator"""
         return self._word
 
-    def __contains__(self, value):
+    def __contains__(self, value: str):
         """Returns True if the separator has `value` as token separation"""
-        return value in (self.phone, self.syllable, self.word)
+        return value in {self.phone, self.syllable, self.word}
 
-    def input_output_separator(self, field_separator):
+    def input_output_separator(self, field_separator: Union[str, bool]) \
+            -> Union[str, bool]:
         """Returns a suitable input/output separator based on token separator
 
         The input/output separator split orthographic and phonetic texts when

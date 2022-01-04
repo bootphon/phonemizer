@@ -16,6 +16,8 @@
 
 import itertools
 import re
+from logging import Logger
+from typing import Optional
 
 from phonemizer.backend.espeak.base import BaseEspeakBackend
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
@@ -24,6 +26,7 @@ from phonemizer.backend.espeak.language_switch import (
 from phonemizer.backend.espeak.words_mismatch import (
     get_words_mismatch_processor)
 from phonemizer.logger import get_logger
+from phonemizer.phonemize import LanguageSwitch, WordMismatch
 from phonemizer.punctuation import Punctuation
 
 
@@ -33,14 +36,14 @@ class EspeakBackend(BaseEspeakBackend):
     _ESPEAK_STRESS_RE = re.compile(r"[ˈˌ'-]+")
 
     # pylint: disable=too-many-arguments
-    def __init__(self, language,
-                 punctuation_marks=Punctuation.default_marks(),
-                 preserve_punctuation=False,
-                 with_stress=False,
-                 tie=False,
-                 language_switch='keep-flags',
-                 words_mismatch='ignore',
-                 logger=get_logger()):
+    def __init__(self, language: str,
+                 punctuation_marks: Optional[str] = None,
+                 preserve_punctuation: bool = False,
+                 with_stress: bool = False,
+                 tie: bool = False,
+                 language_switch: LanguageSwitch = 'keep-flags',
+                 words_mismatch: WordMismatch = 'ignore',
+                 logger: Optional[Logger] = None):
         super().__init__(
             language, punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation, logger=logger)

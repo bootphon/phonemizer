@@ -36,6 +36,8 @@ initializing the espeak backend:
 
 import abc
 import re
+from logging import Logger
+from typing import List, Tuple
 
 
 def get_language_switch_processor(mode, logger, language):
@@ -78,18 +80,18 @@ class BaseLanguageSwitch(abc.ABC):
     # "something (fr)quelque chose(en) another thing".
     _ESPEAK_FLAGS_RE = re.compile(r'\(.+?\)')
 
-    def __init__(self, logger, language):
+    def __init__(self, logger: Logger, language: str):
         self._logger = logger
         self._language = language
 
     @classmethod
-    def is_language_switch(cls, utterance):
+    def is_language_switch(cls, utterance: str) -> bool:
         """Returns True is a language switch is present in the `utterance`"""
         return bool(cls._ESPEAK_FLAGS_RE.search(utterance))
 
     @classmethod
     @abc.abstractmethod
-    def process(cls, utterance):
+    def process(cls, utterance: str) -> Tuple[str, bool]:
         """Detects and process language switches according to the mode
 
         This method is called on each utterance as a phonemization
@@ -105,7 +107,7 @@ class BaseLanguageSwitch(abc.ABC):
         """
 
     @abc.abstractmethod
-    def warning(self, switches):
+    def warning(self, switches: List[int]):
         """Sends warnings to the logger with recorded language switches
 
         This method is called a single time at the very end of the
@@ -122,10 +124,10 @@ class BaseLanguageSwitch(abc.ABC):
 class KeepFlags(BaseLanguageSwitch):
     """Preserves utterances even if language switch flags are present"""
     @classmethod
-    def process(cls, utterance):
+    def process(cls, utterance : str) -> Tuple[str, bool]:
         return utterance, cls.is_language_switch(utterance)
 
-    def warning(self, switches):
+    def warning(self, switches: List[int]):
         if not switches:
             return
 
@@ -144,13 +146,13 @@ class KeepFlags(BaseLanguageSwitch):
 class RemoveFlags(BaseLanguageSwitch):
     """Removes the language switch flags when detected"""
     @classmethod
-    def process(cls, utterance):
+    def process(cls, utterance: str) -> Tuple[str, bool]:
         if cls.is_language_switch(utterance):
             # remove all the (lang) flags in the current utterance
             return re.sub(cls._ESPEAK_FLAGS_RE, '', utterance), True
         return utterance, False
 
-    def warning(self, switches):
+    def warning(self, switches: List[int]):
         if not switches:
             return
 
@@ -169,13 +171,13 @@ class RemoveFlags(BaseLanguageSwitch):
 class RemoveUtterances(BaseLanguageSwitch):
     """Remove the entire utterance when a language switch flag is detected"""
     @classmethod
-    def process(cls, utterance):
+    def process(cls, utterance: str ) -> Tuple[str, bool]:
         if cls.is_language_switch(utterance):
             # drop the entire utterance
             return '', True
         return utterance, False
 
-    def warning(self, switches):
+    def warning(self, switches: List[int]):
         if not switches:
             return
 

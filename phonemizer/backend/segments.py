@@ -15,11 +15,12 @@
 """Segments backend for the phonemizer"""
 
 import pathlib
+from logging import Logger
+from typing import Optional, Dict
 
 import segments
+
 from phonemizer.backend.base import BaseBackend
-from phonemizer.logger import get_logger
-from phonemizer.punctuation import Punctuation
 from phonemizer.utils import get_package_resource, version_as_tuple
 
 
@@ -30,12 +31,13 @@ class SegmentsBackend(BaseBackend):
     unknown morpheme.
 
     """
-    def __init__(self, language,
-                 punctuation_marks=Punctuation.default_marks(),
-                 preserve_punctuation=False,
-                 logger=get_logger()):
+
+    def __init__(self, language: str,
+                 punctuation_marks: Optional[str] = None,
+                 preserve_punctuation: bool = False,
+                 logger: Optional[Logger] = None):
         # will be initialized in _init_language() from super().__init__()
-        self._tokenizer = None
+        self._tokenizer: Optional[segments.Tokenizer] = None
         super().__init__(
             language,
             punctuation_marks=punctuation_marks,
@@ -54,12 +56,12 @@ class SegmentsBackend(BaseBackend):
     def name():
         return 'segments'
 
-    @staticmethod
-    def version():
+    @classmethod
+    def version(cls):
         return version_as_tuple(segments.__version__)
 
-    @staticmethod
-    def is_available():
+    @classmethod
+    def is_available(cls):
         return True
 
     @staticmethod
@@ -79,7 +81,7 @@ class SegmentsBackend(BaseBackend):
                 for g2p in directory.iterdir() if g2p.suffix == '.g2p'}
 
     @classmethod
-    def is_supported_language(cls, language):
+    def is_supported_language(cls, language: str) -> bool:
         if pathlib.Path(language).is_file():
             try:
                 cls._load_g2p_profile(language)
@@ -89,7 +91,7 @@ class SegmentsBackend(BaseBackend):
         return language in cls.supported_languages()
 
     @classmethod
-    def _load_g2p_profile(cls, language):
+    def _load_g2p_profile(cls, language: str) -> segments.Profile:
         """Returns a segments profile from a `language`"""
         # make sure the g2p file exists
         if not pathlib.Path(language).is_file():
@@ -102,7 +104,7 @@ class SegmentsBackend(BaseBackend):
 
         # load the mapping grapheme -> phoneme from the file, make sure all
         # lines are well formatted
-        g2p = {}
+        g2p: Dict[str, str] = {}
         with open(language, 'r', encoding='utf8') as flang:
             for num, line in enumerate(flang):
                 elts = line.strip().split()

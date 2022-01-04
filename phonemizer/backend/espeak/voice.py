@@ -21,14 +21,15 @@ import ctypes
 # the dataclasses module.
 class EspeakVoice:
     """A helper class to expose voice structures within C and Python"""
-    def __init__(self, name='', language='', identifier=''):
+
+    def __init__(self, name: str = '', language: str = '', identifier: str = ''):
         self._name = name
         self._language = language
         self._identifier = identifier
 
     @property
     def name(self):
-        "Voice name"
+        """Voice name"""
         return self._name
 
     @property
@@ -43,14 +44,14 @@ class EspeakVoice:
 
     def __eq__(self, other):
         return (
-            self.name == other.name and
-            self.language == other.language and
-            self.identifier == other.identifier)
+                self.name == other.name and
+                self.language == other.language and
+                self.identifier == other.identifier)
 
     def __hash__(self):
         return hash((self.name, self.language, self.identifier))
 
-    class Struct(ctypes.Structure):  # pylint: disable=too-few-public-methods
+    class VoiceStruct(ctypes.Structure):  # pylint: disable=too-few-public-methods
         """A helper class to fetch voices information from the espeak library.
 
         The espeak_VOICE struct is defined in speak_lib.h from the espeak code.
@@ -65,13 +66,13 @@ class EspeakVoice:
 
     def to_ctypes(self):
         """Converts the Voice instance to  an espeak ctypes structure"""
-        return self.Struct(
+        return self.VoiceStruct(
             self.name.encode('utf8') if self.name else None,
             self.language.encode('utf8') if self.language else None,
             self.identifier.encode('utf8') if self.identifier else None)
 
     @classmethod
-    def from_ctypes(cls, struct):
+    def from_ctypes(cls, struct: VoiceStruct):
         """Returns a Voice instance built from an espeak ctypes structure"""
         return cls(
             name=(struct.name or b'').decode(),

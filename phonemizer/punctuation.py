@@ -14,16 +14,16 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Implementation of punctuation processing"""
 
-
 import collections
 import re
-import six
-from phonemizer.utils import str2list
+from typing import List, Union
 
+import six
+
+from phonemizer.utils import str2list
 
 # The punctuation marks considered by default.
 _DEFAULT_MARKS = ';:,.!?¡¿—…"«»“”'
-
 
 _MarkIndex = collections.namedtuple(
     '_mark_index', ['index', 'mark', 'position'])
@@ -44,7 +44,8 @@ class Punctuation:
         character. Default to Punctuation.default_marks().
 
     """
-    def __init__(self, marks=_DEFAULT_MARKS):
+
+    def __init__(self, marks: str = _DEFAULT_MARKS):
         self._marks = None
         self._marks_re = None
         self.marks = marks
@@ -60,8 +61,8 @@ class Punctuation:
         return self._marks
 
     @marks.setter
-    def marks(self, value):
-        if not isinstance(value, six.string_types):
+    def marks(self, value: str):
+        if not isinstance(value, str):
             raise ValueError('punctuation marks must be defined as a string')
         self._marks = ''.join(set(value))
 
@@ -69,13 +70,14 @@ class Punctuation:
         # + one or more marks + zero or more spaces.
         self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
 
-    def remove(self, text):
+    def remove(self, text: List[str]) -> Union[str, List[str]]:
         """Returns the `text` with all punctuation marks replaced by spaces
 
         The input `text` can be a string or a list and is returned with the
         same type and punctuation removed.
 
         """
+
         def aux(text):
             return re.sub(self._marks_re, ' ', text).strip()
 
@@ -83,7 +85,7 @@ class Punctuation:
             return aux(text)
         return [aux(line) for line in text]
 
-    def preserve(self, text):
+    def preserve(self, text: Union[List[str], str]):
         """Removes punctuation from `text`, allowing for furter restoration
 
         This method returns the text as a list of punctuated chunks, along with

@@ -15,12 +15,14 @@
 """Provides utility functions for the phonemizer"""
 
 import os
-import pathlib
+from numbers import Number
+from pathlib import Path
+from typing import Union, List, Tuple, Iterable
 
 import pkg_resources
 
 
-def cumsum(iterable):
+def cumsum(iterable: Iterable[Number]) -> List[Number]:
     """Returns the cumulative sum of the `iterable` as a list"""
     res = []
     cumulative = 0
@@ -30,21 +32,22 @@ def cumsum(iterable):
     return res
 
 
-def str2list(text):
+def str2list(text: Union[str, List[str]]):
     """Returns the string `text` as a list of lines, split by \n"""
     if isinstance(text, str):
         return text.strip(os.linesep).split(os.linesep)
     return text
 
 
-def list2str(text):
+def list2str(text: Union[str, List[str]]):
     """Returns the list of lines `text` as a single string separated by \n"""
     if isinstance(text, str):
         return text
     return os.linesep.join(text)
 
 
-def chunks(text, num):
+def chunks(text: Union[str, List[str]], num: int) \
+        -> Tuple[List[List[str]], List[int]]:
     """Return a maximum of `num` equally sized chunks of a `text`
 
     This method is usefull when phonemizing a single text on multiple jobs.
@@ -69,14 +72,14 @@ def chunks(text, num):
         the input text wrt the chunks
 
     """
-    text = str2list(text)
-    size = int(max(1, len(text) / num))
+    text: List[str] = str2list(text)
+    size = int(max(1, len(text) / num))  # noqa
     nchunks = min(num, len(text))
 
     text_chunks = [
-        text[i*size:(i+1)*size] for i in range(nchunks - 1)]
+        text[i * size:(i + 1) * size] for i in range(nchunks - 1)]
 
-    last = text[(nchunks - 1)*size:]
+    last = text[(nchunks - 1) * size:]
     if last:
         text_chunks.append(last)
 
@@ -84,7 +87,7 @@ def chunks(text, num):
     return text_chunks, offsets
 
 
-def get_package_resource(path):
+def get_package_resource(path: str) -> Path:
     """Returns the absolute path to a phonemizer resource file or directory
 
     The packages resource are stored within the source tree in the
@@ -105,7 +108,7 @@ def get_package_resource(path):
     The absolute path to the required resource as a `pathlib.Path`
 
     """
-    path = pathlib.Path(
+    path = Path(
         pkg_resources.resource_filename(
             pkg_resources.Requirement.parse('phonemizer'),
             f'phonemizer/share/{path}'))
@@ -116,7 +119,7 @@ def get_package_resource(path):
     return path.resolve()
 
 
-def version_as_tuple(version):
+def version_as_tuple(version: str) -> Tuple[int, ...]:
     """Returns a tuple of integers from a version string
 
     Any '-dev' in version string is ignored. For instance, returns (1, 2, 3)
