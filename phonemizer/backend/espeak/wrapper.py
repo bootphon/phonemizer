@@ -22,7 +22,7 @@ import pathlib
 import sys
 import tempfile
 import weakref
-from typing import Tuple, Optional, Dict
+from typing import Tuple, Dict
 
 from phonemizer.backend.espeak.api import EspeakAPI
 from phonemizer.backend.espeak.voice import EspeakVoice
@@ -265,7 +265,7 @@ class EspeakWrapper:
             return EspeakVoice.from_ctypes(voice)
         return None  # pragma: nocover
 
-    def text_to_phonemes(self, text, tie=False):
+    def text_to_phonemes(self, text: str, tie: bool = False) -> str:
         """Translates a text into phonemes, must call set_voice() first.
 
         This method is used by the Espeak backend. Wrapper on the
@@ -317,7 +317,7 @@ class EspeakWrapper:
                 result.append(phonemes.decode())
         return ' '.join(result)
 
-    def synthetize(self, text):
+    def synthetize(self, text: str):
         """Translates a text into phonemes, must call set_voice() first.
 
         Only compatible with espeak>=1.49. This method is used by the

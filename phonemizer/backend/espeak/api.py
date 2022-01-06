@@ -21,6 +21,9 @@ import shutil
 import sys
 import tempfile
 import weakref
+from ctypes import CDLL
+from pathlib import Path
+from typing import Union
 
 from phonemizer.backend.espeak.voice import EspeakVoice
 
@@ -36,7 +39,8 @@ class EspeakAPI:
     used directly.
 
     """
-    def __init__(self, library):
+
+    def __init__(self, library: Union[str, Path]):
         # set to None to avoid an AttributeError in _delete if the __init__
         # method raises, will be properly initialized below
         self._library = None
@@ -51,7 +55,7 @@ class EspeakAPI:
         try:
             # load the original library in order to retrieve its full path?
             # Forced as str as it is required on Windows.
-            espeak = ctypes.cdll.LoadLibrary(str(library))
+            espeak: CDLL = ctypes.cdll.LoadLibrary(str(library))
             library_path = self._shared_library_path(espeak)
             del espeak
         except OSError as error:
@@ -121,7 +125,7 @@ class EspeakAPI:
         return self._library_path
 
     @staticmethod
-    def _shared_library_path(library):
+    def _shared_library_path(library) -> Path:
         """Returns the absolute path to `library`
 
         This function is cross-platform and works for Linux, MacOS and Windows.
@@ -173,7 +177,7 @@ class EspeakAPI:
             ctypes.POINTER(EspeakVoice.VoiceStruct))
         return f_list_voices(name)
 
-    def set_voice_by_name(self, name):
+    def set_voice_by_name(self, name) -> int:
         """Bindings to espeak_SetVoiceByName
 
         Parameters

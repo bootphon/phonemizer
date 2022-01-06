@@ -18,8 +18,6 @@ import collections
 import re
 from typing import List, Union
 
-import six
-
 from phonemizer.utils import str2list
 
 # The punctuation marks considered by default.
@@ -46,8 +44,8 @@ class Punctuation:
     """
 
     def __init__(self, marks: str = _DEFAULT_MARKS):
-        self._marks = None
-        self._marks_re = None
+        self._marks: str = None  # noqa
+        self._marks_re: re.Pattern[str] = None  # noqa
         self.marks = marks
 
     @staticmethod
@@ -70,7 +68,7 @@ class Punctuation:
         # + one or more marks + zero or more spaces.
         self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
 
-    def remove(self, text: List[str]) -> Union[str, List[str]]:
+    def remove(self, text: Union[str, List[str]]) -> Union[str, List[str]]:
         """Returns the `text` with all punctuation marks replaced by spaces
 
         The input `text` can be a string or a list and is returned with the
@@ -78,10 +76,10 @@ class Punctuation:
 
         """
 
-        def aux(text):
+        def aux(text: str) -> str:
             return re.sub(self._marks_re, ' ', text).strip()
 
-        if isinstance(text, six.string_types):
+        if isinstance(text, str):
             return aux(text)
         return [aux(line) for line in text]
 

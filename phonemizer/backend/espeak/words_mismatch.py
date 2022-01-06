@@ -14,12 +14,17 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Manages words count mismatches for the espeak backend"""
 
-
 import abc
 import re
+from logging import Logger
+from typing import List, Tuple
+
+from typing_extensions import TypeAlias, Literal
+
+WordMismatch: TypeAlias = Literal["warn", "ignore"]
 
 
-def get_words_mismatch_processor(mode, logger):
+def get_words_mismatch_processor(mode: WordMismatch, logger: Logger):
     """Returns a word count mismatch processor according to `mode`
 
     The `mode` can be one of the following:
@@ -47,19 +52,19 @@ class BaseWordsMismatch(abc.ABC):
     """The base class of all word count mismatch processors"""
     _RE_SPACES = re.compile(r'\s+')
 
-    def __init__(self, logger):
+    def __init__(self, logger: Logger):
         self._logger = logger
         self._count_txt = []
         self._count_phn = []
 
     @classmethod
-    def _count_words(cls, text):
+    def _count_words(cls, text: List[str]) -> List[int]:
         """Return the number of words contained in each line of `text`"""
         return [
             len([w for w in cls._RE_SPACES.split(line.strip()) if w])
             for line in text]
 
-    def _mismatched_lines(self):
+    def _mismatched_lines(self) -> List[Tuple[int, int, int]]:
         """Returns a list of (num_line, nwords_input, nwords_output)
 
         Consider only the lines where nwords_input != nwords_output. Raises a
@@ -77,23 +82,23 @@ class BaseWordsMismatch(abc.ABC):
             enumerate(zip(self._count_txt, self._count_phn))
             if t != p]
 
-    def _resume(self, nmismatch, nlines):
+    def _resume(self, nmismatch: int, nlines: int):
         """Logs a high level undetailed warning"""
         if nmismatch:
             self._logger.warning(
                 'words count mismatch on %s%% of the lines (%s/%s)',
                 round(nmismatch / nlines, 2) * 100, nmismatch, nlines)
 
-    def count_text(self, text):
+    def count_text(self, text: List[str]):
         """Stores the number of words in each input line"""
         self._count_txt = self._count_words(text)
 
-    def count_phonemized(self, text):
+    def count_phonemized(self, text: List[str]):
         """Stores the number of words in each output line"""
         self._count_phn = self._count_words(text)
 
     @abc.abstractmethod
-    def process(self, text):
+    def process(self, text: List[str]) -> List[str]:
         """Detects and process word count misatches according to the mode
 
         This method is called at the very end of phonemization, during
@@ -104,20 +109,22 @@ class BaseWordsMismatch(abc.ABC):
 
 class Ignore(BaseWordsMismatch):
     """Ignores word count mismatches"""
-    def process(self, text):
+
+    def process(self, text: List[str]) -> List[str]:
         self._resume(len(self._mismatched_lines()), len(text))
         return text
 
 
 class Warn(BaseWordsMismatch):
     """Warns on every mismatch detected"""
-    def process(self, text):
+
+    def process(self, text: List[str]) -> List[str]:
         mismatch = self._mismatched_lines()
         for num, ntxt, nphn in mismatch:
             self._logger.warning(
                 'words count mismatch on line %s '
                 '(expected %s words but get %s)',
-                num+1, ntxt, nphn)
+                num + 1, ntxt, nphn)
 
         self._resume(len(mismatch), len(text))
         return text
@@ -125,7 +132,8 @@ class Warn(BaseWordsMismatch):
 
 class Remove(BaseWordsMismatch):
     """Removes any utterance containing a word count mismatch"""
-    def process(self, text):
+
+    def process(self, text: List[str]) -> List[str]:
         mismatch = [line[0] for line in self._mismatched_lines()]
         self._resume(len(mismatch), len(text))
         self._logger.warning('removing the mismatched lines')

@@ -17,17 +17,14 @@
 import itertools
 import re
 from logging import Logger
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from phonemizer.backend.espeak.base import BaseEspeakBackend
-from phonemizer.backend.espeak.wrapper import EspeakWrapper
 from phonemizer.backend.espeak.language_switch import (
-    get_language_switch_processor)
+    get_language_switch_processor, LanguageSwitch)
 from phonemizer.backend.espeak.words_mismatch import (
-    get_words_mismatch_processor)
-from phonemizer.logger import get_logger
-from phonemizer.phonemize import LanguageSwitch, WordMismatch
-from phonemizer.punctuation import Punctuation
+    get_words_mismatch_processor, WordMismatch)
+from phonemizer.backend.espeak.wrapper import EspeakWrapper
 
 
 class EspeakBackend(BaseEspeakBackend):

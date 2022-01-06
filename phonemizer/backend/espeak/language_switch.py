@@ -38,7 +38,9 @@ import abc
 import re
 from logging import Logger
 from typing import List, Tuple
+from typing_extensions import TypeAlias, Literal
 
+LanguageSwitch: TypeAlias = Literal['keep-flags', 'remove-flags', 'remove-utterance']
 
 def get_language_switch_processor(mode, logger, language):
     """Returns a language switch processor initialized from `mode`
@@ -185,3 +187,5 @@ class RemoveUtterances(BaseLanguageSwitch):
         self._logger.warning(
             'removed %s utterances containing language switches '
             '(applying "remove-utterance" policy)', nswitches)
+
+

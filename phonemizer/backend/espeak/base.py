@@ -81,7 +81,7 @@ class BaseEspeakBackend(BaseBackend):
         return EspeakWrapper.library()
 
     @classmethod
-    def is_available(cls):
+    def is_available(cls) -> bool:
         try:
             EspeakWrapper()
         except RuntimeError:  # pragma: nocover
@@ -89,7 +89,7 @@ class BaseEspeakBackend(BaseBackend):
         return True
 
     @classmethod
-    def is_espeak_ng(cls):
+    def is_espeak_ng(cls) -> bool:
         """Returns True if using espeak-ng, False otherwise"""
         # espeak-ng starts with version 1.49
         return cls.version() >= (1, 49)

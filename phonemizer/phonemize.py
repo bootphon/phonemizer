@@ -25,16 +25,13 @@ import sys
 from logging import Logger
 from typing import Optional
 
-from typing_extensions import Literal, TypeAlias
-
 from phonemizer.backend import BACKENDS
+from phonemizer.backend.espeak.language_switch import LanguageSwitch
+from phonemizer.backend.espeak.words_mismatch import WordMismatch
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
 from phonemizer.separator import default_separator, Separator
 from phonemizer.utils import list2str, str2list
-
-LanguageSwitch: TypeAlias = Literal['keep-flags', 'remove-flags', 'remove-utterance']
-WordMismatch: TypeAlias = Literal["warn", "ignore"]
 
 
 def phonemize(  # pylint: disable=too-many-arguments

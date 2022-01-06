@@ -19,10 +19,11 @@ import shutil
 import sys
 from logging import Logger
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union, Optional, List, Dict
 
 from phonemizer.backend.espeak.base import BaseEspeakBackend
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
+from phonemizer.separator import Separator
 
 
 class EspeakMbrolaBackend(BaseEspeakBackend):
@@ -39,7 +40,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         return 'espeak-mbrola'
 
     @classmethod
-    def is_available(cls):
+    def is_available(cls) -> bool:
         """Mbrola backend is available for espeak>=1.49"""
         return (
                 BaseEspeakBackend.is_available() and
@@ -75,7 +76,7 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
         return False
 
     @classmethod
-    def supported_languages(cls):  # pragma: nocover
+    def supported_languages(cls) -> Dict[str, str]:  # pragma: nocover
         """Returns the list of installed mbrola voices"""
         if cls._supported_languages is None:
             data_path = EspeakWrapper().data_path
@@ -84,7 +85,8 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
                 if cls._is_language_installed(k, data_path)}
         return cls._supported_languages
 
-    def _phonemize_aux(self, text, offset, separator, strip):
+    def _phonemize_aux(self, text: List[str], offset: int,
+                       separator: Separator, strip: bool) -> List[str]:
         output = []
         for num, line in enumerate(text, start=1):
             line = self._espeak.synthetize(line)
@@ -92,7 +94,8 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
             output.append(line)
         return output
 
-    def _postprocess_line(self, line, num, separator, strip):
+    def _postprocess_line(self, line: str, num: int,
+                          separator: Separator, strip: bool) -> str:
         # retrieve the phonemes with the correct SAMPA alphabet (but
         # without word separation)
         phonemes = (
