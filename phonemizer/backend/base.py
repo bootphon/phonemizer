@@ -179,7 +179,7 @@ class BaseBackend(abc.ABC):
             # flatten them in a single list
             phonemized = self._flatten(phonemized)
 
-        return self._phonemize_postprocess(phonemized, punctuation_marks)
+        return self._phonemize_postprocess(phonemized, punctuation_marks, separator, strip)
 
     @staticmethod
     def _flatten(phonemized):
@@ -216,12 +216,12 @@ class BaseBackend(abc.ABC):
             return self._punctuator.preserve(text)
         return self._punctuator.remove(text), []
 
-    def _phonemize_postprocess(self, phonemized, punctuation_marks):
+    def _phonemize_postprocess(self, phonemized, punctuation_marks, separator, strip):
         """Postprocess the raw phonemized output
 
         Restores the punctuation as needed.
 
         """
         if self._preserve_punctuation:
-            return self._punctuator.restore(phonemized, punctuation_marks)
+            return self._punctuator.restore(phonemized, punctuation_marks, separator, strip)
         return phonemized
