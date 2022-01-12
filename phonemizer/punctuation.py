@@ -147,52 +147,63 @@ class Punctuation:
             ['hello', 'my world'], [',', '!'] -> ['hello, my world!']
 
         """
-        return cls._restore_aux(str2list(text), marks, 0, sep, strip)
 
-    @classmethod
-    def _restore_current(cls, current, text, marks, num, sep, strip):
-        """Auxiliary method for Punctuation._restore_aux()"""
+        text = str2list(text)
+        punctuated_text = []
+        pos = 0
 
-        # remove the word last separator from the current word
-        if sep.word and text[0].endswith(sep.word):
-            text[0] = text[0][:-len(sep.word)]
-        # replace internal spaces in the current mark with the word separator
-        mark = re.sub(r'\s', sep.word, current.mark)
+        while text or marks:
 
-        if current.position == 'B':
-            return cls._restore_aux(
-                [mark + text[0]] + text[1:], marks[1:], num, sep, strip)
+            if not marks:
+                punctuated_text.append(''.join(text))
+                text = []
+            elif not text:
+                # nothing has been phonemized, returns the marks alone, with internal
+                # spaces replaced by the word separator
+                punctuated_text.append(re.sub(r'\s',
+                                              sep.word,
+                                              ''.join(m.mark for m in marks)) +
+                                       ('' if strip else sep.word))
+                marks = []
 
-        if current.position == 'E':
-            return ([text[0] + mark + ('' if strip else sep.word)] +
-                    cls._restore_aux(text[1:], marks[1:], num + 1, sep, strip))
+            else:
+                current_mark = marks[0]
+                if current_mark.index == pos:
 
-        if current.position == 'A':
-            return [mark] + cls._restore_aux(text, marks[1:], num + 1, sep, strip)
+                    # place the current mark here
+                    mark = marks[0]
+                    marks = marks[1:]
+                    # replace internal spaces in the current mark with the word separator
+                    mark = re.sub(r'\s', sep.word, mark.mark)
 
-        # position == 'I'
-        if len(text) == 1:  # pragma: nocover
-            # a corner case where the final part of an intermediate
-            # mark (I) has not been phonemized
-            return cls._restore_aux([text[0] + mark], marks[1:], num, sep, strip)
+                    # remove the word last separator from the current word
+                    if sep.word and text[0].endswith(sep.word):
+                        text[0] = text[0][:-len(sep.word)]
 
-        return cls._restore_aux(
-            [text[0] + mark + text[1]] + text[2:], marks[1:], num, sep, strip)
+                    if current_mark.position == 'B':
+                        text[0] = mark + text[0]
+                    elif current_mark.position == 'E':
+                        punctuated_text.append(text[0] + mark + ('' if strip else sep.word))
+                        text = text[1:]
+                        pos = pos + 1
+                    elif current_mark.position == 'A':
+                        punctuated_text.append(mark)
+                        pos = pos + 1
+                    else:
+                        # position == 'I'
+                        if len(text) == 1:  # pragma: nocover
+                            # a corner case where the final part of an intermediate
+                            # mark (I) has not been phonemized
+                            text[0] = text[0] + mark
+                        else:
+                            first_word = text[0]
+                            text = text[1:]
+                            text[0] = first_word + mark + text[0]
 
-    @classmethod
-    def _restore_aux(cls, text, marks, num, sep, strip):
-        """Auxiliary method for Punctuation.restore()"""
-        if not marks:
-            return text
+                else:
+                    punctuated_text.append(text[0])
+                    text = text[1:]
+                    pos = pos + 1
 
-        # nothing have been phonemized, returns the marks alone, with internal
-        # spaces replaced by the word separator
-        if not text:
-            return [re.sub(r'\s', sep.word,
-                ''.join(m.mark for m in marks)) + ('' if strip else sep.word)]
 
-        current = marks[0]
-        if current.index == num:  # place the current mark here
-            return cls._restore_current(current, text, marks, num, sep, strip)
-
-        return [text[0]] + cls._restore_aux(text[1:], marks, num + 1, sep, strip)
+        return punctuated_text
