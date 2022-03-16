@@ -32,14 +32,14 @@ def cumsum(iterable: Iterable[Number]) -> List[Number]:
     return res
 
 
-def str2list(text: Union[str, List[str]]):
+def str2list(text: Union[str, List[str]]) -> List[str]:
     """Returns the string `text` as a list of lines, split by \n"""
     if isinstance(text, str):
         return text.strip(os.linesep).split(os.linesep)
     return text
 
 
-def list2str(text: Union[str, List[str]]):
+def list2str(text: Union[str, List[str]]) -> str:
     """Returns the list of lines `text` as a single string separated by \n"""
     if isinstance(text, str):
         return text
