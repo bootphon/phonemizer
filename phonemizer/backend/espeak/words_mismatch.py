@@ -24,7 +24,7 @@ from typing_extensions import TypeAlias, Literal
 WordMismatch: TypeAlias = Literal["warn", "ignore"]
 
 
-def get_words_mismatch_processor(mode: WordMismatch, logger: Logger):
+def get_words_mismatch_processor(mode: WordMismatch, logger: Logger) -> 'BaseWordsMismatch':
     """Returns a word count mismatch processor according to `mode`
 
     The `mode` can be one of the following:

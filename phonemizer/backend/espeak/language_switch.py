@@ -42,7 +42,8 @@ from typing_extensions import TypeAlias, Literal
 
 LanguageSwitch: TypeAlias = Literal['keep-flags', 'remove-flags', 'remove-utterance']
 
-def get_language_switch_processor(mode, logger, language):
+
+def get_language_switch_processor(mode: LanguageSwitch, logger: Logger, language: str) -> 'BaseLanguageSwitch':
     """Returns a language switch processor initialized from `mode`
 
     The `mode` can be one of the following:
@@ -125,8 +126,9 @@ class BaseLanguageSwitch(abc.ABC):
 
 class KeepFlags(BaseLanguageSwitch):
     """Preserves utterances even if language switch flags are present"""
+
     @classmethod
-    def process(cls, utterance : str) -> Tuple[str, bool]:
+    def process(cls, utterance: str) -> Tuple[str, bool]:
         return utterance, cls.is_language_switch(utterance)
 
     def warning(self, switches: List[int]):
@@ -147,6 +149,7 @@ class KeepFlags(BaseLanguageSwitch):
 
 class RemoveFlags(BaseLanguageSwitch):
     """Removes the language switch flags when detected"""
+
     @classmethod
     def process(cls, utterance: str) -> Tuple[str, bool]:
         if cls.is_language_switch(utterance):
@@ -172,8 +175,9 @@ class RemoveFlags(BaseLanguageSwitch):
 
 class RemoveUtterances(BaseLanguageSwitch):
     """Remove the entire utterance when a language switch flag is detected"""
+
     @classmethod
-    def process(cls, utterance: str ) -> Tuple[str, bool]:
+    def process(cls, utterance: str) -> Tuple[str, bool]:
         if cls.is_language_switch(utterance):
             # drop the entire utterance
             return '', True
@@ -187,5 +191,3 @@ class RemoveUtterances(BaseLanguageSwitch):
         self._logger.warning(
             'removed %s utterances containing language switches '
             '(applying "remove-utterance" policy)', nswitches)
-
-

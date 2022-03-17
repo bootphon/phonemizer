@@ -22,6 +22,7 @@ from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
+from phonemizer.separator import Separator
 
 
 class BaseEspeakBackend(BaseBackend):
@@ -107,5 +108,6 @@ class BaseEspeakBackend(BaseBackend):
         return EspeakWrapper().version
 
     @abc.abstractmethod
-    def _postprocess_line(self, line, num, separator, strip):
+    def _postprocess_line(self, line: str, num: int,
+                          separator: Separator, strip: bool) -> str:
         pass

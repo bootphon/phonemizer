@@ -14,7 +14,6 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Festival backend for the phonemizer"""
 
-
 import os
 import pathlib
 import re
@@ -25,7 +24,7 @@ import sys
 import tempfile
 from logging import Logger
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, List
 
 from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.festival import lispy
@@ -113,7 +112,7 @@ class FestivalBackend(BaseBackend):
 
         if 'PHONEMIZER_FESTIVAL_EXECUTABLE' in os.environ:
             executable = pathlib.Path(os.environ[
-                'PHONEMIZER_FESTIVAL_EXECUTABLE'])
+                                          'PHONEMIZER_FESTIVAL_EXECUTABLE'])
             if not (
                     executable.is_file()
                     and os.access(executable, mode=os.X_OK)
@@ -167,7 +166,7 @@ class FestivalBackend(BaseBackend):
         return version_as_tuple(version)
 
     @staticmethod
-    def supported_languages():
+    def supported_languages() -> Dict[str, str]:
         """A dictionnary of language codes -> name supported by festival
 
         Actually only en-us (American English) is supported.
@@ -201,12 +200,12 @@ class FestivalBackend(BaseBackend):
         return text
 
     @staticmethod
-    def _double_quoted(line):
+    def _double_quoted(line: str) -> str:
         """Return the string `line` surrounded by double quotes"""
         return '"' + line + '"'
 
     @staticmethod
-    def _cleaned(line):
+    def _cleaned(line: str):
         """Remove 'forbidden' characters from the line"""
         # special case (very unlikely but causes a crash in festival)
         # where a line is only made of '
@@ -218,7 +217,7 @@ class FestivalBackend(BaseBackend):
         return line.replace('"', '').replace('(', '').replace(')', '').strip()
 
     @classmethod
-    def _preprocess(cls, text):
+    def _preprocess(cls, text : List[str]):
         """Returns the contents of `text` formatted for festival input
 
         This function adds double quotes to begining and end of each

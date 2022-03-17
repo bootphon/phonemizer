@@ -17,14 +17,15 @@
 import itertools
 import re
 from logging import Logger
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Tuple, List, Union
 
 from phonemizer.backend.espeak.base import BaseEspeakBackend
 from phonemizer.backend.espeak.language_switch import (
-    get_language_switch_processor, LanguageSwitch)
+    get_language_switch_processor, LanguageSwitch, BaseLanguageSwitch)
 from phonemizer.backend.espeak.words_mismatch import (
-    get_words_mismatch_processor, WordMismatch)
+    get_words_mismatch_processor, WordMismatch, BaseWordsMismatch)
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
+from phonemizer.separator import Separator
 
 
 class EspeakBackend(BaseEspeakBackend):
@@ -48,15 +49,15 @@ class EspeakBackend(BaseEspeakBackend):
         self._espeak.set_voice(language)
         self._with_stress = with_stress
         self._tie = self._init_tie(tie)
-        self._lang_switch = get_language_switch_processor(
+        self._lang_switch: BaseLanguageSwitch = get_language_switch_processor(
             language_switch, self.logger, self.language)
-        self._words_mismatch = get_words_mismatch_processor(
+        self._words_mismatch: BaseWordsMismatch = get_words_mismatch_processor(
             words_mismatch, self.logger)
 
     @staticmethod
-    def _init_tie(tie):
+    def _init_tie(tie) -> Optional[str]:
         if not tie:
-            return False
+            return None
 
         if tie is True:  # default U+361 tie character
             return '͡'
@@ -79,7 +80,7 @@ class EspeakBackend(BaseEspeakBackend):
             for voice in EspeakWrapper().available_voices()}
 
     def _phonemize_aux(self, text, offset, separator, strip):
-        if self._tie and separator.phone:
+        if self._tie is not None and separator.phone:
             self.logger.warning(
                 'cannot use ties AND phone separation, '
                 'ignoring phone separator')
@@ -102,15 +103,16 @@ class EspeakBackend(BaseEspeakBackend):
         # remove the stresses on phonemes
         return re.sub(self._ESPEAK_STRESS_RE, '', word)
 
-    def _process_tie(self, word, separator):
+    def _process_tie(self, word: str, separator: Separator):
         # NOTE a bug in espeak append ties to (en) flags so as (͡e͡n).
         # We do not correct it here.
-        if self._tie and self._tie != '͡':
+        if self._tie is not None and self._tie != '͡':
             # replace default '͡' by the requested one
             return word.replace('͡', self._tie)
         return word.replace('_', separator.phone)
 
-    def _postprocess_line(self, line, num, separator, strip):
+    def _postprocess_line(self, line: str, num: int,
+                          separator: Separator, strip: bool) -> Tuple[str, bool]:
         # espeak can split an utterance into several lines because
         # of punctuation, here we merge the lines into a single one
         line = line.strip().replace('\n', ' ').replace('  ', ' ')
@@ -128,7 +130,7 @@ class EspeakBackend(BaseEspeakBackend):
         out_line = ''
         for word in line.split(' '):
             word = self._process_stress(word.strip())
-            if not strip and not self._tie:
+            if not strip and self._tie is None:
                 word += '_'
             word = self._process_tie(word, separator)
             out_line += word + separator.word
@@ -139,7 +141,7 @@ class EspeakBackend(BaseEspeakBackend):
 
         return out_line, has_switch
 
-    def _phonemize_preprocess(self, text):
+    def _phonemize_preprocess(self, text: List[str]) -> Tuple[Union[str, List[str]], List]:
         text, punctuation_marks = super()._phonemize_preprocess(text)
         self._words_mismatch.count_text(text)
         return text, punctuation_marks
@@ -155,7 +157,7 @@ class EspeakBackend(BaseEspeakBackend):
         return self._words_mismatch.process(phonemized)
 
     @staticmethod
-    def _flatten(phonemized):
+    def _flatten(phonemized) -> List:
         """Specialization of BaseBackend._flatten for the espeak backend
 
         From [([1, 2], ['a', 'b']), ([3],), ([4], ['c'])] to [[1, 2, 3, 4],

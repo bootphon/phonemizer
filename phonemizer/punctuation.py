@@ -16,7 +16,7 @@
 
 import collections
 import re
-from typing import List, Union
+from typing import List, Union, Tuple
 
 from phonemizer.utils import str2list
 
@@ -83,7 +83,7 @@ class Punctuation:
             return aux(text)
         return [aux(line) for line in text]
 
-    def preserve(self, text: Union[List[str], str]):
+    def preserve(self, text: Union[List[str], str]) -> Tuple[List[List[str]], List[_MarkIndex]]:
         """Removes punctuation from `text`, allowing for furter restoration
 
         This method returns the text as a list of punctuated chunks, along with
@@ -92,7 +92,7 @@ class Punctuation:
             'hello, my world!' -> ['hello', 'my world'], [',', '!']
 
         """
-        text = str2list(text)
+        text: List[str] = str2list(text)
         preserved_text = []
         preserved_marks = []
 
@@ -102,7 +102,7 @@ class Punctuation:
             preserved_marks += marks
         return [line for line in preserved_text if line], preserved_marks
 
-    def _preserve_line(self, line, num):
+    def _preserve_line(self, line: str, num: int) -> Tuple[List[str], List[_MarkIndex]]:
         """Auxiliary method for Punctuation.preserve()"""
         matches = list(re.finditer(self._marks_re, line))
         if not matches:
@@ -136,7 +136,7 @@ class Punctuation:
         return preserved_line + [line], marks
 
     @classmethod
-    def restore(cls, text, marks):
+    def restore(cls, text: Union[str, List[str]], marks: List[_MarkIndex]) -> List[str]:
         """Restore punctuation in a text.
 
         This is the reverse operation of Punctuation.preserve(). It takes a
@@ -149,7 +149,7 @@ class Punctuation:
         return cls._restore_aux(str2list(text), marks, 0)
 
     @classmethod
-    def _restore_current(cls, current, text, marks, num):
+    def _restore_current(cls, current: _MarkIndex, text: List[str], marks: List[_MarkIndex], num) -> List[str]:
         """Auxiliary method for Punctuation._restore_aux()"""
         text[0] = text[0].rstrip()
         if current.position == 'B':
@@ -173,7 +173,7 @@ class Punctuation:
             [text[0] + current.mark + text[1]] + text[2:], marks[1:], num)
 
     @classmethod
-    def _restore_aux(cls, text, marks, num):
+    def _restore_aux(cls, text: List[str], marks: List[_MarkIndex], num: int) -> List[str]:
         """Auxiliary method for Punctuation.restore()"""
         if not marks:
             return text
