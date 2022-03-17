@@ -119,7 +119,7 @@ class SegmentsBackend(BaseBackend):
             *[{'Grapheme': k, 'mapping': v} for k, v in g2p.items()])
 
     # pylint: disable=unused-argument
-    def _phonemize_aux(self, text, offset, separator, strip):
+    def _phonemize_aux(self, text: List[str], offset: int, separator: Separator, strip: bool) -> List[str]:
         # tokenize the input text per utterance
         phonemized = (
             self._tokenizer(line, column='mapping', errors='strict')
