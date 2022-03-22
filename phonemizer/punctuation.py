@@ -160,7 +160,7 @@ class Punctuation:
             elif not text:
                 # nothing has been phonemized, returns the marks alone, with internal
                 # spaces replaced by the word separator
-                punctuated_text.append(re.sub(r'\s',
+                punctuated_text.append(re.sub(r' ',
                                               sep.word,
                                               ''.join(m.mark for m in marks)) +
                                        ('' if strip else sep.word))
@@ -174,7 +174,7 @@ class Punctuation:
                     mark = marks[0]
                     marks = marks[1:]
                     # replace internal spaces in the current mark with the word separator
-                    mark = re.sub(r'\s', sep.word, mark.mark)
+                    mark = re.sub(r' ', sep.word, mark.mark)
 
                     # remove the word last separator from the current word
                     if sep.word and text[0].endswith(sep.word):
