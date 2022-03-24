@@ -16,11 +16,12 @@
 
 import pathlib
 from logging import Logger
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 import segments
 
 from phonemizer.backend.base import BaseBackend
+from phonemizer.separator import Separator
 from phonemizer.utils import get_package_resource, version_as_tuple
 
 
