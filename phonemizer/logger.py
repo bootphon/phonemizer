@@ -16,9 +16,10 @@
 
 import logging
 import sys
+from logging import Logger
 
 
-def get_logger(verbosity='quiet', name='phonemizer'):
+def get_logger(verbosity: str = 'quiet', name: str = 'phonemizer') -> Logger:
     """Returns a configured logging.Logger instance
 
     The logger is configured to output messages on the standard error stream

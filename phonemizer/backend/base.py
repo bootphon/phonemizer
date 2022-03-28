@@ -16,11 +16,14 @@
 
 import abc
 import itertools
+from logging import Logger
+from typing import Optional, List, Any, Dict, Tuple, Union
+
 import joblib
 
-from phonemizer.separator import default_separator
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
+from phonemizer.separator import Separator, default_separator
 from phonemizer.utils import chunks
 
 
@@ -53,10 +56,18 @@ class BaseBackend(abc.ABC):
     initialized.
 
     """
-    def __init__(self, language,
-                 punctuation_marks=Punctuation.default_marks(),
-                 preserve_punctuation=False,
-                 logger=get_logger()):
+
+    def __init__(self, language: str,
+                 punctuation_marks: Optional[str] = None,
+                 preserve_punctuation: bool = False,
+                 logger: Optional[Logger] = None):
+
+        if punctuation_marks is None:
+            punctuation_marks = Punctuation.default_marks()
+
+        if logger is None:
+            logger = get_logger()
+
         # ensure the backend is installed on the system
         if not self.is_available():
             raise RuntimeError(  # pragma: nocover
@@ -114,16 +125,18 @@ class BaseBackend(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def supported_languages():
+    def supported_languages() -> Dict[str, str]:
         """Return a dict of language codes -> name supported by the backend"""
 
     @classmethod
-    def is_supported_language(cls, language):
+    def is_supported_language(cls, language: str):
         """Returns True if `language` is supported by the backend"""
         return language in cls.supported_languages()
 
-    def phonemize(self, text, separator=default_separator,
-                  strip=False, njobs=1):
+    def phonemize(self, text: List[str],
+                  separator: Optional[Separator] = None,
+                  strip: bool = False,
+                  njobs: int = 1) -> List[str]:
         """Returns the `text` phonemized for the given language
 
         Parameters
@@ -159,6 +172,9 @@ class BaseBackend(abc.ABC):
             raise RuntimeError(
                 'input text to phonemize() is str but it must be list of str')
 
+        if separator is None:
+            separator = default_separator
+
         text, punctuation_marks = self._phonemize_preprocess(text)
 
         if njobs == 1:
@@ -182,7 +198,7 @@ class BaseBackend(abc.ABC):
         return self._phonemize_postprocess(phonemized, punctuation_marks)
 
     @staticmethod
-    def _flatten(phonemized):
+    def _flatten(phonemized: List[List[Any]]):
         """Flatten a list of lists into a single one
 
         From [[1, 2], [3], [4]] returns [1, 2, 3, 4]. This method is used to
@@ -192,7 +208,7 @@ class BaseBackend(abc.ABC):
         return list(itertools.chain(*phonemized))
 
     @abc.abstractmethod
-    def _phonemize_aux(self, text, offset, separator, strip):
+    def _phonemize_aux(self, text: List[str], offset: int, separator: Separator, strip: bool) -> List[str]:
         """The "concrete" phonemization method
 
         Must be implemented in child classes. `separator` and `strip`
@@ -204,7 +220,7 @@ class BaseBackend(abc.ABC):
 
         """
 
-    def _phonemize_preprocess(self, text):
+    def _phonemize_preprocess(self, text: List[str]) -> Tuple[Union[str, List[str]], List]:
         """Preprocess the text before phonemization
 
         Removes the punctuation (keep trace of punctuation marks for further
@@ -216,7 +232,7 @@ class BaseBackend(abc.ABC):
             return self._punctuator.preserve(text)
         return self._punctuator.remove(text), []
 
-    def _phonemize_postprocess(self, phonemized, punctuation_marks):
+    def _phonemize_postprocess(self, phonemized: List[str], punctuation_marks):
         """Postprocess the raw phonemized output
 
         Restores the punctuation as needed.

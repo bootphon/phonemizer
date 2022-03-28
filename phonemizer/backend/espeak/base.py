@@ -15,11 +15,14 @@
 """Base class of espeak backends for the phonemizer"""
 
 import abc
+from logging import Logger
+from typing import Optional
 
 from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
+from phonemizer.separator import Separator
 
 
 class BaseEspeakBackend(BaseBackend):
@@ -29,18 +32,19 @@ class BaseEspeakBackend(BaseBackend):
     facilities to find espeak library and read espeak version.
 
     """
-    def __init__(self, language,
-                 punctuation_marks=Punctuation.default_marks(),
-                 preserve_punctuation=False,
-                 logger=get_logger()):
-        self._espeak = EspeakWrapper()
-        logger.debug('loaded %s', self._espeak.library_path)
-
+    def __init__(self, language: str,
+                 punctuation_marks: Optional[str] = None,
+                 preserve_punctuation: bool = False,
+                 logger: Optional[Logger] = None):
         super().__init__(
             language,
             punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation,
             logger=logger)
+
+        self._espeak = EspeakWrapper()
+        self.logger.debug('loaded %s', self._espeak.library_path)
+
 
     @classmethod
     def set_library(cls, library):
@@ -78,7 +82,7 @@ class BaseEspeakBackend(BaseBackend):
         return EspeakWrapper.library()
 
     @classmethod
-    def is_available(cls):
+    def is_available(cls) -> bool:
         try:
             EspeakWrapper()
         except RuntimeError:  # pragma: nocover
@@ -86,7 +90,7 @@ class BaseEspeakBackend(BaseBackend):
         return True
 
     @classmethod
-    def is_espeak_ng(cls):
+    def is_espeak_ng(cls) -> bool:
         """Returns True if using espeak-ng, False otherwise"""
         # espeak-ng starts with version 1.49
         return cls.version() >= (1, 49)
@@ -104,5 +108,6 @@ class BaseEspeakBackend(BaseBackend):
         return EspeakWrapper().version
 
     @abc.abstractmethod
-    def _postprocess_line(self, line, num, separator, strip):
+    def _postprocess_line(self, line: str, num: int,
+                          separator: Separator, strip: bool) -> str:
         pass
