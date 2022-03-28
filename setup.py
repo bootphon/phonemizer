@@ -18,17 +18,15 @@
 
 import builtins
 import codecs
-import setuptools
 
+import setuptools
 
 # This is a bit hackish: we are setting a global variable so that the main
 # phonemizer __init__ can detect if it is being loaded by the setup routine, to
 # avoid attempting to load components that aren't built yet.
 builtins.__PHONEMIZER_SETUP__ = True
 
-
 import phonemizer
-
 
 setuptools.setup(
     # general description
@@ -36,8 +34,12 @@ setuptools.setup(
     description=' Simple text to phones converter for multiple languages',
     version=phonemizer.__version__,
 
-    # python package dependancies
-    install_requires=['joblib', 'segments', 'attrs>=18.1', 'dlinfo'],
+    # python package dependencies
+    install_requires=['joblib',
+                      'segments',
+                      'attrs>=18.1',
+                      'dlinfo',
+                      'typing-extensions'],
 
     # include Python code and any files in phonemizer/share
     packages=setuptools.find_packages(),
@@ -63,5 +65,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+    extras_require={
+        "tests": [
+            "pytest"
+        ]
+    },
     zip_safe=True,
 )

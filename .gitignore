@@ -10,3 +10,4 @@ htmlcov/*
 .eggs/*
 test/htmlcov
 paper/*
+.idea

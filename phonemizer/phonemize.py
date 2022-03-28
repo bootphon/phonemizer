@@ -22,29 +22,33 @@ To use it in your own code, type:
 
 import os
 import sys
+from logging import Logger
+from typing import Optional
 
 from phonemizer.backend import BACKENDS
+from phonemizer.backend.espeak.language_switch import LanguageSwitch
+from phonemizer.backend.espeak.words_mismatch import WordMismatch
 from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
-from phonemizer.separator import default_separator
+from phonemizer.separator import default_separator, Separator
 from phonemizer.utils import list2str, str2list
 
 
 def phonemize(  # pylint: disable=too-many-arguments
         text,
-        language='en-us',
-        backend='espeak',
-        separator=default_separator,
-        strip=False,
-        prepend_text=False,
-        preserve_punctuation=False,
-        punctuation_marks=Punctuation.default_marks(),
-        with_stress=False,
-        tie=False,
-        language_switch='keep-flags',
-        words_mismatch='ignore',
-        njobs=1,
-        logger=get_logger()):
+        language: str = 'en-us',
+        backend: str = 'espeak',
+        separator: Optional[Separator] = default_separator,
+        strip: bool = False,
+        prepend_text: bool = False,
+        preserve_punctuation: bool = False,
+        punctuation_marks: str = Punctuation.default_marks(),
+        with_stress: str = False,
+        tie: str = False,
+        language_switch: LanguageSwitch = 'keep-flags',
+        words_mismatch: WordMismatch = 'ignore',
+        njobs: int = 1,
+        logger: Logger = get_logger()):
     """Multilingual text to phonemes converter
 
     Return a phonemized version of an input `text`, given its `language` and a
@@ -118,7 +122,7 @@ def phonemize(  # pylint: disable=too-many-arguments
     language_switch (str, optional): Espeak can output some words in another
       language (typically English) when phonemizing a text. This option setups
       the policy to use when such a language switch occurs. Three values are
-      available: 'keep-flags' (the default), 'remove-flags' or
+      available : 'keep-flags' (the default), 'remove-flags' or
       'remove-utterance'. The 'keep-flags' policy keeps the language switching
       flags, for example "(en) or (jp)", in the output. The 'remove-flags'
       policy removes them and the 'remove-utterance' policy removes the whole
@@ -208,7 +212,7 @@ def _check_arguments(  # pylint: disable=too-many-arguments
     if backend not in ('espeak', 'espeak-mbrola', 'festival', 'segments'):
         raise RuntimeError(
             '{} is not a supported backend, choose in {}.'
-            .format(backend, ', '.join(
+                .format(backend, ', '.join(
                 ('espeak', 'espeak-mbrola', 'festival', 'segments'))))
 
     # with_stress option only valid for espeak

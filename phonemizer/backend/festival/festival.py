@@ -14,7 +14,6 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Festival backend for the phonemizer"""
 
-
 import os
 import pathlib
 import re
@@ -23,11 +22,13 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from logging import Logger
+from pathlib import Path
+from typing import Optional, Dict, List, IO
 
-from phonemizer.backend.festival import lispy
 from phonemizer.backend.base import BaseBackend
-from phonemizer.logger import get_logger
-from phonemizer.punctuation import Punctuation
+from phonemizer.backend.festival import lispy
+from phonemizer.separator import Separator
 from phonemizer.utils import get_package_resource, version_as_tuple
 
 
@@ -38,10 +39,10 @@ class FestivalBackend(BaseBackend):
     # the method FestivalBackend.set_executable().
     _FESTIVAL_EXECUTABLE = None
 
-    def __init__(self, language,
-                 punctuation_marks=Punctuation.default_marks(),
-                 preserve_punctuation=False,
-                 logger=get_logger()):
+    def __init__(self, language: str,
+                 punctuation_marks: Optional[str] = None,
+                 preserve_punctuation: bool = False,
+                 logger: Optional[Logger] = None):
         super().__init__(
             language,
             punctuation_marks=punctuation_marks,
@@ -61,7 +62,7 @@ class FestivalBackend(BaseBackend):
         return 'festival'
 
     @classmethod
-    def set_executable(cls, executable):
+    def set_executable(cls, executable: str):
         """Sets the festival backend to use `executable`
 
         If this is not set, the backend uses the default festival executable
@@ -89,7 +90,7 @@ class FestivalBackend(BaseBackend):
         cls._FESTIVAL_EXECUTABLE = executable.resolve()
 
     @classmethod
-    def executable(cls):
+    def executable(cls) -> Path:
         """Returns the absolute path to the festival executable used as backend
 
         The following precedence rule applies for executable lookup:
@@ -112,7 +113,7 @@ class FestivalBackend(BaseBackend):
 
         if 'PHONEMIZER_FESTIVAL_EXECUTABLE' in os.environ:
             executable = pathlib.Path(os.environ[
-                'PHONEMIZER_FESTIVAL_EXECUTABLE'])
+                                          'PHONEMIZER_FESTIVAL_EXECUTABLE'])
             if not (
                     executable.is_file()
                     and os.access(executable, mode=os.X_OK)
@@ -126,7 +127,7 @@ class FestivalBackend(BaseBackend):
         if not executable:  # pragma: nocover
             raise RuntimeError(
                 'failed to find festival executable')
-        return pathlib.Path(executable).resolve()
+        return Path(executable).resolve()
 
     @classmethod
     def is_available(cls):
@@ -166,7 +167,7 @@ class FestivalBackend(BaseBackend):
         return version_as_tuple(version)
 
     @staticmethod
-    def supported_languages():
+    def supported_languages() -> Dict[str, str]:
         """A dictionnary of language codes -> name supported by festival
 
         Actually only en-us (American English) is supported.
@@ -175,7 +176,7 @@ class FestivalBackend(BaseBackend):
         return {'en-us': 'english-us'}
 
     # pylint: disable=unused-argument
-    def _phonemize_aux(self, text, offset, separator, strip):
+    def _phonemize_aux(self, text: List[str], offset: int, separator: Separator, strip: bool) -> List[str]:
         """Return a phonemized version of `text` with festival
 
         This function is a wrapper on festival, a text to speech
@@ -200,12 +201,12 @@ class FestivalBackend(BaseBackend):
         return text
 
     @staticmethod
-    def _double_quoted(line):
+    def _double_quoted(line: str) -> str:
         """Return the string `line` surrounded by double quotes"""
         return '"' + line + '"'
 
     @staticmethod
-    def _cleaned(line):
+    def _cleaned(line: str):
         """Remove 'forbidden' characters from the line"""
         # special case (very unlikely but causes a crash in festival)
         # where a line is only made of '
@@ -217,7 +218,7 @@ class FestivalBackend(BaseBackend):
         return line.replace('"', '').replace('(', '').replace(')', '').strip()
 
     @classmethod
-    def _preprocess(cls, text):
+    def _preprocess(cls, text: List[str]):
         """Returns the contents of `text` formatted for festival input
 
         This function adds double quotes to begining and end of each
@@ -231,7 +232,7 @@ class FestivalBackend(BaseBackend):
         return '\n'.join(
             cls._double_quoted(line) for line in cleaned_text if line != '')
 
-    def _process(self, text):
+    def _process(self, text: str):
         """Return the raw phonemization of `text`
 
         This function delegates to festival the text analysis and
@@ -274,7 +275,7 @@ class FestivalBackend(BaseBackend):
                 os.remove(data.name)
 
     @staticmethod
-    def _run_festival(cmd, fstderr):
+    def _run_festival(cmd: str, fstderr: IO) -> str:
         """Runs the festival command for phonemization
 
         Returns the raw phonemized output (need to be postprocesses). Raises a
@@ -295,7 +296,7 @@ class FestivalBackend(BaseBackend):
                 f'output is:\n{fstderr.read()}') from None
 
     @staticmethod
-    def _postprocess_syll(syll, separator, strip):
+    def _postprocess_syll(syll: List[str], separator: Separator, strip: bool) -> str:
         """Parse a syllable from festival to phonemized output"""
         sep = separator.phone
         out = (phone[0][0].replace('"', '') for phone in syll[1:])
@@ -303,7 +304,7 @@ class FestivalBackend(BaseBackend):
         return out if strip else out + sep
 
     @classmethod
-    def _postprocess_word(cls, word, separator, strip):
+    def _postprocess_word(cls, word: List[List[str]], separator: Separator, strip: bool) -> str:
         """Parse a word from festival to phonemized output"""
         sep = separator.syllable
         out = sep.join(
@@ -312,7 +313,7 @@ class FestivalBackend(BaseBackend):
         return out if strip else out + sep
 
     @classmethod
-    def _postprocess_line(cls, line, separator, strip):
+    def _postprocess_line(cls, line: str, separator, strip: bool) -> str:
         """Parse a line from festival to phonemized output"""
         sep = separator.word
         out = []
@@ -325,7 +326,7 @@ class FestivalBackend(BaseBackend):
         return out if strip else out + sep
 
     @classmethod
-    def _postprocess(cls, tree, separator, strip):
+    def _postprocess(cls, tree: str, separator: Separator, strip: bool) -> List[str]:
         """Conversion from festival syllable tree to desired format"""
         return [cls._postprocess_line(line, separator, strip)
                 for line in tree.split('\n')

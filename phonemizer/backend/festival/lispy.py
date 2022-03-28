@@ -21,9 +21,10 @@ backend.
 From http://www.norvig.com/lispy.html
 
 """
+from typing import List, Union
 
 
-def parse(program):
+def parse(program: str):
     """Read a Scheme expression from a string
 
     Return a nested list
@@ -38,13 +39,16 @@ def parse(program):
     return _read_from_tokens(_tokenize(program))
 
 
-def _tokenize(chars):
-    "Convert a string of characters into a list of tokens."
+def _tokenize(chars: str) -> List[str]:
+    """Convert a string of characters into a list of tokens."""
     return chars.replace('(', ' ( ').replace(')', ' ) ').split()
 
 
-def _read_from_tokens(tokens):
-    "Read an expression from a sequence of tokens"
+Expr = Union[str, List['Expr']]
+
+
+def _read_from_tokens(tokens: List[str]) -> Expr:
+    """Read an expression from a sequence of tokens"""
     if len(tokens) == 0:  # pragma: nocover
         raise SyntaxError('unexpected EOF while reading')
 

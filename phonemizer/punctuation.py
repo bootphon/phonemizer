@@ -14,16 +14,14 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Implementation of punctuation processing"""
 
-
 import collections
 import re
-import six
-from phonemizer.utils import str2list
+from typing import List, Union, Tuple
 
+from phonemizer.utils import str2list
 
 # The punctuation marks considered by default.
 _DEFAULT_MARKS = ';:,.!?¡¿—…"«»“”'
-
 
 _MarkIndex = collections.namedtuple(
     '_mark_index', ['index', 'mark', 'position'])
@@ -44,9 +42,10 @@ class Punctuation:
         character. Default to Punctuation.default_marks().
 
     """
-    def __init__(self, marks=_DEFAULT_MARKS):
-        self._marks = None
-        self._marks_re = None
+
+    def __init__(self, marks: str = _DEFAULT_MARKS):
+        self._marks: str = None  # noqa
+        self._marks_re: re.Pattern[str] = None  # noqa
         self.marks = marks
 
     @staticmethod
@@ -60,8 +59,8 @@ class Punctuation:
         return self._marks
 
     @marks.setter
-    def marks(self, value):
-        if not isinstance(value, six.string_types):
+    def marks(self, value: str):
+        if not isinstance(value, str):
             raise ValueError('punctuation marks must be defined as a string')
         self._marks = ''.join(set(value))
 
@@ -69,21 +68,22 @@ class Punctuation:
         # + one or more marks + zero or more spaces.
         self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
 
-    def remove(self, text):
+    def remove(self, text: Union[str, List[str]]) -> Union[str, List[str]]:
         """Returns the `text` with all punctuation marks replaced by spaces
 
         The input `text` can be a string or a list and is returned with the
         same type and punctuation removed.
 
         """
-        def aux(text):
+
+        def aux(text: str) -> str:
             return re.sub(self._marks_re, ' ', text).strip()
 
-        if isinstance(text, six.string_types):
+        if isinstance(text, str):
             return aux(text)
         return [aux(line) for line in text]
 
-    def preserve(self, text):
+    def preserve(self, text: Union[List[str], str]) -> Tuple[List[List[str]], List[_MarkIndex]]:
         """Removes punctuation from `text`, allowing for furter restoration
 
         This method returns the text as a list of punctuated chunks, along with
@@ -92,7 +92,7 @@ class Punctuation:
             'hello, my world!' -> ['hello', 'my world'], [',', '!']
 
         """
-        text = str2list(text)
+        text: List[str] = str2list(text)
         preserved_text = []
         preserved_marks = []
 
@@ -102,7 +102,7 @@ class Punctuation:
             preserved_marks += marks
         return [line for line in preserved_text if line], preserved_marks
 
-    def _preserve_line(self, line, num):
+    def _preserve_line(self, line: str, num: int) -> Tuple[List[str], List[_MarkIndex]]:
         """Auxiliary method for Punctuation.preserve()"""
         matches = list(re.finditer(self._marks_re, line))
         if not matches:
@@ -136,7 +136,7 @@ class Punctuation:
         return preserved_line + [line], marks
 
     @classmethod
-    def restore(cls, text, marks):
+    def restore(cls, text: Union[str, List[str]], marks: List[_MarkIndex]) -> List[str]:
         """Restore punctuation in a text.
 
         This is the reverse operation of Punctuation.preserve(). It takes a
@@ -149,7 +149,7 @@ class Punctuation:
         return cls._restore_aux(str2list(text), marks, 0)
 
     @classmethod
-    def _restore_current(cls, current, text, marks, num):
+    def _restore_current(cls, current: _MarkIndex, text: List[str], marks: List[_MarkIndex], num) -> List[str]:
         """Auxiliary method for Punctuation._restore_aux()"""
         text[0] = text[0].rstrip()
         if current.position == 'B':
@@ -173,7 +173,7 @@ class Punctuation:
             [text[0] + current.mark + text[1]] + text[2:], marks[1:], num)
 
     @classmethod
-    def _restore_aux(cls, text, marks, num):
+    def _restore_aux(cls, text: List[str], marks: List[_MarkIndex], num: int) -> List[str]:
         """Auxiliary method for Punctuation.restore()"""
         if not marks:
             return text
