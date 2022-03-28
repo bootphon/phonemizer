@@ -17,7 +17,7 @@
 import itertools
 import re
 from logging import Logger
-from typing import Optional, TYPE_CHECKING, Tuple, List, Union
+from typing import Optional, Tuple, List, Union
 
 from phonemizer.backend.espeak.base import BaseEspeakBackend
 from phonemizer.backend.espeak.language_switch import (
@@ -38,7 +38,7 @@ class EspeakBackend(BaseEspeakBackend):
                  punctuation_marks: Optional[str] = None,
                  preserve_punctuation: bool = False,
                  with_stress: bool = False,
-                 tie: bool = False,
+                 tie: Union[bool, str] = False,
                  language_switch: LanguageSwitch = 'keep-flags',
                  words_mismatch: WordMismatch = 'ignore',
                  logger: Optional[Logger] = None):

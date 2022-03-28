@@ -23,9 +23,12 @@ To use it in your own code, type:
 import os
 import sys
 from logging import Logger
-from typing import Optional
+from typing import Optional, Union, List
+
+from typing_extensions import Literal
 
 from phonemizer.backend import BACKENDS
+from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.espeak.language_switch import LanguageSwitch
 from phonemizer.backend.espeak.words_mismatch import WordMismatch
 from phonemizer.logger import get_logger
@@ -33,19 +36,21 @@ from phonemizer.punctuation import Punctuation
 from phonemizer.separator import default_separator, Separator
 from phonemizer.utils import list2str, str2list
 
+Backend = Literal['espeak', 'espeak-mbrola', 'festival', 'segments']
+
 
 def phonemize(  # pylint: disable=too-many-arguments
         text,
         language: str = 'en-us',
-        backend: str = 'espeak',
+        backend: Backend = 'espeak',
         separator: Optional[Separator] = default_separator,
         strip: bool = False,
         prepend_text: bool = False,
         preserve_empty_lines: bool = False,
         preserve_punctuation: bool = False,
         punctuation_marks: str = Punctuation.default_marks(),
-        with_stress: str = False,
-        tie: str = False,
+        with_stress: bool = False,
+        tie: Union[bool, str] = False,
         language_switch: LanguageSwitch = 'keep-flags',
         words_mismatch: WordMismatch = 'ignore',
         njobs: int = 1,
@@ -205,7 +210,12 @@ def phonemize(  # pylint: disable=too-many-arguments
 
 
 def _check_arguments(  # pylint: disable=too-many-arguments
-        backend, with_stress, tie, separator, language_switch, words_mismatch):
+        backend: Backend,
+        with_stress: bool,
+        tie: Union[bool, str],
+        separator: Separator,
+        language_switch: LanguageSwitch,
+        words_mismatch: WordMismatch):
     """Auxiliary function to phonemize()
 
     Ensures the parameters are compatible with each other, raises a
@@ -251,7 +261,13 @@ def _check_arguments(  # pylint: disable=too-many-arguments
 
 
 def _phonemize(  # pylint: disable=too-many-arguments
-        backend, text, separator, strip, njobs, prepend_text, preserve_empty_lines):
+        backend: BaseBackend,
+        text: Union[str, List[str]],
+        separator: Separator,
+        strip: bool,
+        njobs: int,
+        prepend_text: bool,
+        preserve_empty_lines: bool):
     """Auxiliary function to phonemize()
 
     Does the phonemization and returns the phonemized text. Raises a
@@ -280,7 +296,7 @@ def _phonemize(  # pylint: disable=too-many-arguments
 
     # if preserving empty lines, reinsert them into text and phonemized lists
     if preserve_empty_lines:
-        for i in empty_lines:
+        for i in empty_lines: # noqa
             if prepend_text:
                 text.insert(i, '')
             phonemized.insert(i, '')
