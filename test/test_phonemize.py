@@ -185,3 +185,107 @@ def test_segments(njobs):
         strip=True, njobs=njobs)
     assert out == os.linesep.join(
         ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo'])
+
+
+@pytest.mark.parametrize(
+    'backend, empty_lines, punctuation, prepend_text, text, expected', [
+        ('espeak', False, False, False,
+            ['hello world!', '', 'goodbye'],
+            ['həloʊ wɜːld ', 'ɡʊdbaɪ ']),
+        ('espeak', False, True, False,
+            ['hello world!', '', 'goodbye'],
+            ['həloʊ wɜːld!', 'ɡʊdbaɪ ']),
+        ('espeak', True, False, False,
+            ['hello world!', '', 'goodbye'],
+            ['həloʊ wɜːld ', '', 'ɡʊdbaɪ ']),
+        ('espeak', True, True, False,
+            ['hello world!', '', 'goodbye'],
+            ['həloʊ wɜːld!', '', 'ɡʊdbaɪ ']),
+        ('segments', False, False, False,
+            ['achi acho?', '', 'achi acho'],
+            [u'ʌtʃɪ ʌtʃʊ ', u'ʌtʃɪ ʌtʃʊ ']),
+        ('segments', False, True, False,
+            ['achi acho?', '', 'achi acho'],
+            [u'ʌtʃɪ ʌtʃʊ?', u'ʌtʃɪ ʌtʃʊ ']),
+        ('segments', True, False, False,
+            ['achi acho?', '', 'achi acho'],
+            [u'ʌtʃɪ ʌtʃʊ ', '', u'ʌtʃɪ ʌtʃʊ ']),
+        ('segments', True, True, False,
+            ['achi acho?', '', 'achi acho'],
+            [u'ʌtʃɪ ʌtʃʊ?', '', u'ʌtʃɪ ʌtʃʊ ']),
+        ('festival', False, False, False,
+            ['hello world!', '', 'goodbye'],
+            ['hhaxlow werld ', 'guhdbay ']),
+        ('festival', False, True, False,
+            ['hello world!', '', 'goodbye'],
+            ['hhaxlow werld!', 'guhdbay ']),
+        ('festival', True, False, False,
+            ['hello world!', '', 'goodbye'],
+            ['hhaxlow werld ', '', 'guhdbay ']),
+        ('festival', True, True, False,
+            ['hello world!', '', 'goodbye'],
+            ['hhaxlow werld!', '', 'guhdbay ']),
+        ('espeak', False, False, True,
+            ['hello world!', '', 'goodbye'],
+            [('hello world!', 'həloʊ wɜːld '), ('goodbye', 'ɡʊdbaɪ ')]),
+        ('espeak', False, True, True,
+            ['hello world!', '', 'goodbye'],
+            [('hello world!', 'həloʊ wɜːld!'), ('goodbye', 'ɡʊdbaɪ ')]),
+        ('espeak', True, False, True,
+            ['hello world!', '', 'goodbye'],
+            [('hello world!', 'həloʊ wɜːld '), ('', ''), ('goodbye', 'ɡʊdbaɪ ')]),
+        ('espeak', True, True, True,
+            ['hello world!', '', 'goodbye'],
+            [('hello world!', 'həloʊ wɜːld!'), ('', ''), ('goodbye', 'ɡʊdbaɪ ')]),
+        ('segments', False, False, True,
+            ['achi acho?', '', 'achi acho'],
+            [('achi acho?', 'ʌtʃɪ ʌtʃʊ '), ('achi acho', u'ʌtʃɪ ʌtʃʊ ')]),
+        ('segments', False, True, True,
+            ['achi acho?', '', 'achi acho'],
+            [('achi acho?', 'ʌtʃɪ ʌtʃʊ?'), ('achi acho', u'ʌtʃɪ ʌtʃʊ ')]),
+        ('segments', True, False, True,
+            ['achi acho?', '', 'achi acho'],
+            [('achi acho?', u'ʌtʃɪ ʌtʃʊ '), ('', ''), ('achi acho', u'ʌtʃɪ ʌtʃʊ ')]),
+        ('segments', True, True, True,
+            ['achi acho?', '', 'achi acho'],
+            [('achi acho?', u'ʌtʃɪ ʌtʃʊ?'), ('', ''), ('achi acho', u'ʌtʃɪ ʌtʃʊ ')]),
+        ('festival', False, False, True,
+            ['hello world!', '', 'goodbye'],
+            [('hello world!', 'hhaxlow werld '), ('goodbye', 'guhdbay ')]),
+        ('festival', False, True, True,
+            ['hello world!', '', 'goodbye'],
+            [('hello world!', 'hhaxlow werld!'), ('goodbye', 'guhdbay ')]),
+        ('festival', True, False, True,
+            ['hello world!', '', 'goodbye'],
+            [('hello world!', 'hhaxlow werld '), ('', ''), ('goodbye', 'guhdbay ')]),
+        ('festival', True, True, True,
+            ['hello world!', '', 'goodbye'],
+            [('hello world!', 'hhaxlow werld!'), ('', ''), ('goodbye', 'guhdbay ')])])
+def test_preserve_empty_lines(backend, empty_lines, punctuation, prepend_text, text, expected):
+    language = 'cree' if backend == 'segments' else 'en-us'
+
+    assert expected == phonemize(
+        text, language=language, backend=backend, prepend_text=prepend_text,
+        preserve_punctuation=punctuation, preserve_empty_lines=empty_lines)
+
+
+@pytest.mark.parametrize(
+    'backend, empty_lines, punctuation, text, expected', [
+        ('espeak', False, False, [''], []),
+        ('espeak', False, True, [''], []),
+        ('espeak', True, False, [''], ['']),
+        ('espeak', True, True, [''], ['']),
+        ('segments', False, False, [''], []),
+        ('segments', False, True, [''], []),
+        ('segments', True, False, [''], ['']),
+        ('segments', True, True, [''], ['']),
+        ('festival', False, False, [''], []),
+        ('festival', False, True, [''], []),
+        ('festival', True, False, [''], ['']),
+        ('festival', True, True, [''], [''])])
+def test_empty_input(backend, empty_lines, punctuation, text, expected):
+    language = 'cree' if backend == 'segments' else 'en-us'
+
+    assert expected == phonemize(
+        text, language=language, backend=backend,
+        preserve_punctuation=punctuation, preserve_empty_lines=empty_lines)
