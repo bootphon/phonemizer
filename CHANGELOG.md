@@ -3,6 +3,21 @@
 Version numbers follow [semantic versioning](https://semver.org)
 
 
+## phonemizer-3.1.1
+
+* **improvements**
+
+  * Preserve empty lines in texts when using  `--preserve-empty-lines`. 
+    Without this option, empty lines used to be automatically dropped. 
+    See [PR #103](https://github.com/bootphon/phonemizer/pull/103)
+
+* **new features**
+
+  * Type hinted most of `phonemizer`'s API. This makes the usage of our API 
+    a bit clearer, and can be easily leveraged by IDE's and type checkers to
+    prevent typing issues.
+
+
 ## phonemizer-3.0.1
 
 * **bug fixes**
