@@ -11,3 +11,5 @@ htmlcov/*
 test/htmlcov
 paper/*
 .idea
+
+docs/build
