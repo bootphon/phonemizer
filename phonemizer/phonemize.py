@@ -62,6 +62,7 @@ def phonemize(  # pylint: disable=too-many-arguments
 
     Note
     ----
+
     To improve the processing speed it is better to minimize the calls to this
     function: provide the input text as a list and call phonemize() a single
     time is much more efficient than calling it on each element of the list.
@@ -80,90 +81,107 @@ def phonemize(  # pylint: disable=too-many-arguments
 
     Parameters
     ----------
-    text (str or list of str): The text to be phonemized. Any empty line will
-      be ignored. If `text` is an str, it can be multiline (lines being
-      separated by \n). If `text` is a list, each element is considered as a
-      separated line. Each line is considered as a text utterance.
 
-    language (str): The language code of the input text, must be supported by
-      the backend. If `backend` is 'segments', the language can be a file with
-      a grapheme to phoneme mapping.
+    text: str or list of str
+        The text to be phonemized. Any empty line will
+        be ignored. If ``text`` is an str, it can be multiline (lines being
+        separated by ``\\n``). If ``text`` is a list, each element is considered as a
+        separated line. Each line is considered as a text utterance.
 
-    backend (str, optional): The software backend to use for phonemization,
-      must be 'festival' (US English only is supported, coded 'en-us'),
-      'espeak', 'espeak-mbrola' or 'segments'.
+    language: str
+        The language code of the input text, must be supported by
+        the backend. If ``backend`` is 'segments', the language can be a file with
+        a grapheme to phoneme mapping.
 
-    separator (Separator): string separators between phonemes, syllables and
-      words, default to separator.default_separator. Syllable separator is
-      considered only for the festival backend. Word separator is ignored by
-      the 'espeak-mbrola' backend. Initialize it as follows:
-        >>> from phonemizer.separator import Separator
-        >>> separator = Separator(phone='-', word=' ')
+    backend: str, optional
+        The software backend to use for phonemization,
+        must be 'festival' (US English only is supported, coded 'en-us'),
+        'espeak', 'espeak-mbrola' or 'segments'.
 
-    strip (bool, optional): If True, don't output the last word and phone
-      separators of a token, default to False.
+    separator: Separator
+        string separators between phonemes, syllables and
+        words, default to separator.default_separator. Syllable separator is
+        considered only for the festival backend. Word separator is ignored by
+        the 'espeak-mbrola' backend. Initialize it as follows:
+            >>> from phonemizer.separator import Separator
+            >>> separator = Separator(phone='-', word=' ')
 
-    prepend_text (bool, optional): When True, returns a pair (input utterance,
-      phonemized utterance) for each line of the input text. When False,
-      returns only the phonemized utterances. Default to False
+    strip: bool, optional
+        If True, don't output the last word and phone
+        separators of a token, default to False.
 
-    preserve_empty_lines (bool, optional): When True, will keep the empty lines
-      in the phonemized output. Default to False and remove all empty lines.
+    prepend_text: bool, optional
+        When True, returns a pair (input utterance,
+        phonemized utterance) for each line of the input text. When False,
+        returns only the phonemized utterances. Default to False
 
-    preserve_punctuation (bool, optional): When True, will keep the punctuation
-      in the phonemized output. Not supported by the 'espeak-mbrola' backend.
-      Default to False and remove all the punctuation.
+    preserve_empty_lines: bool, optional
+        When True, will keep the empty lines
+        in the phonemized output. Default to False and remove all empty lines.
 
-    punctuation_marks (str, optional): The punctuation marks to consider when
-      dealing with punctuation, either for removal or preservation. Default to
-      Punctuation.default_marks().
+    preserve_punctuation: bool, optional
+        When True, will keep the punctuation
+        in the phonemized output. Not supported by the 'espeak-mbrola' backend.
+        Default to False and remove all the punctuation.
 
-    with_stress (bool, optional): This option is only valid for the 'espeak'
-      backend. When True the stresses on phonemes are present (stresses
-      characters are ˈ'ˌ). When False stresses are removed. Default to False.
+    punctuation_marks: str, optional
+        The punctuation marks to consider when
+        dealing with punctuation, either for removal or preservation. Default to
+        Punctuation.default_marks().
 
-    tie (bool or char, optional): This option is only valid for the 'espeak'
-      backend with espeak>=1.49. It is incompatible with phone separator. When
-      not False, use a tie character within multi-letter phoneme names. When
-      True, the char 'U+361' is used (as in d͡ʒ), 'z' means ZWJ character,
-      default to False.
+    with_stress: bool, optional
+        This option is only valid for the 'espeak'
+        backend. When True the stresses on phonemes are present (stresses
+        characters are ˈ'ˌ). When False stresses are removed. Default to False.
 
-    language_switch (str, optional): Espeak can output some words in another
-      language (typically English) when phonemizing a text. This option setups
-      the policy to use when such a language switch occurs. Three values are
-      available : 'keep-flags' (the default), 'remove-flags' or
-      'remove-utterance'. The 'keep-flags' policy keeps the language switching
-      flags, for example "(en) or (jp)", in the output. The 'remove-flags'
-      policy removes them and the 'remove-utterance' policy removes the whole
-      line of text including a language switch. This option is only valid for
-      the 'espeak' backend.
+    tie: bool or char, optional
+        This option is only valid for the 'espeak'
+        backend with espeak>=1.49. It is incompatible with phone separator. When
+        not False, use a tie character within multi-letter phoneme names. When
+        True, the char 'U+361' is used (as in d͡ʒ), 'z' means ZWJ character,
+        default to False.
 
-    words_mismatch (str, optional): Espeak can join two consecutive words or
-      drop some words, yielding a word count mismatch between orthographic and
-      phonemized text. This option setups the policy to use when such a words
-      count mismatch occurs. Three values are available: 'ignore' (the default)
-      which do nothing, 'warn' which issue a warning for each mismatched line,
-      and 'remove' which remove the mismatched lines from the output.
+    language_switch: str, optional
+        Espeak can output some words in another
+        language (typically English) when phonemizing a text. This option setups
+        the policy to use when such a language switch occurs. Three values are
+        available : 'keep-flags' (the default), 'remove-flags' or
+        'remove-utterance'. The 'keep-flags' policy keeps the language switching
+        flags, for example "(en) or (jp)", in the output. The 'remove-flags'
+        policy removes them and the 'remove-utterance' policy removes the whole
+        line of text including a language switch. This option is only valid for
+        the 'espeak' backend.
 
-    njobs (int): The number of parallel jobs to launch. The input text is split
-      in `njobs` parts, phonemized on parallel instances of the backend and the
-      outputs are finally collapsed.
+    words_mismatch: str, optional
+        Espeak can join two consecutive words or
+        drop some words, yielding a word count mismatch between orthographic and
+        phonemized text. This option setups the policy to use when such a words
+        count mismatch occurs. Three values are available: 'ignore' (the default)
+        which do nothing, 'warn' which issue a warning for each mismatched line,
+        and 'remove' which remove the mismatched lines from the output.
 
-    logger (logging.Logger): the logging instance where to send messages. If
-      not specified, use the default system logger.
+    njobs: int
+        The number of parallel jobs to launch. The input text is split
+        in ``njobs`` parts, phonemized on parallel instances of the backend and the
+        outputs are finally collapsed.
+
+    logger: logging.Logger
+        the logging instance where to send messages. If
+        not specified, use the default system logger.
 
     Returns
     -------
-    phonemized text (str or list of str) : The input `text` phonemized for the
-      given `language` and `backend`. The returned value has the same type of
-      the input text (either a list or a string), excepted if `prepend_input`
-      is True where the output is forced as a list of pairs (input_text,
-      phonemized text).
+    phonemized text: str or list of str
+        The input ``text`` phonemized for the
+        given ``language`` and ``backend``. The returned value has the same type of
+        the input text (either a list or a string), excepted if ``prepend_input``
+        is True where the output is forced as a list of pairs (input_text,
+        phonemized text).
 
     Raises
     ------
-    RuntimeError if the `backend` is not valid or is valid but not installed,
-      if the `language` is not supported by the `backend`, if any incompatible
+    RuntimeError if the ``backend`` is not valid or is valid but not installed,
+      if the ``language`` is not supported by the ``backend``, if any incompatible
       options are used.
 
     """

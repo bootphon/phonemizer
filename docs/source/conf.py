@@ -12,16 +12,15 @@
 #
 import sys
 from pathlib import Path
+
 path = Path(__file__).parent / "../.."
 sys.path.insert(0, str(path.absolute()))
-
 
 # -- Project information -----------------------------------------------------
 
 project = 'Phonemizer'
 copyright = '2022, CoML'
 author = 'Mathieu Bernard, Hadrien Titeux'
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -31,7 +30,11 @@ author = 'Mathieu Bernard, Hadrien Titeux'
 extensions = [
     "sphinx_rtd_theme",
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon'
 ]
+# Napoleon settings
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,7 +43,6 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
-
 
 # -- Options for HTML output -------------------------------------------------
 
