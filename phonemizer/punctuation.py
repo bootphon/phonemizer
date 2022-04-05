@@ -158,15 +158,20 @@ class Punctuation:
         while text or marks:
 
             if not marks:
-                punctuated_text.append(''.join(text))
+                merged_text = ''.join(text)
+                # if strip is False, ensure the final word ends with a word separator
+                if not strip and sep.word and not merged_text.endswith(sep.word):
+                    merged_text = merged_text + sep.word
+                punctuated_text.append(merged_text)
                 text = []
             elif not text:
                 # nothing has been phonemized, returns the marks alone, with internal
                 # spaces replaced by the word separator
-                punctuated_text.append(re.sub(r' ',
-                                              sep.word,
-                                              ''.join(m.mark for m in marks)) +
-                                       ('' if strip else sep.word))
+                merged_marks = re.sub(' ', sep.word, ''.join(m.mark for m in marks))
+                # if strip is False, ensure the final mark ends with a word separator
+                if not strip and sep.word and not merged_marks.endswith(sep.word):
+                    merged_marks = merged_marks + sep.word
+                punctuated_text.append(merged_marks)
                 marks = []
 
             else:
@@ -177,7 +182,7 @@ class Punctuation:
                     mark = marks[0]
                     marks = marks[1:]
                     # replace internal spaces in the current mark with the word separator
-                    mark = re.sub(r' ', sep.word, mark.mark)
+                    mark = re.sub(' ', sep.word, mark.mark)
 
                     # remove the word last separator from the current word
                     if sep.word and text[0].endswith(sep.word):
@@ -186,11 +191,11 @@ class Punctuation:
                     if current_mark.position == 'B':
                         text[0] = mark + text[0]
                     elif current_mark.position == 'E':
-                        punctuated_text.append(text[0] + mark + ('' if strip else sep.word))
+                        punctuated_text.append(text[0] + mark + ('' if strip or mark.endswith(sep.word) else sep.word))
                         text = text[1:]
                         pos = pos + 1
                     elif current_mark.position == 'A':
-                        punctuated_text.append(mark)
+                        punctuated_text.append(mark + ('' if strip or mark.endswith(sep.word) else sep.word))
                         pos = pos + 1
                     else:
                         # position == 'I'
