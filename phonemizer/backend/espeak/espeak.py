@@ -146,14 +146,14 @@ class EspeakBackend(BaseEspeakBackend):
         self._words_mismatch.count_text(text)
         return text, punctuation_marks
 
-    def _phonemize_postprocess(self, phonemized, punctuation_marks):
+    def _phonemize_postprocess(self, phonemized, punctuation_marks, separator: Separator, strip: bool):
         text = phonemized[0]
         switches = phonemized[1]
 
         self._words_mismatch.count_phonemized(text)
         self._lang_switch.warning(switches)
 
-        phonemized = super()._phonemize_postprocess(text, punctuation_marks)
+        phonemized = super()._phonemize_postprocess(text, punctuation_marks, separator, strip)
         return self._words_mismatch.process(phonemized)
 
     @staticmethod
