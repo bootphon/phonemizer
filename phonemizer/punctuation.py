@@ -63,7 +63,7 @@ class Punctuation:
     def marks(self, value: Union[str, re.Pattern]):
         if isinstance(value, re.Pattern):
             # catch the pattern surrounded by zero or more spaces on either side
-            self._marks_re = re.compile(r'\s*(' + value.pattern + r')\s*')
+            self._marks_re = re.compile(r'\s*(' + value.pattern + r')+\s*')
             self._marks = None
         else:
             if not isinstance(value, str):
