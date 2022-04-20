@@ -3,17 +3,48 @@
 Version numbers follow [semantic versioning](https://semver.org)
 
 
+## not yet released
+
+* **bug fixes**
+
+  * Fixed a bug when trying to restore punctuation on very long text.
+    See [issue #108](https://github.com/bootphon/phonemizer/issues/108)
+
+* **improvements**
+
+  * Improved consistency with the handling of word separators when
+    preserving punctuation, and when using a word separator that is
+    not a literal space character. See [issue
+    #106](https://github.com/bootphon/phonemizer/issues/106)
+
+* **new features**
+
+  * Added the option to define punctuation with a regular expression.
+    Previously only strings were accepted. See [PR
+    #120](https://github.com/bootphon/phonemizer/pull/120)
+
+    * In the python API, the `punctuation_marks` parameter can now be
+      passed to `phonemize` (or a backend constructor) as a `re.Pattern`
+      that defines which characters will be matched as punctuation.
+      Passing `punctuation_marks` as a str will continue to function as
+      before, treating each character in the string as a punctuation mark.
+
+    * Added the optional parameter `--punctuation_marks_is_regex` to the CLI
+      interface. When used, the CLI will attempt to compile a `re.Pattern`
+      from the value passed to `--punctuation-marks`.
+
+
 ## phonemizer-3.1.1
 
 * **improvements**
 
-  * Preserve empty lines in texts when using  `--preserve-empty-lines`. 
-    Without this option, empty lines used to be automatically dropped. 
+  * Preserve empty lines in texts when using  `--preserve-empty-lines`.
+    Without this option, empty lines used to be automatically dropped.
     See [PR #103](https://github.com/bootphon/phonemizer/pull/103)
 
 * **new features**
 
-  * Type hinted most of `phonemizer`'s API. This makes the usage of our API 
+  * Type hinted most of `phonemizer`'s API. This makes the usage of our API
     a bit clearer, and can be easily leveraged by IDE's and type checkers to
     prevent typing issues.
 
