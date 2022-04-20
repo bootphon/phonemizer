@@ -132,3 +132,27 @@ def test_festival_path():
 
     _test('hello world', 'hhaxlow werld ',
           f'--festival-executable={festival} -b festival')
+
+
+@pytest.mark.parametrize(
+    'args, expected', [
+        ('',
+         'həloʊ wɜːld θɹiː ziəɹoʊziəɹoʊ ziəɹoʊ ɔːɹ tuː fɪfti həloʊ '),
+        ('--preserve-punctuation',
+         'həloʊ, ,wɜːld? θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. ¿həloʊ? '),
+        ('--preserve-punctuation '
+         '--punctuation-marks-is-regex '
+         '--punctuation-marks "[^a-zA-ZÀ-ÖØ-öø-ÿ0-9\'\\-]"',
+         'həloʊ, ,wɜːld? 😊 θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. ¿həloʊ? '),
+        ('--preserve-punctuation '
+         '--punctuation-marks-is-regex '
+         '--punctuation-marks "[;:\\!?¡¿—…\\\"«»“”]|[,.](?!\\d)"',
+         'həloʊ, ,wɜːld? θɹiː θaʊzənd, ɔːɹ tuː pɔɪnt faɪv ziəɹoʊ. ¿həloʊ? ')])
+def test_punctuation_is_regex(args, expected):
+    print(args)
+    _test("hello, ,world? 😊 3,000, or 2.50. ¿hello?", expected, args)
+
+
+def test_invalid_punctuation_regex():
+    with pytest.raises(SystemExit):
+        _test('hello world', None, '--punctuation-marks-is-regex --punctuation-marks "[*,"')
