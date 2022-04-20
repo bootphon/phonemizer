@@ -57,7 +57,9 @@ class Punctuation:
     @property
     def marks(self):
         """The punctuation marks as a string"""
-        return self._marks
+        if self._marks:
+            return self._marks
+        raise ValueError('punctuation initialized from regex, cannot access marks as a string')
 
     @marks.setter
     def marks(self, value: Union[str, re.Pattern]):

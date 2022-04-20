@@ -305,7 +305,7 @@ Exemples:
     group.add_argument(
         '--punctuation-marks-is-regex',
         action='store_true',
-        help="""interpret the '--punctuation-marks' parameter as a regex
+        help="""interpret the '--punctuation-marks' parameter as a regex.
         Default is to interpret as a string.""")
 
     return parser.parse_args()
@@ -399,8 +399,7 @@ def main():
             log.debug('punctuation marks is regex %s', args.punctuation_marks)
             args.punctuation_marks = re.compile(args.punctuation_marks)
         except re.error:
-            log.error("can't compile regex pattern from %s", args.punctuation_marks)
-            return
+            raise ValueError(f"can't compile regex pattern from {args.punctuation_marks}")
 
     # phonemize the input text
     out = phonemize(
