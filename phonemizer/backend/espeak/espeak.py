@@ -17,7 +17,7 @@
 import itertools
 import re
 from logging import Logger
-from typing import Optional, Tuple, List, Union
+from typing import Optional, Tuple, List, Union, Pattern
 
 from phonemizer.backend.espeak.base import BaseEspeakBackend
 from phonemizer.backend.espeak.language_switch import (
@@ -35,7 +35,7 @@ class EspeakBackend(BaseEspeakBackend):
 
     # pylint: disable=too-many-arguments
     def __init__(self, language: str,
-                 punctuation_marks: Optional[str] = None,
+                 punctuation_marks: Optional[Union[str, Pattern]] = None,
                  preserve_punctuation: bool = False,
                  with_stress: bool = False,
                  tie: Union[bool, str] = False,

@@ -16,7 +16,7 @@
 
 import abc
 from logging import Logger
-from typing import Optional
+from typing import Optional, Union, Pattern
 
 from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
@@ -33,7 +33,7 @@ class BaseEspeakBackend(BaseBackend):
 
     """
     def __init__(self, language: str,
-                 punctuation_marks: Optional[str] = None,
+                 punctuation_marks: Optional[Union[str, Pattern]] = None,
                  preserve_punctuation: bool = False,
                  logger: Optional[Logger] = None):
         super().__init__(
