@@ -27,8 +27,8 @@ import pytest
 from phonemizer.backend import EspeakMbrolaBackend, EspeakBackend
 from phonemizer import main, backend, logger
 
-# True if we are using espeak>=1.50
-ESPEAK_150 = (EspeakBackend.version() >= (1, 50))
+# True if we are using espeak>=1.49.2
+ESPEAK_142 = (EspeakBackend.version() >= (1, 49, 2))
 
 def _test(text, expected_output, args=''):
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -140,7 +140,7 @@ def test_festival_path():
     'args, expected', [
         ('',
          'həloʊ wɜːld smaɪlɪŋ feɪs wɪð smaɪlɪŋ aɪz θɹiː ziəɹoʊziəɹoʊ ziəɹoʊ ɔːɹ tuː fɪfti həloʊ ' \
-         if ESPEAK_150 else 'həloʊ wɜːld θɹiː ziəɹoʊziəɹoʊ ziəɹoʊ ɔːɹ tuː fɪfti həloʊ '),
+         if ESPEAK_142 else 'həloʊ wɜːld θɹiː ziəɹoʊziəɹoʊ ziəɹoʊ ɔːɹ tuː fɪfti həloʊ '),
         ('--preserve-punctuation',
          'həloʊ, ,wɜːld? θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. ¿həloʊ? '),
         ('--preserve-punctuation '
@@ -151,7 +151,7 @@ def test_festival_path():
          '--punctuation-marks-is-regex '
          '--punctuation-marks "[;:\\!?¡¿—…\\\"«»“”]|[,.](?!\\d)"',
          'həloʊ, ,wɜːld? smaɪlɪŋ feɪs wɪð smaɪlɪŋ aɪz θɹiː θaʊzənd, ɔːɹ tuː pɔɪnt faɪv ziəɹoʊ. ¿həloʊ? ' \
-         if ESPEAK_150 else 'həloʊ, ,wɜːld? θɹiː θaʊzənd, ɔːɹ tuː pɔɪnt faɪv ziəɹoʊ. ¿həloʊ? ')])
+         if ESPEAK_142 else 'həloʊ, ,wɜːld? θɹiː θaʊzənd, ɔːɹ tuː pɔɪnt faɪv ziəɹoʊ. ¿həloʊ? ')])
 def test_punctuation_is_regex(args, expected):
     print(args)
     _test("hello, ,world? 😊 3,000, or 2.50. ¿hello?", expected, args)

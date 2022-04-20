@@ -27,6 +27,9 @@ from phonemizer.separator import Separator, default_separator
 # True if we are using espeak>=1.50
 ESPEAK_150 = (EspeakBackend.version() >= (1, 50))
 
+# True if we are using espeak>=1.49.2
+ESPEAK_142 = (EspeakBackend.version() >= (1, 49, 2))
+
 # True if we are using espeak>=1.49.3
 ESPEAK_143 = (EspeakBackend.version() >= (1, 49, 3))
 
@@ -212,7 +215,7 @@ def test_issue55(backend, marks, text, expected):
         (';:,.!?¡—…"«»“”',
          'hello, ,world? 😊 3,000, or 2.50. ¿hello?',
          'həloʊ, ,wɜːld? smaɪlɪŋ feɪs wɪð smaɪlɪŋ aɪz θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. həloʊ? ' \
-         if ESPEAK_150 else 'həloʊ, ,wɜːld? θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. həloʊ? '),
+         if ESPEAK_142 else 'həloʊ, ,wɜːld? θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. həloʊ? '),
         (re.compile(r"[^a-zA-ZÀ-ÖØ-öø-ÿ0-9'$@&+%\-=/\\]"),
          'hello, ,world? 😊 3,000, or 2.50. ¿hello?',
          'həloʊ, ,wɜːld? 😊 θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. ¿həloʊ? '),
