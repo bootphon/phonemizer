@@ -18,7 +18,7 @@ import abc
 import itertools
 import re
 from logging import Logger
-from typing import Optional, List, Any, Dict, Tuple, Union
+from typing import Optional, List, Any, Dict, Tuple, Union, Pattern
 
 import joblib
 
@@ -59,7 +59,7 @@ class BaseBackend(abc.ABC):
     """
 
     def __init__(self, language: str,
-                 punctuation_marks: Optional[Union[str, re.Pattern]] = None,
+                 punctuation_marks: Optional[Union[str, Pattern]] = None,
                  preserve_punctuation: bool = False,
                  logger: Optional[Logger] = None):
 

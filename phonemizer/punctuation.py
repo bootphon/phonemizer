@@ -16,7 +16,7 @@
 
 import collections
 import re
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Pattern
 
 from phonemizer.utils import str2list
 from phonemizer.separator import Separator
@@ -44,9 +44,9 @@ class Punctuation:
 
     """
 
-    def __init__(self, marks: Union[str, re.Pattern] = _DEFAULT_MARKS):
+    def __init__(self, marks: Union[str, Pattern] = _DEFAULT_MARKS):
         self._marks: str = None  # noqa
-        self._marks_re: re.Pattern[str] = None  # noqa
+        self._marks_re: Pattern[str] = None  # noqa
         self.marks = marks
 
     @staticmethod
@@ -62,8 +62,8 @@ class Punctuation:
         raise ValueError('punctuation initialized from regex, cannot access marks as a string')
 
     @marks.setter
-    def marks(self, value: Union[str, re.Pattern]):
-        if isinstance(value, re.Pattern):
+    def marks(self, value: Union[str, Pattern]):
+        if isinstance(value, Pattern):
             # catch the pattern surrounded by zero or more spaces on either side
             self._marks_re = re.compile(r'\s*(' + value.pattern + r')+\s*')
             self._marks = None
