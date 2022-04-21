@@ -23,7 +23,7 @@ To use it in your own code, type:
 import os
 import sys
 from logging import Logger
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Pattern
 
 from typing_extensions import Literal
 
@@ -48,7 +48,7 @@ def phonemize(  # pylint: disable=too-many-arguments
         prepend_text: bool = False,
         preserve_empty_lines: bool = False,
         preserve_punctuation: bool = False,
-        punctuation_marks: str = Punctuation.default_marks(),
+        punctuation_marks: Union[str, Pattern] = Punctuation.default_marks(),
         with_stress: bool = False,
         tie: Union[bool, str] = False,
         language_switch: LanguageSwitch = 'keep-flags',
@@ -114,9 +114,10 @@ def phonemize(  # pylint: disable=too-many-arguments
       in the phonemized output. Not supported by the 'espeak-mbrola' backend.
       Default to False and remove all the punctuation.
 
-    punctuation_marks (str, optional): The punctuation marks to consider when
-      dealing with punctuation, either for removal or preservation. Default to
-      Punctuation.default_marks().
+    punctuation_marks (str or re.Pattern, optional): The punctuation marks to
+      consider when dealing with punctuation, either for removal or
+      preservation. Can be defined as a string or regular expression. Default
+      to Punctuation.default_marks().
 
     with_stress (bool, optional): This option is only valid for the 'espeak'
       backend. When True the stresses on phonemes are present (stresses

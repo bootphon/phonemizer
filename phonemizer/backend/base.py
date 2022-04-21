@@ -16,8 +16,9 @@
 
 import abc
 import itertools
+import re
 from logging import Logger
-from typing import Optional, List, Any, Dict, Tuple, Union
+from typing import Optional, List, Any, Dict, Tuple, Union, Pattern
 
 import joblib
 
@@ -43,9 +44,9 @@ class BaseBackend(abc.ABC):
       phonemized output. Not supported by the 'espeak-mbrola' backend. Default
       to False and remove all the punctuation.
 
-    punctuation_marks (str): The punctuation marks to consider when dealing
-      with punctuation, either for removal or preservation. Default to
-      Punctuation.default_marks().
+    punctuation_marks (str or re.Pattern): The punctuation marks to consider when
+      dealing with punctuation, either for removal or preservation. Can be defined
+      as a string or regular expression. Default to Punctuation.default_marks().
 
     logger (logging.Logger): the logging instance where to send
       messages. If not specified, use the default system logger.
@@ -58,7 +59,7 @@ class BaseBackend(abc.ABC):
     """
 
     def __init__(self, language: str,
-                 punctuation_marks: Optional[str] = None,
+                 punctuation_marks: Optional[Union[str, Pattern]] = None,
                  preserve_punctuation: bool = False,
                  logger: Optional[Logger] = None):
 

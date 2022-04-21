@@ -17,6 +17,7 @@
 # pylint: disable=missing-docstring
 
 import pytest
+import re
 
 from phonemizer.backend import EspeakBackend, FestivalBackend, SegmentsBackend
 from phonemizer.punctuation import Punctuation
@@ -204,3 +205,27 @@ def test_issue55(backend, marks, text, expected):
                 # It ends with a segmentation fault. This seems to only appear
                 # with festival-2.5 (but is working on travis and docker image)
                 pass
+
+
+@pytest.mark.parametrize(
+    'punctuation_marks, text, expected', [
+        (';:,.!?¡—…"«»“”',
+         'hello, ,world? ‡ 3,000, or 2.50. ¿hello?',
+         'həloʊ, ,wɜːld? θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. həloʊ? '),
+        (re.compile(r"[^a-zA-ZÀ-ÖØ-öø-ÿ0-9'$@&+%\-=/\\]"),
+         'hello, ,world? ‡ 3,000, or 2.50. ¿hello?',
+         'həloʊ, ,wɜːld? ‡ θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. ¿həloʊ? '),
+        (re.compile(r"[^a-zA-ZÀ-ÖØ-öø-ÿ0-9',.$@&+%\-=/\\]|[,.](?!\d)"),
+         'hello, ,world? ‡ 3,000, or 2.50. ¿hello?',
+         'həloʊ, ,wɜːld? ‡ θɹiː θaʊzənd, ɔːɹ tuː pɔɪnt faɪv ziəɹoʊ. ¿həloʊ? ')
+])
+def test_punctuation_marks_regex(punctuation_marks, text, expected):
+    assert expected == phonemize(
+        text, preserve_punctuation=True, punctuation_marks=punctuation_marks)
+
+
+def test_marks_getter_with_regex():
+    marks_re = re.compile(r"[^a-zA-Z0-9]")
+    punct = Punctuation(marks_re)
+    with pytest.raises(ValueError):
+        punct.marks == marks_re

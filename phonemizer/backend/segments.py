@@ -16,7 +16,7 @@
 
 import pathlib
 from logging import Logger
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union, Pattern
 
 import segments
 
@@ -34,7 +34,7 @@ class SegmentsBackend(BaseBackend):
     """
 
     def __init__(self, language: str,
-                 punctuation_marks: Optional[str] = None,
+                 punctuation_marks: Optional[Union[str, Pattern]] = None,
                  preserve_punctuation: bool = False,
                  logger: Optional[Logger] = None):
         # will be initialized in _init_language() from super().__init__()

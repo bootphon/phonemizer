@@ -16,7 +16,7 @@
 
 import collections
 import re
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Pattern
 
 from phonemizer.utils import str2list
 from phonemizer.separator import Separator
@@ -38,15 +38,15 @@ class Punctuation:
 
     Parameters
     ----------
-    marks (str) : The list of punctuation marks to considerate for processing
-        (either removal or preservation). Each mark must be made of a single
-        character. Default to Punctuation.default_marks().
+    marks (str or re.Pattern) : The punctuation marks to consider for processing
+        (either removal or preservation). If a string, each mark must be made of
+        a single character. Default to Punctuation.default_marks().
 
     """
 
-    def __init__(self, marks: str = _DEFAULT_MARKS):
+    def __init__(self, marks: Union[str, Pattern] = _DEFAULT_MARKS):
         self._marks: str = None  # noqa
-        self._marks_re: re.Pattern[str] = None  # noqa
+        self._marks_re: Pattern[str] = None  # noqa
         self.marks = marks
 
     @staticmethod
@@ -57,17 +57,24 @@ class Punctuation:
     @property
     def marks(self):
         """The punctuation marks as a string"""
-        return self._marks
+        if self._marks:
+            return self._marks
+        raise ValueError('punctuation initialized from regex, cannot access marks as a string')
 
     @marks.setter
-    def marks(self, value: str):
-        if not isinstance(value, str):
-            raise ValueError('punctuation marks must be defined as a string')
-        self._marks = ''.join(set(value))
+    def marks(self, value: Union[str, Pattern]):
+        if isinstance(value, Pattern):
+            # catch the pattern surrounded by zero or more spaces on either side
+            self._marks_re = re.compile(r'((' + value.pattern + r')|\s)+')
+            self._marks = None
+        else:
+            if not isinstance(value, str):
+                raise ValueError('punctuation marks must be defined as a string or re.Pattern')
+            self._marks = ''.join(set(value))
 
-        # catching all the marks in one regular expression: zero or more spaces
-        # + one or more marks + zero or more spaces.
-        self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
+            # catching all the marks in one regular expression: zero or more spaces
+            # + one or more marks + zero or more spaces.
+            self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
 
     def remove(self, text: Union[str, List[str]]) -> Union[str, List[str]]:
         """Returns the `text` with all punctuation marks replaced by spaces
