@@ -155,4 +155,4 @@ def test_punctuation_is_regex(args, expected):
 
 def test_invalid_punctuation_regex():
     with pytest.raises(SystemExit):
-        _test('hello world', None, '--punctuation-marks-is-regex --punctuation-marks "[*,"')
+        _test('hello world', None, '--punctuation-marks-is-regex --punctuation-marks "[,"')
