@@ -399,6 +399,9 @@ def main():
             log.debug('punctuation marks is regex %s', args.punctuation_marks)
             args.punctuation_marks = re.compile(args.punctuation_marks)
         except re.error:
+            # manually close the open streams for windows
+            streamin.close()
+            streamout.close()
             raise ValueError(f"can't compile regex pattern from {args.punctuation_marks}")
 
     # phonemize the input text
