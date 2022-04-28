@@ -194,7 +194,7 @@ phonemize`. See the [function documentation][phonemize-function].
 
 It is much more efficient to minimize the number of calls to the `phonemize`
 function. Indeed the initialization of the phonemization backend can be
-expensive, especially for espeak. In one exemple:
+expensive, especially for espeak. In one example:
 
 ```python
 from phonemizer import phonemize
@@ -214,9 +214,9 @@ backend = EspeakBackend('en-us', ...)
 phonemized = [backend.phonemize(line, ...) for line in text]
 ```
 
-### Exemple 1: phonemize a text with festival
+### Example 1: phonemize a text with festival
 
-The following exemple downloads a text and phonemizes it using the festival
+The following example downloads a text and phonemizes it using the festival
 backend, preserving punctuation and using 4 jobs in parallel. The phones are not
 separated, words are separated by a space and syllables by `|`.
 
@@ -245,19 +245,19 @@ phn = phonemize(
     njobs=4)
 ```
 
-### Exemple 2: build a lexicon with espeak
+### Example 2: build a lexicon with espeak
 
-The following exemple extracts a list of words present in a text, ignoring
+The following example extracts a list of words present in a text, ignoring
 punctuation, and builds a dictionary `word: [phones]`, e.g. `{'students': 's t
 uː d ə n t s', 'cobb': 'k ɑː b', 'its': 'ɪ t s', 'put': 'p ʊ t', ...}`. We
-consider here the same text as in the previous exemple.
+consider here the same text as in the previous example.
 
 ```python
 from phonemizer.backend import EspeakBackend
 from phonemizer.punctuation import Punctuation
 from phonemizer.separator import Separator
 
-# remove all the punctuation from the text, condidering only the specified
+# remove all the punctuation from the text, considering only the specified
 # punctuation marks
 text = Punctuation(';:,.!"?()-').remove(text)
 
@@ -297,7 +297,7 @@ available backends: espeak-ng-1.50, espeak-mbrola, festival-2.5.0, segments-2.1.
 ```
 
 
-### Input/output exemples
+### Input/output examples
 
 * from stdin to stdout:
 
@@ -452,6 +452,23 @@ həloʊ wɜːld
 
 $ echo "hello, world!" | phonemize --preserve-punctuation --strip
 həloʊ, wɜːld!
+```
+
+The default punctuation marks are each of the following characters: `;:,.!?¡¿—…"«»“”`.
+These can be overridden by the ``--punctuation-marks`` option.
+
+```shell
+$ echo "hello, world!" | phonemize --preserve-punctuation --strip --punctuation-marks '!?'
+həloʊ wɜːld!
+```
+
+The punctuation marks can be specified as a regular expression by additionally using the
+``--punctuation-marks-is-regex`` option. For example, to preserve the default punctuation marks
+except for commas and periods in the middle of numbers, the following will work:
+
+```shell
+$ echo "1,000, or so." | phonemize --preserve-punctuation --strip --punctuation-marks '[;:!?¡¿—…"«»“”]|[,.](?!\d)' --punctuation-marks-is-regex
+wʌn θaʊzənd, ɔːɹ soʊ.
 ```
 
 
