@@ -15,6 +15,7 @@
 """Test of the punctuation processing"""
 
 # pylint: disable=missing-docstring
+from pathlib import Path
 
 import pytest
 import re
@@ -218,7 +219,7 @@ def test_issue55(backend, marks, text, expected):
         (re.compile(r"[^a-zA-ZÀ-ÖØ-öø-ÿ0-9',.$@&+%\-=/\\]|[,.](?!\d)"),
          'hello, ,world? ‡ 3,000, or 2.50. ¿hello?',
          'həloʊ, ,wɜːld? ‡ θɹiː θaʊzənd, ɔːɹ tuː pɔɪnt faɪv ziəɹoʊ. ¿həloʊ? ')
-])
+    ])
 def test_punctuation_marks_regex(punctuation_marks, text, expected):
     assert expected == phonemize(
         text, preserve_punctuation=True, punctuation_marks=punctuation_marks)
@@ -229,3 +230,10 @@ def test_marks_getter_with_regex():
     punct = Punctuation(marks_re)
     with pytest.raises(ValueError):
         punct.marks == marks_re
+
+
+def test_long_document():
+    # testing issue raised by #108
+    DATA_FOLDER = Path(__file__).parent / "data"
+    with open(DATA_FOLDER / "pg67147.txt") as txt_file:
+        phonemize(txt_file.read().split("\n"), backend="espeak", preserve_punctuation=True)
