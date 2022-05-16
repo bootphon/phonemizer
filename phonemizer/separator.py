@@ -88,8 +88,8 @@ class Separator:
 
         Raises
         ------
-        RuntimeError if ``field_separator`` is a str but is already registered as
-          token separator
+        RuntimeError
+            if ``field_separator`` is a str but is already registered as token separator
 
         """
         if not field_separator:

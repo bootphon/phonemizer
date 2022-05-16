@@ -35,25 +35,29 @@ class BaseBackend(abc.ABC):
 
     Parameters
     ----------
-    language (str): The language code of the input text, must be supported by
-      the backend. If `backend` is 'segments', the language can be a file with
-      a grapheme to phoneme mapping.
+    language: str
+        The language code of the input text, must be supported by
+        the backend. If ``backend`` is 'segments', the language can be a file with
+        a grapheme to phoneme mapping.
 
-    preserve_punctuation (bool): When True, will keep the punctuation in the
-      phonemized output. Not supported by the 'espeak-mbrola' backend. Default
-      to False and remove all the punctuation.
+    preserve_punctuation: bool
+        When True, will keep the punctuation in the
+        phonemized output. Not supported by the 'espeak-mbrola' backend. Default
+        to False and remove all the punctuation.
 
-    punctuation_marks (str): The punctuation marks to consider when dealing
-      with punctuation, either for removal or preservation. Default to
-      Punctuation.default_marks().
+    punctuation_marks: str
+        The punctuation marks to consider when dealing
+        with punctuation, either for removal or preservation. Default to
+        Punctuation.default_marks().
 
-    logger (logging.Logger): the logging instance where to send
-      messages. If not specified, use the default system logger.
+    logger: logging.Logger
+        the logging instance where to send
+        messages. If not specified, use the default system logger.
 
     Raises
     ------
-    RuntimeError if the backend is not available of if the `language` cannot be
-    initialized.
+    RuntimeError
+        if the backend is not available of if the `language` cannot be initialized.
 
     """
 
@@ -141,30 +145,35 @@ class BaseBackend(abc.ABC):
 
         Parameters
         ----------
-        text (list of str): The text to be phonemized. Each string in the list
-          is considered as a separated line. Each line is considered as a text
-          utterance. Any empty utterance will be ignored.
+        text: list of str
+            The text to be phonemized. Each string in the list
+            is considered as a separated line. Each line is considered as a text
+            utterance. Any empty utterance will be ignored.
 
-        separator (Separator): string separators between phonemes, syllables
-          and words, default to separator.default_separator. Syllable separator
-          is considered only for the festival backend. Word separator is
-          ignored by the 'espeak-mbrola' backend.
+        separator: Separator
+            string separators between phonemes, syllables
+            and words, default to separator.default_separator. Syllable separator
+            is considered only for the festival backend. Word separator is
+            ignored by the 'espeak-mbrola' backend.
 
-        strip (bool): If True, don't output the last word and phone separators
-          of a token, default to False.
+        strip: bool
+            If True, don't output the last word and phone separators
+            of a token, default to False.
 
-        njobs (int): The number of parallel jobs to launch. The input text is
-          split in `njobs` parts, phonemized on parallel instances of the
-          backend and the outputs are finally collapsed.
+        njobs : int
+            The number of parallel jobs to launch. The input text is
+            split in ``njobs`` parts, phonemized on parallel instances of the
+            backend and the outputs are finally collapsed.
 
         Returns
         -------
-        phonemized text (list of str) : The input `text` phonemized for the
-          given `language` and `backend`.
+        phonemized text: list of str
+            The input ``text`` phonemized for the given ``language`` and ``backend``.
 
         Raises
         ------
-        RuntimeError if something went wrong during the phonemization
+        RuntimeError
+            if something went wrong during the phonemization
 
         """
         if isinstance(text, str):

@@ -17,6 +17,10 @@ Toplevel API
 Backends
 --------
 
+.. autoclass:: phonemizer.backend.base.BaseBackend
+    :members:
+
+
 .. autoclass:: phonemizer.backend.espeak.espeak.EspeakBackend
     :members:
 

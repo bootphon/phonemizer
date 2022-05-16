@@ -4,7 +4,7 @@ Command Line Examples
 
 
 The ``phonemize`` command can be used to replicate most of the features
-exposed in :ref:`Python Examples`.
+exposed in :ref:`python-examples`.
 
 For a complete list of available options, have a:
 

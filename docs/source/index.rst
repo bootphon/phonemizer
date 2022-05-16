@@ -10,7 +10,7 @@ Welcome to Phonemizer's documentation!
 * ``phonemizer`` allows simple phonemization of words and texts in many languages.
 
 * Provides both the ``phonemize`` command-line tool and the Python function
-  ``phonemizer.phonemize``. See :ref:`phonemize`.
+  :py:meth:`phonemizer.phonemize`.
 
 * It is based on four backends: **espeak**, **espeak-mbrola**, **festival** and
   **segments**. The backends have different properties and capabilities resumed
@@ -33,17 +33,6 @@ Welcome to Phonemizer's documentation!
     build a phonemization from a grapheme to phoneme mapping provided as a file
     by the user.
 
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   install
-   cli
-   python_examples
-   common_issues
-   api_reference
-
 To reference ``phonemizer`` in your own work, please cite the following
 `JOSS paper <https://joss.theoj.org/papers/10.21105/joss.03958>`_.
 
@@ -61,6 +50,19 @@ To reference ``phonemizer`` in your own work, please cite the following
      title = {Phonemizer: Text to Phones Transcription for Multiple Languages in Python},
      journal = {Journal of Open Source Software}
    }
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   install
+   cli
+   python_examples
+   common_issues
+   api_reference
+   changelog
+
 
 
 

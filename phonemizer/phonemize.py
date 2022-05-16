@@ -180,9 +180,9 @@ def phonemize(  # pylint: disable=too-many-arguments
 
     Raises
     ------
-    RuntimeError if the ``backend`` is not valid or is valid but not installed,
-      if the ``language`` is not supported by the ``backend``, if any incompatible
-      options are used.
+    RuntimeError
+        if the ``backend`` is not valid or is valid but not installed,
+        if the ``language`` is not supported by the ``backend``, if any incompatible options are used.
 
     """
     # ensure we are using a compatible Python version

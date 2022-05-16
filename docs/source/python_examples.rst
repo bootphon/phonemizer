@@ -1,9 +1,11 @@
+.. _python-examples:
+
 ===============
 Python Examples
 ===============
 
 In Python import the ``phonemize`` function with ``from phonemizer import phonemize``.
-See the :ref:`phonemize` function.
+See :py:meth:`phonemizer.phonemize`.
 
 
 Exemple 1: phonemize a text with festival
