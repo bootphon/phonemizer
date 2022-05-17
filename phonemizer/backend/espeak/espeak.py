@@ -17,7 +17,7 @@
 import itertools
 import re
 from logging import Logger
-from typing import Optional, Tuple, List, Union
+from typing import Optional, Tuple, List, Union, Pattern
 
 from phonemizer.backend.espeak.base import BaseEspeakBackend
 from phonemizer.backend.espeak.language_switch import (
@@ -35,7 +35,7 @@ class EspeakBackend(BaseEspeakBackend):
 
     # pylint: disable=too-many-arguments
     def __init__(self, language: str,
-                 punctuation_marks: Optional[str] = None,
+                 punctuation_marks: Optional[Union[str, Pattern]] = None,
                  preserve_punctuation: bool = False,
                  with_stress: bool = False,
                  tie: Union[bool, str] = False,
@@ -146,14 +146,14 @@ class EspeakBackend(BaseEspeakBackend):
         self._words_mismatch.count_text(text)
         return text, punctuation_marks
 
-    def _phonemize_postprocess(self, phonemized, punctuation_marks):
+    def _phonemize_postprocess(self, phonemized, punctuation_marks, separator: Separator, strip: bool):
         text = phonemized[0]
         switches = phonemized[1]
 
         self._words_mismatch.count_phonemized(text)
         self._lang_switch.warning(switches)
 
-        phonemized = super()._phonemize_postprocess(text, punctuation_marks)
+        phonemized = super()._phonemize_postprocess(text, punctuation_marks, separator, strip)
         return self._words_mismatch.process(phonemized)
 
     @staticmethod

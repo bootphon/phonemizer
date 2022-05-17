@@ -24,7 +24,7 @@ import sys
 import tempfile
 from logging import Logger
 from pathlib import Path
-from typing import Optional, Dict, List, IO
+from typing import Optional, Dict, List, IO, Union, Pattern
 
 from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.festival import lispy
@@ -40,7 +40,7 @@ class FestivalBackend(BaseBackend):
     _FESTIVAL_EXECUTABLE = None
 
     def __init__(self, language: str,
-                 punctuation_marks: Optional[str] = None,
+                 punctuation_marks: Optional[Union[str, Pattern]] = None,
                  preserve_punctuation: bool = False,
                  logger: Optional[Logger] = None):
         super().__init__(

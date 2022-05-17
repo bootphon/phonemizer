@@ -16,9 +16,10 @@
 
 import collections
 import re
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Pattern
 
 from phonemizer.utils import str2list
+from phonemizer.separator import Separator
 
 # The punctuation marks considered by default.
 _DEFAULT_MARKS = ';:,.!?¡¿—…"«»“”'
@@ -37,15 +38,15 @@ class Punctuation:
 
     Parameters
     ----------
-    marks (str) : The list of punctuation marks to considerate for processing
-        (either removal or preservation). Each mark must be made of a single
-        character. Default to Punctuation.default_marks().
+    marks (str or re.Pattern) : The punctuation marks to consider for processing
+        (either removal or preservation). If a string, each mark must be made of
+        a single character. Default to Punctuation.default_marks().
 
     """
 
-    def __init__(self, marks: str = _DEFAULT_MARKS):
+    def __init__(self, marks: Union[str, Pattern] = _DEFAULT_MARKS):
         self._marks: str = None  # noqa
-        self._marks_re: re.Pattern[str] = None  # noqa
+        self._marks_re: Pattern[str] = None  # noqa
         self.marks = marks
 
     @staticmethod
@@ -56,17 +57,24 @@ class Punctuation:
     @property
     def marks(self):
         """The punctuation marks as a string"""
-        return self._marks
+        if self._marks:
+            return self._marks
+        raise ValueError('punctuation initialized from regex, cannot access marks as a string')
 
     @marks.setter
-    def marks(self, value: str):
-        if not isinstance(value, str):
-            raise ValueError('punctuation marks must be defined as a string')
-        self._marks = ''.join(set(value))
+    def marks(self, value: Union[str, Pattern]):
+        if isinstance(value, Pattern):
+            # catch the pattern surrounded by zero or more spaces on either side
+            self._marks_re = re.compile(r'((' + value.pattern + r')|\s)+')
+            self._marks = None
+        else:
+            if not isinstance(value, str):
+                raise ValueError('punctuation marks must be defined as a string or re.Pattern')
+            self._marks = ''.join(set(value))
 
-        # catching all the marks in one regular expression: zero or more spaces
-        # + one or more marks + zero or more spaces.
-        self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
+            # catching all the marks in one regular expression: zero or more spaces
+            # + one or more marks + zero or more spaces.
+            self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
 
     def remove(self, text: Union[str, List[str]]) -> Union[str, List[str]]:
         """Returns the `text` with all punctuation marks replaced by spaces
@@ -136,54 +144,77 @@ class Punctuation:
         return preserved_line + [line], marks
 
     @classmethod
-    def restore(cls, text: Union[str, List[str]], marks: List[_MarkIndex]) -> List[str]:
+    def restore(cls, text: Union[str, List[str]],
+                marks: List[_MarkIndex],
+                sep: Separator,
+                strip: bool) -> List[str]:
         """Restore punctuation in a text.
 
         This is the reverse operation of Punctuation.preserve(). It takes a
-        list of punctuated chunks and a list of punctuation marks. It returns a
-        a punctuated text as a list:
+        list of punctuated chunks and a list of punctuation marks, as well as
+        the separator and strip parameters used by phonemize. It returns the
+        punctuated text as a list:
 
             ['hello', 'my world'], [',', '!'] -> ['hello, my world!']
 
         """
-        return cls._restore_aux(str2list(text), marks, 0)
+        text = str2list(text)
+        punctuated_text = []
+        pos = 0
 
-    @classmethod
-    def _restore_current(cls, current: _MarkIndex, text: List[str], marks: List[_MarkIndex], num) -> List[str]:
-        """Auxiliary method for Punctuation._restore_aux()"""
-        text[0] = text[0].rstrip()
-        if current.position == 'B':
-            return cls._restore_aux(
-                [current.mark + text[0]] + text[1:], marks[1:], num)
+        while text or marks:
 
-        if current.position == 'E':
-            return [text[0] + current.mark] + cls._restore_aux(
-                text[1:], marks[1:], num + 1)
+            if not marks:
+                merged_text = ''.join(text)
+                # if strip is False, ensure the final word ends with a word separator
+                if not strip and sep.word and not merged_text.endswith(sep.word):
+                    merged_text = merged_text + sep.word
+                punctuated_text.append(merged_text)
+                text = []
+            elif not text:
+                # nothing has been phonemized, returns the marks alone, with internal
+                # spaces replaced by the word separator
+                punctuated_text.append(re.sub(' ', sep.word, ''.join(m.mark for m in marks)))
+                marks = []
 
-        if current.position == 'A':
-            return [current.mark] + cls._restore_aux(text, marks[1:], num + 1)
+            else:
+                current_mark = marks[0]
+                if current_mark.index == pos:
 
-        # position == 'I'
-        if len(text) == 1:  # pragma: nocover
-            # a corner case where the final part of an intermediate
-            # mark (I) has not been phonemized
-            return cls._restore_aux([text[0] + current.mark], marks[1:], num)
+                    # place the current mark here
+                    mark = marks[0]
+                    marks = marks[1:]
+                    # replace internal spaces in the current mark with the word separator
+                    mark = re.sub(' ', sep.word, mark.mark)
 
-        return cls._restore_aux(
-            [text[0] + current.mark + text[1]] + text[2:], marks[1:], num)
+                    # remove the word last separator from the current word
+                    if sep.word and text[0].endswith(sep.word):
+                        text[0] = text[0][:-len(sep.word)]
 
-    @classmethod
-    def _restore_aux(cls, text: List[str], marks: List[_MarkIndex], num: int) -> List[str]:
-        """Auxiliary method for Punctuation.restore()"""
-        if not marks:
-            return text
+                    if current_mark.position == 'B':
+                        text[0] = mark + text[0]
+                    elif current_mark.position == 'E':
+                        punctuated_text.append(text[0] + mark + ('' if strip or mark.endswith(sep.word) else sep.word))
+                        text = text[1:]
+                        pos = pos + 1
+                    elif current_mark.position == 'A':
+                        punctuated_text.append(mark + ('' if strip or mark.endswith(sep.word) else sep.word))
+                        pos = pos + 1
+                    else:
+                        # position == 'I'
+                        if len(text) == 1:  # pragma: nocover
+                            # a corner case where the final part of an intermediate
+                            # mark (I) has not been phonemized
+                            text[0] = text[0] + mark
+                        else:
+                            first_word = text[0]
+                            text = text[1:]
+                            text[0] = first_word + mark + text[0]
 
-        # nothing have been phonemized, returns the marks alone
-        if not text:
-            return [''.join(m.mark for m in marks)]
+                else:
+                    punctuated_text.append(text[0])
+                    text = text[1:]
+                    pos = pos + 1
 
-        current = marks[0]
-        if current.index == num:  # place the current mark here
-            return cls._restore_current(current, text, marks, num)
 
-        return [text[0]] + cls._restore_aux(text[1:], marks, num + 1)
+        return punctuated_text

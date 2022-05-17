@@ -15,12 +15,15 @@
 """Test of the punctuation processing"""
 
 # pylint: disable=missing-docstring
+from pathlib import Path
 
 import pytest
+import re
 
 from phonemizer.backend import EspeakBackend, FestivalBackend, SegmentsBackend
 from phonemizer.punctuation import Punctuation
 from phonemizer.phonemize import phonemize
+from phonemizer.separator import Separator, default_separator
 
 # True if we are using espeak>=1.50
 ESPEAK_150 = (EspeakBackend.version() >= (1, 50))
@@ -57,23 +60,23 @@ def test_remove(inp, out):
 def test_preserve(inp):
     punct = Punctuation()
     text, marks = punct.preserve(inp)
-    assert inp == punct.restore(text, marks)
+    assert inp == punct.restore(text, marks, sep=default_separator, strip=True)
 
 
 @pytest.mark.parametrize(
-    'text, expected', [
-        (['hi; ho,"'], ['haɪ; hoʊ,']),
-        (['hi; "ho,'], ['haɪ; hoʊ,'] if ESPEAK_143 else ['haɪ;  hoʊ,']),
-        (['"hi; ho,'], ['haɪ; hoʊ,'] if ESPEAK_143 else [' haɪ; hoʊ,'])])
-def test_preserve_2(text, expected):
+    'text, expected_restore, expected_output', [
+        (['hi; ho,"'], ['hi; ho," '], ['haɪ; hoʊ, ']),
+        (['hi; "ho,'], ['hi; "ho, '], ['haɪ; hoʊ, '] if ESPEAK_143 else ['haɪ;  hoʊ, ']),
+        (['"hi; ho,'], ['"hi; ho, '], ['haɪ; hoʊ, '] if ESPEAK_143 else [' haɪ; hoʊ, '])])
+def test_preserve_2(text, expected_restore, expected_output):
     marks = ".!;:,?"
     punct = Punctuation(marks=marks)
-    assert text == punct.restore(*punct.preserve(text))
+    assert expected_restore == punct.restore(*punct.preserve(text), sep=default_separator, strip=False)
 
     output = phonemize(
         text, backend="espeak",
         preserve_punctuation=True, punctuation_marks=marks)
-    assert output == expected
+    assert output == expected_output
 
 
 def test_custom():
@@ -93,7 +96,7 @@ def test_espeak():
     expected1 = 'həloʊ wɜːld'
     expected2 = 'həloʊ, wɜːld!'
     expected3 = 'həloʊ wɜːld '
-    expected4 = 'həloʊ, wɜːld!'
+    expected4 = 'həloʊ, wɜːld! '
 
     out1 = EspeakBackend('en-us', preserve_punctuation=False).phonemize(
         [text], strip=True)[0]
@@ -117,7 +120,7 @@ def test_festival():
     expected1 = 'hhaxlow werld'
     expected2 = 'hhaxlow, werld!'
     expected3 = 'hhaxlow werld '
-    expected4 = 'hhaxlow, werld!'
+    expected4 = 'hhaxlow, werld! '
 
     out1 = FestivalBackend('en-us', preserve_punctuation=False).phonemize(
         [text], strip=True)[0]
@@ -141,7 +144,7 @@ def test_segments():
     expected1 = 'ʌtʃɪ ʌtʃʊ'
     expected2 = 'ʌtʃɪ, ʌtʃʊ!'
     expected3 = 'ʌtʃɪ ʌtʃʊ '
-    expected4 = 'ʌtʃɪ, ʌtʃʊ!'
+    expected4 = 'ʌtʃɪ, ʌtʃʊ! '
 
     out1 = SegmentsBackend('cree', preserve_punctuation=False).phonemize(
         [text], strip=True)[0]
@@ -162,26 +165,26 @@ def test_segments():
 
 # see https://github.com/bootphon/phonemizer/issues/54
 @pytest.mark.parametrize(
-    'text', ["!'", "'!", "!'!", "'!'"])
-def test_issue_54(text):
+    'text, expected', [("!'", "! "), ("'!", "! "), ("!'!", "!! "), ("'!'", "! ")])
+def test_issue_54(text, expected):
     output = phonemize(
         [text], language='en-us', backend='espeak',
         preserve_punctuation=True)[0]
-    assert text.replace("'", '') == output
+    assert expected == output
 
 
 # see https://github.com/bootphon/phonemizer/issues/55
 @pytest.mark.parametrize(
     'backend, marks, text, expected', [
-        ('espeak', 'default', ['"Hey! "', '"hey,"'], ['"heɪ! "', '"heɪ,"']),
-        ('espeak', '.!;:,?', ['"Hey! "', '"hey,"'],
-         ['heɪ! ', 'heɪ,'] if ESPEAK_150 else [' heɪ! ', ' heɪ,']),
-        ('espeak', 'default', ['! ?', 'hey!'], ['! ?', 'heɪ!']),
-        ('espeak', '!', ['! ?', 'hey!'], ['! ', 'heɪ!']),
-        ('segments', 'default', ['! ?', 'hey!'], ['! ?', 'heːj!']),
+        ('espeak', 'default', ['"Hey! "', '"hey,"'], ['"heɪ! " ', '"heɪ," ']),
+        ('espeak', '.!;:,?', ['"Hey! " ', '"hey," '],
+         ['heɪ! ', 'heɪ, '] if ESPEAK_150 else [' heɪ! ', ' heɪ, ']),
+        ('espeak', 'default', ['! ?', 'hey!'], ['! ? ', 'heɪ! ']),
+        ('espeak', '!', ['! ?', 'hey!'], ['! ', 'heɪ! ']),
+        ('segments', 'default', ['! ?', 'hey!'], ['! ? ', 'heːj! ']),
         ('segments', '!', ['! ?', 'hey!'], ValueError),
-        ('festival', 'default', ['! ?', 'hey!'], ['! ?', 'hhey!']),
-        ('festival', '!', ['! ?', 'hey!'], ['! ', 'hhey!'])])
+        ('festival', 'default', ['! ?', 'hey!'], ['! ? ', 'hhey! ']),
+        ('festival', '!', ['! ?', 'hey!'], ['! ', 'hhey! '])])
 def test_issue55(backend, marks, text, expected):
     if marks == 'default':
         marks = Punctuation.default_marks()
@@ -203,3 +206,34 @@ def test_issue55(backend, marks, text, expected):
                 # It ends with a segmentation fault. This seems to only appear
                 # with festival-2.5 (but is working on travis and docker image)
                 pass
+
+
+@pytest.mark.parametrize(
+    'punctuation_marks, text, expected', [
+        (';:,.!?¡—…"«»“”',
+         'hello, ,world? ‡ 3,000, or 2.50. ¿hello?',
+         'həloʊ, ,wɜːld? θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. həloʊ? '),
+        (re.compile(r"[^a-zA-ZÀ-ÖØ-öø-ÿ0-9'$@&+%\-=/\\]"),
+         'hello, ,world? ‡ 3,000, or 2.50. ¿hello?',
+         'həloʊ, ,wɜːld? ‡ θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. ¿həloʊ? '),
+        (re.compile(r"[^a-zA-ZÀ-ÖØ-öø-ÿ0-9',.$@&+%\-=/\\]|[,.](?!\d)"),
+         'hello, ,world? ‡ 3,000, or 2.50. ¿hello?',
+         'həloʊ, ,wɜːld? ‡ θɹiː θaʊzənd, ɔːɹ tuː pɔɪnt faɪv ziəɹoʊ. ¿həloʊ? ')
+    ])
+def test_punctuation_marks_regex(punctuation_marks, text, expected):
+    assert expected == phonemize(
+        text, preserve_punctuation=True, punctuation_marks=punctuation_marks)
+
+
+def test_marks_getter_with_regex():
+    marks_re = re.compile(r"[^a-zA-Z0-9]")
+    punct = Punctuation(marks_re)
+    with pytest.raises(ValueError):
+        punct.marks == marks_re
+
+
+def test_long_document():
+    # testing issue raised by #108
+    DATA_FOLDER = Path(__file__).parent / "data"
+    with open(DATA_FOLDER / "pg67147.txt") as txt_file:
+        phonemize(txt_file.read().split("\n"), backend="espeak", preserve_punctuation=True)

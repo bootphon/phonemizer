@@ -18,6 +18,7 @@
 import argparse
 import os
 import sys
+import re
 
 import pkg_resources
 
@@ -301,6 +302,11 @@ Exemples:
         default=punctuation.Punctuation.default_marks(),
         help='''the marks to consider during punctuation processing (either
         for removal or preservation). Default is %(default)s.''')
+    group.add_argument(
+        '--punctuation-marks-is-regex',
+        action='store_true',
+        help="""interpret the '--punctuation-marks' parameter as a regex.
+        Default is to interpret as a string.""")
 
     return parser.parse_args()
 
@@ -387,6 +393,16 @@ def main():
             input_output_separator)
     else:
         input_output_separator = False
+
+    if args.punctuation_marks_is_regex:
+        try:
+            log.debug('punctuation marks is regex %s', args.punctuation_marks)
+            args.punctuation_marks = re.compile(args.punctuation_marks)
+        except re.error:
+            # manually close the open streams for windows
+            streamin.close()
+            streamout.close()
+            raise ValueError(f"can't compile regex pattern from {args.punctuation_marks}")
 
     # phonemize the input text
     out = phonemize(
