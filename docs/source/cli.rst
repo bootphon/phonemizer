@@ -20,7 +20,7 @@ See the installed backends with the ``--version`` option:
    phonemizer-3.0
    available backends: espeak-ng-1.50, espeak-mbrola, festival-2.5.0, segments-2.1.3
 
-Input/output exemples
+Input/output examples
 ---------------------
 
 -  from stdin to stdout:
@@ -181,6 +181,24 @@ by the **espeak-mbrola** backend):
 
    $ echo "hello, world!" | phonemize --preserve-punctuation --strip
    həloʊ, wɜːld!
+
+The default punctuation marks are each of the following characters: ``;:,.!?¡¿—…"«»“”``.
+These can be overridden by the ``--punctuation-marks`` option.
+
+.. code-block:: shell
+
+    $ echo "hello, world!" | phonemize --preserve-punctuation --strip --punctuation-marks '!?'
+    həloʊ wɜːld!
+
+The punctuation marks can be specified as a regular expression by additionally using the
+``--punctuation-marks-is-regex`` option. For example, to preserve the default punctuation marks
+except for commas and periods in the middle of numbers, the following will work:
+
+.. code-block:: shell
+
+    $ echo "1,000, or so." | phonemize --preserve-punctuation --strip --punctuation-marks '[;:!?¡¿—…"«»“”]|[,.](?!\d)' --punctuation-marks-is-regex
+    wʌn θaʊzənd, ɔːɹ soʊ.
+
 
 Espeak specific options
 -----------------------

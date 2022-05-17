@@ -8,7 +8,7 @@ In Python import the ``phonemize`` function with ``from phonemizer import phonem
 See :py:meth:`phonemizer.phonemize`.
 
 
-Exemple 1: phonemize a text with festival
+Example 1: phonemize a text with festival
 -----------------------------------------
 
 The following exemple downloads a text and phonemizes it using the
@@ -42,7 +42,7 @@ syllables by ``|``.
        njobs=4)
 
 
-Exemple 2: build a lexicon with espeak
+Example 2: build a lexicon with espeak
 --------------------------------------
 
 The following exemple extracts a list of words present in a text,
@@ -56,7 +56,7 @@ We consider here the same text as in the previous exemple.
    from phonemizer.punctuation import Punctuation
    from phonemizer.separator import Separator
 
-   # remove all the punctuation from the text, condidering only the specified
+   # remove all the punctuation from the text, considering only the specified
    # punctuation marks
    text = Punctuation(';:,.!"?()-').remove(text)
 

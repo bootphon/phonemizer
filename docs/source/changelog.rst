@@ -4,6 +4,37 @@ Changelog
 
 Version numbers follow `semantic versioning <https://semver.org>`__
 
+phonemizer-3.2.0
+----------------
+
+* **bug fixes**
+
+  * Fixed a bug when trying to restore punctuation on very long text.
+    See `issue #108 <https://github.com/bootphon/phonemizer/issues/108>`__
+
+* **improvements**
+
+  * Improved consistency with the handling of word separators when
+    preserving punctuation, and when using a word separator that is
+    not a literal space character. See
+    `issue #106 <https://github.com/bootphon/phonemizer/issues/106>`__
+
+* **new features**
+
+  * Added the option to define punctuation with a regular expression.
+    Previously only strings were accepted. See
+    `PR #120 <https://github.com/bootphon/phonemizer/pull/120>`__
+
+    * In the python API, the ``punctuation_marks`` parameter can now be
+      passed to ``phonemize`` (or a backend constructor) as a ``re.Pattern``
+      that defines which characters will be matched as punctuation.
+      Passing ``punctuation_marks`` as a str will continue to function as
+      before, treating each character in the string as a punctuation mark.
+
+    * Added the optional parameter ``--punctuation_marks_is_regex`` to the CLI
+      interface. When used, the CLI will attempt to compile a ``re.Pattern``
+      from the value passed to ``--punctuation-marks``.
+
 phonemizer-3.1.1
 ----------------
 
