@@ -28,23 +28,10 @@ jobs:
           pip install .[doc]
       - name: Build documentation
         run: |
-          make --directory=docs html
-          touch ./docs/build/html/.nojekyll
-      - name: Commit documentation changes
-        run: |
-          git clone https://github.com/bootphon/phonemizer.git --branch doc --single-branch doc
-          cp -r docs/build/html/* doc
-          cd doc
-          touch .nojekyll
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Update documentation" -a || true
-          # The above command will fail if no changes were present, so we ignore
-          # the return code.
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+          make --directory=doc html
+          touch ./doc/build/html/.nojekyll
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          branch: doc
-          directory: doc
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./doc/build/html
