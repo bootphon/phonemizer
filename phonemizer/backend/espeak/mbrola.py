@@ -17,6 +17,7 @@
 import pathlib
 import shutil
 import sys
+from dataclasses import dataclass
 from logging import Logger
 from pathlib import Path
 from typing import Union, Optional, List, Dict
@@ -106,3 +107,19 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
             phonemes += separator.phone
 
         return phonemes
+
+
+@dataclass
+class MbrolaFolding:
+    lang: str
+    path: Path
+
+    def __post_init__(self):
+        pass  # TODO load folding
+
+    def fold(self, phonemes: List[str]) -> List[str]:
+        pass
+
+
+class EspeakMbrolaNoSynthBackend(EspeakMbrolaBackend):
+    MBROLA_FOLDINGS_FOLDER = Path(__file__).parent / "mbrola-foldings"
