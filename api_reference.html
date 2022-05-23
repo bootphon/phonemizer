@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; Phonemizer  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="Common Issues" href="common_issues.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Phonemizer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python_examples.html">Python Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_issues.html">Common Issues</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#toplevel-api">Toplevel API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backends">Backends</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Phonemizer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_reference.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline"></a></h1>
+<section id="toplevel-api">
+<h2>Toplevel API<a class="headerlink" href="#toplevel-api" title="Permalink to this headline"></a></h2>
+<span class="target" id="phonemize"></span><dl class="py class">
+<dt class="sig sig-object py" id="phonemizer.phonemize">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">phonemizer.</span></span><span class="sig-name descname"><span class="pre">phonemize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'en-us'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend:</span> <span class="pre">typing_extensions.Literal[espeak</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">espeak-mbrola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">festival</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segments]</span> <span class="pre">=</span> <span class="pre">'espeak'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator:</span> <span class="pre">typing.Optional[phonemizer.separator.Separator]</span> <span class="pre">=</span> <span class="pre">&lt;phonemizer.separator.Separator</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepend_text:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_empty_lines:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_punctuation:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">punctuation_marks:</span> <span class="pre">typing.Union[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Pattern]</span> <span class="pre">=</span> <span class="pre">';:</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">.!?¡¿—…&quot;«»“”'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_stress:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tie:</span> <span class="pre">typing.Union[bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str]</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_switch:</span> <span class="pre">typing_extensions.Literal[keep-flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove-flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove-utterance]</span> <span class="pre">=</span> <span class="pre">'keep-flags'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">words_mismatch:</span> <span class="pre">typing_extensions.Literal[warn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore]</span> <span class="pre">=</span> <span class="pre">'ignore'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger:</span> <span class="pre">logging.Logger</span> <span class="pre">=</span> <span class="pre">&lt;Logger</span> <span class="pre">phonemizer</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.phonemize" title="Permalink to this definition"></a></dt>
+<dd><p>Multilingual text to phonemes converter</p>
+<p>Return a phonemized version of an input <cite>text</cite>, given its <cite>language</cite> and a
+phonemization <cite>backend</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To improve the processing speed it is better to minimize the calls to this
+function: provide the input text as a list and call phonemize() a single
+time is much more efficient than calling it on each element of the list.
+Indeed the initialization of the phonemization backend can be expensive,
+especially for espeak. In one exemple,</p>
+<p>Do this:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="p">[</span><span class="n">line1</span><span class="p">,</span> <span class="n">line2</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phonemize</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Not this:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">phonemize</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<em>str</em><em> or </em><em>list of str</em>) – The text to be phonemized. Any empty line will
+be ignored. If <code class="docutils literal notranslate"><span class="pre">text</span></code> is an str, it can be multiline (lines being
+separated by <code class="docutils literal notranslate"><span class="pre">\n</span></code>). If <code class="docutils literal notranslate"><span class="pre">text</span></code> is a list, each element is considered as a
+separated line. Each line is considered as a text utterance.</p></li>
+<li><p><strong>language</strong> (<em>str</em>) – The language code of the input text, must be supported by
+the backend. If <code class="docutils literal notranslate"><span class="pre">backend</span></code> is ‘segments’, the language can be a file with
+a grapheme to phoneme mapping.</p></li>
+<li><p><strong>backend</strong> (<em>str</em><em>, </em><em>optional</em>) – The software backend to use for phonemization,
+must be ‘festival’ (US English only is supported, coded ‘en-us’),
+‘espeak’, ‘espeak-mbrola’ or ‘segments’.</p></li>
+<li><p><strong>separator</strong> (<a class="reference internal" href="#phonemizer.separator.Separator" title="phonemizer.separator.Separator"><em>Separator</em></a>) – <p>string separators between phonemes, syllables and
+words, default to separator.default_separator. Syllable separator is
+considered only for the festival backend. Word separator is ignored by
+the ‘espeak-mbrola’ backend. Initialize it as follows:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">phonemizer.separator</span> <span class="kn">import</span> <span class="n">Separator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">separator</span> <span class="o">=</span> <span class="n">Separator</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">word</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>strip</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, don’t output the last word and phone
+separators of a token, default to False.</p></li>
+<li><p><strong>prepend_text</strong> (<em>bool</em><em>, </em><em>optional</em>) – When True, returns a pair (input utterance,
+phonemized utterance) for each line of the input text. When False,
+returns only the phonemized utterances. Default to False</p></li>
+<li><p><strong>preserve_empty_lines</strong> (<em>bool</em><em>, </em><em>optional</em>) – When True, will keep the empty lines
+in the phonemized output. Default to False and remove all empty lines.</p></li>
+<li><p><strong>preserve_punctuation</strong> (<em>bool</em><em>, </em><em>optional</em>) – When True, will keep the punctuation
+in the phonemized output. Not supported by the ‘espeak-mbrola’ backend.
+Default to False and remove all the punctuation.</p></li>
+<li><p><strong>punctuation_marks</strong> (<em>str</em><em> or </em><em>re.Pattern</em><em>, </em><em>optional</em>) – The punctuation marks to consider when dealing with punctuation,
+either for removal or preservation.  Can be defined as a string or regular expression.
+Default to Punctuation.default_marks().</p></li>
+<li><p><strong>with_stress</strong> (<em>bool</em><em>, </em><em>optional</em>) – This option is only valid for the ‘espeak’
+backend. When True the stresses on phonemes are present (stresses
+characters are ˈ’ˌ). When False stresses are removed. Default to False.</p></li>
+<li><p><strong>tie</strong> (<em>bool</em><em> or </em><em>char</em><em>, </em><em>optional</em>) – This option is only valid for the ‘espeak’
+backend with espeak&gt;=1.49. It is incompatible with phone separator. When
+not False, use a tie character within multi-letter phoneme names. When
+True, the char ‘U+361’ is used (as in d͡ʒ), ‘z’ means ZWJ character,
+default to False.</p></li>
+<li><p><strong>language_switch</strong> (<em>str</em><em>, </em><em>optional</em>) – Espeak can output some words in another
+language (typically English) when phonemizing a text. This option setups
+the policy to use when such a language switch occurs. Three values are
+available : ‘keep-flags’ (the default), ‘remove-flags’ or
+‘remove-utterance’. The ‘keep-flags’ policy keeps the language switching
+flags, for example “(en) or (jp)”, in the output. The ‘remove-flags’
+policy removes them and the ‘remove-utterance’ policy removes the whole
+line of text including a language switch. This option is only valid for
+the ‘espeak’ backend.</p></li>
+<li><p><strong>words_mismatch</strong> (<em>str</em><em>, </em><em>optional</em>) – Espeak can join two consecutive words or
+drop some words, yielding a word count mismatch between orthographic and
+phonemized text. This option setups the policy to use when such a words
+count mismatch occurs. Three values are available: ‘ignore’ (the default)
+which do nothing, ‘warn’ which issue a warning for each mismatched line,
+and ‘remove’ which remove the mismatched lines from the output.</p></li>
+<li><p><strong>njobs</strong> (<em>int</em>) – The number of parallel jobs to launch. The input text is split
+in <code class="docutils literal notranslate"><span class="pre">njobs</span></code> parts, phonemized on parallel instances of the backend and the
+outputs are finally collapsed.</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em>) – the logging instance where to send messages. If
+not specified, use the default system logger.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>phonemized text</strong> – The input <code class="docutils literal notranslate"><span class="pre">text</span></code> phonemized for the
+given <code class="docutils literal notranslate"><span class="pre">language</span></code> and <code class="docutils literal notranslate"><span class="pre">backend</span></code>. The returned value has the same type of
+the input text (either a list or a string), excepted if <code class="docutils literal notranslate"><span class="pre">prepend_input</span></code>
+is True where the output is forced as a list of pairs (input_text,
+phonemized text).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str or list of str</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – if the <code class="docutils literal notranslate"><span class="pre">backend</span></code> is not valid or is valid but not installed,
+    if the <code class="docutils literal notranslate"><span class="pre">language</span></code> is not supported by the <code class="docutils literal notranslate"><span class="pre">backend</span></code>, if any incompatible options are used.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="phonemizer.separator.Separator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">phonemizer.separator.</span></span><span class="sig-name descname"><span class="pre">Separator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">syllable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.separator.Separator" title="Permalink to this definition"></a></dt>
+<dd><p>Defines phone, syllable and word boundary tokens</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.separator.Separator.input_output_separator">
+<span class="sig-name descname"><span class="pre">input_output_separator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_separator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.separator.Separator.input_output_separator" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a suitable input/output separator based on token separator</p>
+<p>The input/output separator split orthographic and phonetic texts when
+using the –prepend-text option from command-line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>field_separator</strong> (<em>bool</em><em> or </em><em>str</em>) – If str, ensures it’s value is not
+already defined as a token separator. If True choose one of “|”,
+“||”, “|||”, “||||” (the first one that is not defined as a token
+separator)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>The input/output separator, or False if <code class="docutils literal notranslate"><span class="pre">field_separator</span></code> is False</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – if <code class="docutils literal notranslate"><span class="pre">field_separator</span></code> is a str but is already registered as token separator</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phonemizer.separator.Separator.phone">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">phone</span></span><a class="headerlink" href="#phonemizer.separator.Separator.phone" title="Permalink to this definition"></a></dt>
+<dd><p>Phones separator</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phonemizer.separator.Separator.syllable">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">syllable</span></span><a class="headerlink" href="#phonemizer.separator.Separator.syllable" title="Permalink to this definition"></a></dt>
+<dd><p>Syllables separator</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phonemizer.separator.Separator.word">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">word</span></span><a class="headerlink" href="#phonemizer.separator.Separator.word" title="Permalink to this definition"></a></dt>
+<dd><p>Words separator</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="backends">
+<h2>Backends<a class="headerlink" href="#backends" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="phonemizer.backend.base.BaseBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">phonemizer.backend.base.</span></span><span class="sig-name descname"><span class="pre">BaseBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">punctuation_marks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Pattern</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_punctuation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logging.Logger</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend" title="Permalink to this definition"></a></dt>
+<dd><p>Abstract base class of all the phonemization backends</p>
+<p>Provides a common interface to all backends. The central method is
+<cite>phonemize()</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>language</strong> (<em>str</em>) – The language code of the input text, must be supported by
+the backend. If <code class="docutils literal notranslate"><span class="pre">backend</span></code> is ‘segments’, the language can be a file with
+a grapheme to phoneme mapping.</p></li>
+<li><p><strong>preserve_punctuation</strong> (<em>bool</em>) – When True, will keep the punctuation in the
+phonemized output. Not supported by the ‘espeak-mbrola’ backend. Default
+to False and remove all the punctuation.</p></li>
+<li><p><strong>punctuation_marks</strong> (<em>str</em>) – The punctuation marks to consider when dealing with punctuation, either for removal or preservation.
+Can be defined as a string or regular expression. Default to Punctuation.default_marks().</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em>) – the logging instance where to send
+messages. If not specified, use the default system logger.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – if the backend is not available of if the <cite>language</cite> cannot be initialized.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.base.BaseBackend.is_available">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend.is_available" title="Permalink to this definition"></a></dt>
+<dd><p>Returns True if the backend is installed, False otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.base.BaseBackend.is_supported_language">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_supported_language</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend.is_supported_language" title="Permalink to this definition"></a></dt>
+<dd><p>Returns True if <cite>language</cite> is supported by the backend</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phonemizer.backend.base.BaseBackend.language">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">language</span></span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend.language" title="Permalink to this definition"></a></dt>
+<dd><p>The language code configured to be used for phonemization</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phonemizer.backend.base.BaseBackend.logger">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend.logger" title="Permalink to this definition"></a></dt>
+<dd><p>A logging.Logger instance where to send messages</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.base.BaseBackend.name">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend.name" title="Permalink to this definition"></a></dt>
+<dd><p>The name of the backend</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.base.BaseBackend.phonemize">
+<span class="sig-name descname"><span class="pre">phonemize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#phonemizer.separator.Separator" title="phonemizer.separator.Separator"><span class="pre">phonemizer.separator.Separator</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend.phonemize" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the <cite>text</cite> phonemized for the given language</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<em>list of str</em>) – The text to be phonemized. Each string in the list
+is considered as a separated line. Each line is considered as a text
+utterance. Any empty utterance will be ignored.</p></li>
+<li><p><strong>separator</strong> (<a class="reference internal" href="#phonemizer.separator.Separator" title="phonemizer.separator.Separator"><em>Separator</em></a>) – string separators between phonemes, syllables
+and words, default to separator.default_separator. Syllable separator
+is considered only for the festival backend. Word separator is
+ignored by the ‘espeak-mbrola’ backend.</p></li>
+<li><p><strong>strip</strong> (<em>bool</em>) – If True, don’t output the last word and phone separators
+of a token, default to False.</p></li>
+<li><p><strong>njobs</strong> (<em>int</em>) – The number of parallel jobs to launch. The input text is
+split in <code class="docutils literal notranslate"><span class="pre">njobs</span></code> parts, phonemized on parallel instances of the
+backend and the outputs are finally collapsed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>phonemized text</strong> – The input <code class="docutils literal notranslate"><span class="pre">text</span></code> phonemized for the given <code class="docutils literal notranslate"><span class="pre">language</span></code> and <code class="docutils literal notranslate"><span class="pre">backend</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – if something went wrong during the phonemization</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.base.BaseBackend.supported_languages">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supported_languages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend.supported_languages" title="Permalink to this definition"></a></dt>
+<dd><p>Return a dict of language codes -&gt; name supported by the backend</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.base.BaseBackend.version">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend.version" title="Permalink to this definition"></a></dt>
+<dd><p>Return the backend version as a tuple (major, minor, patch)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="phonemizer.backend.espeak.espeak.EspeakBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">phonemizer.backend.espeak.espeak.</span></span><span class="sig-name descname"><span class="pre">EspeakBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">punctuation_marks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Pattern</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_punctuation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_stress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_switch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">typing_extensions.Literal[keep</span> <span class="pre">-</span> <span class="pre">flags,</span> <span class="pre">remove</span> <span class="pre">-</span> <span class="pre">flags,</span> <span class="pre">remove</span> <span class="pre">-</span> <span class="pre">utterance]</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'keep-flags'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">words_mismatch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">typing_extensions.Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">warn</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ignore</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ignore'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logging.Logger</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.espeak.espeak.EspeakBackend" title="Permalink to this definition"></a></dt>
+<dd><p>Espeak backend for the phonemizer</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.espeak.espeak.EspeakBackend.name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.espeak.espeak.EspeakBackend.name" title="Permalink to this definition"></a></dt>
+<dd><p>The name of the backend</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.espeak.espeak.EspeakBackend.supported_languages">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supported_languages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.espeak.espeak.EspeakBackend.supported_languages" title="Permalink to this definition"></a></dt>
+<dd><p>Return a dict of language codes -&gt; name supported by the backend</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">phonemizer.backend.espeak.mbrola.</span></span><span class="sig-name descname"><span class="pre">EspeakMbrolaBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logging.Logger</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend" title="Permalink to this definition"></a></dt>
+<dd><p>Espeak-mbrola backend for the phonemizer</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.is_available">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.is_available" title="Permalink to this definition"></a></dt>
+<dd><p>Mbrola backend is available for espeak&gt;=1.49</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.name" title="Permalink to this definition"></a></dt>
+<dd><p>The name of the backend</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.supported_languages">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supported_languages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.supported_languages" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the list of installed mbrola voices</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="phonemizer.backend.segments.SegmentsBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">phonemizer.backend.segments.</span></span><span class="sig-name descname"><span class="pre">SegmentsBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">punctuation_marks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Pattern</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_punctuation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logging.Logger</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.segments.SegmentsBackend" title="Permalink to this definition"></a></dt>
+<dd><p>Segments backends for the phonemizer</p>
+<p>The phonemize method will raise a ValueError when parsing an
+unknown morpheme.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.segments.SegmentsBackend.is_available">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.segments.SegmentsBackend.is_available" title="Permalink to this definition"></a></dt>
+<dd><p>Returns True if the backend is installed, False otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.segments.SegmentsBackend.is_supported_language">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_supported_language</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#phonemizer.backend.segments.SegmentsBackend.is_supported_language" title="Permalink to this definition"></a></dt>
+<dd><p>Returns True if <cite>language</cite> is supported by the backend</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.segments.SegmentsBackend.name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.segments.SegmentsBackend.name" title="Permalink to this definition"></a></dt>
+<dd><p>The name of the backend</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.segments.SegmentsBackend.supported_languages">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supported_languages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.segments.SegmentsBackend.supported_languages" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a dict of language: file supported by the segments backend</p>
+<p>The supported languages have a grapheme to phoneme conversion file
+bundled with phonemizer. Users can also use their own file as
+parameter of the phonemize() function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.segments.SegmentsBackend.version">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.segments.SegmentsBackend.version" title="Permalink to this definition"></a></dt>
+<dd><p>Return the backend version as a tuple (major, minor, patch)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="phonemizer.backend.festival.festival.FestivalBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">phonemizer.backend.festival.festival.</span></span><span class="sig-name descname"><span class="pre">FestivalBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">punctuation_marks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Pattern</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_punctuation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logging.Logger</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.festival.festival.FestivalBackend" title="Permalink to this definition"></a></dt>
+<dd><p>Festival backend for the phonemizer</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.festival.festival.FestivalBackend.executable">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">executable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#phonemizer.backend.festival.festival.FestivalBackend.executable" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the absolute path to the festival executable used as backend</p>
+<p>The following precedence rule applies for executable lookup:</p>
+<ol class="arabic simple">
+<li><p>As specified by FestivalBackend.set_executable()</p></li>
+<li><p>Or as specified by the environment variable
+PHONEMIZER_FESTIVAL_EXECUTABLE</p></li>
+<li><p>Or the default ‘festival’ binary found on the system with <code class="docutils literal notranslate"><span class="pre">shutil.which('festival')</span></code></p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – if the festival executable cannot be found or if the
+    environment variable PHONEMIZER_FESTIVAL_EXECUTABLE is set to a
+    non-executable file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.festival.festival.FestivalBackend.is_available">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.festival.festival.FestivalBackend.is_available" title="Permalink to this definition"></a></dt>
+<dd><p>True if the festival executable is available, False otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.festival.festival.FestivalBackend.name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.festival.festival.FestivalBackend.name" title="Permalink to this definition"></a></dt>
+<dd><p>The name of the backend</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.festival.festival.FestivalBackend.set_executable">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_executable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.festival.festival.FestivalBackend.set_executable" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the festival backend to use <cite>executable</cite></p>
+<p>If this is not set, the backend uses the default festival executable
+from the system installation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>executable</em>) – backend. Set <cite>executable</cite> to None to restore the default.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError if executable is not an executable file.</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.festival.festival.FestivalBackend.supported_languages">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supported_languages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.backend.festival.festival.FestivalBackend.supported_languages" title="Permalink to this definition"></a></dt>
+<dd><p>A dictionnary of language codes -&gt; name supported by festival</p>
+<p>Actually only en-us (American English) is supported.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.backend.festival.festival.FestivalBackend.version">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.festival.festival.FestivalBackend.version" title="Permalink to this definition"></a></dt>
+<dd><p>Festival version as a tupe of integers (major, minor, patch)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>RuntimeError if FestivalBackend.is_available</strong><strong>(</strong><strong>) </strong><strong>is False</strong><strong> or </strong><strong>if the</strong> – version cannot be extracted for some reason.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="common_issues.html" class="btn btn-neutral float-left" title="Common Issues" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, CoML.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

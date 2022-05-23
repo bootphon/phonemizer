@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; Phonemizer  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Command Line Examples" href="cli.html" />
+    <link rel="prev" title="Welcome to Phonemizer’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Phonemizer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#on-debian-unbuntu">On Debian/Unbuntu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#on-centos-fedora">On CentOS/Fedora</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#on-macos">On MacOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#on-windows">On Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#phonemizer">Phonemizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#docker-image">Docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python_examples.html">Python Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_issues.html">Common Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Phonemizer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/install.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline"></a></h2>
+<p><strong>You need python&gt;=3.6.</strong> If you really need to use python2, use the
+<code class="docutils literal notranslate"><span class="pre">phonemizer-1.0</span></code> release.</p>
+<p>You need to install
+<a class="reference external" href="http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation">festival</a>,
+<a class="reference external" href="https://github.com/espeak-ng/espeak-ng#espeak-ng-text-to-speech">espeak-ng</a>
+and/or <a class="reference external" href="https://github.com/numediart/MBROLA">mbrola</a> in order to use the
+corresponding <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> backends.
+Follow instructions for your system below.</p>
+<section id="on-debian-unbuntu">
+<h3>On Debian/Unbuntu<a class="headerlink" href="#on-debian-unbuntu" title="Permalink to this headline"></a></h3>
+<p>To install dependencies, simply run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get install festival espeak-ng mbrola
+</pre></div>
+</div>
+<p>When using the <strong>espeak-mbrola</strong> backend, additional mbrola voices must be
+installed (see
+<a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)">here</a>. List
+the installable voices with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>apt search mbrola
+</pre></div>
+</div>
+</section>
+<section id="on-centos-fedora">
+<h3>On CentOS/Fedora<a class="headerlink" href="#on-centos-fedora" title="Permalink to this headline"></a></h3>
+<p>To install dependencies, simply run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo yum install festival espeak-ng
+</pre></div>
+</div>
+<p>When using the <strong>espeak-mbrola</strong> backend, the mbrola binary and additional
+mbrola voices must be installed (see
+<a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)">here</a>).</p>
+</section>
+<section id="on-macos">
+<h3>On MacOS<a class="headerlink" href="#on-macos" title="Permalink to this headline"></a></h3>
+<p><strong>espeak</strong> is available on brew at version 1.48: <cite>brew install espeak</cite>. If you
+want a more recent version you have to
+<a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/building.md#linux-mac-bsd">compile it from sources</a>.
+To install <strong>festival</strong>, <strong>mbrola</strong> and additional mbrola voices, use the
+script provided <a class="reference external" href="https://github.com/pettarin/setup-festival-mbrola">here</a>.</p>
+</section>
+<section id="on-windows">
+<h3>On Windows<a class="headerlink" href="#on-windows" title="Permalink to this headline"></a></h3>
+<p>Install <strong>espeak-ng</strong> with the <cite>.msi</cite> Windows installer provided with
+<a class="reference external" href="https://github.com/espeak-ng/espeak-ng/releases">espeak releases</a>.
+<strong>festival</strong> must be compiled from sources (see
+<a class="reference external" href="https://github.com/festvox/festival/blob/master/INSTALL">here</a> and
+<a class="reference external" href="https://www.eguidedog.net/doc/doc_build_win_festival.php)">here</a>.
+<strong>mbrola</strong> is not available for Windows.</p>
+</section>
+</section>
+<section id="phonemizer">
+<h2>Phonemizer<a class="headerlink" href="#phonemizer" title="Permalink to this headline"></a></h2>
+<ul>
+<li><p>The simplest way is using pip:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install phonemizer
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p><strong>OR</strong> install it from sources with:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/bootphon/phonemizer
+<span class="nb">cd</span> phonemizer
+python setup.py install
+</pre></div>
+</div>
+<p>If you experiment an error such as <code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">setuptools</span></code>
+during installation, refer to <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/11">issue #11</a>.</p>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="docker-image">
+<h2>Docker image<a class="headerlink" href="#docker-image" title="Permalink to this headline"></a></h2>
+<p>Alternatively you can run the phonemizer within docker, using the
+provided <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code>. To build the docker image, have a:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/bootphon/phonemizer
+<span class="nb">cd</span> phonemizer
+sudo docker build -t phonemizer .
+</pre></div>
+</div>
+<p>Then run an interactive session with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -it phonemizer /bin/bash
+</pre></div>
+</div>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline"></a></h2>
+<p>When installed from sources or whithin a Docker image, you can run the tests
+suite from the root <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> folder (once you installed <code class="docutils literal notranslate"><span class="pre">pytest</span></code>):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install pytest
+pytest
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Phonemizer’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli.html" class="btn btn-neutral float-right" title="Command Line Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, CoML.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

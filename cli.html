@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command Line Examples &mdash; Phonemizer  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Python Examples" href="python_examples.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Phonemizer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#input-output-examples">Input/output examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backends">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-languages">Supported languages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#token-separators">Token separators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#punctuation">Punctuation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#espeak-specific-options">Espeak specific options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="python_examples.html">Python Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_issues.html">Common Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Phonemizer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Command Line Examples</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cli.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="command-line-examples">
+<h1>Command Line Examples<a class="headerlink" href="#command-line-examples" title="Permalink to this headline"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">phonemize</span></code> command can be used to replicate most of the features
+exposed in <a class="reference internal" href="python_examples.html#python-examples"><span class="std std-ref">Python Examples</span></a>.</p>
+<p>For a complete list of available options, have a:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>phonemize --help
+</pre></div>
+</div>
+<p>See the installed backends with the <code class="docutils literal notranslate"><span class="pre">--version</span></code> option:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ phonemize --version
+phonemizer-3.0
+available backends: espeak-ng-1.50, espeak-mbrola, festival-2.5.0, segments-2.1.3
+</pre></div>
+</div>
+<section id="input-output-examples">
+<h2>Input/output examples<a class="headerlink" href="#input-output-examples" title="Permalink to this headline"></a></h2>
+<ul>
+<li><p>from stdin to stdout:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize
+həloʊ wɜːld
+</pre></div>
+</div>
+</li>
+<li><p>Prepend the input text to output:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize --prepend-text
+hello world <span class="p">|</span> həloʊ wɜːld
+
+$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize --prepend-text<span class="o">=</span><span class="s1">&#39;;&#39;</span>
+hello world <span class="p">;</span> həloʊ wɜːld
+</pre></div>
+</div>
+</li>
+<li><p>from file to stdout</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> &gt; hello.txt
+$ phonemize hello.txt
+həloʊ wɜːld
+</pre></div>
+</div>
+</li>
+<li><p>from file to file</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ phonemize hello.txt -o hello.phon --strip
+$ cat hello.phon
+həloʊ wɜːld
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="backends">
+<h2>Backends<a class="headerlink" href="#backends" title="Permalink to this headline"></a></h2>
+<ul>
+<li><p>The default is to use <strong>espeak</strong> us-english:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize
+həloʊ wɜːld
+
+$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -l en-us -b espeak
+həloʊ wɜːld
+
+$ <span class="nb">echo</span> <span class="s1">&#39;hello world&#39;</span> <span class="p">|</span> phonemize -l en-us -b espeak --tie
+həlo͡ʊ wɜːld
+</pre></div>
+</div>
+</li>
+<li><p>Use <strong>festival</strong> US English instead</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -l en-us -b festival
+hhaxlow werld
+</pre></div>
+</div>
+</li>
+<li><p>In French, using <strong>espeak</strong> and <strong>espeak-mbrola</strong>, with custom token
+separators (see below). <strong>espeak-mbrola</strong> does not support words
+separation.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;bonjour le monde&quot;</span> <span class="p">|</span> phonemize -b espeak -l fr-fr -p <span class="s1">&#39; &#39;</span> -w <span class="s1">&#39;/w &#39;</span>
+b ɔ̃ ʒ u ʁ /w l ə /w m ɔ̃ d /w
+
+$ <span class="nb">echo</span> <span class="s2">&quot;bonjour le monde&quot;</span> <span class="p">|</span> phonemize -b espeak-mbrola -l mb-fr1 -p <span class="s1">&#39; &#39;</span> -w <span class="s1">&#39;/w &#39;</span>
+b o~ Z u R l @ m o~ d
+</pre></div>
+</div>
+</li>
+<li><p>In Japanese, using <strong>segments</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;konnichiwa&#39;</span> <span class="p">|</span> phonemize -b segments -l japanese
+konnitʃiwa
+
+$ <span class="nb">echo</span> <span class="s1">&#39;konnichiwa&#39;</span> <span class="p">|</span> phonemize -b segments -l ./phonemizer/share/japanese.g2p
+konnitʃiwa
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="supported-languages">
+<h2>Supported languages<a class="headerlink" href="#supported-languages" title="Permalink to this headline"></a></h2>
+<p>The exhaustive list of supported languages is available with the command
+<code class="docutils literal notranslate"><span class="pre">phonemize</span> <span class="pre">--list-languages</span> <span class="pre">[--backend</span> <span class="pre">&lt;backend&gt;]</span></code>.</p>
+<ul>
+<li><p>Languages supported by <strong>espeak</strong> are available
+<a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md">here</a>.</p></li>
+<li><p>Languages supported by <strong>espeak-mbrola</strong> are available
+<a class="reference external" href="https://github.com/numediart/MBROLA-voices">here</a>. Please note
+that the mbrola voices are not bundled with the phonemizer nor the
+mbrola binary and must be installed separately.</p></li>
+<li><p>Languages supported by <strong>festival</strong> are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">en</span><span class="o">-</span><span class="n">us</span> <span class="o">-&gt;</span> <span class="n">english</span><span class="o">-</span><span class="n">us</span>
+</pre></div>
+</div>
+</li>
+<li><p>Languages supported by the <strong>segments</strong> backend are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chintang</span>  <span class="o">-&gt;</span> <span class="o">./</span><span class="n">phonemizer</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">segments</span><span class="o">/</span><span class="n">chintang</span><span class="o">.</span><span class="n">g2p</span>
+<span class="n">cree</span>      <span class="o">-&gt;</span> <span class="o">./</span><span class="n">phonemizer</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">segments</span><span class="o">/</span><span class="n">cree</span><span class="o">.</span><span class="n">g2p</span>
+<span class="n">inuktitut</span> <span class="o">-&gt;</span> <span class="o">./</span><span class="n">phonemizer</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">segments</span><span class="o">/</span><span class="n">inuktitut</span><span class="o">.</span><span class="n">g2p</span>
+<span class="n">japanese</span>  <span class="o">-&gt;</span> <span class="o">./</span><span class="n">phonemizer</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">segments</span><span class="o">/</span><span class="n">japanese</span><span class="o">.</span><span class="n">g2p</span>
+<span class="n">sesotho</span>   <span class="o">-&gt;</span> <span class="o">./</span><span class="n">phonemizer</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">segments</span><span class="o">/</span><span class="n">sesotho</span><span class="o">.</span><span class="n">g2p</span>
+<span class="n">yucatec</span>   <span class="o">-&gt;</span> <span class="o">./</span><span class="n">phonemizer</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">segments</span><span class="o">/</span><span class="n">yucatec</span><span class="o">.</span><span class="n">g2p</span>
+</pre></div>
+</div>
+<p>Instead of a language you can also provide a file specifying a
+grapheme to phone mapping (see the files above for examples).</p>
+</li>
+</ul>
+</section>
+<section id="token-separators">
+<h2>Token separators<a class="headerlink" href="#token-separators" title="Permalink to this headline"></a></h2>
+<p>You can specify separators for phones, syllables (<strong>festival</strong> only) and
+words (excepted <strong>espeak-mbrola</strong>).</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -b festival -w <span class="s1">&#39; &#39;</span> -p <span class="s1">&#39;&#39;</span>
+hhaxlow werld
+
+$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -b festival -p <span class="s1">&#39; &#39;</span> -w <span class="s1">&#39;&#39;</span>
+hh ax l ow w er l d
+
+$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -b festival -p <span class="s1">&#39;-&#39;</span> -s <span class="s1">&#39;|&#39;</span>
+hh-ax-l-<span class="p">|</span>ow-<span class="p">|</span> w-er-l-d-<span class="p">|</span>
+
+$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -b festival -p <span class="s1">&#39;-&#39;</span> -s <span class="s1">&#39;|&#39;</span> --strip
+hh-ax-l<span class="p">|</span>ow w-er-l-d
+
+$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -b festival -p <span class="s1">&#39; &#39;</span> -s <span class="s1">&#39;;esyll &#39;</span> -w <span class="s1">&#39;;eword &#39;</span>
+hh ax l <span class="p">;</span>esyll ow <span class="p">;</span>esyll <span class="p">;</span>eword w er l d <span class="p">;</span>esyll <span class="p">;</span>eword
+</pre></div>
+</div>
+<p>You cannot specify the same separator for several tokens (for instance a
+space for both phones and words):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -b festival -p <span class="s1">&#39; &#39;</span> -w <span class="s1">&#39; &#39;</span>
+fatal error: illegal separator with <span class="nv">word</span><span class="o">=</span><span class="s2">&quot; &quot;</span>, <span class="nv">syllable</span><span class="o">=</span><span class="s2">&quot;&quot;</span> and <span class="nv">phone</span><span class="o">=</span><span class="s2">&quot; &quot;</span>,
+must be all differents <span class="k">if</span> not empty
+</pre></div>
+</div>
+</section>
+<section id="punctuation">
+<h2>Punctuation<a class="headerlink" href="#punctuation" title="Permalink to this headline"></a></h2>
+<p>By default the punctuation is removed in the phonemized output. You can
+preserve it using the <code class="docutils literal notranslate"><span class="pre">--preserve-punctuation</span></code> option (not supported
+by the <strong>espeak-mbrola</strong> backend):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello, world!&quot;</span> <span class="p">|</span> phonemize --strip
+həloʊ wɜːld
+
+$ <span class="nb">echo</span> <span class="s2">&quot;hello, world!&quot;</span> <span class="p">|</span> phonemize --preserve-punctuation --strip
+həloʊ, wɜːld!
+</pre></div>
+</div>
+<p>The default punctuation marks are each of the following characters: <code class="docutils literal notranslate"><span class="pre">;:,.!?¡¿—…&quot;«»“”</span></code>.
+These can be overridden by the <code class="docutils literal notranslate"><span class="pre">--punctuation-marks</span></code> option.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello, world!&quot;</span> <span class="p">|</span> phonemize --preserve-punctuation --strip --punctuation-marks <span class="s1">&#39;!?&#39;</span>
+həloʊ wɜːld!
+</pre></div>
+</div>
+<p>The punctuation marks can be specified as a regular expression by additionally using the
+<code class="docutils literal notranslate"><span class="pre">--punctuation-marks-is-regex</span></code> option. For example, to preserve the default punctuation marks
+except for commas and periods in the middle of numbers, the following will work:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;1,000, or so.&quot;</span> <span class="p">|</span> phonemize --preserve-punctuation --strip --punctuation-marks <span class="s1">&#39;[;:!?¡¿—…&quot;«»“”]|[,.](?!\d)&#39;</span> --punctuation-marks-is-regex
+wʌn θaʊzənd, ɔːɹ soʊ.
+</pre></div>
+</div>
+</section>
+<section id="espeak-specific-options">
+<h2>Espeak specific options<a class="headerlink" href="#espeak-specific-options" title="Permalink to this headline"></a></h2>
+<ul>
+<li><p>The espeak backend can output the <strong>stresses</strong> on phones:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -l en-us -b espeak --with-stress
+həlˈoʊ wˈɜːld
+</pre></div>
+</div>
+</li>
+<li><p>The espeak backend can add <strong>tie</strong> on multi-characters phonemes:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -l en-us -b espeak --tie
+həlo͡ʊ wɜːld
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The espeak backend can <strong>switch languages</strong> during
+phonemization (below from French to English), use the
+<code class="docutils literal notranslate"><span class="pre">--language-switch</span></code> option to deal with it:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;j&#39;aime le football&quot;</span> <span class="p">|</span> phonemize -l fr-fr -b espeak --language-switch keep-flags
+<span class="o">[</span>WARNING<span class="o">]</span> fount <span class="m">1</span> utterances containing language switches on lines <span class="m">1</span>
+<span class="o">[</span>WARNING<span class="o">]</span> extra phones may appear <span class="k">in</span> the <span class="s2">&quot;fr-fr&quot;</span> phoneset
+<span class="o">[</span>WARNING<span class="o">]</span> language switch flags have been kept <span class="o">(</span>applying <span class="s2">&quot;keep-flags&quot;</span> policy<span class="o">)</span>
+ʒɛm lə- <span class="o">(</span>en<span class="o">)</span>fʊtbɔːl<span class="o">(</span>fr<span class="o">)</span>
+
+$ <span class="nb">echo</span> <span class="s2">&quot;j&#39;aime le football&quot;</span> <span class="p">|</span> phonemize -l fr-fr -b espeak --language-switch remove-flags
+<span class="o">[</span>WARNING<span class="o">]</span> fount <span class="m">1</span> utterances containing language switches on lines <span class="m">1</span>
+<span class="o">[</span>WARNING<span class="o">]</span> extra phones may appear <span class="k">in</span> the <span class="s2">&quot;fr-fr&quot;</span> phoneset
+<span class="o">[</span>WARNING<span class="o">]</span> language switch flags have been removed <span class="o">(</span>applying <span class="s2">&quot;remove-flags&quot;</span> policy<span class="o">)</span>
+ʒɛm lə- fʊtbɔːl
+
+$ <span class="nb">echo</span> <span class="s2">&quot;j&#39;aime le football&quot;</span> <span class="p">|</span> phonemize -l fr-fr -b espeak --language-switch remove-utterance
+<span class="o">[</span>WARNING<span class="o">]</span> removed <span class="m">1</span> utterances containing language switches <span class="o">(</span>applying <span class="s2">&quot;remove-utterance&quot;</span> policy<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The espeak backend sometimes <strong>merge words together</strong> in
+the output, use the <code class="docutils literal notranslate"><span class="pre">--words-mismatch</span></code> option to deal with it:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;that&#39;s it, words are merged&quot;</span> <span class="p">|</span> phonemize -l en-us -b espeak
+<span class="o">[</span>WARNING<span class="o">]</span> words count mismatch on <span class="m">100</span>.0% of the lines <span class="o">(</span><span class="m">1</span>/1<span class="o">)</span>
+ðætsɪt wɜːdz ɑːɹ mɜːdʒd
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="python_examples.html" class="btn btn-neutral float-right" title="Python Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, CoML.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Examples &mdash; Phonemizer  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Common Issues" href="common_issues.html" />
+    <link rel="prev" title="Command Line Examples" href="cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Phonemizer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Python Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-1-phonemize-a-text-with-festival">Example 1: phonemize a text with festival</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-2-build-a-lexicon-with-espeak">Example 2: build a lexicon with espeak</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="common_issues.html">Common Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Phonemizer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Python Examples</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/python_examples.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="python-examples">
+<span id="id1"></span><h1>Python Examples<a class="headerlink" href="#python-examples" title="Permalink to this headline"></a></h1>
+<p>In Python import the <code class="docutils literal notranslate"><span class="pre">phonemize</span></code> function with <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">phonemizer</span> <span class="pre">import</span> <span class="pre">phonemize</span></code>.
+See <a class="reference internal" href="api_reference.html#phonemizer.phonemize" title="phonemizer.phonemize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">phonemizer.phonemize()</span></code></a>.</p>
+<section id="example-1-phonemize-a-text-with-festival">
+<h2>Example 1: phonemize a text with festival<a class="headerlink" href="#example-1-phonemize-a-text-with-festival" title="Permalink to this headline"></a></h2>
+<p>The following exemple downloads a text and phonemizes it using the
+festival backend, preserving punctuation and using 4 jobs in parallel.
+The phones are not separated, words are separated by a space and
+syllables by <code class="docutils literal notranslate"><span class="pre">|</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># need to pip install requests</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">phonemizer</span> <span class="kn">import</span> <span class="n">phonemize</span>
+<span class="kn">from</span> <span class="nn">phonemizer.separator</span> <span class="kn">import</span> <span class="n">Separator</span>
+
+<span class="c1"># text is a list of 190 English sentences downloaded from github</span>
+<span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s1">&#39;https://gist.githubusercontent.com/CorentinJ/&#39;</span>
+    <span class="s1">&#39;0bc27814d93510ae8b6fe4516dc6981d/raw/&#39;</span>
+    <span class="s1">&#39;bb6e852b05f5bc918a9a3cb439afe7e2de570312/small_corpus.txt&#39;</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+<span class="n">text</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="p">]</span>
+
+<span class="c1"># phn is a list of 190 phonemized sentences</span>
+<span class="n">phn</span> <span class="o">=</span> <span class="n">phonemize</span><span class="p">(</span>
+    <span class="n">text</span><span class="p">,</span>
+    <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en-us&#39;</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;festival&#39;</span><span class="p">,</span>
+    <span class="n">separator</span><span class="o">=</span><span class="n">Separator</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">word</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">syllable</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">),</span>
+    <span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">preserve_punctuation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">njobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-2-build-a-lexicon-with-espeak">
+<h2>Example 2: build a lexicon with espeak<a class="headerlink" href="#example-2-build-a-lexicon-with-espeak" title="Permalink to this headline"></a></h2>
+<p>The following exemple extracts a list of words present in a text,
+ignoring punctuation, and builds a dictionary <code class="docutils literal notranslate"><span class="pre">word:</span> <span class="pre">[phones]</span></code>,
+e.g. <code class="docutils literal notranslate"><span class="pre">{'students':</span> <span class="pre">'s</span> <span class="pre">t</span> <span class="pre">uː</span> <span class="pre">d</span> <span class="pre">ə</span> <span class="pre">n</span> <span class="pre">t</span> <span class="pre">s',</span> <span class="pre">'cobb':</span> <span class="pre">'k</span> <span class="pre">ɑː</span> <span class="pre">b',</span> <span class="pre">'its':</span> <span class="pre">'ɪ</span> <span class="pre">t</span> <span class="pre">s',</span> <span class="pre">'put':</span> <span class="pre">'p</span> <span class="pre">ʊ</span> <span class="pre">t',</span> <span class="pre">...}</span></code>.
+We consider here the same text as in the previous exemple.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">phonemizer.backend</span> <span class="kn">import</span> <span class="n">EspeakBackend</span>
+<span class="kn">from</span> <span class="nn">phonemizer.punctuation</span> <span class="kn">import</span> <span class="n">Punctuation</span>
+<span class="kn">from</span> <span class="nn">phonemizer.separator</span> <span class="kn">import</span> <span class="n">Separator</span>
+
+<span class="c1"># remove all the punctuation from the text, considering only the specified</span>
+<span class="c1"># punctuation marks</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Punctuation</span><span class="p">(</span><span class="s1">&#39;;:,.!&quot;?()-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+<span class="c1"># build the set of all the words in the text</span>
+<span class="n">words</span> <span class="o">=</span> <span class="p">{</span><span class="n">w</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">w</span><span class="p">}</span>
+
+<span class="c1"># initialize the espeak backend for English</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">EspeakBackend</span><span class="p">(</span><span class="s1">&#39;en-us&#39;</span><span class="p">)</span>
+
+<span class="c1"># separate phones by a space and ignoring words boundaries</span>
+<span class="n">separator</span> <span class="o">=</span> <span class="n">Separator</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">word</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<span class="c1"># build the lexicon by phonemizing each word one by one. The backend.phonemize</span>
+<span class="c1"># function expect a list as input and outputs a list.</span>
+<span class="n">lexicon</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">word</span><span class="p">:</span> <span class="n">backend</span><span class="o">.</span><span class="n">phonemize</span><span class="p">([</span><span class="n">word</span><span class="p">],</span> <span class="n">separator</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cli.html" class="btn btn-neutral float-left" title="Command Line Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="common_issues.html" class="btn btn-neutral float-right" title="Common Issues" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, CoML.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
