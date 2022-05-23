@@ -98,12 +98,13 @@ class FestivalBackend(BaseBackend):
         1. As specified by FestivalBackend.set_executable()
         2. Or as specified by the environment variable
            PHONEMIZER_FESTIVAL_EXECUTABLE
-        3. Or the default 'festival' binary found on the system with
-          `shutil.which('festival')`
+        3. Or the default 'festival' binary found on the system with ``shutil.which('festival')``
+
 
         Raises
         ------
-        RuntimeError if the festival executable cannot be found or if the
+        RuntimeError
+            if the festival executable cannot be found or if the
             environment variable PHONEMIZER_FESTIVAL_EXECUTABLE is set to a
             non-executable file
 

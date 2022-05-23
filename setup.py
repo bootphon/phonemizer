@@ -68,6 +68,10 @@ setuptools.setup(
     extras_require={
         "tests": [
             "pytest"
+        ],
+        "doc": [
+            "sphinx",
+            "sphinx_rtd_theme"
         ]
     },
     zip_safe=True,

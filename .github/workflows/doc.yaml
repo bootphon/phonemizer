@@ -1,0 +1,50 @@
+# build the sphinx documentation and pushes it to a doc branch, then used by github pages
+
+name: Doc
+
+on:
+  push:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [ 3.7 ]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[doc]
+      - name: Build documentation
+        run: |
+          make --directory=docs html
+          touch ./docs/build/html/.nojekyll
+      - name: Commit documentation changes
+        run: |
+          git clone https://github.com/bootphon/phonemizer.git --branch doc --single-branch doc
+          cp -r docs/build/html/* doc
+          cd doc
+          touch .nojekyll
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update documentation" -a || true
+          # The above command will fail if no changes were present, so we ignore
+          # the return code.
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: doc
+          directory: doc
+          github_token: ${{ secrets.GITHUB_TOKEN }}
