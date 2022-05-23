@@ -1,7 +1,8 @@
-| **Tests** | [![Linux][badge-test-linux]](https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml) [![MacOS][badge-test-macos]](https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml) [![Windows][badge-test-windows]](https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml) [![Codecov][badge-codecov]](https://codecov.io/gh/bootphon/phonemizer) |
-| ---: | --- |
-| **Release** | [![GitHub release (latest SemVer)][badge-github-version]](https://github.com/bootphon/phonemizer/releases/latest) [![PyPI][badge-pypi-version]](https://pypi.python.org/pypi/phonemizer) [![downloads][badge-pypi-downloads]](https://pypi.python.org/pypi/phonemizer) |
-| **Citation** | [![status][badge-joss]](https://joss.theoj.org/papers/08d1ffc14f233f56942f78f3742b266e) [![DOI][badge-zenodo]](https://doi.org/10.5281/zenodo.1045825) |
+|         **Tests** | [![Linux][badge-test-linux]](https://github.com/bootphon/phonemizer/actions/workflows/linux.yaml) [![MacOS][badge-test-macos]](https://github.com/bootphon/phonemizer/actions/workflows/macos.yaml) [![Windows][badge-test-windows]](https://github.com/bootphon/phonemizer/actions/workflows/windows.yaml) [![Codecov][badge-codecov]](https://codecov.io/gh/bootphon/phonemizer) |
+|------------------:| --- |
+| **Documentation** | [![Doc](https://github.com/bootphon/phonemizer/actions/workflows/doc.yaml/badge.svg)](https://bootphon.github.io/phonemizer/) |
+|       **Release** | [![GitHub release (latest SemVer)][badge-github-version]](https://github.com/bootphon/phonemizer/releases/latest) [![PyPI][badge-pypi-version]](https://pypi.python.org/pypi/phonemizer) [![downloads][badge-pypi-downloads]](https://pypi.python.org/pypi/phonemizer) |
+|      **Citation** | [![status][badge-joss]](https://joss.theoj.org/papers/08d1ffc14f233f56942f78f3742b266e) [![DOI][badge-zenodo]](https://doi.org/10.5281/zenodo.1045825) |
 
 ---
 
@@ -10,7 +11,7 @@
 * The phonemizer allows simple phonemization of words and texts in many languages.
 
 * Provides both the `phonemize` command-line tool and the Python function
-  `phonemizer.phonemize`. See [function documentation][phonemize-function].
+  `phonemizer.phonemize`. See [the package's documentation](https://bootphon.github.io/phonemizer/).
 
 * It is based on four backends: **espeak**, **espeak-mbrola**, **festival** and
   **segments**. The backends have different properties and capabilities resumed
