@@ -13,8 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Mbrola backend for the phonemizer"""
-
 import pathlib
+import re
 import shutil
 import sys
 from dataclasses import dataclass
@@ -110,16 +110,56 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
 
 
 @dataclass
-class MbrolaFolding:
-    lang: str
-    path: Path
+class FoldingRule:
+    mode: int
+    espeak_ph1: str
+    espeak_ph2: Optional[Union[int, str]]
+    mbrola_ph1: str
+    mbrola_ph2: Optional[str] = None
 
-    def __post_init__(self):
-        pass  # TODO load folding
-
-    def fold(self, phonemes: List[str]) -> List[str]:
+    def matches(self) -> int: # returns a matching score
         pass
 
 
-class EspeakMbrolaNoSynthBackend(EspeakMbrolaBackend):
+class MbrolaFolding:
+    COMMENTS_RE = re.compile("//.*")
+
+    def __init__(self, path: Path, lang: str):
+        self.path = path
+        self.lang = lang
+        self.rules = []
+
+        with open(self.path) as mbrola_folding:
+            for line in mbrola_folding:
+
+                if line == "volume":
+                    continue
+                # removing comments
+                line = re.sub(self.COMMENTS_RE, "", line)
+
+                # full-comment line or empty line
+                if not line:
+                    continue
+
+                row = line.split(" ")
+                control_mode = int(row[0])
+                espeak_ph1 = row[1]
+                espeak_ph2 = None if row[2] == "NULL" else row[2]
+                mbrola_ph1 = row[3]
+                if len(row) == 4:
+                    rule = FoldingRule(control_mode, espeak_ph1, espeak_ph2, mbrola_ph1)
+                elif len(row) == 5:
+                    mbrola_ph2 = row[4]
+                    rule = FoldingRule(control_mode, espeak_ph1, espeak_ph2, mbrola_ph1, mbrola_ph2)
+
+                self.rules.append(rule)
+
+    def fold(self, phonemes: List[str]) -> List[str]:
+        # TODO: use list of words instead of list of phonemes
+        # TODO: investigate stressed phonemes
+        # TODO: iterate over phonemes then rules to find best matching one, then use rule to fold
+        pass
+
+
+class EspeakMbrolaNoSynthBackend(BaseEspeakBackend):
     MBROLA_FOLDINGS_FOLDER = Path(__file__).parent / "mbrola-foldings"
