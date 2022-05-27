@@ -112,6 +112,34 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
 
 
 @dataclass
+class Phoneme:
+    pho: str
+    stressed: bool
+
+
+class FoldingState:
+
+    def __init__(self, words: List[List[str]]):
+        pass
+
+    @property
+    def current_phoneme(self) -> Phoneme:
+        pass
+
+    @property
+    def substitute_current(self, phonemes: Tuple[str]):
+        pass
+
+    @property
+    def is_word_start(self) -> bool:
+        pass
+
+    @property
+    def is_word_end(self) -> bool:
+        pass
+
+
+@dataclass
 class FoldingRule:
     mode: int
     espeak_ph1: str
@@ -166,13 +194,14 @@ class MbrolaFolding:
 @dataclass
 class VoiceConfig:
     name: str
-    language: str
-    espeak_voice: str
-    folding_name: str
+    languages: List[str]
+    mbrola_voice: str
 
 
 class EspeakMbrolaNoSynthBackend(BaseEspeakBackend):
     MBROLA_FOLDINGS_FOLDER = Path(__file__).parent / "mbrola-foldings"
+    MBROLA_VOICES_FOLDER = Path(__file__).parent / "mbrola-voices"
+    voice_config_re = re.compile("([a-z]+) (.*)")
 
     # pylint: disable=too-many-arguments
     def __init__(self, language: str,
@@ -202,13 +231,40 @@ class EspeakMbrolaNoSynthBackend(BaseEspeakBackend):
     def name():
         return 'espeak-mbrola'
 
-    @staticmethod
-    def _parse_voice_config(path: Path) -> VoiceConfig:
-        pass
+    @classmethod
+    def _parse_voice_config(cls, path: Path) -> VoiceConfig:
+        config_dict = dict()
+        languages = []
+        with open(path) as config_file:
+            for line in config_file:
+                line = line.strip()
+                if not line:
+                    continue
 
-    @staticmethod
-    def list_voice_configs() -> List[VoiceConfig]:
-        pass
+                key, value = re.match(cls.voice_config_re, line).group(1, 2)
+                if key == "language":
+                    languages.append(value.split(" ")[0])
+                else:
+                    config_dict[key] = value.strip()
+        languages.sort(key=lambda el: len(el), reverse=True)
+
+        assert set(config_dict).issuperset({"mbrola", "name"})
+        assert languages
+
+        return VoiceConfig(
+            name=config_dict["name"],
+            languages=languages,
+            mbrola_voice=config_dict["mbrola"].split(" ")[0]
+        )
+
+    @classmethod
+    def list_voice_configs(cls) -> List[VoiceConfig]:
+        configs = []
+        for config_filepath in cls.MBROLA_VOICES_FOLDER.iterdir():
+            if not config_filepath.is_file():
+                continue
+            configs.append(cls._parse_voice_config(config_filepath))
+        return configs
 
     @classmethod
     def supported_languages(cls):
