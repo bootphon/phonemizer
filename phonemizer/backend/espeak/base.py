@@ -15,13 +15,12 @@
 """Base class of espeak backends for the phonemizer"""
 
 import abc
+import re
 from logging import Logger
 from typing import Optional, Union, Pattern
 
 from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
-from phonemizer.logger import get_logger
-from phonemizer.punctuation import Punctuation
 from phonemizer.separator import Separator
 
 
@@ -32,6 +31,9 @@ class BaseEspeakBackend(BaseBackend):
     facilities to find espeak library and read espeak version.
 
     """
+    # a regular expression to find phonemes stresses in espeak output
+    _ESPEAK_STRESS_RE = re.compile(r"[ˈˌ'-]+")
+
     def __init__(self, language: str,
                  punctuation_marks: Optional[Union[str, Pattern]] = None,
                  preserve_punctuation: bool = False,

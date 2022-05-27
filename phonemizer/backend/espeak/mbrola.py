@@ -20,9 +20,11 @@ import sys
 from dataclasses import dataclass
 from logging import Logger
 from pathlib import Path
-from typing import Union, Optional, List, Dict
+from typing import Union, Optional, List, Dict, Pattern, Tuple
 
 from phonemizer.backend.espeak.base import BaseEspeakBackend
+from phonemizer.backend.espeak.language_switch import get_language_switch_processor, BaseLanguageSwitch, LanguageSwitch
+from phonemizer.backend.espeak.words_mismatch import BaseWordsMismatch, get_words_mismatch_processor, WordMismatch
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
 from phonemizer.separator import Separator
 
@@ -117,7 +119,7 @@ class FoldingRule:
     mbrola_ph1: str
     mbrola_ph2: Optional[str] = None
 
-    def matches(self) -> int: # returns a matching score
+    def matches(self) -> int:  # returns a matching score
         pass
 
 
@@ -161,5 +163,132 @@ class MbrolaFolding:
         pass
 
 
+@dataclass
+class VoiceConfig:
+    name: str
+    language: str
+    espeak_voice: str
+    folding_name: str
+
+
 class EspeakMbrolaNoSynthBackend(BaseEspeakBackend):
     MBROLA_FOLDINGS_FOLDER = Path(__file__).parent / "mbrola-foldings"
+
+    # pylint: disable=too-many-arguments
+    def __init__(self, language: str,
+                 punctuation_marks: Optional[Union[str, Pattern]] = None,
+                 preserve_punctuation: bool = False,
+                 with_stress: bool = False,
+                 language_switch: LanguageSwitch = 'keep-flags',
+                 words_mismatch: WordMismatch = 'ignore',
+                 logger: Optional[Logger] = None):
+        super().__init__(
+            language, punctuation_marks=punctuation_marks,
+            preserve_punctuation=preserve_punctuation, logger=logger)
+
+        self._espeak.set_voice(language)
+        self._with_stress = with_stress
+        self._lang_switch: BaseLanguageSwitch = get_language_switch_processor(
+            language_switch, self.logger, self.language)
+        self._words_mismatch: BaseWordsMismatch = get_words_mismatch_processor(
+            words_mismatch, self.logger)
+
+    # TODO : figure out system for voices
+    #  - load voices from mbrola-voices/
+    #  - get espeak voice from config file
+    #  - get phoneme translation rules from config file
+
+    @staticmethod
+    def name():
+        return 'espeak-mbrola'
+
+    @staticmethod
+    def _parse_voice_config(path: Path) -> VoiceConfig:
+        pass
+
+    @staticmethod
+    def list_voice_configs() -> List[VoiceConfig]:
+        pass
+
+    @classmethod
+    def supported_languages(cls):
+        espeak = {
+            voice.language: voice.name
+            for voice in EspeakWrapper().available_voices()}
+
+    def _phonemize_aux(self, text, offset, separator, strip):
+        output = []
+        lang_switches = []
+        for num, line in enumerate(text, start=1):
+            line = self._espeak.text_to_phonemes(line, tie=False, ipa=False)
+            line, has_switch = self._postprocess_line(
+                line, num, separator, strip)
+            output.append(line)
+            if has_switch:
+                lang_switches.append(num + offset)
+
+        return output, lang_switches
+
+    def _process_stress(self, word):
+        # remove the stresses on phonemes
+        return re.sub(self._ESPEAK_STRESS_RE, '', word)
+
+    def _postprocess_line(self, line: str, num: int,
+                          separator: Separator, strip: bool) -> Tuple[str, bool]:
+        # espeak can split an utterance into several lines because
+        # of punctuation, here we merge the lines into a single one
+        line = line.strip().replace('\n', ' ').replace('  ', ' ')
+
+        # due to a bug in espeak-ng, some additional separators can be
+        # added at the end of a word. Here a quick fix to solve that
+        # issue. See https://github.com/espeak-ng/espeak-ng/issues/694
+        line = re.sub(r'_+', '_', line)
+        line = re.sub(r'_ ', ' ', line)
+
+        line, has_switch = self._lang_switch.process(line)
+        if not line:
+            return '', has_switch
+
+        out_line = ''
+        for word in line.split(' '):
+            word = self._process_stress(word.strip())
+            if not strip and self._tie is None:
+                word += '_'
+            word = self._process_tie(word, separator)
+            out_line += word + separator.word
+
+        if strip and separator.word:
+            # erase the last word separator from the line
+            out_line = out_line[:-len(separator.word)]
+
+        return out_line, has_switch
+
+    def _phonemize_preprocess(self, text: List[str]) -> Tuple[Union[str, List[str]], List]:
+        text, punctuation_marks = super()._phonemize_preprocess(text)
+        self._words_mismatch.count_text(text)
+        return text, punctuation_marks
+
+    def _phonemize_postprocess(self, phonemized, punctuation_marks, separator: Separator, strip: bool):
+        text = phonemized[0]
+        switches = phonemized[1]
+
+        self._words_mismatch.count_phonemized(text)
+        self._lang_switch.warning(switches)
+
+        phonemized = super()._phonemize_postprocess(text, punctuation_marks, separator, strip)
+        return self._words_mismatch.process(phonemized)
+
+    @staticmethod
+    def _flatten(phonemized) -> List:
+        """Specialization of BaseBackend._flatten for the espeak backend
+
+        From [([1, 2], ['a', 'b']), ([3],), ([4], ['c'])] to [[1, 2, 3, 4],
+        ['a', 'b', 'c']].
+
+        """
+        flattened = []
+        for i in range(len(phonemized[0])):
+            flattened.append(
+                list(itertools.chain(
+                    c for chunk in phonemized for c in chunk[i])))
+        return flattened
