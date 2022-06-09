@@ -4,6 +4,15 @@ Changelog
 
 Version numbers follow `semantic versioning <https://semver.org>`__
 
+phonemizer-3.2.1
+----------------
+
+* **bug fixes**
+
+  * Fixed a bug when trying to restore punctuation on a multiline text.
+    See `issue #129 <https://github.com/bootphon/phonemizer/issues/129>`__
+
+
 phonemizer-3.2.0
 ----------------
 
