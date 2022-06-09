@@ -165,11 +165,11 @@ class Punctuation:
         while text or marks:
 
             if not marks:
-                merged_text = ''.join(text)
-                # if strip is False, ensure the final word ends with a word separator
-                if not strip and sep.word and not merged_text.endswith(sep.word):
-                    merged_text = merged_text + sep.word
-                punctuated_text.append(merged_text)
+                for line in text:
+                    # if strip is False, ensure the final word ends with a word separator
+                    if not strip and sep.word and not line.endswith(sep.word):
+                        line = line + sep.word
+                    punctuated_text.append(line)
                 text = []
             elif not text:
                 # nothing has been phonemized, returns the marks alone, with internal
