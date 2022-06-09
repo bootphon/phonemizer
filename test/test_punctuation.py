@@ -237,3 +237,33 @@ def test_long_document():
     DATA_FOLDER = Path(__file__).parent / "data"
     with open(DATA_FOLDER / "pg67147.txt") as txt_file:
         phonemize(txt_file.read().split("\n"), backend="espeak", preserve_punctuation=True)
+
+
+@pytest.mark.parametrize(
+    'text', [
+        ([
+            'worked david ford i started in deloitte and i was immediately',
+         ]
+        ),
+        ([
+            'worked david ford i started in deloitte, and i was immediately',
+         ]
+        ),
+        ([
+            'worked david ford i started in deloitte and i was immediately',
+            'an offer of price waterhouse cooper and here i take may',
+            'we are now as maximum plan for a customer time and',
+            "they're going to meet all the xvin so great it"
+         ]
+        ),
+        ([
+            'worked david ford i started in deloitte, and i was immediately',
+            'an offer of price waterhouse cooper and here i take may',
+            'we are now as maximum plan for a customer time and',
+            "they're going to meet all the xvin so great it."
+         ]
+        ),
+    ])
+def test_multiline_punctuation(text):
+    phonemized = phonemize(text, preserve_punctuation=True)
+    assert len(text) == len(phonemized)
