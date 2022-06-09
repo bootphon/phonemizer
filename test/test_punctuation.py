@@ -242,41 +242,41 @@ def test_long_document():
 @pytest.mark.parametrize(
     'text, expected', [
         ([
-            'worked david ford i started in deloitte and i was immediately',
+            'worked david ford i started in google and i was immediately',
          ],
          [
-            'wɜːkt deɪvɪd foːɹd aɪ stɑːɹɾᵻd ɪn dᵻlɔɪt ænd aɪ wʌz ɪmiːdɪətli ',
+            'wɜːkt deɪvɪd foːɹd aɪ stɑːɹɾᵻd ɪn ɡuːɡəl ænd aɪ wʌz ɪmiːdɪətli ',
          ]
         ),
         ([
-            'worked david ford i started in deloitte, and i was immediately',
+            'worked david ford i started in google, and i was immediately',
          ],
          [
-            'wɜːkt deɪvɪd foːɹd aɪ stɑːɹɾᵻd ɪn dᵻlɔɪt, ænd aɪ wʌz ɪmiːdɪətli ',
+            'wɜːkt deɪvɪd foːɹd aɪ stɑːɹɾᵻd ɪn ɡuːɡəl, ænd aɪ wʌz ɪmiːdɪətli ',
          ]
         ),
         ([
-            'worked david ford i started in deloitte and i was immediately',
-            'an offer of price waterhouse cooper and here i take may',
+            'worked david ford i started in google and i was immediately',
+            'an plan of price waterhouse cooper and here i take may',
             'we are now as maximum plan for a customer time and',
             "they're going to meet all the xvin so great it"
          ],
          [
-            'wɜːkt deɪvɪd foːɹd aɪ stɑːɹɾᵻd ɪn dᵻlɔɪt ænd aɪ wʌz ɪmiːdɪətli ',
-            'ɐn ɔfɚɹ ʌv pɹaɪs wɔːɾɚhaʊs kuːpɚ ænd hɪɹ aɪ teɪk meɪ ',
+            'wɜːkt deɪvɪd foːɹd aɪ stɑːɹɾᵻd ɪn ɡuːɡəl ænd aɪ wʌz ɪmiːdɪətli ',
+            'ɐn plæn ʌv pɹaɪs wɔːɾɚhaʊs kuːpɚ ænd hɪɹ aɪ teɪk meɪ ',
             'wiː ɑːɹ naʊ æz mæksɪməm plæn fɚɹə kʌstəmɚ taɪm ænd ',
             'ðeɪɚ ɡoʊɪŋ tə miːt ɔːl ðɪ ɛksvɪn soʊ ɡɹeɪt ɪt '
          ]
         ),
         ([
-            'worked david ford i started in deloitte, and i was immediately',
-            'an offer of price waterhouse cooper and here i take may',
+            'worked david ford i started in google, and i was immediately',
+            'an plan of price waterhouse cooper and here i take may',
             'we are now as maximum plan for a customer time and',
             "they're going to meet all the xvin so great it."
          ],
          [
-            'wɜːkt deɪvɪd foːɹd aɪ stɑːɹɾᵻd ɪn dᵻlɔɪt, ænd aɪ wʌz ɪmiːdɪətli ',
-            'ɐn ɔfɚɹ ʌv pɹaɪs wɔːɾɚhaʊs kuːpɚ ænd hɪɹ aɪ teɪk meɪ ',
+            'wɜːkt deɪvɪd foːɹd aɪ stɑːɹɾᵻd ɪn ɡuːɡəl, ænd aɪ wʌz ɪmiːdɪətli ',
+            'ɐn plæn ʌv pɹaɪs wɔːɾɚhaʊs kuːpɚ ænd hɪɹ aɪ teɪk meɪ ',
             'wiː ɑːɹ naʊ æz mæksɪməm plæn fɚɹə kʌstəmɚ taɪm ænd ',
             'ðeɪɚ ɡoʊɪŋ tə miːt ɔːl ðɪ ɛksvɪn soʊ ɡɹeɪt ɪt. '
          ]
