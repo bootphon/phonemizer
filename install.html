@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -84,9 +85,9 @@
            <div itemprop="articleBody">
              
   <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
 <section id="dependencies">
-<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline"></a></h2>
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading"></a></h2>
 <p><strong>You need python&gt;=3.6.</strong> If you really need to use python2, use the
 <code class="docutils literal notranslate"><span class="pre">phonemizer-1.0</span></code> release.</p>
 <p>You need to install
@@ -96,7 +97,7 @@ and/or <a class="reference external" href="https://github.com/numediart/MBROLA">
 corresponding <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> backends.
 Follow instructions for your system below.</p>
 <section id="on-debian-unbuntu">
-<h3>On Debian/Unbuntu<a class="headerlink" href="#on-debian-unbuntu" title="Permalink to this headline"></a></h3>
+<h3>On Debian/Unbuntu<a class="headerlink" href="#on-debian-unbuntu" title="Permalink to this heading"></a></h3>
 <p>To install dependencies, simply run</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get install festival espeak-ng mbrola
 </pre></div>
@@ -110,7 +111,7 @@ the installable voices with</p>
 </div>
 </section>
 <section id="on-centos-fedora">
-<h3>On CentOS/Fedora<a class="headerlink" href="#on-centos-fedora" title="Permalink to this headline"></a></h3>
+<h3>On CentOS/Fedora<a class="headerlink" href="#on-centos-fedora" title="Permalink to this heading"></a></h3>
 <p>To install dependencies, simply run</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo yum install festival espeak-ng
 </pre></div>
@@ -120,7 +121,7 @@ mbrola voices must be installed (see
 <a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)">here</a>).</p>
 </section>
 <section id="on-macos">
-<h3>On MacOS<a class="headerlink" href="#on-macos" title="Permalink to this headline"></a></h3>
+<h3>On MacOS<a class="headerlink" href="#on-macos" title="Permalink to this heading"></a></h3>
 <p><strong>espeak</strong> is available on brew at version 1.48: <cite>brew install espeak</cite>. If you
 want a more recent version you have to
 <a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/building.md#linux-mac-bsd">compile it from sources</a>.
@@ -128,7 +129,7 @@ To install <strong>festival</strong>, <strong>mbrola</strong> and additional mbr
 script provided <a class="reference external" href="https://github.com/pettarin/setup-festival-mbrola">here</a>.</p>
 </section>
 <section id="on-windows">
-<h3>On Windows<a class="headerlink" href="#on-windows" title="Permalink to this headline"></a></h3>
+<h3>On Windows<a class="headerlink" href="#on-windows" title="Permalink to this heading"></a></h3>
 <p>Install <strong>espeak-ng</strong> with the <cite>.msi</cite> Windows installer provided with
 <a class="reference external" href="https://github.com/espeak-ng/espeak-ng/releases">espeak releases</a>.
 <strong>festival</strong> must be compiled from sources (see
@@ -138,7 +139,7 @@ script provided <a class="reference external" href="https://github.com/pettarin/
 </section>
 </section>
 <section id="phonemizer">
-<h2>Phonemizer<a class="headerlink" href="#phonemizer" title="Permalink to this headline"></a></h2>
+<h2>Phonemizer<a class="headerlink" href="#phonemizer" title="Permalink to this heading"></a></h2>
 <ul>
 <li><p>The simplest way is using pip:</p>
 <blockquote>
@@ -161,7 +162,7 @@ during installation, refer to <a class="reference external" href="https://github
 </ul>
 </section>
 <section id="docker-image">
-<h2>Docker image<a class="headerlink" href="#docker-image" title="Permalink to this headline"></a></h2>
+<h2>Docker image<a class="headerlink" href="#docker-image" title="Permalink to this heading"></a></h2>
 <p>Alternatively you can run the phonemizer within docker, using the
 provided <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code>. To build the docker image, have a:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/bootphon/phonemizer
@@ -175,7 +176,7 @@ sudo docker build -t phonemizer .
 </div>
 </section>
 <section id="testing">
-<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline"></a></h2>
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h2>
 <p>When installed from sources or whithin a Docker image, you can run the tests
 suite from the root <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> folder (once you installed <code class="docutils literal notranslate"><span class="pre">pytest</span></code>):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install pytest

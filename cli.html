@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -80,7 +81,7 @@
            <div itemprop="articleBody">
              
   <section id="command-line-examples">
-<h1>Command Line Examples<a class="headerlink" href="#command-line-examples" title="Permalink to this headline"></a></h1>
+<h1>Command Line Examples<a class="headerlink" href="#command-line-examples" title="Permalink to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">phonemize</span></code> command can be used to replicate most of the features
 exposed in <a class="reference internal" href="python_examples.html#python-examples"><span class="std std-ref">Python Examples</span></a>.</p>
 <p>For a complete list of available options, have a:</p>
@@ -94,7 +95,7 @@ available backends: espeak-ng-1.50, espeak-mbrola, festival-2.5.0, segments-2.1.
 </pre></div>
 </div>
 <section id="input-output-examples">
-<h2>Input/output examples<a class="headerlink" href="#input-output-examples" title="Permalink to this headline"></a></h2>
+<h2>Input/output examples<a class="headerlink" href="#input-output-examples" title="Permalink to this heading"></a></h2>
 <ul>
 <li><p>from stdin to stdout:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize
@@ -128,7 +129,7 @@ həloʊ wɜːld
 </ul>
 </section>
 <section id="backends">
-<h2>Backends<a class="headerlink" href="#backends" title="Permalink to this headline"></a></h2>
+<h2>Backends<a class="headerlink" href="#backends" title="Permalink to this heading"></a></h2>
 <ul>
 <li><p>The default is to use <strong>espeak</strong> us-english:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize
@@ -171,7 +172,7 @@ konnitʃiwa
 </ul>
 </section>
 <section id="supported-languages">
-<h2>Supported languages<a class="headerlink" href="#supported-languages" title="Permalink to this headline"></a></h2>
+<h2>Supported languages<a class="headerlink" href="#supported-languages" title="Permalink to this heading"></a></h2>
 <p>The exhaustive list of supported languages is available with the command
 <code class="docutils literal notranslate"><span class="pre">phonemize</span> <span class="pre">--list-languages</span> <span class="pre">[--backend</span> <span class="pre">&lt;backend&gt;]</span></code>.</p>
 <ul>
@@ -201,7 +202,7 @@ grapheme to phone mapping (see the files above for examples).</p>
 </ul>
 </section>
 <section id="token-separators">
-<h2>Token separators<a class="headerlink" href="#token-separators" title="Permalink to this headline"></a></h2>
+<h2>Token separators<a class="headerlink" href="#token-separators" title="Permalink to this heading"></a></h2>
 <p>You can specify separators for phones, syllables (<strong>festival</strong> only) and
 words (excepted <strong>espeak-mbrola</strong>).</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -b festival -w <span class="s1">&#39; &#39;</span> -p <span class="s1">&#39;&#39;</span>
@@ -229,7 +230,7 @@ must be all differents <span class="k">if</span> not empty
 </div>
 </section>
 <section id="punctuation">
-<h2>Punctuation<a class="headerlink" href="#punctuation" title="Permalink to this headline"></a></h2>
+<h2>Punctuation<a class="headerlink" href="#punctuation" title="Permalink to this heading"></a></h2>
 <p>By default the punctuation is removed in the phonemized output. You can
 preserve it using the <code class="docutils literal notranslate"><span class="pre">--preserve-punctuation</span></code> option (not supported
 by the <strong>espeak-mbrola</strong> backend):</p>
@@ -255,7 +256,7 @@ wʌn θaʊzənd, ɔːɹ soʊ.
 </div>
 </section>
 <section id="espeak-specific-options">
-<h2>Espeak specific options<a class="headerlink" href="#espeak-specific-options" title="Permalink to this headline"></a></h2>
+<h2>Espeak specific options<a class="headerlink" href="#espeak-specific-options" title="Permalink to this heading"></a></h2>
 <ul>
 <li><p>The espeak backend can output the <strong>stresses</strong> on phones:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;hello world&quot;</span> <span class="p">|</span> phonemize -l en-us -b espeak --with-stress
