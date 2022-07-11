@@ -56,7 +56,11 @@ def test_remove(inp, out):
         ['Truly replied, "Yes".'],
         ['hi; ho,"'],
         ["!?"],
-        ["!'"]])
+        ["!'"],
+        ["It is ! (I think so)"],
+        ["This {is} right"],
+        ["[He] is right"],
+    ])
 def test_preserve(inp):
     punct = Punctuation()
     text, marks = punct.preserve(inp)
