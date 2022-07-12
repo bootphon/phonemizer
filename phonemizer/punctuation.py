@@ -22,7 +22,7 @@ from phonemizer.utils import str2list
 from phonemizer.separator import Separator
 
 # The punctuation marks considered by default.
-_DEFAULT_MARKS = ';:,.!?¡¿—…"«»“”'
+_DEFAULT_MARKS = ';:,.!?¡¿—…"«»“”(){}[]'
 
 _MarkIndex = collections.namedtuple(
     '_mark_index', ['index', 'mark', 'position'])
@@ -67,14 +67,14 @@ class Punctuation:
             # catch the pattern surrounded by zero or more spaces on either side
             self._marks_re = re.compile(r'((' + value.pattern + r')|\s)+')
             self._marks = None
-        else:
-            if not isinstance(value, str):
-                raise ValueError('punctuation marks must be defined as a string or re.Pattern')
+        elif isinstance(value, str):
             self._marks = ''.join(set(value))
 
             # catching all the marks in one regular expression: zero or more spaces
             # + one or more marks + zero or more spaces.
             self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
+        else:
+            raise ValueError('punctuation marks must be defined as a string or re.Pattern')
 
     def remove(self, text: Union[str, List[str]]) -> Union[str, List[str]]:
         """Returns the `text` with all punctuation marks replaced by spaces
