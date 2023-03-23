@@ -40,7 +40,11 @@ class EspeakAPI:
 
     """
 
-    def __init__(self, library: Union[str, Path]):
+    def __init__(
+        self, 
+        library: Union[str, Path],
+        path: str = None
+    ):
         # set to None to avoid an AttributeError in _delete if the __init__
         # method raises, will be properly initialized below
         self._library = None
@@ -83,7 +87,9 @@ class EspeakAPI:
         # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
         self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
         try:
-            if self._library.espeak_Initialize(0x02, 0, None, 0) <= 0:
+            if path:
+                path = path.encode('utf-8')
+            if self._library.espeak_Initialize(0x02, 0, path, 0) <= 0:
                 raise RuntimeError(  # pragma: nocover
                     'failed to initialize espeak shared library')
         except AttributeError:  # pragma: nocover

@@ -49,7 +49,7 @@ class EspeakWrapper:
     # the method EspeakWrapper.set_library().
     _ESPEAK_LIBRARY = None
 
-    def __init__(self):
+    def __init__(self, path: str = None):
         # the following attributes are accessed through properties and are
         # lazily initialized
         self._version: Tuple[int, ...] = None
@@ -57,7 +57,10 @@ class EspeakWrapper:
         self._voice = None
 
         # load the espeak API
-        self._espeak = EspeakAPI(self.library())
+        self._espeak = EspeakAPI(
+            self.library(),
+            path=path
+        )
 
         # lazy loading of attributes only required for the synthetize method
         self._libc_ = None

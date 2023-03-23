@@ -35,14 +35,15 @@ class BaseEspeakBackend(BaseBackend):
     def __init__(self, language: str,
                  punctuation_marks: Optional[Union[str, Pattern]] = None,
                  preserve_punctuation: bool = False,
-                 logger: Optional[Logger] = None):
+                 logger: Optional[Logger] = None,
+                 path: str = None):
         super().__init__(
             language,
             punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation,
             logger=logger)
 
-        self._espeak = EspeakWrapper()
+        self._espeak = EspeakWrapper(path=path)
         self.logger.debug('loaded %s', self._espeak.library_path)
 
 
