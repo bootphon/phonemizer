@@ -63,6 +63,24 @@ On Windows
 
 Install **espeak-ng** with the `.msi` Windows installer provided with
 `espeak releases <https://github.com/espeak-ng/espeak-ng/releases>`_.
+
+.. warning::
+
+    On Windows the installation of espeak can cause issues `here <https://github.com/bootphon/phonemizer/issues/44>`_.
+
+    Make sure you install the correct `.msi` file for your platform. It exists for two architectures: 
+    X64 and X86. Most today's machines are X64 so, if you don't know which one to choose, you should start trying
+    with `espeak-ng-X64.msi`.
+
+    If `phonemizer` fails with a message `RuntimeError: espeak not installed on your system`, it means the 
+    `libespeak-ng.dll` library file is not fount by `phonemizer`. You can specify it's path from Python (before calling the phonemize function):
+
+    .. code-block:: python
+
+        from phonemizer.backend.espeak.wrapper import EspeakWrapper
+
+        EspeakWrapper.set_library('C:\Program Files\eSpeak NG\libespeak-ng.dll')
+
 **festival** must be compiled from sources (see
 `here <https://github.com/festvox/festival/blob/master/INSTALL>`_ and
 `here <https://www.eguidedog.net/doc/doc_build_win_festival.php)>`_.
