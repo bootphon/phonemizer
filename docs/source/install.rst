@@ -52,11 +52,11 @@ mbrola voices must be installed (see
 On MacOS
 ~~~~~~~~~
 
-**espeak** is available on brew at version 1.48: `brew install espeak`. If you
-want a more recent version you have to
-`compile it from sources <https://github.com/espeak-ng/espeak-ng/blob/master/docs/building.md#linux-mac-bsd>`_.
-To install **festival**, **mbrola** and additional mbrola voices, use the
-script provided `here <https://github.com/pettarin/setup-festival-mbrola>`_.
+**espeak** is available on brew at version 1.48: ``brew install espeak``. If you
+want a more recent version you have to `compile it from sources
+<https://github.com/espeak-ng/espeak-ng/blob/master/docs/building.md#linux-mac-bsd>`_.
+To install **festival**, **mbrola** and additional mbrola voices, use the script
+provided `here <https://github.com/pettarin/setup-festival-mbrola>`_.
 
 On Windows
 ~~~~~~~~~~
@@ -66,20 +66,32 @@ Install **espeak-ng** with the `.msi` Windows installer provided with
 
 .. warning::
 
-    On Windows the installation of espeak can cause issues `here <https://github.com/bootphon/phonemizer/issues/44>`_.
+    On Windows the installation of espeak can cause issues (see `here
+    <https://github.com/bootphon/phonemizer/issues/44>`_).
 
-    Make sure you install the correct `.msi` file for your platform. It exists for two architectures: 
-    X64 and X86. Most today's machines are X64 so, if you don't know which one to choose, you should start trying
-    with `espeak-ng-X64.msi`.
+    Make sure you install the correct `.msi` file for your platform. It exists
+    for two architectures: X64 and X86. Most today's machines are X64 so, if you
+    don't know which one to choose, you should start trying with
+    ``espeak-ng-X64.msi``.
 
-    If `phonemizer` fails with a message `RuntimeError: espeak not installed on your system`, it means the 
-    `libespeak-ng.dll` library file is not fount by `phonemizer`. You can specify it's path from Python (before calling the phonemize function):
+    If ``phonemizer`` fails with a message ``RuntimeError: espeak not installed
+    on your system``, it means the ``libespeak-ng.dll`` library file is not
+    found by ``phonemizer``. You can specify it's path from Python (before
+    calling the phonemize function):
 
     .. code-block:: python
 
         from phonemizer.backend.espeak.wrapper import EspeakWrapper
 
         EspeakWrapper.set_library('C:\Program Files\eSpeak NG\libespeak-ng.dll')
+
+    An alternative is to define the environment variable
+    ``PHONEMIZER_ESPEAK_LIBRARY`` to the absolute path to the DLL. For exemple
+    if using conda have a:
+
+    .. code-block:: bash
+
+       conda env config vars set PHONEMIZER_ESPEAK_LIBRARY="C:\Program Files\eSpeak NG\libespeak-ng.dll"
 
 **festival** must be compiled from sources (see
 `here <https://github.com/festvox/festival/blob/master/INSTALL>`_ and
@@ -103,7 +115,7 @@ Phonemizer
 
         git clone https://github.com/bootphon/phonemizer
         cd phonemizer
-        python setup.py install
+        pip install .
 
     If you experiment an error such as ``ImportError: No module named setuptools``
     during installation, refer to `issue #11 <https://github.com/bootphon/phonemizer/issues/11>`_.
