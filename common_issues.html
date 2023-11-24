@@ -11,12 +11,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -81,9 +80,9 @@
            <div itemprop="articleBody">
              
   <section id="common-issues">
-<h1>Common Issues<a class="headerlink" href="#common-issues" title="Permalink to this heading"></a></h1>
+<h1>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h1>
 <section id="phonemization-is-slow">
-<h2>Phonemization is slow<a class="headerlink" href="#phonemization-is-slow" title="Permalink to this heading"></a></h2>
+<h2>Phonemization is slow<a class="headerlink" href="#phonemization-is-slow" title="Link to this heading"></a></h2>
 <p>You may have realized that large number of calls to <a class="reference internal" href="api_reference.html#phonemizer.phonemize" title="phonemizer.phonemize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">phonemizer.phonemize()</span></code></a>
 makes for a very slow execution. It is much more efficient to minimize the number of calls to the phonemize function.
 Indeed the initialization of the phonemization backend can be expensive, especially for espeak.

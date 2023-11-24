@@ -11,12 +11,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -86,7 +85,7 @@
            <div itemprop="articleBody">
              
   <section id="command-line-examples">
-<h1>Command Line Examples<a class="headerlink" href="#command-line-examples" title="Permalink to this heading"></a></h1>
+<h1>Command Line Examples<a class="headerlink" href="#command-line-examples" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">phonemize</span></code> command can be used to replicate most of the features
 exposed in <a class="reference internal" href="python_examples.html#python-examples"><span class="std std-ref">Python Examples</span></a>.</p>
 <p>For a complete list of available options, have a:</p>
@@ -100,7 +99,7 @@ available<span class="w"> </span>backends:<span class="w"> </span>espeak-ng-1.50
 </pre></div>
 </div>
 <section id="input-output-examples">
-<h2>Input/output examples<a class="headerlink" href="#input-output-examples" title="Permalink to this heading"></a></h2>
+<h2>Input/output examples<a class="headerlink" href="#input-output-examples" title="Link to this heading"></a></h2>
 <ul>
 <li><p>from stdin to stdout:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>phonemize
@@ -134,7 +133,7 @@ həloʊ<span class="w"> </span>wɜːld
 </ul>
 </section>
 <section id="backends">
-<h2>Backends<a class="headerlink" href="#backends" title="Permalink to this heading"></a></h2>
+<h2>Backends<a class="headerlink" href="#backends" title="Link to this heading"></a></h2>
 <ul>
 <li><p>The default is to use <strong>espeak</strong> us-english:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>phonemize
@@ -177,7 +176,7 @@ konnitʃiwa
 </ul>
 </section>
 <section id="supported-languages">
-<h2>Supported languages<a class="headerlink" href="#supported-languages" title="Permalink to this heading"></a></h2>
+<h2>Supported languages<a class="headerlink" href="#supported-languages" title="Link to this heading"></a></h2>
 <p>The exhaustive list of supported languages is available with the command
 <code class="docutils literal notranslate"><span class="pre">phonemize</span> <span class="pre">--list-languages</span> <span class="pre">[--backend</span> <span class="pre">&lt;backend&gt;]</span></code>.</p>
 <ul>
@@ -207,7 +206,7 @@ grapheme to phone mapping (see the files above for examples).</p>
 </ul>
 </section>
 <section id="token-separators">
-<h2>Token separators<a class="headerlink" href="#token-separators" title="Permalink to this heading"></a></h2>
+<h2>Token separators<a class="headerlink" href="#token-separators" title="Link to this heading"></a></h2>
 <p>You can specify separators for phones, syllables (<strong>festival</strong> only) and
 words (excepted <strong>espeak-mbrola</strong>).</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>phonemize<span class="w"> </span>-b<span class="w"> </span>festival<span class="w"> </span>-w<span class="w"> </span><span class="s1">&#39; &#39;</span><span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;&#39;</span>
@@ -235,7 +234,7 @@ must<span class="w"> </span>be<span class="w"> </span>all<span class="w"> </span
 </div>
 </section>
 <section id="punctuation">
-<h2>Punctuation<a class="headerlink" href="#punctuation" title="Permalink to this heading"></a></h2>
+<h2>Punctuation<a class="headerlink" href="#punctuation" title="Link to this heading"></a></h2>
 <p>By default the punctuation is removed in the phonemized output. You can
 preserve it using the <code class="docutils literal notranslate"><span class="pre">--preserve-punctuation</span></code> option (not supported
 by the <strong>espeak-mbrola</strong> backend):</p>
@@ -261,7 +260,7 @@ wʌn<span class="w"> </span>θaʊzənd,<span class="w"> </span>ɔːɹ<span class
 </div>
 </section>
 <section id="espeak-specific-options">
-<h2>Espeak specific options<a class="headerlink" href="#espeak-specific-options" title="Permalink to this heading"></a></h2>
+<h2>Espeak specific options<a class="headerlink" href="#espeak-specific-options" title="Link to this heading"></a></h2>
 <ul>
 <li><p>The espeak backend can output the <strong>stresses</strong> on phones:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>phonemize<span class="w"> </span>-l<span class="w"> </span>en-us<span class="w"> </span>-b<span class="w"> </span>espeak<span class="w"> </span>--with-stress

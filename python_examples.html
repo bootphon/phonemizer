@@ -11,12 +11,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -82,11 +81,11 @@
            <div itemprop="articleBody">
              
   <section id="python-examples">
-<span id="id1"></span><h1>Python Examples<a class="headerlink" href="#python-examples" title="Permalink to this heading"></a></h1>
+<span id="id1"></span><h1>Python Examples<a class="headerlink" href="#python-examples" title="Link to this heading"></a></h1>
 <p>In Python import the <code class="docutils literal notranslate"><span class="pre">phonemize</span></code> function with <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">phonemizer</span> <span class="pre">import</span> <span class="pre">phonemize</span></code>.
 See <a class="reference internal" href="api_reference.html#phonemizer.phonemize" title="phonemizer.phonemize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">phonemizer.phonemize()</span></code></a>.</p>
 <section id="example-1-phonemize-a-text-with-festival">
-<h2>Example 1: phonemize a text with festival<a class="headerlink" href="#example-1-phonemize-a-text-with-festival" title="Permalink to this heading"></a></h2>
+<h2>Example 1: phonemize a text with festival<a class="headerlink" href="#example-1-phonemize-a-text-with-festival" title="Link to this heading"></a></h2>
 <p>The following exemple downloads a text and phonemizes it using the
 festival backend, preserving punctuation and using 4 jobs in parallel.
 The phones are not separated, words are separated by a space and
@@ -117,7 +116,7 @@ syllables by <code class="docutils literal notranslate"><span class="pre">|</spa
 </div>
 </section>
 <section id="example-2-build-a-lexicon-with-espeak">
-<h2>Example 2: build a lexicon with espeak<a class="headerlink" href="#example-2-build-a-lexicon-with-espeak" title="Permalink to this heading"></a></h2>
+<h2>Example 2: build a lexicon with espeak<a class="headerlink" href="#example-2-build-a-lexicon-with-espeak" title="Link to this heading"></a></h2>
 <p>The following exemple extracts a list of words present in a text,
 ignoring punctuation, and builds a dictionary <code class="docutils literal notranslate"><span class="pre">word:</span> <span class="pre">[phones]</span></code>,
 e.g. <code class="docutils literal notranslate"><span class="pre">{'students':</span> <span class="pre">'s</span> <span class="pre">t</span> <span class="pre">uː</span> <span class="pre">d</span> <span class="pre">ə</span> <span class="pre">n</span> <span class="pre">t</span> <span class="pre">s',</span> <span class="pre">'cobb':</span> <span class="pre">'k</span> <span class="pre">ɑː</span> <span class="pre">b',</span> <span class="pre">'its':</span> <span class="pre">'ɪ</span> <span class="pre">t</span> <span class="pre">s',</span> <span class="pre">'put':</span> <span class="pre">'p</span> <span class="pre">ʊ</span> <span class="pre">t',</span> <span class="pre">...}</span></code>.
