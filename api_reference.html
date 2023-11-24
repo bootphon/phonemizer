@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>API Reference &mdash; Phonemizer  documentation</title>
@@ -16,6 +16,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Phonemizer
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Phonemizer
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -45,8 +50,59 @@
 <li class="toctree-l1"><a class="reference internal" href="python_examples.html">Python Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="common_issues.html">Common Issues</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#toplevel-api">Toplevel API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#backends">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#toplevel-api">Toplevel API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#phonemizer.phonemize"><code class="docutils literal notranslate"><span class="pre">phonemize</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phonemizer.separator.Separator"><code class="docutils literal notranslate"><span class="pre">Separator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.separator.Separator.input_output_separator"><code class="docutils literal notranslate"><span class="pre">Separator.input_output_separator()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.separator.Separator.phone"><code class="docutils literal notranslate"><span class="pre">Separator.phone</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.separator.Separator.syllable"><code class="docutils literal notranslate"><span class="pre">Separator.syllable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.separator.Separator.word"><code class="docutils literal notranslate"><span class="pre">Separator.word</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#backends">Backends</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#phonemizer.backend.base.BaseBackend"><code class="docutils literal notranslate"><span class="pre">BaseBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.base.BaseBackend.is_available"><code class="docutils literal notranslate"><span class="pre">BaseBackend.is_available()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.base.BaseBackend.is_supported_language"><code class="docutils literal notranslate"><span class="pre">BaseBackend.is_supported_language()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.base.BaseBackend.language"><code class="docutils literal notranslate"><span class="pre">BaseBackend.language</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.base.BaseBackend.logger"><code class="docutils literal notranslate"><span class="pre">BaseBackend.logger</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.base.BaseBackend.name"><code class="docutils literal notranslate"><span class="pre">BaseBackend.name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.base.BaseBackend.phonemize"><code class="docutils literal notranslate"><span class="pre">BaseBackend.phonemize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.base.BaseBackend.supported_languages"><code class="docutils literal notranslate"><span class="pre">BaseBackend.supported_languages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.base.BaseBackend.version"><code class="docutils literal notranslate"><span class="pre">BaseBackend.version()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#phonemizer.backend.espeak.espeak.EspeakBackend"><code class="docutils literal notranslate"><span class="pre">EspeakBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.espeak.espeak.EspeakBackend.name"><code class="docutils literal notranslate"><span class="pre">EspeakBackend.name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.espeak.espeak.EspeakBackend.supported_languages"><code class="docutils literal notranslate"><span class="pre">EspeakBackend.supported_languages()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend"><code class="docutils literal notranslate"><span class="pre">EspeakMbrolaBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.is_available"><code class="docutils literal notranslate"><span class="pre">EspeakMbrolaBackend.is_available()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.name"><code class="docutils literal notranslate"><span class="pre">EspeakMbrolaBackend.name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.supported_languages"><code class="docutils literal notranslate"><span class="pre">EspeakMbrolaBackend.supported_languages()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#phonemizer.backend.segments.SegmentsBackend"><code class="docutils literal notranslate"><span class="pre">SegmentsBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.segments.SegmentsBackend.is_available"><code class="docutils literal notranslate"><span class="pre">SegmentsBackend.is_available()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.segments.SegmentsBackend.is_supported_language"><code class="docutils literal notranslate"><span class="pre">SegmentsBackend.is_supported_language()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.segments.SegmentsBackend.name"><code class="docutils literal notranslate"><span class="pre">SegmentsBackend.name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.segments.SegmentsBackend.supported_languages"><code class="docutils literal notranslate"><span class="pre">SegmentsBackend.supported_languages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.segments.SegmentsBackend.version"><code class="docutils literal notranslate"><span class="pre">SegmentsBackend.version()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#phonemizer.backend.festival.festival.FestivalBackend"><code class="docutils literal notranslate"><span class="pre">FestivalBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.festival.festival.FestivalBackend.executable"><code class="docutils literal notranslate"><span class="pre">FestivalBackend.executable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.festival.festival.FestivalBackend.is_available"><code class="docutils literal notranslate"><span class="pre">FestivalBackend.is_available()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.festival.festival.FestivalBackend.name"><code class="docutils literal notranslate"><span class="pre">FestivalBackend.name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.festival.festival.FestivalBackend.set_executable"><code class="docutils literal notranslate"><span class="pre">FestivalBackend.set_executable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.festival.festival.FestivalBackend.supported_languages"><code class="docutils literal notranslate"><span class="pre">FestivalBackend.supported_languages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.festival.festival.FestivalBackend.version"><code class="docutils literal notranslate"><span class="pre">FestivalBackend.version()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
@@ -65,8 +121,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>API Reference</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/api_reference.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -105,9 +161,9 @@ especially for espeak. In one exemple,</p>
 </div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>text</strong> (<em>str</em><em> or </em><em>list of str</em>) – The text to be phonemized. Any empty line will
+<li><p><strong>text</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em>) – The text to be phonemized. Any empty line will
 be ignored. If <code class="docutils literal notranslate"><span class="pre">text</span></code> is an str, it can be multiline (lines being
 separated by <code class="docutils literal notranslate"><span class="pre">\n</span></code>). If <code class="docutils literal notranslate"><span class="pre">text</span></code> is a list, each element is considered as a
 separated line. Each line is considered as a text utterance.</p></li>
@@ -169,17 +225,17 @@ outputs are finally collapsed.</p></li>
 not specified, use the default system logger.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>phonemized text</strong> – The input <code class="docutils literal notranslate"><span class="pre">text</span></code> phonemized for the
 given <code class="docutils literal notranslate"><span class="pre">language</span></code> and <code class="docutils literal notranslate"><span class="pre">backend</span></code>. The returned value has the same type of
 the input text (either a list or a string), excepted if <code class="docutils literal notranslate"><span class="pre">prepend_input</span></code>
 is True where the output is forced as a list of pairs (input_text,
 phonemized text).</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str or list of str</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>RuntimeError</strong> – if the <code class="docutils literal notranslate"><span class="pre">backend</span></code> is not valid or is valid but not installed,
     if the <code class="docutils literal notranslate"><span class="pre">language</span></code> is not supported by the <code class="docutils literal notranslate"><span class="pre">backend</span></code>, if any incompatible options are used.</p>
 </dd>
@@ -197,16 +253,16 @@ phonemized text).</p>
 <p>The input/output separator split orthographic and phonetic texts when
 using the –prepend-text option from command-line.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>field_separator</strong> (<em>bool</em><em> or </em><em>str</em>) – If str, ensures it’s value is not
 already defined as a token separator. If True choose one of “|”,
 “||”, “|||”, “||||” (the first one that is not defined as a token
 separator)</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>The input/output separator, or False if <code class="docutils literal notranslate"><span class="pre">field_separator</span></code> is False</p>
 </dd>
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>RuntimeError</strong> – if <code class="docutils literal notranslate"><span class="pre">field_separator</span></code> is a str but is already registered as token separator</p>
 </dd>
 </dl>
@@ -242,7 +298,7 @@ separator)</p>
 <p>Provides a common interface to all backends. The central method is
 <cite>phonemize()</cite></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>language</strong> (<em>str</em>) – The language code of the input text, must be supported by
 the backend. If <code class="docutils literal notranslate"><span class="pre">backend</span></code> is ‘segments’, the language can be a file with
@@ -256,7 +312,7 @@ Can be defined as a string or regular expression. Default to Punctuation.default
 messages. If not specified, use the default system logger.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>RuntimeError</strong> – if the backend is not available of if the <cite>language</cite> cannot be initialized.</p>
 </dd>
 </dl>
@@ -295,9 +351,9 @@ messages. If not specified, use the default system logger.</p></li>
 <span class="sig-name descname"><span class="pre">phonemize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#phonemizer.separator.Separator" title="phonemizer.separator.Separator"><span class="pre">Separator</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend.phonemize" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the <cite>text</cite> phonemized for the given language</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>text</strong> (<em>list of str</em>) – The text to be phonemized. Each string in the list
+<li><p><strong>text</strong> (<em>list</em><em> of </em><em>str</em>) – The text to be phonemized. Each string in the list
 is considered as a separated line. Each line is considered as a text
 utterance. Any empty utterance will be ignored.</p></li>
 <li><p><strong>separator</strong> (<a class="reference internal" href="#phonemizer.separator.Separator" title="phonemizer.separator.Separator"><em>Separator</em></a>) – string separators between phonemes, syllables
@@ -311,13 +367,13 @@ split in <code class="docutils literal notranslate"><span class="pre">njobs</spa
 backend and the outputs are finally collapsed.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>phonemized text</strong> – The input <code class="docutils literal notranslate"><span class="pre">text</span></code> phonemized for the given <code class="docutils literal notranslate"><span class="pre">language</span></code> and <code class="docutils literal notranslate"><span class="pre">backend</span></code>.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of str</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>RuntimeError</strong> – if something went wrong during the phonemization</p>
 </dd>
 </dl>
@@ -436,7 +492,7 @@ PHONEMIZER_FESTIVAL_EXECUTABLE</p></li>
 <li><p>Or the default ‘festival’ binary found on the system with <code class="docutils literal notranslate"><span class="pre">shutil.which('festival')</span></code></p></li>
 </ol>
 <dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>RuntimeError</strong> – if the festival executable cannot be found or if the
     environment variable PHONEMIZER_FESTIVAL_EXECUTABLE is set to a
     non-executable file</p>
@@ -463,10 +519,10 @@ PHONEMIZER_FESTIVAL_EXECUTABLE</p></li>
 <p>If this is not set, the backend uses the default festival executable
 from the system installation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>executable</em>) – backend. Set <cite>executable</cite> to None to restore the default.</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>RuntimeError if executable is not an executable file.</strong> – </p>
 </dd>
 </dl>
@@ -484,7 +540,7 @@ from the system installation.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.festival.festival.FestivalBackend.version" title="Permalink to this definition"></a></dt>
 <dd><p>Festival version as a tupe of integers (major, minor, patch)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>RuntimeError if FestivalBackend.is_available</strong><strong>(</strong><strong>) </strong><strong>is False</strong><strong> or </strong><strong>if the</strong> – version cannot be extracted for some reason.</p>
 </dd>
 </dl>

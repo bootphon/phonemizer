@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Installation &mdash; Phonemizer  documentation</title>
@@ -16,6 +16,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Phonemizer
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Phonemizer
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -73,8 +78,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Installation</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/install.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -99,21 +104,21 @@ Follow instructions for your system below.</p>
 <section id="on-debian-unbuntu">
 <h3>On Debian/Unbuntu<a class="headerlink" href="#on-debian-unbuntu" title="Permalink to this heading"></a></h3>
 <p>To install dependencies, simply run</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get install festival espeak-ng mbrola
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>festival<span class="w"> </span>espeak-ng<span class="w"> </span>mbrola
 </pre></div>
 </div>
 <p>When using the <strong>espeak-mbrola</strong> backend, additional mbrola voices must be
 installed (see
 <a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)">here</a>. List
 the installable voices with</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>apt search mbrola
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>apt<span class="w"> </span>search<span class="w"> </span>mbrola
 </pre></div>
 </div>
 </section>
 <section id="on-centos-fedora">
 <h3>On CentOS/Fedora<a class="headerlink" href="#on-centos-fedora" title="Permalink to this heading"></a></h3>
 <p>To install dependencies, simply run</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo yum install festival espeak-ng
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>yum<span class="w"> </span>install<span class="w"> </span>festival<span class="w"> </span>espeak-ng
 </pre></div>
 </div>
 <p>When using the <strong>espeak-mbrola</strong> backend, the mbrola binary and additional
@@ -131,8 +136,22 @@ script provided <a class="reference external" href="https://github.com/pettarin/
 <section id="on-windows">
 <h3>On Windows<a class="headerlink" href="#on-windows" title="Permalink to this heading"></a></h3>
 <p>Install <strong>espeak-ng</strong> with the <cite>.msi</cite> Windows installer provided with
-<a class="reference external" href="https://github.com/espeak-ng/espeak-ng/releases">espeak releases</a>.
-<strong>festival</strong> must be compiled from sources (see
+<a class="reference external" href="https://github.com/espeak-ng/espeak-ng/releases">espeak releases</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>On Windows the installation of espeak can cause issues <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/44">here</a>.</p>
+<p>Make sure you install the correct <cite>.msi</cite> file for your platform. It exists for two architectures:
+X64 and X86. Most today’s machines are X64 so, if you don’t know which one to choose, you should start trying
+with <cite>espeak-ng-X64.msi</cite>.</p>
+<p>If <cite>phonemizer</cite> fails with a message <cite>RuntimeError: espeak not installed on your system</cite>, it means the
+<cite>libespeak-ng.dll</cite> library file is not fount by <cite>phonemizer</cite>. You can specify it’s path from Python (before calling the phonemize function):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">phonemizer.backend.espeak.wrapper</span> <span class="kn">import</span> <span class="n">EspeakWrapper</span>
+
+<span class="n">EspeakWrapper</span><span class="o">.</span><span class="n">set_library</span><span class="p">(</span><span class="s1">&#39;C:\Program Files\eSpeak NG\libespeak-ng.dll&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p><strong>festival</strong> must be compiled from sources (see
 <a class="reference external" href="https://github.com/festvox/festival/blob/master/INSTALL">here</a> and
 <a class="reference external" href="https://www.eguidedog.net/doc/doc_build_win_festival.php)">here</a>.
 <strong>mbrola</strong> is not available for Windows.</p>
@@ -143,16 +162,16 @@ script provided <a class="reference external" href="https://github.com/pettarin/
 <ul>
 <li><p>The simplest way is using pip:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install phonemizer
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>phonemizer
 </pre></div>
 </div>
 </div></blockquote>
 </li>
 <li><p><strong>OR</strong> install it from sources with:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/bootphon/phonemizer
-<span class="nb">cd</span> phonemizer
-python setup.py install
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/bootphon/phonemizer
+<span class="nb">cd</span><span class="w"> </span>phonemizer
+python<span class="w"> </span>setup.py<span class="w"> </span>install
 </pre></div>
 </div>
 <p>If you experiment an error such as <code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">setuptools</span></code>
@@ -165,13 +184,13 @@ during installation, refer to <a class="reference external" href="https://github
 <h2>Docker image<a class="headerlink" href="#docker-image" title="Permalink to this heading"></a></h2>
 <p>Alternatively you can run the phonemizer within docker, using the
 provided <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code>. To build the docker image, have a:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/bootphon/phonemizer
-<span class="nb">cd</span> phonemizer
-sudo docker build -t phonemizer .
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/bootphon/phonemizer
+<span class="nb">cd</span><span class="w"> </span>phonemizer
+sudo<span class="w"> </span>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>phonemizer<span class="w"> </span>.
 </pre></div>
 </div>
 <p>Then run an interactive session with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -it phonemizer /bin/bash
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>phonemizer<span class="w"> </span>/bin/bash
 </pre></div>
 </div>
 </section>
@@ -179,7 +198,7 @@ sudo docker build -t phonemizer .
 <h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h2>
 <p>When installed from sources or whithin a Docker image, you can run the tests
 suite from the root <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> folder (once you installed <code class="docutils literal notranslate"><span class="pre">pytest</span></code>):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install pytest
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pytest
 pytest
 </pre></div>
 </div>
