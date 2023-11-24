@@ -50,7 +50,7 @@ jobs:
 
       - name: Install phonemizer
         run: |
-          pip install pytest
+          pip install pytest setuptools
           python setup.py install
 
       - name: Version phonemizer

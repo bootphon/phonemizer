@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.10', '3.12']
 
     steps:
       - name: Checkout phonemizer
@@ -28,8 +28,8 @@ jobs:
 
       - name: Install phonemizer
         run: |
-          pip install --upgrade pip pytest pytest-cov
-          python setup.py install
+          pip install --upgrade pip pytest pytest-cov setuptools
+          pip install .
 
       - name: Version phonemizer
         run: phonemize --version
@@ -38,7 +38,7 @@ jobs:
         run: pytest -v --cov=phonemizer --cov-report=xml test/
 
       - name: Upload coverage to Codecov
-        if: ${{ matrix.python-version == '3.9' }}
+        if: ${{ matrix.python-version == '3.10' }}
         uses: codecov/codecov-action@v2
         with:
           files: coverage.xml
@@ -49,7 +49,10 @@ jobs:
 
     strategy:
       matrix:
-        espeak-version: ['1.48.03', '1.49.2', '1.50']
+        # we used to test espeak-1.49 and 1.50 here but cannot be compiled
+        # anymore (ld error when linking speak-ng executable). I suppose some
+        # incompatbilty between old code / new compiler.
+        espeak-version: ['1.48.15', '1.51.1']
 
     steps:
       - name: Checkout phonemizer
@@ -61,14 +64,14 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install festival mbrola mbrola-fr1
+          sudo apt-get install festival mbrola mbrola-fr1 mbrola-af1
 
       - name: Install espeak-1.48
-        if: ${{ matrix.espeak-version == '1.48.03' }}
-        run: sudo apt install espeak
+        if: ${{ matrix.espeak-version == '1.48.15' }}
+        run: sudo apt-get install espeak
 
       - name: Install espeak>=1.49
-        if: ${{ matrix.espeak-version != '1.48.03' }}
+        if: ${{ matrix.espeak-version != '1.48.15' }}
         env:
           ESPEAK_VERSION: ${{ matrix.espeak-version }}
         run: |
@@ -77,15 +80,15 @@ jobs:
           cd espeak-ng
           ./autogen.sh
           ./configure
-          make
+          make src/espeak-ng
           sudo make install
           sudo ldconfig
           espeak --version
 
       - name: Install phonemizer
         run: |
-          pip install --upgrade pip pytest
-          python setup.py install
+          pip install --upgrade pip pytest setuptools
+          pip install .
 
       - name: Version phonemizer
         run: phonemize --version

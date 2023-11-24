@@ -29,7 +29,7 @@ from phonemizer.separator import Separator, default_separator
 ESPEAK_150 = (EspeakBackend.version() >= (1, 50))
 
 # True if we are using espeak>=1.49.3
-ESPEAK_143 = (EspeakBackend.version() >= (1, 49, 3))
+ESPEAK_149 = (EspeakBackend.version() >= (1, 49, 3))
 
 # True if we are using festival>=2.5
 FESTIVAL_25 = (FestivalBackend.version() >= (2, 5))
@@ -69,13 +69,14 @@ def test_preserve(inp):
 
 @pytest.mark.parametrize(
     'text, expected_restore, expected_output', [
-        (['hi; ho,"'], ['hi; ho," '], ['haɪ; hoʊ, ']),
-        (['hi; "ho,'], ['hi; "ho, '], ['haɪ; hoʊ, '] if ESPEAK_143 else ['haɪ;  hoʊ, ']),
-        (['"hi; ho,'], ['"hi; ho, '], ['haɪ; hoʊ, '] if ESPEAK_143 else [' haɪ; hoʊ, '])])
+        (['hi; hi,"'], ['hi; hi," '], ['haɪ; haɪ, ']),
+        (['hi; "hi,'], ['hi; "hi, '], ['haɪ; haɪ, '] if ESPEAK_149 else ['haɪ;  haɪ, ']),
+        (['"hi; hi,'], ['"hi; hi, '], ['haɪ; haɪ, '] if ESPEAK_149 else [' haɪ; haɪ, '])])
 def test_preserve_2(text, expected_restore, expected_output):
     marks = ".!;:,?"
     punct = Punctuation(marks=marks)
-    assert expected_restore == punct.restore(*punct.preserve(text), sep=default_separator, strip=False)
+    assert expected_restore == punct.restore(
+        *punct.preserve(text), sep=default_separator, strip=False)
 
     output = phonemize(
         text, backend="espeak",

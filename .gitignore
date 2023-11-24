@@ -11,5 +11,6 @@ htmlcov/*
 test/htmlcov
 paper/*
 .idea
+*.~undo-tree~
 
 docs/build
