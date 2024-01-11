@@ -86,7 +86,7 @@ Install **espeak-ng** with the `.msi` Windows installer provided with
         EspeakWrapper.set_library('C:\Program Files\eSpeak NG\libespeak-ng.dll')
 
     An alternative is to define the environment variable
-    ``PHONEMIZER_ESPEAK_LIBRARY`` to the absolute path to the DLL. For exemple
+    ``PHONEMIZER_ESPEAK_LIBRARY`` to the absolute path to the DLL. For example
     if using conda have a:
 
     .. code-block:: bash
