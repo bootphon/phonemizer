@@ -11,7 +11,7 @@ See :py:meth:`phonemizer.phonemize`.
 Example 1: phonemize a text with festival
 -----------------------------------------
 
-The following exemple downloads a text and phonemizes it using the
+The following example downloads a text and phonemizes it using the
 festival backend, preserving punctuation and using 4 jobs in parallel.
 The phones are not separated, words are separated by a space and
 syllables by ``|``.
@@ -45,10 +45,10 @@ syllables by ``|``.
 Example 2: build a lexicon with espeak
 --------------------------------------
 
-The following exemple extracts a list of words present in a text,
+The following example extracts a list of words present in a text,
 ignoring punctuation, and builds a dictionary ``word: [phones]``,
 e.g. ``{'students': 's t uː d ə n t s', 'cobb': 'k ɑː b', 'its': 'ɪ t s', 'put': 'p ʊ t', ...}``.
-We consider here the same text as in the previous exemple.
+We consider here the same text as in the previous example.
 
 .. code:: python
 
