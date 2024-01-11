@@ -67,7 +67,7 @@ def phonemize(  # pylint: disable=too-many-arguments
     function: provide the input text as a list and call phonemize() a single
     time is much more efficient than calling it on each element of the list.
     Indeed the initialization of the phonemization backend can be expensive,
-    especially for espeak. In one exemple,
+    especially for espeak. In one example,
 
     Do this:
 

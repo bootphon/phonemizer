@@ -104,7 +104,7 @@ supported by each backend.
 
 ''',
         epilog='''
-Exemples:
+Examples:
 
 * Phonemize a US English text with espeak
 
