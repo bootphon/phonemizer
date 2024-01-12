@@ -265,7 +265,7 @@ class EspeakWrapper:
             return EspeakVoice.from_ctypes(voice)
         return None  # pragma: nocover
 
-    def text_to_phonemes(self, text: str, tie: bool = False) -> str:
+    def text_to_phonemes(self, text: str, tie: bool = False, ipa: bool = True) -> str:
         """Translates a text into phonemes, must call set_voice() first.
 
         This method is used by the Espeak backend. Wrapper on the
@@ -302,12 +302,13 @@ class EspeakWrapper:
         # output phonemes in IPA and separated by _, or with a tie character if
         # required. See comments for the function espeak_TextToPhonemes in
         # speak_lib.h of the espeak sources for details.
+        ipa_flag = 0x02 if ipa else 0x00
         if self.version <= (1, 48, 3):  # pragma: nocover
-            phonemes_mode = 0x03 | 0x01 << 4
+            phonemes_mode = 0x03 | 0x01 << 4  # TODO for ipa
         elif tie:
-            phonemes_mode = 0x02 | 0x01 << 7 | ord('͡') << 8
+            phonemes_mode = ipa_flag | 0x01 << 7 | ord('͡') << 8
         else:
-            phonemes_mode = ord('_') << 8 | 0x02
+            phonemes_mode = ord('_') << 8 | ipa_flag
 
         result = []
         while text_ptr.contents.value is not None:

@@ -30,8 +30,6 @@ from phonemizer.separator import Separator
 
 class EspeakBackend(BaseEspeakBackend):
     """Espeak backend for the phonemizer"""
-    # a regular expression to find phonemes stresses in espeak output
-    _ESPEAK_STRESS_RE = re.compile(r"[ˈˌ'-]+")
 
     # pylint: disable=too-many-arguments
     def __init__(self, language: str,
@@ -88,7 +86,7 @@ class EspeakBackend(BaseEspeakBackend):
         output = []
         lang_switches = []
         for num, line in enumerate(text, start=1):
-            line = self._espeak.text_to_phonemes(line, self._tie)
+            line = self._espeak.text_to_phonemes(line, self._tie, ipa=True)
             line, has_switch = self._postprocess_line(
                 line, num, separator, strip)
             output.append(line)
