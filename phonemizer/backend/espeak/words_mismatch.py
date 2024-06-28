@@ -19,7 +19,10 @@ import re
 from logging import Logger
 from typing import List, Tuple
 
-from typing_extensions import TypeAlias, Literal
+from typing_extensions import TypeAlias, Literal, Union
+
+from phonemizer.separator import Separator
+
 
 WordMismatch: TypeAlias = Literal["warn", "ignore"]
 
@@ -58,10 +61,16 @@ class BaseWordsMismatch(abc.ABC):
         self._count_phn = []
 
     @classmethod
-    def _count_words(cls, text: List[str]) -> List[int]:
+    def _count_words(
+            cls,
+            text: List[str],
+            wordsep: Union[str, re.Pattern] = _RE_SPACES) -> List[int]:
         """Return the number of words contained in each line of `text`"""
+        if not isinstance(wordsep, re.Pattern):
+            wordsep = re.escape(wordsep)
+
         return [
-            len([w for w in cls._RE_SPACES.split(line.strip()) if w])
+            len([w for w in re.split(wordsep, line.strip()) if w])
             for line in text]
 
     def _mismatched_lines(self) -> List[Tuple[int, int, int]]:
@@ -93,9 +102,9 @@ class BaseWordsMismatch(abc.ABC):
         """Stores the number of words in each input line"""
         self._count_txt = self._count_words(text)
 
-    def count_phonemized(self, text: List[str]):
+    def count_phonemized(self, text: List[str], separator: Separator):
         """Stores the number of words in each output line"""
-        self._count_phn = self._count_words(text)
+        self._count_phn = self._count_words(text, separator.word)
 
     @abc.abstractmethod
     def process(self, text: List[str]) -> List[str]:

@@ -5,8 +5,11 @@
 
 import pytest
 
-from phonemizer.backend.espeak.words_mismatch import Ignore
+import re
+
 from phonemizer import phonemize
+from phonemizer.backend.espeak.words_mismatch import Ignore
+from phonemizer.separator import Separator, default_separator
 
 
 @pytest.fixture
@@ -16,7 +19,8 @@ def text():
 
 def test_count_words():
     # pylint: disable=protected-access
-    count_words = Ignore._count_words
+    count_words = lambda phn: Ignore._count_words(
+        phn, wordsep=default_separator.word)
     assert count_words(['']) == [0]
     assert count_words(['a']) == [1]
     assert count_words(['aaa']) == [1]
@@ -59,3 +63,17 @@ def test_mismatch(caplog, text, mode):
             'words count mismatch on line 3 (expected 4 words but get 3)'
             in messages)
         assert 'words count mismatch on 67.0% of the lines (2/3)' in messages
+
+
+# from https://github.com/bootphon/phonemizer/issues/169
+def test_custom_separator(caplog):
+    phn = phonemize(
+        'try',
+        backend='espeak',
+        language='en-us',
+        separator=Separator(word='|', phone=' '),
+        words_mismatch='warn')
+
+    assert phn == 't ɹ aɪ |'
+    messages = [msg[2] for msg in caplog.record_tuples]
+    assert len(messages) == 0
