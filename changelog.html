@@ -16,7 +16,7 @@
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -51,6 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="common_issues.html">Common Issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#not-yet-released">not yet released</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-2-1">phonemizer-3.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-2-0">phonemizer-3.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-1-1">phonemizer-3.1.1</a></li>
@@ -97,14 +98,25 @@
              
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
-<p>Version numbers follow <a class="reference external" href="https://semver.org">semantic versioning</a></p>
+<p>Version numbers follow <a class="reference external" href="https://semver.org">semantic versioning</a>.</p>
+<section id="not-yet-released">
+<h2>not yet released<a class="headerlink" href="#not-yet-released" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>bug fix</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">espeak</span></code> backend: words mismatch now works when using custom word
+separators. See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/169">issue #169</a>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
 <section id="phonemizer-3-2-1">
 <h2>phonemizer-3.2.1<a class="headerlink" href="#phonemizer-3-2-1" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><strong>bug fixes</strong></p>
 <ul>
 <li><p>Fixed a bug when trying to restore punctuation on a multiline text.
-See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/129">issue #129</a></p></li>
+See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/129">issue #129</a>.</p></li>
 </ul>
 </li>
 </ul>
@@ -115,7 +127,7 @@ See <a class="reference external" href="https://github.com/bootphon/phonemizer/i
 <li><p><strong>bug fixes</strong></p>
 <ul>
 <li><p>Fixed a bug when trying to restore punctuation on very long text.
-See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/108">issue #108</a></p></li>
+See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/108">issue #108</a>.</p></li>
 </ul>
 </li>
 <li><p><strong>improvements</strong></p>
@@ -123,7 +135,7 @@ See <a class="reference external" href="https://github.com/bootphon/phonemizer/i
 <li><p>Improved consistency with the handling of word separators when
 preserving punctuation, and when using a word separator that is
 not a literal space character. See
-<a class="reference external" href="https://github.com/bootphon/phonemizer/issues/106">issue #106</a></p></li>
+<a class="reference external" href="https://github.com/bootphon/phonemizer/issues/106">issue #106</a>.</p></li>
 </ul>
 </li>
 <li><p><strong>new features</strong></p>

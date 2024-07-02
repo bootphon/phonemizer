@@ -2,7 +2,18 @@
 Changelog
 ===============
 
-Version numbers follow `semantic versioning <https://semver.org>`__
+Version numbers follow `semantic versioning <https://semver.org>`__.
+
+
+not yet released
+----------------
+
+* **bug fix**
+
+  * ``espeak`` backend: words mismatch now works when using custom word
+    separators. See `issue #169
+    <https://github.com/bootphon/phonemizer/issues/169>`__.
+
 
 phonemizer-3.2.1
 ----------------
@@ -10,7 +21,7 @@ phonemizer-3.2.1
 * **bug fixes**
 
   * Fixed a bug when trying to restore punctuation on a multiline text.
-    See `issue #129 <https://github.com/bootphon/phonemizer/issues/129>`__
+    See `issue #129 <https://github.com/bootphon/phonemizer/issues/129>`__.
 
 
 phonemizer-3.2.0
@@ -19,14 +30,14 @@ phonemizer-3.2.0
 * **bug fixes**
 
   * Fixed a bug when trying to restore punctuation on very long text.
-    See `issue #108 <https://github.com/bootphon/phonemizer/issues/108>`__
+    See `issue #108 <https://github.com/bootphon/phonemizer/issues/108>`__.
 
 * **improvements**
 
   * Improved consistency with the handling of word separators when
     preserving punctuation, and when using a word separator that is
     not a literal space character. See
-    `issue #106 <https://github.com/bootphon/phonemizer/issues/106>`__
+    `issue #106 <https://github.com/bootphon/phonemizer/issues/106>`__.
 
 * **new features**
 
