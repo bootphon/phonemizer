@@ -150,7 +150,7 @@ class EspeakBackend(BaseEspeakBackend):
         text = phonemized[0]
         switches = phonemized[1]
 
-        self._words_mismatch.count_phonemized(text)
+        self._words_mismatch.count_phonemized(text, separator)
         self._lang_switch.warning(switches)
 
         phonemized = super()._phonemize_postprocess(text, punctuation_marks, separator, strip)
