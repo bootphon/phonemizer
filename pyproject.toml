@@ -60,8 +60,8 @@ Repository = "https://github.com/bootphon/phonemizer"
 Issues = "https://github.com/bootphon/phonemizer"
 Changelog = "https://github.com/bootphon/phonemizer/blob/master/docs/source/changelog.rst"
 
-[tool.setuptools]
-packages = ["phonemizer"]
+[tool.setuptools.packages]
+find = {}
 
 [tool.setuptools.package-data]
 phonemizer = [
