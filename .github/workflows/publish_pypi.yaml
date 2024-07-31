@@ -24,10 +24,9 @@ jobs:
 
       - name: Build phonemizer
         run: |
-          pip install --upgrade pip pytest wheel
-          python setup.py install
-          pytest
-          python setup.py sdist bdist_wheel
+          pip install --upgrade pip wheel build
+          pip install .[test]
+          python -m build
 
       - name: Publish to Pypi
         uses: pypa/gh-action-pypi-publish@release/v1

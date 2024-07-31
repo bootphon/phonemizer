@@ -44,6 +44,7 @@ COPY . /phonemizer
 
 # install phonemizer and run the tests
 RUN cd /phonemizer && \
-    python3 setup.py install && \
+    python3 -m pip install --upgrade pip setuptools && \
+    python3 -m pip install .[test] && \
     phonemize --version && \
     python3 -m pytest -v test

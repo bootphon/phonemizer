@@ -47,8 +47,7 @@ jobs:
       - name: Install phonemizer
         run: |
           pip install --upgrade pip setuptools
-          python setup.py install
-          pip install --upgrade pytest
+          pip install .[test]
 
       - name: Version phonemizer
         run: phonemize --version

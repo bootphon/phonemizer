@@ -1,0 +1,90 @@
+# Copyright 2015-2021 Mathieu Bernard
+#
+# This file is part of phonemizer: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# Phonemizer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phonemizer"
+description = "Simple text to phones converter for multiple languages"
+authors = [
+    {name = "Mathieu Bernard", email = "mathieu.bernard.2@cnrs.fr"},
+    {name = "Hadrien Titeux"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = [
+    "linguistics",
+    "G2P",
+    "phone",
+    "espeak",
+    "festival",
+    "TTS"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: ",
+    "GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent"]
+
+requires-python = ">= 3.8"
+dynamic = ["version"]
+dependencies = [
+    "joblib",
+    "segments",
+    "attrs>=18.1",
+    "dlinfo",
+    "typing-extensions"]
+
+[project.optional-dependencies]
+test = ["pytest>=6.0", "pytest-cov", "coverage[toml]"]
+doc = ["sphinx", "sphinx_rtd_theme"]
+
+[project.scripts]
+phonemize = "phonemizer.main:main"
+
+[project.urls]
+Documentation = "https://bootphon.github.io/phonemizer/"
+Repository = "https://github.com/bootphon/phonemizer"
+Issues = "https://github.com/bootphon/phonemizer"
+Changelog = "https://github.com/bootphon/phonemizer/blob/master/docs/source/changelog.rst"
+
+[tool.setuptools.package-data]
+phonemizer = [
+    "share/espeak/*",
+    "share/festival/*",
+    "share/segments/*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "phonemizer.__version__"}
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = "test"
+python_files = ["test/*.py"]
+filterwarnings = [
+     # ignore some deprecation warnings (on regexp escape sequence) for segments
+     # module and its dependencies
+     "ignore::DeprecationWarning:.*segments.*",
+     "ignore::DeprecationWarning:.*csvw.*",
+     "ignore::DeprecationWarning:.*clldutils.*",
+     # ignore a warning issued by joblib about multithreading
+     "ignore:This process (.*) is multi-threaded.*:DeprecationWarning:joblib"]
+addopts = "--cov=phonemizer"
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: nocover",
+    "@abc.abstractmethod"]
+skip_covered = true
