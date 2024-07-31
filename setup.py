@@ -18,6 +18,7 @@
 
 import builtins
 import codecs
+import sys
 
 import setuptools
 
@@ -28,6 +29,18 @@ builtins.__PHONEMIZER_SETUP__ = True
 
 import phonemizer
 
+
+install_requires=[
+    'joblib',
+    'segments',
+    'attrs>=18.1',
+    'dlinfo',
+    'typing-extensions']
+
+if sys.version_info < (3, 8):
+    install_requires.append('importlib_metadata')
+
+
 setuptools.setup(
     # general description
     name='phonemizer',
@@ -35,11 +48,7 @@ setuptools.setup(
     version=phonemizer.__version__,
 
     # python package dependencies
-    install_requires=['joblib',
-                      'segments',
-                      'attrs>=18.1',
-                      'dlinfo',
-                      'typing-extensions'],
+    install_requires=install_requires,
 
     # include Python code and any files in phonemizer/share
     packages=setuptools.find_packages(),

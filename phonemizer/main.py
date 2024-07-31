@@ -20,8 +20,6 @@ import os
 import sys
 import re
 
-import pkg_resources
-
 from phonemizer import phonemize, separator, version, logger, punctuation
 from phonemizer.backend import BACKENDS
 
@@ -33,8 +31,7 @@ class CatchExceptions:  # pragma: nocover
     standard output before exiting with error code 1.
 
     The detected exceptions are ValueError, OSError, RuntimeError,
-    AssertionError, KeyboardInterrupt and
-    pkg_resources.DistributionNotFound.
+    AssertionError and KeyboardInterrupt.
 
     Parameters
     ----------
@@ -53,11 +50,6 @@ class CatchExceptions:  # pragma: nocover
         except (IOError, ValueError, OSError,
                 RuntimeError, AssertionError) as err:
             self.exit('fatal error: {}'.format(err))
-
-        except pkg_resources.DistributionNotFound:
-            self.exit(
-                'fatal error: phonemizer package not found\n'
-                'please install phonemizer on your system')
 
         except KeyboardInterrupt:
             self.exit('keyboard interruption, exiting')

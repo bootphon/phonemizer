@@ -17,11 +17,11 @@
 # pylint: disable=missing-docstring
 
 import os
-import pkg_resources
 import pytest
 
 from phonemizer.separator import Separator, default_separator
 from phonemizer.backend import SegmentsBackend
+from phonemizer.utils import get_package_resource
 
 
 def test_multiline():
@@ -99,9 +99,7 @@ def test_language(tmpdir):
     assert not SegmentsBackend.is_supported_language('unexisting')
 
     # check languages by g2p file
-    directory = pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse('phonemizer'),
-        'phonemizer/share/segments')
+    directory = get_package_resource('segments')
     assert SegmentsBackend.is_supported_language(
         os.path.join(directory, 'cree.g2p'))
     assert not SegmentsBackend.is_supported_language(
