@@ -37,12 +37,14 @@ jobs:
       - name: Test phonemizer
         run: pytest -v --cov=phonemizer --cov-report=xml test/
 
-      - name: Upload coverage to Codecov
-        if: ${{ matrix.python-version == '3.12' }}
-        uses: codecov/codecov-action@v2
-        with:
-          files: coverage.xml
-          verbose: true
+      # # Using codecov now requires a secret token. An alternative can be
+      # # https://nedbatchelder.com/blog/202209/making_a_coverage_badge.html
+      # - name: Upload coverage to Codecov
+      #   if: ${{ matrix.python-version == '3.12' }}
+      #   uses: codecov/codecov-action@v2
+      #   with:
+      #     files: coverage.xml
+      #     verbose: true
 
   espeak-version:
     runs-on: ubuntu-latest

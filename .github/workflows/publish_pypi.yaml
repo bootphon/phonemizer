@@ -22,10 +22,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install espeak-ng festival mbrola mbrola-fr1
 
-      - name: Build phonemizer
+      - name: Test and build phonemizer
         run: |
-          pip install --upgrade pip wheel build
+          pip install --upgrade pip setuptools build
           pip install .[test]
+          pytest
           python -m build
 
       - name: Publish to Pypi

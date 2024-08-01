@@ -7,7 +7,9 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: macos-latest
+    # the "Install festival" step does not work on macos-14 (M1 arm64
+    # architecture), so we stay on an older version
+    runs-on: macos-13
 
     env:
       PHONEMIZER_FESTIVAL_EXECUTABLE: ${{ github.workspace }}/festival/build_festival/festival/bin/festival
@@ -19,10 +21,13 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v2
 
-      - name: Install espeak-1.48
+      - name: Install espeak
         run: |
           brew update
           brew install espeak
+
+      - name: Check espeak
+        run: espeak --version
 
       - name: Cache festival
         uses: actions/cache@v2
@@ -43,6 +48,10 @@ jobs:
         run: |
           cd festival
           bash setup_festival_mbrola.sh . festival
+
+      - name: Check festival
+        run: |
+          $PHONEMIZER_FESTIVAL_EXECUTABLE --version
 
       - name: Install phonemizer
         run: |
