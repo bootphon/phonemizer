@@ -5,12 +5,13 @@ Changelog
 Version numbers follow `semantic versioning <https://semver.org>`__.
 
 
-not yet released
+phonemizer-3.3.0
 ----------------
 
-**Requires python>=3.8 (was 3.6 in previous versions). Tests now requires pytest>=6.0**
+**This version depends on python>=3.8 (was 3.6 in previous versions). Tests now
+ requires pytest>=6.0**
 
-* **improvments**
+* **improvements**
 
   * Replaced dependency to deprecated ``pkg_resources`` by ``importlib``
     (requires python>=3.8).

@@ -17,5 +17,5 @@
 from .phonemize import phonemize  # pylint: disable=unused-import
 
 
-__version__ = '3.3.0-dev'
+__version__ = '3.3.0'
 """Phonemizer version"""
