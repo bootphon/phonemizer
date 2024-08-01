@@ -51,7 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="common_issues.html">Common Issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#not-yet-released">not yet released</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-3-0">phonemizer-3.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-2-1">phonemizer-3.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-2-0">phonemizer-3.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-1-1">phonemizer-3.1.1</a></li>
@@ -99,9 +99,20 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
 <p>Version numbers follow <a class="reference external" href="https://semver.org">semantic versioning</a>.</p>
-<section id="not-yet-released">
-<h2>not yet released<a class="headerlink" href="#not-yet-released" title="Link to this heading"></a></h2>
+<section id="phonemizer-3-3-0">
+<h2>phonemizer-3.3.0<a class="headerlink" href="#phonemizer-3-3-0" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>This version depends on python&gt;=3.8 (was 3.6 in previous versions). Tests now</dt><dd><p>requires pytest&gt;=6.0**</p>
+</dd>
+</dl>
 <ul class="simple">
+<li><p><strong>improvements</strong></p>
+<ul>
+<li><p>Replaced dependency to deprecated <code class="docutils literal notranslate"><span class="pre">pkg_resources</span></code> by <code class="docutils literal notranslate"><span class="pre">importlib</span></code>
+(requires python&gt;=3.8).</p></li>
+<li><p>Replaced deprecated <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> by <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p></li>
+</ul>
+</li>
 <li><p><strong>bug fix</strong></p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">espeak</span></code> backend: words mismatch now works when using custom word

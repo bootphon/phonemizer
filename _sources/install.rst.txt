@@ -99,7 +99,6 @@ Install **espeak-ng** with the `.msi` Windows installer provided with
 **mbrola** is not available for Windows.
 
 
-
 Phonemizer
 ----------
 
@@ -116,6 +115,8 @@ Phonemizer
         git clone https://github.com/bootphon/phonemizer
         cd phonemizer
         pip install .
+        # to run tests or build this documentation, have a
+        # pip install .[test,doc]
 
     If you experiment an error such as ``ImportError: No module named setuptools``
     during installation, refer to `issue #11 <https://github.com/bootphon/phonemizer/issues/11>`_.
@@ -148,5 +149,5 @@ suite from the root ``phonemizer`` folder (once you installed ``pytest``):
 
 .. code-block:: bash
 
-    pip install pytest
+    pip install .[test]  # this installs pytest
     pytest

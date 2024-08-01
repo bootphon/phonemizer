@@ -181,6 +181,8 @@ if using conda have a:</p>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/bootphon/phonemizer
 <span class="nb">cd</span><span class="w"> </span>phonemizer
 pip<span class="w"> </span>install<span class="w"> </span>.
+<span class="c1"># to run tests or build this documentation, have a</span>
+<span class="c1"># pip install .[test,doc]</span>
 </pre></div>
 </div>
 <p>If you experiment an error such as <code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">setuptools</span></code>
@@ -207,7 +209,7 @@ sudo<span class="w"> </span>docker<span class="w"> </span>build<span class="w"> 
 <h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
 <p>When installed from sources or whithin a Docker image, you can run the tests
 suite from the root <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> folder (once you installed <code class="docutils literal notranslate"><span class="pre">pytest</span></code>):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pytest
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>test<span class="o">]</span><span class="w">  </span><span class="c1"># this installs pytest</span>
 pytest
 </pre></div>
 </div>
