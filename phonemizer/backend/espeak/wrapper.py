@@ -205,10 +205,11 @@ class EspeakWrapper:
         # voices is an array to pointers, terminated by None
         while voices[index]:
             voice = voices[index].contents
-            available_voices.append(EspeakVoice(
-                name=os.fsdecode(voice.name).replace('_', ' '),
-                language=os.fsdecode(voice.languages)[1:],
-                identifier=os.fsdecode(voice.identifier)))
+            if not voice.identifier.startswith(b'mb'):
+                available_voices.append(EspeakVoice(
+                    name=os.fsdecode(voice.name).replace('_', ' '),
+                    language=os.fsdecode(voice.languages)[1:],
+                    identifier=os.fsdecode(voice.identifier)))
             index += 1
         return available_voices
 
