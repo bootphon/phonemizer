@@ -77,9 +77,7 @@ class EspeakBackend(BaseEspeakBackend):
     def supported_languages(cls):
         return {
             voice.language: voice.name
-            for voice in EspeakWrapper().available_voices()
-            # ignore mbrola voices causing a bug on windows (see #146)
-            if 'mb' not in voice.identifier}
+            for voice in EspeakWrapper().available_voices()}
 
     def _phonemize_aux(self, text, offset, separator, strip):
         if self._tie is not None and separator.phone:
