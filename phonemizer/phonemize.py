@@ -38,6 +38,7 @@ from phonemizer.utils import list2str, str2list
 
 Backend = Literal['espeak', 'espeak-mbrola', 'festival', 'segments']
 
+_PHONEMIZER_CACHE = {}
 
 def phonemize(  # pylint: disable=too-many-arguments
         text,
@@ -185,6 +186,22 @@ def phonemize(  # pylint: disable=too-many-arguments
         if the ``language`` is not supported by the ``backend``, if any incompatible options are used.
 
     """
+    # cache handling: if this instance has been created in the past, no need for error checking,
+    #  everything should be A-OK
+    cache_key = (
+        backend,
+        language,
+        str(punctuation_marks),
+        preserve_punctuation,
+        with_stress,
+        tie,
+        language_switch,
+        words_mismatch
+    )
+    # return the backend from the cache if it exists
+    if cache_key in _PHONEMIZER_CACHE:
+        return _PHONEMIZER_CACHE[cache_key]
+
     # ensure we are using a compatible Python version
     if sys.version_info < (3, 6):  # pragma: nocover
         logger.error(
@@ -222,6 +239,9 @@ def phonemize(  # pylint: disable=too-many-arguments
             punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation,
             logger=logger)
+
+    # after successfully initializing the backend, cache it
+    _PHONEMIZER_CACHE[cache_key] = backend
 
     # do the phonemization
     return _phonemize(phonemizer, text, separator, strip, njobs, prepend_text, preserve_empty_lines)
