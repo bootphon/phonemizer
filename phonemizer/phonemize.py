@@ -186,21 +186,6 @@ def phonemize(  # pylint: disable=too-many-arguments
         if the ``language`` is not supported by the ``backend``, if any incompatible options are used.
 
     """
-    # cache handling: if this instance has been created in the past, no need for error checking,
-    #  everything should be A-OK
-    cache_key = (
-        backend,
-        language,
-        str(punctuation_marks),
-        preserve_punctuation,
-        with_stress,
-        tie,
-        language_switch,
-        words_mismatch
-    )
-    # return the backend from the cache if it exists
-    if cache_key in _PHONEMIZER_CACHE:
-        return _PHONEMIZER_CACHE[cache_key]
 
     # ensure we are using a compatible Python version
     if sys.version_info < (3, 6):  # pragma: nocover
@@ -217,6 +202,22 @@ def phonemize(  # pylint: disable=too-many-arguments
         logger.warning('espeak-mbrola backend cannot preserve punctuation')
     if backend == 'espeak-mbrola' and separator.word:
         logger.warning('espeak-mbrola backend cannot preserve word separation')
+
+    # cache handling: if this instance has been created in the past, everything should be A-OK
+    cache_key = (
+        backend,
+        language,
+        str(punctuation_marks),
+        preserve_punctuation,
+        with_stress,
+        tie,
+        language_switch,
+        words_mismatch
+    )
+
+    # return the backend from the cache if it exists
+    if cache_key in _PHONEMIZER_CACHE:
+        return _phonemize(_PHONEMIZER_CACHE[cache_key], text, separator, strip, njobs, prepend_text, preserve_empty_lines)
 
     # initialize the phonemization backend
     if backend == 'espeak':
@@ -241,7 +242,7 @@ def phonemize(  # pylint: disable=too-many-arguments
             logger=logger)
 
     # after successfully initializing the backend, cache it
-    _PHONEMIZER_CACHE[cache_key] = backend
+    _PHONEMIZER_CACHE[cache_key] = phonemizer
 
     # do the phonemization
     return _phonemize(phonemizer, text, separator, strip, njobs, prepend_text, preserve_empty_lines)
