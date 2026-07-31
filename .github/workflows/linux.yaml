@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.8', '3.10', '3.12']
+        python-version: ['3.8', '3.13', '3.14']
 
     steps:
       - name: Checkout phonemizer
@@ -24,7 +24,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install espeak-ng festival mbrola mbrola-fr1
+          sudo apt-get install espeak-ng festival mbrola mbrola-fr1 mbrola-af1
 
       - name: Install phonemizer
         run: |
