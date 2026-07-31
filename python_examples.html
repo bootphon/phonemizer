@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -5,19 +7,15 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Python Examples &mdash; Phonemizer  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -93,9 +91,9 @@ festival backend, preserving punctuation and using 4 jobs in parallel.
 The phones are not separated, words are separated by a space and
 syllables by <code class="docutils literal notranslate"><span class="pre">|</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># need to pip install requests</span>
-<span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">from</span> <span class="nn">phonemizer</span> <span class="kn">import</span> <span class="n">phonemize</span>
-<span class="kn">from</span> <span class="nn">phonemizer.separator</span> <span class="kn">import</span> <span class="n">Separator</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer</span><span class="w"> </span><span class="kn">import</span> <span class="n">phonemize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.separator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Separator</span>
 
 <span class="c1"># text is a list of 190 English sentences downloaded from github</span>
 <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
@@ -123,9 +121,9 @@ syllables by <code class="docutils literal notranslate"><span class="pre">|</spa
 ignoring punctuation, and builds a dictionary <code class="docutils literal notranslate"><span class="pre">word:</span> <span class="pre">[phones]</span></code>,
 e.g. <code class="docutils literal notranslate"><span class="pre">{'students':</span> <span class="pre">'s</span> <span class="pre">t</span> <span class="pre">uː</span> <span class="pre">d</span> <span class="pre">ə</span> <span class="pre">n</span> <span class="pre">t</span> <span class="pre">s',</span> <span class="pre">'cobb':</span> <span class="pre">'k</span> <span class="pre">ɑː</span> <span class="pre">b',</span> <span class="pre">'its':</span> <span class="pre">'ɪ</span> <span class="pre">t</span> <span class="pre">s',</span> <span class="pre">'put':</span> <span class="pre">'p</span> <span class="pre">ʊ</span> <span class="pre">t',</span> <span class="pre">...}</span></code>.
 We consider here the same text as in the previous example.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">phonemizer.backend</span> <span class="kn">import</span> <span class="n">EspeakBackend</span>
-<span class="kn">from</span> <span class="nn">phonemizer.punctuation</span> <span class="kn">import</span> <span class="n">Punctuation</span>
-<span class="kn">from</span> <span class="nn">phonemizer.separator</span> <span class="kn">import</span> <span class="n">Separator</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">EspeakBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.punctuation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Punctuation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.separator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Separator</span>
 
 <span class="c1"># remove all the punctuation from the text, considering only the specified</span>
 <span class="c1"># punctuation marks</span>

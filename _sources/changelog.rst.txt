@@ -5,6 +5,18 @@ Changelog
 Version numbers follow `semantic versioning <https://semver.org>`__.
 
 
+not yet released
+-----------------
+
+* **bug fixes**
+
+  * Tests related to `festival` backend are now skipped when `festival` is not installed on the system.
+
+  * Improved espeak library lookup on macos.
+
+  * Unusable mbrola voices are filtered out on Windows.
+
+
 phonemizer-3.3.0
 ----------------
 
