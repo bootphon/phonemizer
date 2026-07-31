@@ -20,12 +20,12 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install espeak-ng festival mbrola mbrola-fr1
+          sudo apt-get install espeak-ng festival mbrola mbrola-fr1 mbrola-af1
 
       - name: Test and build phonemizer
         run: |
           pip install --upgrade pip setuptools build
-          pip install .[test]
+          pip install .[test,segments]
           pytest
           python -m build
 
