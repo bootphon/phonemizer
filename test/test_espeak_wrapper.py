@@ -44,11 +44,12 @@ def test_available_voices(wrapper):
     espeak = set(wrapper.available_voices())
     assert espeak
 
-    mbrola = set(wrapper.available_voices("mbrola"))
-    # can be empty if no mbrola voice installed (occurs only on Windows, at
-    # least within the github CI pipeline)
-    if mbrola:
-        assert not espeak.intersection(mbrola)
+    # mbrola voices are not available on Windows by default (at least on the
+    # github CI pipeline)
+    if sys.platform != "win32":
+        mbrola = set(wrapper.available_voices("mbrola"))
+        if mbrola:
+            assert not espeak.intersection(mbrola)
 
 
 def test_set_get_voice(wrapper):
