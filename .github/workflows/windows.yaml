@@ -35,18 +35,19 @@ jobs:
           Invoke-WebRequest -Uri $source -OutFile espeak.msi
           Start-Process msiexec.exe -Wait -ArgumentList '/I espeak.msi /qn'
 
-      - name: Install festival
-        if: steps.cache-festival.outputs.cache-hit != 'true'
-        run: |
-          $uri = "https://sourceforge.net/projects/e-guidedog/files/related-third-party-software/0.3"
+      # sourceforge download not working anymore, just ignoring festival tests on windows
+      # - name: Install festival
+      #   if: steps.cache-festival.outputs.cache-hit != 'true'
+      #   run: |
+      #     $uri = "https://sourceforge.net/projects/e-guidedog/files/related-third-party-software/0.3"
 
-          $webclient = New-Object System.Net.WebClient
-          $webclient.DownloadFile("$uri" + "/festival-2.5-win.7z", "festival-2.5.7z")
-          $webclient.DownloadFile("$uri" + "/speech_tools-2.5-win.7z", "speech_tools-2.5.7z")
+      #     $webclient = New-Object System.Net.WebClient
+      #     $webclient.DownloadFile("$uri" + "/festival-2.5-win.7z", "festival-2.5.7z")
+      #     $webclient.DownloadFile("$uri" + "/speech_tools-2.5-win.7z", "speech_tools-2.5.7z")
 
-          set-alias sz "$env:ProgramFiles\7-Zip\7z.exe"
-          sz x -oC:\ festival-2.5.7z
-          sz x -oC:\ speech_tools-2.5.7z
+      #     set-alias sz "$env:ProgramFiles\7-Zip\7z.exe"
+      #     sz x -oC:\ festival-2.5.7z
+      #     sz x -oC:\ speech_tools-2.5.7z
 
       - name: Install phonemizer
         run: |
