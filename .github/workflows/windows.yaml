@@ -52,7 +52,7 @@ jobs:
       - name: Install phonemizer
         run: |
           pip install --upgrade pip setuptools
-          pip install .[test]
+          pip install .[test,segments]
 
       - name: Version phonemizer
         run: |
