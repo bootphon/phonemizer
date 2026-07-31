@@ -52,9 +52,7 @@ mbrola voices must be installed (see
 On MacOS
 ~~~~~~~~~
 
-**espeak** is available on brew at version 1.48: ``brew install espeak``. If you
-want a more recent version you have to `compile it from sources
-<https://github.com/espeak-ng/espeak-ng/blob/master/docs/building.md#linux-mac-bsd>`_.
+**espeak-ng** is available on brew at version 1.52.0: ``brew install espeak-ng``.
 To install **festival**, **mbrola** and additional mbrola voices, use the script
 provided `here <https://github.com/pettarin/setup-festival-mbrola>`_.
 
