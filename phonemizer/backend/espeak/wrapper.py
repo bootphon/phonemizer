@@ -196,6 +196,7 @@ class EspeakWrapper:
     @functools.lru_cache(maxsize=None)
     def available_voices(self, name=None):
         """Voices available for phonemization, as a list of `EspeakVoice`"""
+        filter_mbrola = name == 'mbrola'
         if name:
             name = EspeakVoice(language=name).to_ctypes()
         voices = self._espeak.list_voices(name or None)
@@ -205,10 +206,16 @@ class EspeakWrapper:
         # voices is an array to pointers, terminated by None
         while voices[index]:
             voice = voices[index].contents
-            available_voices.append(EspeakVoice(
+            voice = EspeakVoice(
                 name=os.fsdecode(voice.name).replace('_', ' '),
                 language=os.fsdecode(voice.languages)[1:],
-                identifier=os.fsdecode(voice.identifier)))
+                identifier=os.fsdecode(voice.identifier))
+            is_mbrola = voice.identifier.startswith('mb/')
+            if (filter_mbrola and not is_mbrola) or (
+                    not filter_mbrola and is_mbrola):
+                index += 1
+                continue
+            available_voices.append(voice)
             index += 1
         return available_voices
 

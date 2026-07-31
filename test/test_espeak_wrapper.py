@@ -17,6 +17,7 @@
 # pylint: disable=missing-docstring
 # pylint: disable=redefined-outer-name
 
+import ctypes
 import os
 import pathlib
 import pickle
@@ -25,6 +26,7 @@ import sys
 import pytest
 
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
+from phonemizer.backend.espeak.voice import EspeakVoice
 from phonemizer.backend import EspeakMbrolaBackend
 
 
@@ -43,12 +45,42 @@ def test_basic(wrapper):
 def test_available_voices(wrapper):
     espeak = set(wrapper.available_voices())
     assert espeak
+    assert all(not voice.identifier.startswith('mb/') for voice in espeak)
 
     mbrola = set(wrapper.available_voices('mbrola'))
+    assert all(voice.identifier.startswith('mb/') for voice in mbrola)
     # can be empty if no mbrola voice installed (occurs only on Windows, at
     # least within the github CI pipeline)
     if mbrola:
         assert not espeak.intersection(mbrola)
+
+
+def test_available_voices_filters_mbrola():
+    voice = EspeakVoice.VoiceStruct
+
+    class DummyEspeak:
+        def __init__(self):
+            self._all = (ctypes.POINTER(voice) * 3)(
+                ctypes.pointer(voice(
+                    b'english-us', b'\x01en-us', b'en-us')),
+                ctypes.pointer(voice(
+                    b'arabic-mbrola-1', b'\x01ar', b'mb/mb-ar1')),
+                None)
+            self._mbrola = (ctypes.POINTER(voice) * 3)(
+                ctypes.pointer(voice(
+                    b'english-us', b'\x01en-us', b'en-us')),
+                ctypes.pointer(voice(
+                    b'arabic-mbrola-1', b'\x01ar', b'mb/mb-ar1')),
+                None)
+
+        def list_voices(self, name):
+            return self._mbrola if name is not None else self._all
+
+    wrapper = EspeakWrapper.__new__(EspeakWrapper)
+    wrapper._espeak = DummyEspeak()
+
+    assert [v.identifier for v in wrapper.available_voices()] == ['en-us']
+    assert [v.identifier for v in wrapper.available_voices('mbrola')] == ['mb/mb-ar1']
 
 
 def test_set_get_voice(wrapper):
