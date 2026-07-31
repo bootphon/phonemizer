@@ -65,10 +65,18 @@ def test_french():
 
 @pytest.mark.skipif(
     (
-        not EspeakBackend.is_espeak_ng() or
+        not EspeakBackend.is_espeak_ng()
         # Arabic is not supported by the Windows msi installer from espeak-ng
         # github release
-        not EspeakBackend.is_supported_language('ar')),
+        or not EspeakBackend.is_supported_language('ar')
+        or (
+            os.name == "nt"
+            and not any(
+                v.language == "ar" and not v.identifier.startswith("mb/")
+                for v in EspeakWrapper().available_voices()
+            )
+        )
+    ),
     reason='Arabic is not supported')
 def test_arabic():
     backend = EspeakBackend('ar')

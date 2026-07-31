@@ -239,12 +239,17 @@ class EspeakWrapper:
 
             # Windows can expose mbrola voices without a working mbrola.dll.
             # Filter unusable mbrola voices to avoid downstream load failures.
-            if sys.platform == "win32" and candidate.identifier.startswith('mb/'):
-                try:
-                    ctypes.cdll.LoadLibrary('mbrola.dll')
-                except OSError:
-                    index += 1
-                    continue
+            if sys.platform == "win32":  # pragma: nocover
+                is_mbrola = (
+                        candidate.identifier.startswith("mb/")
+                        or candidate.language.startswith("mbrola")
+                    )
+                if is_mbrola:
+                    try:
+                        ctypes.cdll.LoadLibrary('mbrola.dll')
+                    except OSError:
+                        index += 1
+                        continue
 
             available_voices.append(candidate)
             index += 1
