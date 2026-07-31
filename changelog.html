@@ -112,6 +112,11 @@ building a new one every time. See <a class="reference external" href="https://g
 </li>
 <li><p><strong>bug fixes</strong></p>
 <ul>
+<li><p><strong>Behaviour change:</strong> a comma or period between two digits is no longer
+treated as punctuation, so numbers such as <code class="docutils literal notranslate"><span class="pre">19,99</span></code> and <code class="docutils literal notranslate"><span class="pre">3.14</span></code> are kept
+whole instead of being split into two numbers. Splitting them changed the
+spoken output. The previous behaviour can still be obtained by passing an
+explicit regex as <code class="docutils literal notranslate"><span class="pre">punctuation_marks</span></code>. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/216">PR #216</a>.</p></li>
 <li><p>Selecting a language by its code no longer resolves to an mbrola variant
 that shadows the plain espeak voice, which made such languages unusable
 when the mbrola binary is absent. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/215">PR #215</a>.</p></li>
@@ -120,7 +125,7 @@ so a stock espeak-ng installation on Windows is found. See <a class="reference e
 <li><p>Tests related to <cite>festival</cite> backend are now skipped when <cite>festival</cite> is not installed on the system.</p></li>
 <li><p>Improved espeak library lookup on macos.</p></li>
 <li><p>Unusable mbrola voices are filtered out on Windows.</p></li>
-<li><p>Make the segments backend an optional dependency (#211 &lt;<a class="reference external" href="https://github.com/bootphon/phonemizer/pull/211">https://github.com/bootphon/phonemizer/pull/211</a>&gt;`__)</p></li>
+<li><p>Make the segments backend an optional dependency. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/211">PR #211</a>.</p></li>
 </ul>
 </li>
 </ul>
