@@ -109,6 +109,8 @@ building a new one every time. See <a class="reference external" href="https://g
 </li>
 <li><p><strong>bug fixes</strong></p>
 <ul>
+<li><p>The espeak library is now also looked up under its <code class="docutils literal notranslate"><span class="pre">lib</span></code>-prefixed names,
+so a stock espeak-ng installation on Windows is found. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/214">PR #214</a>.</p></li>
 <li><p>Tests related to <cite>festival</cite> backend are now skipped when <cite>festival</cite> is not installed on the system.</p></li>
 <li><p>Improved espeak library lookup on macos.</p></li>
 <li><p>Unusable mbrola voices are filtered out on Windows.</p></li>

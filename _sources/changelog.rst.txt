@@ -16,6 +16,10 @@ not yet released
 
 * **bug fixes**
 
+  * The espeak library is now also looked up under its ``lib``-prefixed names,
+    so a stock espeak-ng installation on Windows is found. See `PR #214
+    <https://github.com/bootphon/phonemizer/pull/214>`__.
+
   * Tests related to `festival` backend are now skipped when `festival` is not installed on the system.
 
   * Improved espeak library lookup on macos.
