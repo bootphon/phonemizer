@@ -8,6 +8,12 @@ Version numbers follow `semantic versioning <https://semver.org>`__.
 not yet released
 -----------------
 
+* **improvements**
+
+  * ``phonemize()`` now reuses backend instances across calls instead of
+    building a new one every time. See `PR #212
+    <https://github.com/bootphon/phonemizer/pull/212>`__.
+
 * **bug fixes**
 
   * Tests related to `festival` backend are now skipped when `festival` is not installed on the system.

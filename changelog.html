@@ -101,6 +101,12 @@
 <section id="not-yet-released">
 <h2>not yet released<a class="headerlink" href="#not-yet-released" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p><strong>improvements</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">phonemize()</span></code> now reuses backend instances across calls instead of
+building a new one every time. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/212">PR #212</a>.</p></li>
+</ul>
+</li>
 <li><p><strong>bug fixes</strong></p>
 <ul>
 <li><p>Tests related to <cite>festival</cite> backend are now skipped when <cite>festival</cite> is not installed on the system.</p></li>
