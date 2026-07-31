@@ -7,51 +7,50 @@ on: [push, pull_request]
 
 jobs:
   test:
-    # the "Install festival" step does not work on macos-14 (M1 arm64
-    # architecture), so we stay on an older version
-    runs-on: macos-13
+    runs-on: macos-latest
 
-    env:
-      PHONEMIZER_FESTIVAL_EXECUTABLE: ${{ github.workspace }}/festival/build_festival/festival/bin/festival
+    # env:
+    #   PHONEMIZER_FESTIVAL_EXECUTABLE: ${{ github.workspace }}/festival/build_festival/festival/bin/festival
 
     steps:
       - name: Checkout phonemizer
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
 
       - name: Install espeak
         run: |
           brew update
-          brew install espeak
+          brew install espeak-ng
 
       - name: Check espeak
         run: espeak --version
 
-      - name: Cache festival
-        uses: actions/cache@v2
-        id: cache-festival
-        with:
-          path: ${{ github.workspace }}/festival
-          key: ${{ runner.os }}-festival
+      # do not work on apple silicon
+      # - name: Cache festival
+      #   uses: actions/cache@v4
+      #   id: cache-festival
+      #   with:
+      #     path: ${{ github.workspace }}/festival
+      #     key: ${{ runner.os }}-festival
 
-      - name: Checkout festival
-        if: steps.cache-festival.outputs.cache-hit != 'true'
-        uses: actions/checkout@v2
-        with:
-          repository: pettarin/setup-festival-mbrola
-          path: festival
+      # - name: Checkout festival
+      #   if: steps.cache-festival.outputs.cache-hit != 'true'
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: pettarin/setup-festival-mbrola
+      #     path: festival
 
-      - name: Install festival
-        if: steps.cache-festival.outputs.cache-hit != 'true'
-        run: |
-          cd festival
-          bash setup_festival_mbrola.sh . festival
+      # - name: Install festival
+      #   if: steps.cache-festival.outputs.cache-hit != 'true'
+      #   run: |
+      #     cd festival
+      #     bash setup_festival_mbrola.sh . festival
 
-      - name: Check festival
-        run: |
-          $PHONEMIZER_FESTIVAL_EXECUTABLE --version
+      # - name: Check festival
+      #   run: |
+      #     $PHONEMIZER_FESTIVAL_EXECUTABLE --version
 
       - name: Install phonemizer
         run: |

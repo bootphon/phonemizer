@@ -24,8 +24,8 @@ import sys
 
 import pytest
 
-from phonemizer.backend.espeak.wrapper import EspeakWrapper
 from phonemizer.backend import EspeakMbrolaBackend
+from phonemizer.backend.espeak.wrapper import EspeakWrapper
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def wrapper():
 
 def test_basic(wrapper):
     assert wrapper.version >= (1, 48)
-    assert 'espeak' in str(wrapper.library_path)
+    assert "espeak" in str(wrapper.library_path)
     assert os.path.isabs(wrapper.library_path)
     assert os.path.isabs(wrapper.data_path)  # not None, no raise
 
@@ -44,41 +44,46 @@ def test_available_voices(wrapper):
     espeak = set(wrapper.available_voices())
     assert espeak
 
-    mbrola = set(wrapper.available_voices('mbrola'))
-    # can be empty if no mbrola voice installed (occurs only on Windows, at
-    # least within the github CI pipeline)
-    if mbrola:
-        assert not espeak.intersection(mbrola)
+    # mbrola voices are not available on Windows by default (at least on the
+    # github CI pipeline)
+    if sys.platform != "win32":
+        mbrola = set(wrapper.available_voices("mbrola"))
+        if mbrola:
+            assert not espeak.intersection(mbrola)
 
 
 def test_set_get_voice(wrapper):
     assert wrapper.voice is None
     with pytest.raises(RuntimeError) as err:
-        wrapper.set_voice('')
+        wrapper.set_voice("")
     assert 'invalid voice code ""' in str(err)
 
-    wrapper.set_voice('fr-fr')
-    assert wrapper.voice.language == 'fr-fr'
+    wrapper.set_voice("fr-fr")
+    assert wrapper.voice.language == "fr-fr"
     assert wrapper.voice.name in (
-        'French (France)',  # >1.48.3
-        'french')           # older espeak
+        "French (France)",  # >1.48.3
+        "french",
+    )  # older espeak
 
-    wrapper.set_voice('en-us')
-    assert wrapper.voice.language == 'en-us'
+    wrapper.set_voice("en-us")
+    assert wrapper.voice.language == "en-us"
     assert wrapper.voice.name in (
-        'English (America)',  # >1.48.3
-        'english-us')         # older espeak
+        "English (America)",  # >1.48.3
+        "english-us",
+    )  # older espeak
 
-    # no mbrola voices available on Windows by default (at least on the github
-    # CI pipeline)
-    if sys.platform != 'win32':
-        wrapper.set_voice('mb-af1')
-        assert wrapper.voice.language == 'af'
-        assert wrapper.voice.name == 'afrikaans-mbrola-1'
+    # no mbrola voices available on Windows and macos by default (at least on
+    # the github CI pipeline)
+    try:
+        wrapper.set_voice("mb-af1")
+        assert wrapper.voice.language == "af"
+        assert wrapper.voice.name == "afrikaans-mbrola-1"
+    except RuntimeError:
+        pass
 
     with pytest.raises(RuntimeError) as err:
-        wrapper.set_voice('some non existant voice code')
-    assert 'invalid voice code' in str(err)
+        wrapper.set_voice("some non existant voice code")
+    assert "invalid voice code" in str(err)
 
 
 def _test_pickle(voice):
@@ -96,15 +101,16 @@ def _test_pickle(voice):
 
 
 def test_pickle_en_us():
-    _test_pickle('en-us')
+    _test_pickle("en-us")
 
 
 @pytest.mark.skipif(
-    not EspeakMbrolaBackend.is_available() or
-    not EspeakMbrolaBackend.is_supported_language('mb-fr1'),
-    reason='mbrola or mb-fr1 voice not installed')
+    not EspeakMbrolaBackend.is_available()
+    or not EspeakMbrolaBackend.is_supported_language("mb-fr1"),
+    reason="mbrola or mb-fr1 voice not installed",
+)
 def test_pickle_mb_fr1():
-    _test_pickle('mb-fr1')
+    _test_pickle("mb-fr1")
 
 
 def test_twice():
@@ -115,17 +121,17 @@ def test_twice():
     assert wrapper1.version == wrapper2.version
     assert wrapper1.library_path == wrapper2.library_path
 
-    wrapper1.set_voice('fr-fr')
-    assert wrapper1.voice.language == 'fr-fr'
-    wrapper2.set_voice('en-us')
-    assert wrapper2.voice.language == 'en-us'
-    assert wrapper1.voice.language == 'fr-fr'
+    wrapper1.set_voice("fr-fr")
+    assert wrapper1.voice.language == "fr-fr"
+    wrapper2.set_voice("en-us")
+    assert wrapper2.voice.language == "en-us"
+    assert wrapper1.voice.language == "fr-fr"
 
     # pylint: disable=protected-access
     assert wrapper1._espeak._tempdir != wrapper2._espeak._tempdir
 
 
-@pytest.mark.skipif(sys.platform == 'win32', reason='not supported on Windows')
+@pytest.mark.skipif(sys.platform == "win32", reason="not supported on Windows")
 def test_deletion():
     # pylint: disable=protected-access
     wrapper = EspeakWrapper()

@@ -22,10 +22,37 @@ import pathlib
 import sys
 import tempfile
 import weakref
-from typing import Tuple, Dict
+from typing import Dict, Optional, Tuple
 
 from phonemizer.backend.espeak.api import EspeakAPI
 from phonemizer.backend.espeak.voice import EspeakVoice
+
+
+def _find_library(libname: str) -> Optional[str]:
+    """Tries to find the library in common paths before falling back to ctypes.util.find_library."""
+    # special case of osx, from
+    # https://github.com/bootphon/phonemizer/pull/188
+    if sys.platform == "darwin":  # pragma: nocover
+        # Add custom search paths (e.g., Homebrew paths on macOS)
+        search_paths = [
+            "/opt/homebrew/lib",
+            "/usr/local/lib",
+        ]
+
+        # Possible library file names
+        lib_files = [
+            f"lib{libname}.dylib",  # Standard dynamic library
+            f"{libname}.dylib",  # Alternate dynamic library naming
+        ]
+
+        # Check custom paths explicitly
+        for path in search_paths:
+            for lib_file in lib_files:
+                full_path = os.path.join(path, lib_file)
+                if os.path.exists(full_path):
+                    return full_path
+
+    return ctypes.util.find_library(libname)
 
 
 class EspeakWrapper:
@@ -44,6 +71,7 @@ class EspeakWrapper:
     RuntimeError if the espeak shared library cannot be loaded
 
     """
+
     # a static variable used to overload the default espeak library installed
     # on the system. The user can choose an alternative espeak library with
     # the method EspeakWrapper.set_library().
@@ -67,8 +95,10 @@ class EspeakWrapper:
     def _libc(self):
         if self._libc_ is None:
             self._libc_ = (
-                ctypes.windll.msvcrt if sys.platform == 'win32' else
-                ctypes.cdll.LoadLibrary(ctypes.util.find_library('c')))
+                ctypes.windll.msvcrt
+                if sys.platform == "win32"
+                else ctypes.cdll.LoadLibrary(ctypes.util.find_library("c"))
+            )
         return self._libc_
 
     @property
@@ -83,18 +113,19 @@ class EspeakWrapper:
     def __getstate__(self):
         """For pickling, when phonemizing on multiple jobs"""
         return {
-            'version': self._version,
-            'data_path': self._data_path,
-            'voice': self._voice}
+            "version": self._version,
+            "data_path": self._data_path,
+            "voice": self._voice,
+        }
 
     def __setstate__(self, state: Dict):
         """For unpickling, when phonemizing on multiple jobs"""
         self.__init__()
-        self._version = state['version']
-        self._data_path = state['data_path']
-        self._voice = state['voice']
+        self._version = state["version"]
+        self._data_path = state["data_path"]
+        self._voice = state["voice"]
         if self._voice:
-            if 'mb' in self._voice.identifier:  # mbrola voice
+            if "mb" in self._voice.identifier:  # mbrola voice
                 self.set_voice(self._voice.identifier[3:])
             else:
                 self.set_voice(self._voice.language)
@@ -135,20 +166,17 @@ class EspeakWrapper:
         if cls._ESPEAK_LIBRARY:
             return cls._ESPEAK_LIBRARY
 
-        if 'PHONEMIZER_ESPEAK_LIBRARY' in os.environ:
-            library = pathlib.Path(os.environ['PHONEMIZER_ESPEAK_LIBRARY'])
+        if "PHONEMIZER_ESPEAK_LIBRARY" in os.environ:
+            library = pathlib.Path(os.environ["PHONEMIZER_ESPEAK_LIBRARY"])
             if not (library.is_file() and os.access(library, os.R_OK)):
                 raise RuntimeError(  # pragma: nocover
-                    f'PHONEMIZER_ESPEAK_LIBRARY={library} '
-                    f'is not a readable file')
+                    f"PHONEMIZER_ESPEAK_LIBRARY={library} is not a readable file"
+                )
             return library.resolve()
 
-        library = (
-                ctypes.util.find_library('espeak-ng') or
-                ctypes.util.find_library('espeak'))
+        library = _find_library("espeak-ng") or _find_library("espeak")
         if not library:  # pragma: nocover
-            raise RuntimeError(
-                'failed to find espeak library')
+            raise RuntimeError("failed to find espeak library")
         return library
 
     def _fetch_version_and_path(self):
@@ -158,12 +186,12 @@ class EspeakWrapper:
         # pylint: disable=no-member
         self._data_path = pathlib.Path(data_path.decode())
         if not self._data_path.is_dir():  # pragma: nocover
-            raise RuntimeError('failed to retrieve espeak data directory')
+            raise RuntimeError("failed to retrieve espeak data directory")
 
         # espeak-1.48 appends the release date to version number, here we
         # simply ignore it
-        version = version.decode().strip().split(' ')[0].replace('-dev', '')
-        self._version = tuple(int(v) for v in version.split('.'))
+        version = version.decode().strip().split(" ")[0].replace("-dev", "")
+        self._version = tuple(int(v) for v in version.split("."))
 
     @property
     def version(self) -> Tuple[int, int, int]:
@@ -205,10 +233,26 @@ class EspeakWrapper:
         # voices is an array to pointers, terminated by None
         while voices[index]:
             voice = voices[index].contents
-            available_voices.append(EspeakVoice(
-                name=os.fsdecode(voice.name).replace('_', ' '),
+            candidate = EspeakVoice(
+                name=os.fsdecode(voice.name).replace("_", " "),
                 language=os.fsdecode(voice.languages)[1:],
-                identifier=os.fsdecode(voice.identifier)))
+                identifier=os.fsdecode(voice.identifier),
+            )
+
+            # Windows can expose mbrola voices without a working mbrola.dll.
+            # Filter unusable mbrola voices to avoid downstream load failures.
+            if sys.platform == "win32":  # pragma: nocover
+                if (
+                    candidate.identifier.startswith("mb/")
+                    or candidate.language.startswith("mbrola")
+                ):
+                    try:
+                        ctypes.cdll.LoadLibrary("mbrola.dll")
+                    except OSError:
+                        index += 1
+                        continue
+
+            available_voices.append(candidate)
             index += 1
         return available_voices
 
@@ -225,12 +269,13 @@ class EspeakWrapper:
         RuntimeError if the required voice cannot be initialized
 
         """
-        if 'mb' in voice_code:
+        if "mb" in voice_code:
             # this is an mbrola voice code. Select the voice by using
             # identifier in the format 'mb/{voice_code}'
             available = {
                 voice.identifier[3:]: voice.identifier
-                for voice in self.available_voices('mbrola')}
+                for voice in self.available_voices("mbrola")
+            }
         else:
             # this are espeak voices. Select the voice using it's attached
             # language code. Consider only the first voice of a given code as
@@ -245,9 +290,10 @@ class EspeakWrapper:
         except KeyError:
             raise RuntimeError(f'invalid voice code "{voice_code}"') from None
 
-        if self._espeak.set_voice_by_name(voice_name.encode('utf8')) != 0:
+        if self._espeak.set_voice_by_name(voice_name.encode("utf8")) != 0:
             raise RuntimeError(  # pragma: nocover
-                f'failed to load voice "{voice_code}"')
+                f'failed to load voice "{voice_code}"'
+            )
 
         voice = self._get_voice()
         if not voice:  # pragma: nocover
@@ -287,14 +333,15 @@ class EspeakWrapper:
 
         """
         if self.voice is None:  # pragma: nocover
-            raise RuntimeError('no voice specified')
+            raise RuntimeError("no voice specified")
 
         if tie and self.version <= (1, 48, 3):
             raise RuntimeError(  # pragma: nocover
-                'tie option only compatible with espeak>=1.49')
+                "tie option only compatible with espeak>=1.49"
+            )
 
         # from Python string to C void** (a pointer to a pointer to chars)
-        text_ptr = ctypes.pointer(ctypes.c_char_p(text.encode('utf8')))
+        text_ptr = ctypes.pointer(ctypes.c_char_p(text.encode("utf8")))
 
         # input text is encoded as UTF8
         text_mode = 1
@@ -305,17 +352,16 @@ class EspeakWrapper:
         if self.version <= (1, 48, 3):  # pragma: nocover
             phonemes_mode = 0x03 | 0x01 << 4
         elif tie:
-            phonemes_mode = 0x02 | 0x01 << 7 | ord('͡') << 8
+            phonemes_mode = 0x02 | 0x01 << 7 | ord("͡") << 8
         else:
-            phonemes_mode = ord('_') << 8 | 0x02
+            phonemes_mode = ord("_") << 8 | 0x02
 
         result = []
         while text_ptr.contents.value is not None:
-            phonemes = self._espeak.text_to_phonemes(
-                text_ptr, text_mode, phonemes_mode)
+            phonemes = self._espeak.text_to_phonemes(text_ptr, text_mode, phonemes_mode)
             if phonemes:
                 result.append(phonemes.decode())
-        return ' '.join(result)
+        return " ".join(result)
 
     def synthetize(self, text: str):
         """Translates a text into phonemes, must call set_voice() first.
@@ -335,9 +381,9 @@ class EspeakWrapper:
         """
 
         if self.version < (1, 49):  # pragma: nocover
-            raise RuntimeError('not compatible with espeak<=1.48')
+            raise RuntimeError("not compatible with espeak<=1.48")
         if self.voice is None:  # pragma: nocover
-            raise RuntimeError('no voice specified')
+            raise RuntimeError("no voice specified")
 
         # init libc fopen and fclose functions
         self._libc.fopen.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
@@ -352,18 +398,19 @@ class EspeakWrapper:
         # details.
         self._tempfile.truncate(0)
         file_p = self._libc.fopen(
-            self._tempfile.name.encode(),
-            self._tempfile.mode.encode())
+            self._tempfile.name.encode(), self._tempfile.mode.encode()
+        )
 
-        self._espeak.set_phoneme_trace(0x01 << 4 | ord('_') << 8, file_p)
+        self._espeak.set_phoneme_trace(0x01 << 4 | ord("_") << 8, file_p)
         status = self._espeak.synthetize(
-            ctypes.c_char_p(text.encode('utf8')),
+            ctypes.c_char_p(text.encode("utf8")),
             ctypes.c_size_t(len(text) + 1),
-            ctypes.c_uint(0x01))
+            ctypes.c_uint(0x01),
+        )
         self._libc.fclose(file_p)  # because flush does not work...
 
         if status != 0:  # pragma: nocover
-            raise RuntimeError('failed to synthetize')
+            raise RuntimeError("failed to synthetize")
 
         self._tempfile.seek(0)
         phonemized = self._tempfile.read().decode().strip()

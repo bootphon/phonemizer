@@ -21,7 +21,7 @@ import pytest
 
 from phonemizer.phonemize import phonemize
 from phonemizer.separator import Separator
-from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
+from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend, FestivalBackend
 
 
 def test_bad_backend():
@@ -90,23 +90,44 @@ def test_lang_switch():
 
 
 @pytest.mark.parametrize('njobs', [2, 4])
-def test_espeak(njobs):
+def test_espeak_parallel_strip(njobs):
     text = ['one two', 'three', 'four five']
+    if EspeakBackend.version() >= (1, 52, 0):
+        expected = ['wʌn tuː', 'θɹiː', 'fɔːɹ faɪv']
+    else:
+        expected = ['wʌn tuː', 'θɹiː', 'foːɹ faɪv']
 
     out = phonemize(
         text, language='en-us', backend='espeak',
         strip=True, njobs=njobs)
-    assert out == ['wʌn tuː', 'θɹiː', 'foːɹ faɪv']
+    assert out == expected
+
+@pytest.mark.parametrize('njobs', [2, 4])
+def test_espeak_parallel_nostrip(njobs):
+    text = ['one two', 'three', 'four five']
+    if EspeakBackend.version() >= (1, 52, 0):
+        expected = ['wʌn tuː', 'θɹiː', 'fɔːɹ faɪv ']
+    else:
+        expected = ['wʌn tuː', 'θɹiː', 'foːɹ faɪv ']
 
     out = phonemize(
         ' '.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
-    assert out == ' '.join(['wʌn tuː', 'θɹiː', 'foːɹ faɪv '])
+    assert out == ' '.join(expected)
+
+
+@pytest.mark.parametrize('njobs', [2, 4])
+def test_espeak_parallel_nostrip_multiline(njobs):
+    text = ['one two', 'three', 'four five']
+    if EspeakBackend.version() >= (1, 52, 0):
+        expected = ['wʌn tuː ', 'θɹiː ', 'fɔːɹ faɪv ']
+    else:
+        expected = ['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv ']
 
     out = phonemize(
         os.linesep.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
-    assert out == os.linesep.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
+    assert out == os.linesep.join(expected)
 
 
 @pytest.mark.skipif(
@@ -130,6 +151,8 @@ def test_espeak_mbrola(caplog, njobs):
     assert 'espeak-mbrola backend cannot preserve word separation' in messages
 
 
+@pytest.mark.skipif(
+    not FestivalBackend.is_available(), reason="festival not installed")
 @pytest.mark.parametrize('njobs', [2, 4])
 def test_festival(njobs):
     text = ['one two', 'three', 'four five']
@@ -150,6 +173,8 @@ def test_festival(njobs):
     assert out == os.linesep.join(['wahn tuw', 'thriy', 'faor fayv'])
 
 
+@pytest.mark.skipif(
+    not FestivalBackend.is_available(), reason="festival not installed")
 def test_festival_bad():
     # cannot use options valid for espeak only
     text = ['one two', 'three', 'four five']
@@ -264,6 +289,9 @@ def test_segments(njobs):
 def test_preserve_empty_lines(backend, empty_lines, punctuation, prepend_text, text, expected):
     language = 'cree' if backend == 'segments' else 'en-us'
 
+    if backend == "festival" and not FestivalBackend.is_available():
+        return
+
     assert expected == phonemize(
         text, language=language, backend=backend, prepend_text=prepend_text,
         preserve_punctuation=punctuation, preserve_empty_lines=empty_lines)
@@ -285,6 +313,9 @@ def test_preserve_empty_lines(backend, empty_lines, punctuation, prepend_text, t
         ('festival', True, True, [''], [''])])
 def test_empty_input(backend, empty_lines, punctuation, text, expected):
     language = 'cree' if backend == 'segments' else 'en-us'
+
+    if backend == "festival" and not FestivalBackend.is_available():
+        return
 
     assert expected == phonemize(
         text, language=language, backend=backend,
