@@ -90,23 +90,44 @@ def test_lang_switch():
 
 
 @pytest.mark.parametrize('njobs', [2, 4])
-def test_espeak(njobs):
+def test_espeak_parallel_strip(njobs):
     text = ['one two', 'three', 'four five']
+    if EspeakBackend.version() >= (1, 52, 0):
+        expected = ['wʌn tuː', 'θɹiː', 'fɔːɹ faɪv']
+    else:
+        expected = ['wʌn tuː', 'θɹiː', 'foːɹ faɪv']
 
     out = phonemize(
         text, language='en-us', backend='espeak',
         strip=True, njobs=njobs)
-    assert out == ['wʌn tuː', 'θɹiː', 'foːɹ faɪv']
+    assert out == expected
+
+@pytest.mark.parametrize('njobs', [2, 4])
+def test_espeak_parallel_nostrip(njobs):
+    text = ['one two', 'three', 'four five']
+    if EspeakBackend.version() >= (1, 52, 0):
+        expected = ['wʌn tuː', 'θɹiː', 'fɔːɹ faɪv ']
+    else:
+        expected = ['wʌn tuː', 'θɹiː', 'foːɹ faɪv ']
 
     out = phonemize(
         ' '.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
-    assert out == ' '.join(['wʌn tuː', 'θɹiː', 'foːɹ faɪv '])
+    assert out == ' '.join(expected)
+
+
+@pytest.mark.parametrize('njobs', [2, 4])
+def test_espeak_parallel_nostrip_multiline(njobs):
+    text = ['one two', 'three', 'four five']
+    if EspeakBackend.version() >= (1, 52, 0):
+        expected = ['wʌn tuː ', 'θɹiː ', 'fɔːɹ faɪv ']
+    else:
+        expected = ['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv ']
 
     out = phonemize(
         os.linesep.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
-    assert out == os.linesep.join(['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv '])
+    assert out == os.linesep.join(expected)
 
 
 @pytest.mark.skipif(
