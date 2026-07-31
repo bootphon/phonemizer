@@ -28,6 +28,33 @@ from phonemizer.backend.espeak.api import EspeakAPI
 from phonemizer.backend.espeak.voice import EspeakVoice
 
 
+def _find_library(libname: str) -> str | None:
+    """Tries to find the library in common paths before falling back to ctypes.util.find_library."""
+    # special case of osx, from
+    # https://github.com/bootphon/phonemizer/pull/188
+    if sys.platform == "darwin":  # pragma: nocover
+        # Add custom search paths (e.g., Homebrew paths on macOS)
+            search_paths = [
+                "/opt/homebrew/lib",
+                "/usr/local/lib",
+            ]
+
+            # Possible library file names
+            lib_files = [
+                f"lib{libname}.dylib",  # Standard dynamic library
+                f"{libname}.dylib",     # Alternate dynamic library naming
+            ]
+
+            # Check custom paths explicitly
+            for path in search_paths:
+                for lib_file in lib_files:
+                    full_path = os.path.join(path, lib_file)
+                    if os.path.exists(full_path):
+                        return full_path
+
+    return ctypes.util.find_library(libname)
+
+
 class EspeakWrapper:
     """Wrapper on espeak shared library
 
@@ -144,8 +171,8 @@ class EspeakWrapper:
             return library.resolve()
 
         library = (
-                ctypes.util.find_library('espeak-ng') or
-                ctypes.util.find_library('espeak'))
+                _find_library('espeak-ng') or
+                _find_library('espeak'))
         if not library:  # pragma: nocover
             raise RuntimeError(
                 'failed to find espeak library')
