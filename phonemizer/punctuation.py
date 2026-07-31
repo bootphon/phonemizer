@@ -24,6 +24,10 @@ from phonemizer.separator import Separator
 # The punctuation marks considered by default.
 _DEFAULT_MARKS = ';:,.!?¡¿—…"«»“”(){}[]'
 
+# Marks that are also used as a decimal separator, and so must not be treated
+# as punctuation when they sit between two digits.
+_DECIMAL_SEPARATORS = ',.'
+
 _MarkIndex = collections.namedtuple(
     '_mark_index', ['index', 'mark', 'position'])
 
@@ -72,7 +76,30 @@ class Punctuation:
 
             # catching all the marks in one regular expression: zero or more spaces
             # + one or more marks + zero or more spaces.
-            self._marks_re = re.compile(fr'(\s*[{re.escape(self._marks)}]+\s*)+')
+            #
+            # A mark that doubles as a decimal separator is excluded when it sits
+            # between two digits, so that a decimal number reaches the backend
+            # intact. Splitting "1,5" into "1" and "5" makes espeak read two
+            # separate numbers ("one five" instead of "one comma five"), which
+            # changes the value being spoken -- "19,99 euro" became "nineteen
+            # ninety-nine euro". A separator adjacent to a non-digit, or at the
+            # end of a token, is ordinary punctuation and still split as before.
+            decimals = ''.join(
+                m for m in self._marks if m in _DECIMAL_SEPARATORS)
+            others = ''.join(
+                m for m in self._marks if m not in _DECIMAL_SEPARATORS)
+
+            alternatives = []
+            if others:
+                alternatives.append(f'[{re.escape(others)}]')
+            if decimals:
+                escaped = re.escape(decimals)
+                # not preceded by a digit, or not followed by one
+                alternatives.append(f'(?<![0-9])[{escaped}]')
+                alternatives.append(f'[{escaped}](?![0-9])')
+
+            self._marks_re = re.compile(
+                fr'(\s*(?:{"|".join(alternatives)})+\s*)+')
         else:
             raise ValueError('punctuation marks must be defined as a string or re.Pattern')
 

@@ -222,7 +222,7 @@ def test_issue55(backend, marks, text, expected):
     'punctuation_marks, text, expected', [
         (';:,.!?¡—…"«»“”',
          'hello, ,world? ‡ 3,000, or 2.50. ¿hello?',
-         'həloʊ, ,wɜːld? θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. həloʊ? '),
+         'həloʊ, ,wɜːld? θɹiː θaʊzənd, ɔːɹ tuː pɔɪnt faɪv ziəɹoʊ. həloʊ? '),
         (re.compile(r"[^a-zA-ZÀ-ÖØ-öø-ÿ0-9'$@&+%\-=/\\]"),
          'hello, ,world? ‡ 3,000, or 2.50. ¿hello?',
          'həloʊ, ,wɜːld? ‡ θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. ¿həloʊ? '),
@@ -277,3 +277,31 @@ def test_long_document():
 def test_multiline_punctuation(text):
     phonemized = phonemize(text, preserve_punctuation=True)
     assert len(text) == len(phonemized)
+
+
+# A mark that doubles as a decimal separator must not split a number: espeak
+# then reads two separate numbers and the spoken value changes ("19,99 euro"
+# became "nineteen ninety-nine euro"). A separator next to a non-digit is
+# ordinary punctuation and is still split.
+@pytest.mark.parametrize('text,expected', [
+    ('1,5', '1,5'),
+    ('3.14', '3.14'),
+    ('19,99 euro', '19,99 euro'),
+    ('version 2.5', 'version 2.5'),
+    # first comma is a decimal separator, second is punctuation
+    ('1,5, and more', '1,5 and more'),
+    # a separator at the end of a number is punctuation
+    ('I have 42.', 'I have 42'),
+    ('42, 43', '42 43'),
+    ('line 42, column 7', 'line 42 column 7'),
+])
+def test_decimal_separator_not_split(text, expected):
+    assert Punctuation().remove(text) == expected
+
+
+@pytest.mark.parametrize('text', ['1,5 and more', '19,99 euro', 'hello, world'])
+def test_decimal_separator_preserve_restore(text):
+    punctuation = Punctuation()
+    preserved, marks = punctuation.preserve([text])
+    restored = punctuation.restore(preserved, marks, default_separator, True)
+    assert restored == [text]

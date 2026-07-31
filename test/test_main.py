@@ -143,9 +143,9 @@ def test_festival_path():
 @pytest.mark.parametrize(
     'args, expected', [
         ('',
-         'həloʊ wɜːld θɹiː ziəɹoʊziəɹoʊ ziəɹoʊ ɔːɹ tuː fɪfti həloʊ '),
+         'həloʊ wɜːld θɹiː θaʊzənd ɔːɹ tuː pɔɪnt faɪv ziəɹoʊ həloʊ '),
         ('--preserve-punctuation',
-         'həloʊ, ,wɜːld? θɹiː,ziəɹoʊziəɹoʊ ziəɹoʊ, ɔːɹ tuː.fɪfti. ¿həloʊ? '),
+         'həloʊ, ,wɜːld? θɹiː θaʊzənd, ɔːɹ tuː pɔɪnt faɪv ziəɹoʊ. ¿həloʊ? '),
         ('--preserve-punctuation '
          '--punctuation-marks-is-regex '
          '--punctuation-marks "[^a-zA-ZÀ-ÖØ-öø-ÿ0-9\'\\-]"',

@@ -20,6 +20,12 @@ not yet released
 
 * **bug fixes**
 
+  * **Behaviour change:** a comma or period between two digits is no longer
+    treated as punctuation, so numbers such as ``19,99`` and ``3.14`` are kept
+    whole instead of being split into two numbers. Splitting them changed the
+    spoken output. The previous behaviour can still be obtained by passing an
+    explicit regex as ``punctuation_marks``. See `PR #216
+    <https://github.com/bootphon/phonemizer/pull/216>`__.
   * Selecting a language by its code no longer resolves to an mbrola variant
     that shadows the plain espeak voice, which made such languages unusable
     when the mbrola binary is absent. See `PR #215
@@ -27,14 +33,11 @@ not yet released
   * The espeak library is now also looked up under its ``lib``-prefixed names,
     so a stock espeak-ng installation on Windows is found. See `PR #214
     <https://github.com/bootphon/phonemizer/pull/214>`__.
-
   * Tests related to `festival` backend are now skipped when `festival` is not installed on the system.
-
   * Improved espeak library lookup on macos.
-
   * Unusable mbrola voices are filtered out on Windows.
-
-  * Make the segments backend an optional dependency (#211 <https://github.com/bootphon/phonemizer/pull/211>`__)
+  * Make the segments backend an optional dependency. See `PR #211
+    <https://github.com/bootphon/phonemizer/pull/211>`__.
 
 
 phonemizer-3.3.0
