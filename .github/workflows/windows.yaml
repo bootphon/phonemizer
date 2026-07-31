@@ -19,14 +19,14 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v5
 
-      - name: Cache festival
-        uses: actions/cache@v4
-        id: cache-festival
-        with:
-          path: |
-            C:\festival
-            C:\speech_tools
-          key: ${{ runner.os }}-festival
+      # - name: Cache festival
+      #   uses: actions/cache@v4
+      #   id: cache-festival
+      #   with:
+      #     path: |
+      #       C:\festival
+      #       C:\speech_tools
+      #     key: ${{ runner.os }}-festival
 
       - name: Install espeak
         if: steps.cache-espeak.outputs.cache-hit != 'true'
