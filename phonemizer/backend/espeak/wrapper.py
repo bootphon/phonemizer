@@ -22,13 +22,13 @@ import pathlib
 import sys
 import tempfile
 import weakref
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Optional
 
 from phonemizer.backend.espeak.api import EspeakAPI
 from phonemizer.backend.espeak.voice import EspeakVoice
 
 
-def _find_library(libname: str) -> str | None:
+def _find_library(libname: str) -> Optional[str]:
     """Tries to find the library in common paths before falling back to ctypes.util.find_library."""
     # special case of osx, from
     # https://github.com/bootphon/phonemizer/pull/188
@@ -232,10 +232,21 @@ class EspeakWrapper:
         # voices is an array to pointers, terminated by None
         while voices[index]:
             voice = voices[index].contents
-            available_voices.append(EspeakVoice(
-                name=os.fsdecode(voice.name).replace('_', ' '),
-                language=os.fsdecode(voice.languages)[1:],
-                identifier=os.fsdecode(voice.identifier)))
+            candidate = EspeakVoice(
+                        name=os.fsdecode(voice.name).replace('_', ' '),
+                        language=os.fsdecode(voice.languages)[1:],
+                        identifier=os.fsdecode(voice.identifier))
+
+            # Windows can expose mbrola voices without a working mbrola.dll.
+            # Filter unusable mbrola voices to avoid downstream load failures.
+            if sys.platform == "win32" and candidate.identifier.startswith('mb/'):
+                try:
+                    ctypes.cdll.LoadLibrary('mbrola.dll')
+                except OSError:
+                    index += 1
+                    continue
+
+            available_voices.append(candidate)
             index += 1
         return available_voices
 
