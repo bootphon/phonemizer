@@ -25,11 +25,6 @@ import pytest
 from phonemizer.backend import FestivalBackend
 from phonemizer.separator import Separator
 
-# on github CI for macos and windows, festival is not installed
-pytestmark = pytest.mark.skipif(
-    not FestivalBackend.is_available(), reason="festival is not installed"
-)
-
 
 def _test(text, separator=Separator(word=" ", syllable="|", phone="-")):
     backend = FestivalBackend("en-us")
@@ -38,20 +33,22 @@ def _test(text, separator=Separator(word=" ", syllable="|", phone="-")):
 
 
 @pytest.mark.skipif(
-    FestivalBackend.version() <= (2, 1),
-    reason="festival-2.1 gives different results than further versions "
-    "for syllable boundaries",
+    not FestivalBackend.is_available() or FestivalBackend.version() <= (2, 1),
+    reason="festival not installed or is festival-2.1 (gives different results than further versions "
+    "for syllable boundaries)",
 )
 def test_hello():
     assert _test(["hello world"]) == ["hh-ax|l-ow w-er-l-d"]
     assert _test(["hello", "world"]) == ["hh-ax|l-ow", "w-er-l-d"]
 
 
+@pytest.mark.skipif(not FestivalBackend.is_available(), reason="festival not installed")
 @pytest.mark.parametrize("text", ["", " ", "  ", "(", "()", '"', "'"])
 def test_bad_input(text):
     assert _test(text) == []
 
 
+@pytest.mark.skipif(not FestivalBackend.is_available(), reason="festival not installed")
 def test_quote():
     assert _test(["it's"]) == ["ih-t-s"]
     assert _test(["its"]) == ["ih-t-s"]
@@ -59,6 +56,7 @@ def test_quote():
     assert _test(['it "s']) == ["ih-t eh-s"]
 
 
+@pytest.mark.skipif(not FestivalBackend.is_available(), reason="festival not installed")
 def test_im():
     sep = Separator(word=" ", syllable="", phone="")
     assert _test(["I'm looking for an image"], sep) == ["aym luhkaxng faor axn ihmaxjh"]
@@ -77,8 +75,9 @@ def test_path_good():
 
 
 @pytest.mark.skipif(
-    "PHONEMIZER_FESTIVAL_EXECUTABLE" in os.environ,
-    reason="environment variable precedence",
+    not FestivalBackend.is_available()
+    or "PHONEMIZER_FESTIVAL_EXECUTABLE" in os.environ,
+    reason="festival not installed or environment variable precedence",
 )
 def test_path_bad():
     try:
@@ -100,11 +99,13 @@ def test_path_bad():
 
 
 @pytest.mark.skipif(
-    "PHONEMIZER_FESTIVAL_EXECUTABLE" in os.environ, reason="cannot modify environment"
+    not FestivalBackend.is_available()
+    or "PHONEMIZER_FESTIVAL_EXECUTABLE" in os.environ,
+    reason="festival not installed or cannot modify environment",
 )
 def test_path_venv():
     try:
-        os.environ["PHONEMIZER_FESTIVAL_EXECUTABLE"] = shutil.which("python")
+        os.environ["PHONEMIZER_FESTIVAL_EXECUTABLE"] = shutil.which("python") or ""
         with pytest.raises(RuntimeError):
             FestivalBackend("en-us").phonemize(["hello"])
         with pytest.raises(RuntimeError):

@@ -23,7 +23,7 @@ import re
 from phonemizer.backend import EspeakBackend, FestivalBackend, SegmentsBackend
 from phonemizer.punctuation import Punctuation
 from phonemizer.phonemize import phonemize
-from phonemizer.separator import Separator, default_separator
+from phonemizer.separator import default_separator
 
 # True if we are using espeak>=1.50
 ESPEAK_150 = (EspeakBackend.version() >= (1, 50))
@@ -32,7 +32,7 @@ ESPEAK_150 = (EspeakBackend.version() >= (1, 50))
 ESPEAK_149 = (EspeakBackend.version() >= (1, 49, 3))
 
 # True if we are using festival>=2.5
-FESTIVAL_25 = (FestivalBackend.version() >= (2, 5))
+FESTIVAL_25 = False if not FestivalBackend.is_available() else (FestivalBackend.version() >= (2, 5))
 
 
 @pytest.mark.parametrize(
@@ -120,6 +120,8 @@ def test_espeak():
     assert out4 == expected4
 
 
+@pytest.mark.skipif(
+    not FestivalBackend.is_available(), reason="festival not installed")
 def test_festival():
     text = 'hello, world!'
     expected1 = 'hhaxlow werld'
@@ -191,6 +193,9 @@ def test_issue_54(text, expected):
         ('festival', 'default', ['! ?', 'hey!'], ['! ? ', 'hhey! ']),
         ('festival', '!', ['! ?', 'hey!'], ['! ', 'hhey! '])])
 def test_issue55(backend, marks, text, expected):
+    if backend == "festival" and not FestivalBackend.is_available():
+        return
+
     if marks == 'default':
         marks = Punctuation.default_marks()
     language = 'cree' if backend == 'segments' else 'en-us'

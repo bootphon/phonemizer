@@ -24,7 +24,7 @@ import sys
 
 import pytest
 
-from phonemizer.backend import EspeakMbrolaBackend, EspeakBackend
+from phonemizer.backend import EspeakMbrolaBackend, FestivalBackend
 from phonemizer import main, backend, logger
 
 
@@ -68,16 +68,20 @@ def test_readme():
     _test('hello world', 'həloʊ wɜːld ', '--verbose')
     _test('hello world', 'həloʊ wɜːld ', '--quiet')
     _test('hello world', 'hello world | həloʊ wɜːld ', '--prepend-text')
-    _test('hello world', 'hhaxlow werld', '-b festival --strip')
     _test('bonjour le monde', 'bɔ̃ʒuʁ lə mɔ̃d ', '-l fr-fr')
     _test('bonjour le monde', 'b ɔ̃ ʒ u ʁ ;eword l ə ;eword m ɔ̃ d ;eword ',
           '-l fr-fr -p " " -w ";eword "')
 
+@pytest.mark.skipif(
+    not FestivalBackend.is_available(), reason="festival not installed")
+def test_readme_festival():
+    _test('hello world', 'hhaxlow werld', '-b festival --strip')
+
 
 @pytest.mark.skipif(
-    '2.1' in backend.FestivalBackend.version(),
-    reason='festival-2.1 gives different results than further versions '
-    'for syllable boundaries')
+    not FestivalBackend.is_available() or backend.FestivalBackend.version() <= (2, 1),
+    reason='festival not installed or is festival-2.1 (gives different results than further versions '
+    'for syllable boundaries)')
 def test_readme_festival_syll():
     _test('hello world',
           'hh ax ;esyll l ow ;esyll ;eword w er l d ;esyll ;eword ',
@@ -125,6 +129,8 @@ def test_espeak_path():
     _test('hello world', 'həloʊ wɜːld ', f'--espeak-library={espeak}')
 
 
+@pytest.mark.skipif(
+    not FestivalBackend.is_available(), reason="festival not installed")
 def test_festival_path():
     festival = pathlib.Path(backend.FestivalBackend.executable())
     if sys.platform == 'win32':
