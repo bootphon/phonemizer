@@ -16,6 +16,8 @@ not yet released
 
   * Unusable mbrola voices are filtered out on Windows.
 
+  * Make the segments backend an optional dependency (#211 <https://github.com/bootphon/phonemizer/pull/211>`__)
+
 
 phonemizer-3.3.0
 ----------------
