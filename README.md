@@ -50,7 +50,7 @@
 
 ## Citation
 
-To refenrece the `phonemizer` in your own work, please cite the following [JOSS
+To reference the `phonemizer` in your own work, please cite the following [JOSS
 paper](https://joss.theoj.org/papers/10.21105/joss.03958).
 
 ```bibtex
