@@ -299,7 +299,13 @@ def test_decimal_separator_not_split(text, expected):
     assert Punctuation().remove(text) == expected
 
 
-@pytest.mark.parametrize('text', ['1,5 and more', '19,99 euro', 'hello, world'])
+@pytest.mark.parametrize('text', [
+    '1,5 and more',
+    '19,99 euro',
+    'hello, world',
+    '3.14 is pi.',
+    '1.5.',
+])
 def test_decimal_separator_preserve_restore(text):
     punctuation = Punctuation()
     preserved, marks = punctuation.preserve([text])

@@ -159,16 +159,16 @@ class Punctuation:
                 position = 'E'
             marks.append(_MarkIndex(num, match.group(), position))
 
-        # split the line into sublines, each separated by a punctuation mark
+        # Cut at the matched spans. Searching for the mark text would also
+        # cut a decimal point that uses the same character.
         preserved_line = []
-        for mark in marks:
-            split = line.split(mark.mark)
-            prefix, suffix = split[0], mark.mark.join(split[1:])
-            preserved_line.append(prefix)
-            line = suffix
+        cursor = 0
+        for match in matches:
+            preserved_line.append(line[cursor:match.start()])
+            cursor = match.end()
 
         # append any trailing text to the preserved line
-        return preserved_line + [line], marks
+        return preserved_line + [line[cursor:]], marks
 
     @classmethod
     def restore(cls, text: Union[str, List[str]],
