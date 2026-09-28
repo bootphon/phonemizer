@@ -97,18 +97,18 @@ syllables by <code class="docutils literal notranslate"><span class="pre">|</spa
 
 <span class="c1"># text is a list of 190 English sentences downloaded from github</span>
 <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s1">&#39;https://gist.githubusercontent.com/CorentinJ/&#39;</span>
-    <span class="s1">&#39;0bc27814d93510ae8b6fe4516dc6981d/raw/&#39;</span>
-    <span class="s1">&#39;bb6e852b05f5bc918a9a3cb439afe7e2de570312/small_corpus.txt&#39;</span><span class="p">)</span>
+    <span class="s1">'https://gist.githubusercontent.com/CorentinJ/'</span>
+    <span class="s1">'0bc27814d93510ae8b6fe4516dc6981d/raw/'</span>
+    <span class="s1">'bb6e852b05f5bc918a9a3cb439afe7e2de570312/small_corpus.txt'</span><span class="p">)</span>
 <span class="n">text</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-<span class="n">text</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="p">]</span>
+<span class="n">text</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="p">]</span>
 
 <span class="c1"># phn is a list of 190 phonemized sentences</span>
 <span class="n">phn</span> <span class="o">=</span> <span class="n">phonemize</span><span class="p">(</span>
     <span class="n">text</span><span class="p">,</span>
-    <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en-us&#39;</span><span class="p">,</span>
-    <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;festival&#39;</span><span class="p">,</span>
-    <span class="n">separator</span><span class="o">=</span><span class="n">Separator</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">word</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">syllable</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">),</span>
+    <span class="n">language</span><span class="o">=</span><span class="s1">'en-us'</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="s1">'festival'</span><span class="p">,</span>
+    <span class="n">separator</span><span class="o">=</span><span class="n">Separator</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">word</span><span class="o">=</span><span class="s1">' '</span><span class="p">,</span> <span class="n">syllable</span><span class="o">=</span><span class="s1">'|'</span><span class="p">),</span>
     <span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">preserve_punctuation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">njobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
@@ -127,16 +127,16 @@ We consider here the same text as in the previous example.</p>
 
 <span class="c1"># remove all the punctuation from the text, considering only the specified</span>
 <span class="c1"># punctuation marks</span>
-<span class="n">text</span> <span class="o">=</span> <span class="n">Punctuation</span><span class="p">(</span><span class="s1">&#39;;:,.!&quot;?()-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Punctuation</span><span class="p">(</span><span class="s1">';:,.!"?()-'</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
 <span class="c1"># build the set of all the words in the text</span>
-<span class="n">words</span> <span class="o">=</span> <span class="p">{</span><span class="n">w</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">w</span><span class="p">}</span>
+<span class="n">words</span> <span class="o">=</span> <span class="p">{</span><span class="n">w</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span> <span class="k">if</span> <span class="n">w</span><span class="p">}</span>
 
 <span class="c1"># initialize the espeak backend for English</span>
-<span class="n">backend</span> <span class="o">=</span> <span class="n">EspeakBackend</span><span class="p">(</span><span class="s1">&#39;en-us&#39;</span><span class="p">)</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">EspeakBackend</span><span class="p">(</span><span class="s1">'en-us'</span><span class="p">)</span>
 
 <span class="c1"># separate phones by a space and ignoring words boundaries</span>
-<span class="n">separator</span> <span class="o">=</span> <span class="n">Separator</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">word</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">separator</span> <span class="o">=</span> <span class="n">Separator</span><span class="p">(</span><span class="n">phone</span><span class="o">=</span><span class="s1">' '</span><span class="p">,</span> <span class="n">word</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
 <span class="c1"># build the lexicon by phonemizing each word one by one. The backend.phonemize</span>
 <span class="c1"># function expect a list as input and outputs a list.</span>

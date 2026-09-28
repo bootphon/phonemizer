@@ -49,6 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="common_issues.html">Common Issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unreleased">unreleased</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-4-0">phonemizer-3.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-3-0">phonemizer-3.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-2-1">phonemizer-3.2.1</a></li>
@@ -98,6 +99,18 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
 <p>Version numbers follow <a class="reference external" href="https://semver.org">semantic versioning</a>.</p>
+<section id="unreleased">
+<h2>unreleased<a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>bug fixes</strong></p>
+<ul>
+<li><p>A sentence-final period no longer splits a decimal point that the
+punctuation matcher already kept, so <code class="docutils literal notranslate"><span class="pre">3.14</span> <span class="pre">is</span> <span class="pre">pi.</span></code> and <code class="docutils literal notranslate"><span class="pre">1.5.</span></code> stay
+one chunk. <code class="docutils literal notranslate"><span class="pre">see</span> <span class="pre">3.14!</span></code> is still one chunk. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/222">PR #222</a>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
 <section id="phonemizer-3-4-0">
 <h2>phonemizer-3.4.0<a class="headerlink" href="#phonemizer-3-4-0" title="Link to this heading"></a></h2>
 <ul class="simple">
@@ -244,9 +257,9 @@ punctuation token, see <a class="reference external" href="https://github.com/bo
 <li><p>Do not remove empty lines from output. For example:</p></li>
 </ul>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># this is now</span>
-<span class="n">phonemize</span><span class="p">([</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;!??&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;həloʊ &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+<span class="n">phonemize</span><span class="p">([</span><span class="s2">"hello"</span><span class="p">,</span> <span class="s2">"!??"</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span><span class="s1">'həloʊ '</span><span class="p">,</span> <span class="s1">''</span><span class="p">]</span>
 <span class="c1"># this was</span>
-<span class="n">phonemize</span><span class="p">([</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;!??&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;həloʊ &#39;</span><span class="p">]</span>
+<span class="n">phonemize</span><span class="p">([</span><span class="s2">"hello"</span><span class="p">,</span> <span class="s2">"!??"</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span><span class="s1">'həloʊ '</span><span class="p">]</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -467,9 +480,9 @@ Windows, see
 instead of IPA, available for espeak-ng only.</p></li>
 <li><p>new <code class="docutils literal notranslate"><span class="pre">--with-stress</span></code> option to use with <code class="docutils literal notranslate"><span class="pre">espeak</span></code> backend to not
 remove the stresses on phonemized output. For instance:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ echo &quot;hello world&quot; | phonemize
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ echo "hello world" | phonemize
 həloʊ wɜːld
-$ echo &quot;hello world&quot; | phonemize --with-stress
+$ echo "hello world" | phonemize --with-stress
 həlˈoʊ wˈɜːld
 </pre></div>
 </div>
