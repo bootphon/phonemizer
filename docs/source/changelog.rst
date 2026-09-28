@@ -5,6 +5,17 @@ Changelog
 Version numbers follow `semantic versioning <https://semver.org>`__.
 
 
+unreleased
+----------
+
+* **bug fixes**
+
+  * A sentence-final period no longer splits a decimal point that the
+    punctuation matcher already kept, so ``3.14 is pi.`` and ``1.5.`` stay
+    one chunk. ``see 3.14!`` is still one chunk. See `PR #222
+    <https://github.com/bootphon/phonemizer/pull/222>`__.
+
+
 phonemizer-3.4.0
 -----------------
 
