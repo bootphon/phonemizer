@@ -14,6 +14,11 @@ unreleased
     punctuation matcher already kept, so ``3.14 is pi.`` and ``1.5.`` stay
     one chunk. ``see 3.14!`` is still one chunk. See `PR #222
     <https://github.com/bootphon/phonemizer/pull/222>`__.
+  * Lifetime of EspeakWrapper cannot be dropped because of the usage of lru cache,
+    which cause lots of EspeakWrapper being created when using multi threads,
+    that makes a bunch of folder created under /tmp, finally cause the fd run out
+    and program panics. See `PR #224
+    <https://github.com/bootphon/phonemizer/pull/224>`__.
 
 
 phonemizer-3.4.0
