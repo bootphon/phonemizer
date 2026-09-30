@@ -107,6 +107,10 @@
 <li><p>A sentence-final period no longer splits a decimal point that the
 punctuation matcher already kept, so <code class="docutils literal notranslate"><span class="pre">3.14</span> <span class="pre">is</span> <span class="pre">pi.</span></code> and <code class="docutils literal notranslate"><span class="pre">1.5.</span></code> stay
 one chunk. <code class="docutils literal notranslate"><span class="pre">see</span> <span class="pre">3.14!</span></code> is still one chunk. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/222">PR #222</a>.</p></li>
+<li><p>Lifetime of EspeakWrapper cannot be dropped because of the usage of lru cache,
+which cause lots of EspeakWrapper being created when using multi threads,
+that makes a bunch of folder created under /tmp, finally cause the fd run out
+and program panics. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/224">PR #224</a>.</p></li>
 </ul>
 </li>
 </ul>
