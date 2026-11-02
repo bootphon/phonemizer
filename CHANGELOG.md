@@ -2,6 +2,29 @@
 
 Version numbers follow [semantic versioning](https://semver.org).
 
+## unreleased
+
+- **improvements**
+  - Creating an espeak backend is about 3 times faster (from 28 to 8 ms on
+    Linux): the espeak library found on the system is now looked up once per
+    process instead of at each creation. `set_library()` and
+    `PHONEMIZER_ESPEAK_LIBRARY` still apply at any time, but an espeak
+    library installed or removed after the first lookup is not seen until the
+    process restarts. See [PR #232](https://github.com/bootphon/phonemizer/pull/232).
+  - The espeak backend is about 12% faster: the post-processing of espeak
+    output is 2.5 times faster, and the words are counted with `str.split()`
+    rather than regular expressions. The outputs are unchanged. See [PR
+    #232](https://github.com/bootphon/phonemizer/pull/232).
+- **bug fixes**
+  - Restoring the punctuation (`preserve_punctuation=True`) took a time
+    quadratic in the number of lines: about 11 seconds for 20,000 lines, now
+    40 milliseconds. `Punctuation.restore()` no longer modifies the list it
+    is given. See [PR #232](https://github.com/bootphon/phonemizer/pull/232).
+  - With `preserve_punctuation=True`, a word separator containing a backslash
+    raised an error (`\`) or was read as an escape sequence (`\n` gave a new
+    line). It is now inserted as is. See [PR
+    #232](https://github.com/bootphon/phonemizer/pull/232).
+
 ## phonemizer-3.5.0
 
 - **breaking changes**

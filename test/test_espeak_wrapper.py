@@ -27,6 +27,7 @@ import pytest
 
 from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
 from phonemizer.backend.espeak.voice import EspeakVoice
+from phonemizer.backend.espeak import wrapper as wrapper_module
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
 
 
@@ -190,6 +191,34 @@ def test_library_found_without_configuration():
     library = EspeakWrapper.library()
     assert library
     assert pathlib.Path(str(library)).name.lower().startswith(("espeak", "libespeak"))
+
+
+@pytest.mark.skipif(
+    "PHONEMIZER_ESPEAK_LIBRARY" in os.environ,
+    reason="PHONEMIZER_ESPEAK_LIBRARY takes precedence over the lookup",
+)
+def test_library_lookup_cached(monkeypatch, tmp_path):
+    # pylint: disable=protected-access
+    library = EspeakWrapper.library()
+
+    # the system is searched once, a failed lookup is not cached
+    wrapper_module._default_library.cache_clear()
+    monkeypatch.setattr(wrapper_module, "_find_library", lambda _: None)
+    with pytest.raises(RuntimeError, match="failed to find espeak library"):
+        EspeakWrapper.library()
+    monkeypatch.undo()
+    assert EspeakWrapper.library() == library
+    monkeypatch.setattr(wrapper_module, "_find_library", lambda _: None)
+    assert EspeakWrapper.library() == library
+
+    # set_library() still takes precedence over the cached lookup
+    other = tmp_path / "libespeak.so"
+    try:
+        EspeakWrapper.set_library(str(other))
+        assert EspeakWrapper.library() == str(other)
+    finally:
+        EspeakWrapper.set_library(None)
+    assert EspeakWrapper.library() == library
 
 
 def test_pickle_library_and_data_path(tmp_path):
