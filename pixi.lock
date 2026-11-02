@@ -3575,6 +3575,7 @@ packages:
   - segments ; extra == 'test'
   - sphinx ; extra == 'doc'
   - sphinx-rtd-theme ; extra == 'doc'
+  - myst-parser ; extra == 'doc'
   requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/02/a2/a65293e6e4cf28eb7ee1be5335a5386c40d6742e9f47fafc8fec785e16c7/regex-2026.7.19-cp313-cp313-macosx_10_13_x86_64.whl
   name: regex

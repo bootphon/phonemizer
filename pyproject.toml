@@ -51,7 +51,7 @@ dependencies = [
 # and festival backends do not need. Install with "pip install phonemizer[segments]"
 segments = ["segments"]
 test = ["pytest>=6.0", "pytest-cov", "coverage[toml]", "segments"]
-doc = ["sphinx", "sphinx_rtd_theme"]
+doc = ["sphinx", "sphinx_rtd_theme", "myst-parser"]
 
 [project.scripts]
 phonemize = "phonemizer.main:main"
@@ -60,7 +60,7 @@ phonemize = "phonemizer.main:main"
 Documentation = "https://bootphon.github.io/phonemizer/"
 Repository = "https://github.com/bootphon/phonemizer"
 Issues = "https://github.com/bootphon/phonemizer"
-Changelog = "https://github.com/bootphon/phonemizer/blob/master/docs/source/changelog.rst"
+Changelog = "https://github.com/bootphon/phonemizer/blob/master/CHANGELOG.md"
 
 [tool.setuptools.packages]
 find = {}

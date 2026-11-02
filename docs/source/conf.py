@@ -30,7 +30,8 @@ author = 'Mathieu Bernard, Hadrien Titeux'
 extensions = [
     "sphinx_rtd_theme",
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'myst_parser',
 ]
 # Napoleon settings
 napoleon_google_docstring = True
