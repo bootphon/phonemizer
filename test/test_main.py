@@ -23,6 +23,8 @@ import sys
 
 import pytest
 
+import phonemizer
+
 from phonemizer.backend import EspeakMbrolaBackend, FestivalBackend
 from phonemizer import main, backend, logger
 
@@ -53,9 +55,12 @@ def test_help():
         main.main()
 
 
-def test_version():
+def test_version(capsys):
     sys.argv = ['foo', '--version']
     main.main()
+    # the version of the package, whatever its distribution name (see #209)
+    assert capsys.readouterr().out.startswith(
+        f'phonemizer-{phonemizer.__version__}\n')
 
 
 def test_list_languages(capsys):

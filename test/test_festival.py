@@ -19,6 +19,7 @@
 import os
 import pathlib
 import shutil
+import sys
 
 import pytest
 
@@ -103,7 +104,7 @@ def test_path_good():
 def test_path_bad():
     try:
         # corrupt the default espeak path, try to use python executable instead
-        binary = shutil.which("python")
+        binary = sys.executable
         FestivalBackend.set_executable(binary)
 
         with pytest.raises(RuntimeError):
@@ -126,7 +127,7 @@ def test_path_bad():
 )
 def test_path_venv():
     try:
-        os.environ["PHONEMIZER_FESTIVAL_EXECUTABLE"] = shutil.which("python") or ""
+        os.environ["PHONEMIZER_FESTIVAL_EXECUTABLE"] = sys.executable
         with pytest.raises(RuntimeError):
             FestivalBackend("en-us").phonemize(["hello"])
         with pytest.raises(RuntimeError):

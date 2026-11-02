@@ -95,10 +95,10 @@ def test_lang_switch():
 @pytest.mark.parametrize('njobs', [2, 4])
 def test_espeak_parallel_strip(njobs):
     text = ['one two', 'three', 'four five']
-    if EspeakBackend.version() >= (1, 52, 0):
-        expected = ['wʌn tuː', 'θɹiː', 'fɔːɹ faɪv']
-    else:
-        expected = ['wʌn tuː', 'θɹiː', 'foːɹ faɪv']
+    # the serial output, it depends on the espeak version and build
+    expected = [phonemize(
+        line, language='en-us', backend='espeak', strip=True)
+        for line in text]
 
     out = phonemize(
         text, language='en-us', backend='espeak',
@@ -107,25 +107,22 @@ def test_espeak_parallel_strip(njobs):
 
 @pytest.mark.parametrize('njobs', [2, 4])
 def test_espeak_parallel_nostrip(njobs):
-    text = ['one two', 'three', 'four five']
-    if EspeakBackend.version() >= (1, 52, 0):
-        expected = ['wʌn tuː', 'θɹiː', 'fɔːɹ faɪv ']
-    else:
-        expected = ['wʌn tuː', 'θɹiː', 'foːɹ faɪv ']
+    text = ' '.join(['one two', 'three', 'four five'])
+    # the serial output, it depends on the espeak version and build
+    expected = phonemize(text, language='en-us', backend='espeak', strip=False)
 
     out = phonemize(
-        ' '.join(text), language='en-us', backend='espeak',
-        strip=False, njobs=njobs)
-    assert out == ' '.join(expected)
+        text, language='en-us', backend='espeak', strip=False, njobs=njobs)
+    assert out == expected
 
 
 @pytest.mark.parametrize('njobs', [2, 4])
 def test_espeak_parallel_nostrip_multiline(njobs):
     text = ['one two', 'three', 'four five']
-    if EspeakBackend.version() >= (1, 52, 0):
-        expected = ['wʌn tuː ', 'θɹiː ', 'fɔːɹ faɪv ']
-    else:
-        expected = ['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv ']
+    # the serial output, it depends on the espeak version and build
+    expected = [phonemize(
+        line, language='en-us', backend='espeak', strip=False)
+        for line in text]
 
     out = phonemize(
         '\n'.join(text), language='en-us', backend='espeak',

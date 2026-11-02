@@ -14,8 +14,7 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Phonemizer version description"""
 
-import importlib.metadata
-
+import phonemizer
 from phonemizer.backend import (
     EspeakBackend, EspeakMbrolaBackend, FestivalBackend)
 
@@ -28,7 +27,9 @@ def _version_as_str(vers):
 def version():
     """Return version information for front and backends"""
     # version of the phonemizer
-    _version = 'phonemizer-' + importlib.metadata.version('phonemizer')
+    # from the package itself, the distribution can have another name (as a
+    # fork) or not be installed at all (running from sources)
+    _version = 'phonemizer-' + phonemizer.__version__
 
     # for each backend, check if it is available or not. If so get its version
     available = []

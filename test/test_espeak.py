@@ -18,7 +18,6 @@
 # pylint: disable=redefined-outer-name
 
 import os
-import shutil
 import sys
 
 import pytest
@@ -146,7 +145,7 @@ def test_path_good():
 def test_path_bad():
     try:
         # corrupt the default espeak path, try to use python executable instead
-        binary = shutil.which("python")
+        binary = sys.executable
         EspeakBackend.set_library(binary)
 
         with pytest.raises(RuntimeError):
@@ -168,7 +167,7 @@ def test_path_bad():
 )
 def test_path_venv():
     try:
-        os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = shutil.which("python")
+        os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = sys.executable
         with pytest.raises(RuntimeError):
             EspeakBackend("en-us").phonemize(["hello"])
         with pytest.raises(RuntimeError):

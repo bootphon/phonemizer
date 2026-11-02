@@ -411,5 +411,32 @@ def test_espeak_too_old(monkeypatch):
     with pytest.raises(RuntimeError, match=r"espeak-1\.47 is not supported"):
         EspeakWrapper()
     assert not EspeakBackend.is_available()
-    with pytest.raises(RuntimeError, match="espeak not installed on your system"):
+    with pytest.raises(RuntimeError, match=(
+            "espeak not installed on your system: "
+            r"espeak-1\.47 is not supported, phonemizer requires espeak>=1\.48")):
         EspeakBackend("en-us")
+
+
+# from https://github.com/bootphon/phonemizer/issues/209
+def test_library_path_fallback(monkeypatch, tmp_path):
+    # where dlinfo is not supported (e.g. FreeBSD), the library given as a
+    # name is looked for in the standard directories
+    from phonemizer.backend.espeak import api  # pylint: disable=import-outside-toplevel
+
+    class Library:  # pylint: disable=too-few-public-methods
+        _name = "libespeak-ng.so.1"
+
+    class FailingDLInfo:  # pylint: disable=too-few-public-methods
+        def __init__(self, _):
+            raise RuntimeError("dlinfo not supported")
+
+    (tmp_path / "libespeak-ng.so.1").touch()
+    monkeypatch.setattr(api, "dlinfo", type("dlinfo", (), {"DLInfo": FailingDLInfo}), raising=False)
+    monkeypatch.setattr(api, "_LIBRARY_DIRECTORIES", ("/nonexistent", str(tmp_path)))
+    # pylint: disable=protected-access
+    assert api.EspeakAPI._shared_library_path(Library()) == (
+        tmp_path / "libespeak-ng.so.1").resolve()
+
+    monkeypatch.setattr(api, "_LIBRARY_DIRECTORIES", ())
+    with pytest.raises(RuntimeError, match="failed to retrieve the path"):
+        api.EspeakAPI._shared_library_path(Library())

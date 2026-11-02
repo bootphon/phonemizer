@@ -32,6 +32,10 @@ if sys.platform != 'win32':
     import dlinfo
 
 
+# Where to look for the espeak library when its path cannot be retrieved from
+# the loaded library
+_LIBRARY_DIRECTORIES = ('/usr/local/lib', '/usr/lib', '/lib')
+
 # Size of the buffer storing the path to the espeak data directory, from
 # speech.h in the espeak and espeak-ng sources
 _N_PATH_HOME = 230 if sys.platform == 'win32' else 160
@@ -222,9 +226,19 @@ class EspeakAPI:
         try:
             # Linux or MacOS only, ImportError on Windows
             return pathlib.Path(dlinfo.DLInfo(library).path).resolve()
-        except (Exception, ImportError):  # pragma: nocover
-            raise RuntimeError(
-                f'failed to retrieve the path to {library} library') from None
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
+
+        # dlinfo is not supported everywhere (e.g. on FreeBSD, see issue
+        # #209), where the library name given by ctypes.util.find_library()
+        # is not a path. Look for it in the standard directories.
+        for directory in _LIBRARY_DIRECTORIES:
+            path = pathlib.Path(directory) / library._name
+            if path.is_file():
+                return path.resolve()
+
+        raise RuntimeError(
+            f'failed to retrieve the path to {library} library')
 
     def info(self):
         """Bindings to espeak_Info
