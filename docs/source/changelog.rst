@@ -15,6 +15,14 @@ unreleased
     one chunk. ``see 3.14!`` is still one chunk. See `PR #222
     <https://github.com/bootphon/phonemizer/pull/222>`__.
 
+  * The festival backend failed with ``AttributeError: module 'importlib' has
+    no attribute 'resources'`` outside of pytest, including from the
+    ``phonemize`` command (regression in 3.4.0).
+
+  * ``phonemize()`` is thread-safe again: the backend cache introduced in
+    3.4.0 shared a single espeak instance between threads, yielding wrong
+    outputs or errors. Backends are now cached per thread.
+
 
 phonemizer-3.4.0
 -----------------
