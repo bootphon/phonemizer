@@ -17,7 +17,7 @@ Version numbers follow [semantic versioning](https://semver.org).
     not* in English) or splits a word, the mark cannot be placed for sure in
     the words phonemized together, and the words are phonemized apart as
     before. The `segments` backend, which phonemizes each word alone, is not
-    concerned.
+    concerned. See [PR #233](https://github.com/bootphon/phonemizer/pull/233).
   - `Punctuation.preserve()` returns the chunks to phonemize and, for each
     line, its parts: chunk indices and punctuation marks. It replaces the
     list of `_MarkIndex` it returned before, and `Punctuation.restore()`
@@ -25,7 +25,7 @@ Version numbers follow [semantic versioning](https://semver.org).
     `Punctuation.is_inline()` and `Punctuation.inline_groups()` tell which
     chunks are pronounced together, and `Punctuation.can_align()` whether
     the marks can be placed in context with a given separator (not with an
-    empty word separator, for instance).
+    empty word separator, for instance). See [PR #233](https://github.com/bootphon/phonemizer/pull/233).
 - **improvements**
   - Creating an espeak backend is about 3 times faster (from 28 to 8 ms on
     Linux): the espeak library found on the system is now looked up once per
@@ -48,7 +48,7 @@ Version numbers follow [semantic versioning](https://semver.org).
     next line, as did a line starting with a mark when the punctuation of
     later lines was restored. A line removed by
     `language_switch='remove-utterance'` is now empty, as without
-    punctuation, where it was sometimes a word separator.
+    punctuation, where it was sometimes a word separator. See [PR #233](https://github.com/bootphon/phonemizer/pull/233).
   - With `preserve_punctuation=True`, a word separator containing a backslash
     raised an error (`\`) or was read as an escape sequence (`\n` gave a new
     line). It is now inserted as is. See [PR
