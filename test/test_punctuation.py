@@ -458,14 +458,17 @@ def test_restore_context_not_a_group():
 
 @pytest.mark.parametrize('njobs', [1, 2])
 def test_espeak_context_njobs(njobs):
-    text = ['les (amis)', 'hello, world', 'an (apple) and "the" tree'] * 3
-    assert EspeakBackend('en-us', preserve_punctuation=True).phonemize(
-        text[1:2] + text[2:3], njobs=njobs) == [
-            'həloʊ, wɜːld ', 'ɐn (æpəl) ænd "ðə" tɹiː ']
-    assert phonemize(
-        text, language='fr-fr', preserve_punctuation=True, njobs=njobs,
-        language_switch='remove-flags')[:2] == [
-            'lez (ami) ', 'ɛlo, wɜːld ']
+    # the groups phonemized in context are appended to the chunks, they must
+    # be found back when the text is split in parallel jobs
+    text = ['les (amis)', 'bonjour (le) monde', 'les « amis » de (mes) amis'] * 3
+    out = phonemize(
+        text, language='fr-fr', preserve_punctuation=True, njobs=njobs)
+    assert out[0] == 'lez (ami) '
+    assert out == phonemize(text, language='fr-fr', preserve_punctuation=True)
+    assert [
+        ' '.join(re.sub('[«»()]', ' ', line).split()) for line in out] == [
+            ' '.join(line.split()) for line in phonemize(
+                text, language='fr-fr')]
 
 
 @pytest.mark.skipif(
