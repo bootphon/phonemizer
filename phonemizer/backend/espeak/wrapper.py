@@ -85,8 +85,15 @@ class EspeakWrapper:
         self._data_path = None
         self._voice = None
 
-        # load the espeak API
-        self._espeak = EspeakAPI(self.library(), self.data_path)
+        self._load(self.library(), self.data_path)
+
+    def _load(self, library, data_path):
+        """Loads the espeak API from `library` and `data_path`"""
+        # The data path given to espeak, None for its default one. It is kept
+        # to load the same library and data when unpickled in a parallel job,
+        # where set_library() and set_data_path() have not been called.
+        self._espeak_data_path = data_path
+        self._espeak = EspeakAPI(library, data_path)
 
         # lazy loading of attributes only required for the synthetize method
         self._libc_ = None
@@ -114,6 +121,8 @@ class EspeakWrapper:
     def __getstate__(self):
         """For pickling, when phonemizing on multiple jobs"""
         return {
+            "library": self._espeak.library_path,
+            "espeak_data_path": self._espeak_data_path,
             "version": self._version,
             "data_path": self._data_path,
             "voice": self._voice,
@@ -121,7 +130,7 @@ class EspeakWrapper:
 
     def __setstate__(self, state: Dict):
         """For unpickling, when phonemizing on multiple jobs"""
-        self.__init__()
+        self._load(state["library"], state["espeak_data_path"])
         self._version = state["version"]
         self._data_path = state["data_path"]
         self._voice = state["voice"]

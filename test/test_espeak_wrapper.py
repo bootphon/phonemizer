@@ -20,6 +20,7 @@
 import os
 import pathlib
 import pickle
+import shutil
 import sys
 
 import pytest
@@ -177,3 +178,23 @@ def test_library_found_without_configuration():
     library = EspeakWrapper.library()
     assert library
     assert pathlib.Path(str(library)).name.lower().startswith(("espeak", "libespeak"))
+
+
+def test_pickle_library_and_data_path(tmp_path):
+    # set_library() and set_data_path() are not called in the processes of
+    # parallel jobs, the pickled wrapper must carry the library and data path
+    default = EspeakWrapper()
+    library = tmp_path / default.library_path.name
+    shutil.copy(default.library_path, library)
+    try:
+        EspeakWrapper.set_library(str(library))
+        EspeakWrapper.set_data_path(str(default.data_path))
+        dump = pickle.dumps(EspeakWrapper())
+    finally:
+        EspeakWrapper.set_library(None)
+        EspeakWrapper.set_data_path(None)
+
+    # pylint: disable=protected-access
+    wrapper = pickle.loads(dump)
+    assert wrapper.library_path == library.resolve()
+    assert wrapper._espeak_data_path == default.data_path
