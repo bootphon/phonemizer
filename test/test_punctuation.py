@@ -23,7 +23,7 @@ import re
 from phonemizer.backend import EspeakBackend, FestivalBackend, SegmentsBackend
 from phonemizer.punctuation import Punctuation
 from phonemizer.phonemize import phonemize
-from phonemizer.separator import default_separator
+from phonemizer.separator import Separator, default_separator
 
 # True if we are using espeak>=1.50
 ESPEAK_150 = (EspeakBackend.version() >= (1, 50))
@@ -346,3 +346,21 @@ def test_restore_keeps_input():
     phonemized = [c + ' ' for c in chunks]
     Punctuation.restore(phonemized, marks, default_separator, False)
     assert phonemized == ['a ', 'b ']
+
+
+@pytest.mark.parametrize('word', ['\\', '\\1', '\\n', ' \\g<0> '])
+def test_restore_backslash_separator(word):
+    # the word separator was used as a regex replacement template, so that
+    # backslashes raised an error or were read as escapes
+    text = ['hello, world', 'ok!', 'a ,b']
+    expected = [
+        line.replace('|', word) for line in phonemize(
+            text, preserve_punctuation=True, separator=Separator(word='|'))]
+    assert phonemize(
+        text, preserve_punctuation=True,
+        separator=Separator(word=word)) == expected
+
+    # marks left alone when nothing has been phonemized
+    _, marks = Punctuation().preserve('a, b !')
+    assert Punctuation.restore([], marks, Separator(word=word), True) == [
+        f',{word}{word}!']

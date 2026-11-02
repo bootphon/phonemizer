@@ -20,6 +20,10 @@ Version numbers follow [semantic versioning](https://semver.org).
     quadratic in the number of lines: about 11 seconds for 20,000 lines, now
     40 milliseconds. `Punctuation.restore()` no longer modifies the list it
     is given. See [PR #232](https://github.com/bootphon/phonemizer/pull/232).
+  - With `preserve_punctuation=True`, a word separator containing a backslash
+    raised an error (`\`) or was read as an escape sequence (`\n` gave a new
+    line). It is now inserted as is. See [PR
+    #232](https://github.com/bootphon/phonemizer/pull/232).
 
 ## phonemizer-3.5.0
 

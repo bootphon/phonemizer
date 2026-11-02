@@ -228,7 +228,7 @@ class Punctuation:
             elif i == len(text):
                 # nothing has been phonemized, returns the marks alone, with internal
                 # spaces replaced by the word separator
-                punctuated_text.append(re.sub(' ', sep.word, ''.join(m.mark for m in marks[j:])))
+                punctuated_text.append(''.join(m.mark for m in marks[j:]).replace(' ', sep.word))
                 j = len(marks)
 
             else:
@@ -237,8 +237,9 @@ class Punctuation:
 
                     # place the current mark here
                     j += 1
-                    # replace internal spaces in the current mark with the word separator
-                    mark = re.sub(' ', sep.word, current_mark.mark)
+                    # replace internal spaces in the current mark with the word
+                    # separator, as is: re.sub() would read its backslashes as escapes
+                    mark = current_mark.mark.replace(' ', sep.word)
 
                     # remove the word last separator from the current word
                     if sep.word and text[i].endswith(sep.word):
