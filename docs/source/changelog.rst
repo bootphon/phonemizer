@@ -14,6 +14,38 @@ unreleased
     supported. The phonemizer now requires ``python>=3.10``. Users of older
     Python versions are served the phonemizer-3.4 release by pip.
 
+  * The phonemizer no longer configures the ``phonemizer`` logger. By default
+    its messages are handled by the logging configuration of the application,
+    which can tune it as usual, for instance with
+    ``logging.getLogger('phonemizer').setLevel(logging.ERROR)``. The level was
+    previously forced to ``WARNING``, so an application logging at the
+    ``INFO`` or ``DEBUG`` level now gets the phonemizer messages of that
+    level. The loggers returned by ``get_logger()`` no longer propagate to the
+    application, so ``get_logger('quiet')`` is actually quiet. See `issue #154
+    <https://github.com/bootphon/phonemizer/issues/154>`__.
+
+* **bug fixes**
+
+  * ``words_mismatch='remove'`` with ``preserve_punctuation=True`` removed
+    the wrong lines or raised an ``IndexError``. See `issue #181
+    <https://github.com/bootphon/phonemizer/issues/181>`__.
+
+  * Each espeak backend leaked about 5 MB of memory: the espeak library was
+    never terminated nor unloaded when the backend was deleted. See `issue
+    #153 <https://github.com/bootphon/phonemizer/issues/153>`__.
+
+  * With ``njobs > 1``, the espeak library and data path set with
+    ``set_library()`` and ``set_data_path()`` were ignored by the parallel
+    jobs, which used the default espeak installation.
+
+  * The backends cached by ``phonemize()`` were reused after a call to
+    ``set_library()``, ``set_data_path()`` or ``set_executable()``.
+
+  * ``punctuation_marks=''`` made espeak spell out every letter, it now
+    disables the punctuation processing.
+
+  * ``phonemize --list-languages`` printed ``None`` at the end.
+
 
 phonemizer-3.4.1
 -----------------
