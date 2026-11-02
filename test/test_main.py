@@ -59,9 +59,12 @@ def test_version():
     main.main()
 
 
-def test_list_languages():
+def test_list_languages(capsys):
     sys.argv = ['foo', '--list-languages']
     main.main()
+    out = capsys.readouterr().out
+    assert 'supported languages for espeak are:' in out
+    assert 'None' not in out
 
 
 def test_readme():

@@ -305,11 +305,11 @@ Examples:
 
 def list_languages(args_backend):
     """Returns the available languages for the given `backend` as a str"""
-    for backend in BACKENDS.keys() if not args_backend else [args_backend]:
-        print(
-            f'supported languages for {backend} are:\n' +
-            '\n'.join(f'\t{k}\t->\t{v}' for k, v in sorted(
-                BACKENDS[backend].supported_languages().items())))
+    return '\n'.join(
+        f'supported languages for {backend} are:\n' +
+        '\n'.join(f'\t{k}\t->\t{v}' for k, v in sorted(
+            BACKENDS[backend].supported_languages().items()))
+        for backend in (BACKENDS.keys() if not args_backend else [args_backend]))
 
 
 def get_logger(verbose, quiet):
