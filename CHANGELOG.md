@@ -2,7 +2,7 @@
 
 Version numbers follow [semantic versioning](https://semver.org).
 
-## unreleased
+## phonemizer-3.5.0
 
 - **breaking changes**
   - Python 3.8 and 3.9, which have reached their end of life, are no longer
