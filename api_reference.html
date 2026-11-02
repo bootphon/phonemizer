@@ -60,10 +60,12 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#phonemizer.punctuation.Punctuation"><code class="docutils literal notranslate"><span class="pre">Punctuation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.punctuation.Punctuation.can_align"><code class="docutils literal notranslate"><span class="pre">Punctuation.can_align()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#phonemizer.punctuation.Punctuation.default_marks"><code class="docutils literal notranslate"><span class="pre">Punctuation.default_marks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.punctuation.Punctuation.inline_groups"><code class="docutils literal notranslate"><span class="pre">Punctuation.inline_groups()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phonemizer.punctuation.Punctuation.is_inline"><code class="docutils literal notranslate"><span class="pre">Punctuation.is_inline()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#phonemizer.punctuation.Punctuation.marks"><code class="docutils literal notranslate"><span class="pre">Punctuation.marks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#phonemizer.punctuation.Punctuation.preserve"><code class="docutils literal notranslate"><span class="pre">Punctuation.preserve()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#phonemizer.punctuation.Punctuation.preserve_lines"><code class="docutils literal notranslate"><span class="pre">Punctuation.preserve_lines()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#phonemizer.punctuation.Punctuation.remove"><code class="docutils literal notranslate"><span class="pre">Punctuation.remove()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#phonemizer.punctuation.Punctuation.restore"><code class="docutils literal notranslate"><span class="pre">Punctuation.restore()</span></code></a></li>
 </ul>
@@ -217,7 +219,9 @@ returns only the phonemized utterances. Default to False</p></li>
 in the phonemized output. Default to False and remove all empty lines.</p></li>
 <li><p><strong>preserve_punctuation</strong> (<em>bool</em><em>, </em><em>optional</em>) – When True, will keep the punctuation
 in the phonemized output. Not supported by the ‘espeak-mbrola’ backend.
-Default to False and remove all the punctuation.</p></li>
+Default to False and remove all the punctuation. The words around
+quotes and brackets are pronounced together, as without punctuation,
+whereas the other marks end an utterance.</p></li>
 <li><p><strong>punctuation_marks</strong> (<em>str</em><em> or </em><em>re.Pattern</em><em>, </em><em>optional</em>) – The punctuation marks to consider when dealing with punctuation,
 either for removal or preservation.  Can be defined as a string or regular expression.
 Default to Punctuation.default_marks().</p></li>
@@ -339,9 +343,37 @@ a single character. Default to Punctuation.default_marks().</p>
 </dd>
 </dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.punctuation.Punctuation.can_align">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">can_align</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#phonemizer.separator.Separator" title="phonemizer.separator.Separator"><span class="pre">Separator</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#phonemizer.punctuation.Punctuation.can_align" title="Link to this definition"></a></dt>
+<dd><p>Returns True if the inline marks can be placed in context with <cite>sep</cite></p>
+<p>The marks are placed by counting the phonemized words, split on the
+word separator. It must not be empty nor found in the other separators.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="phonemizer.punctuation.Punctuation.default_marks">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">default_marks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.punctuation.Punctuation.default_marks" title="Link to this definition"></a></dt>
 <dd><p>Returns the default punctuation marks as a string</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.punctuation.Punctuation.inline_groups">
+<span class="sig-name descname"><span class="pre">inline_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.punctuation.Punctuation.inline_groups" title="Link to this definition"></a></dt>
+<dd><p>Returns the chunks separated by inline marks only</p>
+<p><cite>lines</cite> is as returned by preserve(). Each group lists the indices of
+consecutive chunks of a line separated by inline marks (quotes or
+brackets, see is_inline()). The backends phonemize such a group as a
+whole as well, so that its words are pronounced in context, see
+restore().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phonemizer.punctuation.Punctuation.is_inline">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_inline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mark</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#phonemizer.punctuation.Punctuation.is_inline" title="Link to this definition"></a></dt>
+<dd><p>Returns True if <cite>mark</cite> does not break the utterance</p>
+<p>Quotes and brackets are inline marks: the words on both sides of them
+are pronounced together. The other marks, such as commas or periods,
+end an utterance, as do the marks not known to be inline.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -352,24 +384,14 @@ a single character. Default to Punctuation.default_marks().</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="phonemizer.punctuation.Punctuation.preserve">
-<span class="sig-name descname"><span class="pre">preserve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">_mark_index</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.punctuation.Punctuation.preserve" title="Link to this definition"></a></dt>
-<dd><p>Removes punctuation from <cite>text</cite>, allowing for furter restoration</p>
-<p>This method returns the text as a list of punctuated chunks, along with
-a list of punctuation marks for furter restoration:</p>
-<blockquote>
-<div><p>‘hello, my world!’ -&gt; [‘hello’, ‘my world’], [‘,’, ‘!’]</p>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="phonemizer.punctuation.Punctuation.preserve_lines">
-<span class="sig-name descname"><span class="pre">preserve_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">_mark_index</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.punctuation.Punctuation.preserve_lines" title="Link to this definition"></a></dt>
-<dd><p>Same as Punctuation.preserve(), along with the line of each chunk</p>
-<p>Returns the punctuated chunks, the punctuation marks and, for each
-chunk, the index of the line of <cite>text</cite> it comes from:</p>
+<span class="sig-name descname"><span class="pre">preserve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.punctuation.Punctuation.preserve" title="Link to this definition"></a></dt>
+<dd><p>Removes punctuation from <cite>text</cite>, allowing for further restoration</p>
+<p>Returns the <cite>chunks</cite> of text between the punctuation marks, to be
+phonemized, and, for each line of <cite>text</cite>, its parts in order: the
+index of a chunk in <cite>chunks</cite> or a punctuation mark:</p>
 <blockquote>
 <div><dl class="simple">
-<dt>[‘hello, my world!’, ‘ok’] -&gt; [‘hello’, ‘my world’, ‘ok’],</dt><dd><p>[‘,’, ‘!’], [0, 0, 1]</p>
+<dt>[‘hello, my world!’, ‘ok’] -&gt; [‘hello’, ‘my world’, ‘ok’],</dt><dd><p>[[0, ‘, ‘, 1, ‘!’], [2]]</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -385,15 +407,23 @@ same type and punctuation removed.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="phonemizer.punctuation.Punctuation.restore">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">restore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">_mark_index</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#phonemizer.separator.Separator" title="phonemizer.separator.Separator"><span class="pre">Separator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.punctuation.Punctuation.restore" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">restore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#phonemizer.separator.Separator" title="phonemizer.separator.Separator"><span class="pre">Separator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#phonemizer.punctuation.Punctuation.restore" title="Link to this definition"></a></dt>
 <dd><p>Restore punctuation in a text.</p>
-<p>This is the reverse operation of Punctuation.preserve(). It takes a
-list of punctuated chunks and a list of punctuation marks, as well as
-the separator and strip parameters used by phonemize. It returns the
-punctuated text as a list:</p>
+<p>This is the reverse operation of Punctuation.preserve(). It takes the
+phonemized chunks and the parts of each line, as well as the separator
+and strip parameters used by phonemize. It returns the punctuated text
+as a list:</p>
 <blockquote>
-<div><p>[‘hello’, ‘my world’], [‘,’, ‘!’] -&gt; [‘hello, my world!’]</p>
+<div><dl class="simple">
+<dt>[‘hello’, ‘my world’, ‘ok’], [[0, ‘, ‘, 1, ‘!’], [2]]</dt><dd><p>-&gt; [‘hello, my world!’, ‘ok’]</p>
+</dd>
+</dl>
 </div></blockquote>
+<p>The internal spaces of the marks are replaced by the word separator.
+<cite>context</cite> optionally gives, for groups of chunks as returned by
+inline_groups(), the group phonemized as a whole. It is used in place
+of the chunks phonemized alone when the inline marks can be placed in
+it for sure.</p>
 </dd></dl>
 
 </dd></dl>

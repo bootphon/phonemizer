@@ -252,6 +252,18 @@ option.</p>
 həloʊ<span class="w"> </span>wɜːld!
 </pre></div>
 </div>
+<p>Most marks, such as commas and periods, end an utterance: the words on both
+sides are phonemized apart. Quotes and brackets do not: the words on both sides
+are pronounced together, as without punctuation. Here
+the liaison of <em>les</em> is kept:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"les (amis) et « les amis »"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>phonemize<span class="w"> </span>-l<span class="w"> </span>fr-fr<span class="w"> </span>--preserve-punctuation<span class="w"> </span>--strip<span class="w"> </span>--quiet
+lez<span class="w"> </span><span class="o">(</span>ami<span class="o">)</span><span class="w"> </span>e<span class="w"> </span>«<span class="w"> </span>lez<span class="w"> </span>ami<span class="w"> </span>»
+</pre></div>
+</div>
+<p>The words around quotes and brackets are then phonemized twice, once alone to
+place the marks and once together. When a backend joins words across a mark,
+such as espeak with <em>do not</em> in English, the mark cannot be placed for sure in
+the joined words, and the words on both sides are phonemized apart.</p>
 <p>A comma or a period between two digits is a decimal or thousands separator,
 not a punctuation mark: numbers such as <code class="docutils literal notranslate"><span class="pre">19,99</span></code> or <code class="docutils literal notranslate"><span class="pre">3.14</span></code> are kept whole
 (since phonemizer-3.4).</p>
