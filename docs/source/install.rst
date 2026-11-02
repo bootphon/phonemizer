@@ -5,7 +5,8 @@ Installation
 Dependencies
 ------------
 
-**You need python>=3.6.** If you really need to use python2, use the
+**You need python>=3.10.** If you are using an older python version, use the
+``phonemizer-3.4`` release. If you really need to use python2, use the
 ``phonemizer-1.0`` release.
 
 You need to install

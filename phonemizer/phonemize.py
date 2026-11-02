@@ -21,7 +21,6 @@ To use it in your own code, type:
 """
 
 import os
-import sys
 import threading
 from collections import OrderedDict
 from logging import Logger
@@ -241,12 +240,6 @@ def phonemize(  # pylint: disable=too-many-arguments
         if the ``language`` is not supported by the ``backend``, if any incompatible options are used.
 
     """
-    # ensure we are using a compatible Python version
-    if sys.version_info < (3, 6):  # pragma: nocover
-        logger.error(
-            'Your are using python-%s which is unsupported by the phonemizer, '
-            'please update to python>=3.6', ".".join(sys.version_info))
-
     # ensure the arguments are valid
     _check_arguments(
         backend, with_stress, tie, separator, language_switch, words_mismatch)

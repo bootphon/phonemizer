@@ -108,13 +108,7 @@ def get_package_resource(path: str) -> Path:
     The absolute path to the required resource as a `pathlib.Path`
 
     """
-    try:
-        # new in python-3.9
-        path = importlib.resources.files('phonemizer') / 'share' / path
-    except AttributeError:  # pragma: nocover
-        with importlib.resources.path('phonemizer', 'share') as share:
-            path = share / path
-
+    path = importlib.resources.files('phonemizer') / 'share' / path
     if not path.exists():  # pragma: nocover
         raise ValueError(f'the requested resource does not exist: {path}')
 

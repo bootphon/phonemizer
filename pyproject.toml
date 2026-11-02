@@ -37,7 +37,7 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent"]
 
-requires-python = ">= 3.8"
+requires-python = ">= 3.10"
 dynamic = ["version"]
 dependencies = [
     "joblib",
@@ -96,7 +96,7 @@ skip_covered = true
 
 # pixi configuration. If you are a pixi user, you can install phonemizer with
 # pixi by running `pixi install`, then run tests with `pixi run test` or e.g.
-# `pixi run -e py308 test` to run the tests on Python-3.8.
+# `pixi run -e py310 test` to run the tests on Python-3.10.
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
@@ -110,7 +110,7 @@ phonemizer = { path = ".", editable = true, extras = ["segments"] }
 test = { features = ["test"] }
 dev = { features = ["test", "dev"] }
 # test the first, the second-to-last, and the last supported version
-py308 = ["py308", "test"]
+py310 = ["py310", "test"]
 py313 = ["py313", "test"]
 py314 = ["py314", "test"]
 
@@ -128,8 +128,8 @@ ipython = ">=9.11.0,<10"
 test = { cmd = "pytest", default-environment = "test" }
 
 
-[tool.pixi.feature.py308.dependencies]
-python = "3.08.*"
+[tool.pixi.feature.py310.dependencies]
+python = "3.10.*"
 
 [tool.pixi.feature.py313.dependencies]
 python = "3.13.*"
