@@ -17,7 +17,6 @@
 # pylint: disable=missing-docstring
 
 import concurrent.futures
-import os
 import shutil
 import pytest
 
@@ -63,7 +62,7 @@ def test_bad_language():
 
 def test_text_type():
     text1 = ['one two', 'three', 'four five']
-    text2 = os.linesep.join(text1)
+    text2 = '\n'.join(text1)
 
     phn1 = phonemize(text1, language='en-us', backend='espeak', strip=True)
     phn2 = phonemize(text2, language='en-us', backend='espeak', strip=True)
@@ -74,8 +73,8 @@ def test_text_type():
 
     assert isinstance(phn1, list)
     assert isinstance(phn2, str)
-    assert os.linesep.join(phn1) == phn2
-    assert os.linesep.join(phn3) == phn2
+    assert '\n'.join(phn1) == phn2
+    assert '\n'.join(phn3) == phn2
     assert text3 == text1
 
 
@@ -129,9 +128,9 @@ def test_espeak_parallel_nostrip_multiline(njobs):
         expected = ['wʌn tuː ', 'θɹiː ', 'foːɹ faɪv ']
 
     out = phonemize(
-        os.linesep.join(text), language='en-us', backend='espeak',
+        '\n'.join(text), language='en-us', backend='espeak',
         strip=False, njobs=njobs)
-    assert out == os.linesep.join(expected)
+    assert out == '\n'.join(expected)
 
 
 @pytest.mark.skipif(
@@ -172,9 +171,9 @@ def test_festival(njobs):
     assert out == ' '.join(['wahn tuw', 'thriy', 'faor fayv'])
 
     out = phonemize(
-        os.linesep.join(text), language='en-us', backend='festival',
+        '\n'.join(text), language='en-us', backend='festival',
         strip=True, njobs=njobs)
-    assert out == os.linesep.join(['wahn tuw', 'thriy', 'faor fayv'])
+    assert out == '\n'.join(['wahn tuw', 'thriy', 'faor fayv'])
 
 
 @pytest.mark.skipif(
@@ -210,9 +209,9 @@ def test_segments(njobs):
         ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo '])
 
     out = phonemize(
-        os.linesep.join(text), language='yucatec', backend='segments',
+        '\n'.join(text), language='yucatec', backend='segments',
         strip=True, njobs=njobs)
-    assert out == os.linesep.join(
+    assert out == '\n'.join(
         ['untṵːlḛ ka̰ːpʼḛːl', 'o̰ːʃpʼḛːl', 'kantṵːlo̰ːn t̠͡ʃint̠͡ʃo'])
 
 

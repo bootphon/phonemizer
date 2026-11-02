@@ -33,19 +33,21 @@ class EspeakMbrolaBackend(BaseEspeakBackend):
 
     def __init__(self, language: str, logger: Optional[Logger] = None):
         super().__init__(language, logger=logger)
-        self._espeak.set_voice(language)
+        self._espeak.set_voice(self.language)
 
     @staticmethod
     def name():
         return 'espeak-mbrola'
 
     @classmethod
-    def is_available(cls) -> bool:
+    def _unavailable_reason(cls) -> Optional[str]:
         """Mbrola backend is available for espeak>=1.49"""
-        return (
-                BaseEspeakBackend.is_available() and
-                shutil.which('mbrola') and
-                BaseEspeakBackend.is_espeak_ng())
+        reason = super()._unavailable_reason()
+        if reason is None and not shutil.which('mbrola'):
+            reason = 'mbrola executable not found'
+        if reason is None and not cls.is_espeak_ng():  # pragma: nocover
+            reason = 'espeak-mbrola requires espeak>=1.49'
+        return reason
 
     @classmethod
     def _all_supported_languages(cls):

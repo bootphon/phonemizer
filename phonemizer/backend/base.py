@@ -71,10 +71,12 @@ class BaseBackend(abc.ABC):
         if logger is None:
             logger = default_logger()
 
-        # ensure the backend is installed on the system
-        if not self.is_available():
-            raise RuntimeError(  # pragma: nocover
-                '{} not installed on your system'.format(self.name()))
+        # ensure the backend is installed on the system, telling why if not
+        reason = self._unavailable_reason()
+        if reason is not None:
+            raise RuntimeError(
+                f'{self.name()} not installed on your system'
+                + (f': {reason}' if reason else ''))
 
         self._logger = logger
         self._logger.info(
@@ -95,11 +97,12 @@ class BaseBackend(abc.ABC):
         This method may be overloaded in child classes (see Segments backend)
 
         """
-        if not cls.is_supported_language(language):
+        code = cls._supported_language(language)
+        if code is None:
             raise RuntimeError(
                 f'language "{language}" is not supported by the '
                 f'{cls.name()} backend')
-        return language
+        return code
 
     @property
     def logger(self):
@@ -120,6 +123,16 @@ class BaseBackend(abc.ABC):
     @abc.abstractmethod
     def is_available(cls):
         """Returns True if the backend is installed, False otherwise"""
+
+    @classmethod
+    def _unavailable_reason(cls) -> Optional[str]:
+        """Returns why the backend is not available, None if it is
+
+        The reason is given in the error raised when the backend cannot be
+        initialized. To be overloaded in child classes that can explain it.
+
+        """
+        return None if cls.is_available() else ''
 
     @classmethod
     @abc.abstractmethod
@@ -144,8 +157,29 @@ class BaseBackend(abc.ABC):
 
     @classmethod
     def is_supported_language(cls, language: str):
-        """Returns True if `language` is supported by the backend"""
-        return language in cls.supported_languages()
+        """Returns True if `language` is supported by the backend
+
+        Language codes are case insensitive: 'en-US' is supported as 'en-us'.
+
+        """
+        return cls._supported_language(language) is not None
+
+    @classmethod
+    def _supported_language(cls, language: str) -> Optional[str]:
+        """Returns the supported language code matching `language`
+
+        Returns None if `language` is not supported. The language codes are
+        compared ignoring case, the returned code is as listed by
+        supported_languages().
+
+        """
+        supported = cls.supported_languages()
+        if language in supported:
+            return language
+        matches = [
+            code for code in supported
+            if code.lower() == str(language).lower()]
+        return matches[0] if len(matches) == 1 else None
 
     def phonemize(self, text: List[str],
                   separator: Optional[Separator] = None,

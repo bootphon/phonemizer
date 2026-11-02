@@ -17,7 +17,6 @@
 import os
 import pathlib
 import re
-import shlex
 import shutil
 import subprocess
 import sys
@@ -139,11 +138,15 @@ class FestivalBackend(BaseBackend):
     @classmethod
     def is_available(cls):
         """True if the festival executable is available, False otherwise"""
+        return cls._unavailable_reason() is None
+
+    @classmethod
+    def _unavailable_reason(cls) -> Optional[str]:
         try:
             cls.executable()
-        except RuntimeError:  # pragma: nocover
-            return False
-        return True
+        except RuntimeError as error:
+            return str(error)
+        return None
 
     @classmethod
     def version(cls):
@@ -199,13 +202,21 @@ class FestivalBackend(BaseBackend):
         Parsing a ill-formed Scheme expression during post-processing
         (typically with unbalanced parenthesis) raises an IndexError.
 
+        The output has one line per line of `text`: a line left empty once
+        cleaned, or for which festival finds no word, gives an empty line.
+
         """
-        text = self._preprocess(text)
-        if len(text) == 0:
-            return []
-        text = self._process(text)
-        text = self._postprocess(text, separator, strip)
-        return text
+        # only the lines not empty once cleaned are given to festival (as
+        # _preprocess() does), the others are empty in output
+        indices = [num for num, line in enumerate(text) if self._cleaned(line)]
+        phonemized = [''] * len(text)
+        if indices:
+            tree = self._process(
+                self._preprocess([text[num] for num in indices]))
+            for num, line in zip(
+                    indices, self._postprocess(tree, separator, strip)):
+                phonemized[num] = line
+        return phonemized
 
     @staticmethod
     def _double_quoted(line: str) -> str:
@@ -265,9 +276,10 @@ class FestivalBackend(BaseBackend):
                         scm.write(self._script.format(name))
                         scm.close()
 
-                        cmd = f'{self.executable()} -b {scm.name}'
+                        # an argument list, so that paths with spaces work
+                        cmd = [str(self.executable()), '-b', scm.name]
                         if self.logger:
-                            self.logger.debug('running %s', cmd)
+                            self.logger.debug('running %s', ' '.join(cmd))
 
                         # redirect stderr to a tempfile and displaying it only
                         # on errors. Messages are something like: "UniSyn:
@@ -282,7 +294,7 @@ class FestivalBackend(BaseBackend):
                 os.remove(data.name)
 
     @staticmethod
-    def _run_festival(cmd: str, fstderr: IO) -> str:
+    def _run_festival(cmd: List[str], fstderr: IO) -> str:
         """Runs the festival command for phonemization
 
         Returns the raw phonemized output (need to be postprocesses). Raises a
@@ -290,8 +302,7 @@ class FestivalBackend(BaseBackend):
 
         """
         try:
-            output = subprocess.check_output(
-                shlex.split(cmd, posix=False), stderr=fstderr)
+            output = subprocess.check_output(cmd, stderr=fstderr)
 
             # festival seems to use latin1 and not utf8
             return re.sub(' +', ' ', output.decode('latin1'))
@@ -299,7 +310,8 @@ class FestivalBackend(BaseBackend):
         except subprocess.CalledProcessError as err:  # pragma: nocover
             fstderr.seek(0)
             raise RuntimeError(
-                f'Command "{cmd}" returned exit status {err.returncode}, '
+                f'Command "{" ".join(cmd)}" returned exit status '
+                f'{err.returncode}, '
                 f'output is:\n{fstderr.read()}') from None
 
     @staticmethod
@@ -335,6 +347,7 @@ class FestivalBackend(BaseBackend):
     @classmethod
     def _postprocess(cls, tree: str, separator: Separator, strip: bool) -> List[str]:
         """Conversion from festival syllable tree to desired format"""
-        return [cls._postprocess_line(line, separator, strip)
-                for line in tree.split('\n')
-                if line not in ['', '(nil nil nil)']]
+        # one line per utterance, festival finds no word in '(nil nil nil)'
+        return ['' if line == '(nil nil nil)'
+                else cls._postprocess_line(line, separator, strip)
+                for line in tree.split('\n') if line]

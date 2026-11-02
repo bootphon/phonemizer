@@ -14,7 +14,6 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Provides utility functions for the phonemizer"""
 
-import os
 from numbers import Number
 from pathlib import Path
 from typing import Union, List, Tuple, Iterable
@@ -33,9 +32,13 @@ def cumsum(iterable: Iterable[Number]) -> List[Number]:
 
 
 def str2list(text: Union[str, List[str]]) -> List[str]:
-    """Returns the string `text` as a list of lines, split by \n"""
+    """Returns the string `text` as a list of lines, split by \n
+
+    Lines ending with \r\n are accepted as well, on every platform.
+
+    """
     if isinstance(text, str):
-        return text.strip(os.linesep).split(os.linesep)
+        return [line.rstrip('\r') for line in text.strip('\r\n').split('\n')]
     return text
 
 
@@ -43,7 +46,7 @@ def list2str(text: Union[str, List[str]]) -> str:
     """Returns the list of lines `text` as a single string separated by \n"""
     if isinstance(text, str):
         return text
-    return os.linesep.join(text)
+    return '\n'.join(text)
 
 
 def chunks(text: Union[str, List[str]], num: int) \

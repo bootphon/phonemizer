@@ -1,7 +1,6 @@
 """Test of the phonemizer.utils module"""
 
 # pylint: disable=missing-docstring
-import os
 
 from phonemizer.utils import chunks, cumsum, str2list, list2str
 
@@ -17,7 +16,7 @@ def test_list2str():
     assert list2str([]) == ''
     assert list2str(['']) == ''
     assert list2str(['abc']) == 'abc'
-    assert list2str(['a', 'b', 'c']) == os.linesep.join('abc')
+    assert list2str(['a', 'b', 'c']) == '\n'.join('abc')
 
 
 def test_str2list():
@@ -25,9 +24,12 @@ def test_str2list():
     assert str2list('a') == ['a']
     assert str2list('ab') == ['ab']
     assert str2list('a b') == ['a b']
-    assert str2list(f'a{os.linesep}b') == ['a', 'b']
+    assert str2list('a\nb') == ['a', 'b']
     assert str2list(
-        f'a{os.linesep}{os.linesep}b{os.linesep}') == ['a', '', 'b']
+        'a\n\nb\n') == ['a', '', 'b']
+    # lines ending with \r\n, as on Windows, on every platform
+    assert str2list('a\r\nb\r\n') == ['a', 'b']
+    assert list2str(str2list('a\r\nb')) == 'a\nb'
 
 
 def test_chunks():

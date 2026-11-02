@@ -16,7 +16,6 @@
 
 # pylint: disable=missing-docstring
 
-import os
 import pathlib
 import tempfile
 import shlex
@@ -44,7 +43,7 @@ def _test(text, expected_output, args=''):
             output = foutput.read().decode()
 
         # silly fix for windows
-        assert output.replace('\r', '').strip(os.linesep) \
+        assert output.replace('\r', '').strip('\n') \
             == expected_output.replace('\r', '')
 
 
@@ -111,12 +110,12 @@ def test_readme_festival_syll():
 @pytest.mark.parametrize('njobs', [1, 6])
 def test_njobs(njobs):
     _test(
-        os.linesep.join((
+        '\n'.join((
             'hello world',
             'goodbye',
             'third line',
             'yet another')),
-        os.linesep.join((
+        '\n'.join((
             'h-ə-l-oʊ w-ɜː-l-d',
             'ɡ-ʊ-d-b-aɪ',
             'θ-ɜː-d l-aɪ-n',
