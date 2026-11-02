@@ -2,7 +2,11 @@
 
 name: Windows
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
@@ -14,10 +18,13 @@ jobs:
 
     steps:
       - name: Checkout phonemizer
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
+        with:
+          # the latest python release, rather than the runner's default one
+          python-version: '3.x'
 
       # - name: Cache festival
       #   uses: actions/cache@v4
@@ -29,7 +36,6 @@ jobs:
       #     key: ${{ runner.os }}-festival
 
       - name: Install espeak
-        if: steps.cache-espeak.outputs.cache-hit != 'true'
         run: |
           $source = 'https://github.com/espeak-ng/espeak-ng/releases/download/1.52.0/espeak-ng.msi'
           Invoke-WebRequest -Uri $source -OutFile espeak.msi
