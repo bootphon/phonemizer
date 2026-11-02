@@ -4,6 +4,26 @@ Version numbers follow [semantic versioning](https://semver.org).
 
 ## unreleased
 
+- **breaking changes**
+  - With `preserve_punctuation=True`, the words on both sides of quotes and
+    brackets (`"«»“”‘’„‹›()[]{}`) are pronounced together, as without
+    punctuation. They used to be phonemized apart, as at the end of a
+    sentence: `les (amis)` gave `le (ami)` in French, and is now `lez (ami)`;
+    `an (apple)` gave `æn (æpəl)` in English, and is now `ɐn (æpəl)`. The
+    other marks, such as commas or periods, still end an utterance. The
+    output changes only on lines with quotes or brackets between words.
+    These words are phonemized twice, alone and together, which costs time on
+    such lines. When the backend joins words across a mark (espeak joins *do
+    not* in English) or splits a word, the mark cannot be placed for sure in
+    the words phonemized together, and the words are phonemized apart as
+    before. The `segments` backend, which phonemizes each word alone, is not
+    concerned.
+  - `Punctuation.preserve()` returns the chunks to phonemize and, for each
+    line, its parts: chunk indices and punctuation marks. It replaces the
+    list of `_MarkIndex` it returned before, and `Punctuation.restore()`
+    takes these parts. `Punctuation.preserve_lines()` is removed. The new
+    `Punctuation.is_inline()` and `Punctuation.inline_groups()` tell which
+    chunks are pronounced together.
 - **improvements**
   - Creating an espeak backend is about 3 times faster (from 28 to 8 ms on
     Linux): the espeak library found on the system is now looked up once per
@@ -20,6 +40,13 @@ Version numbers follow [semantic versioning](https://semver.org).
     quadratic in the number of lines: about 11 seconds for 20,000 lines, now
     40 milliseconds. `Punctuation.restore()` no longer modifies the list it
     is given. See [PR #232](https://github.com/bootphon/phonemizer/pull/232).
+  - With `preserve_punctuation=True`, a line made only of punctuation marks
+    was merged with the next ones made only of marks, so that the output had
+    fewer lines than the input. It also removed the word separator ending the
+    next line, as did a line starting with a mark when the punctuation of
+    later lines was restored. A line removed by
+    `language_switch='remove-utterance'` is now empty, as without
+    punctuation, where it was sometimes a word separator.
   - With `preserve_punctuation=True`, a word separator containing a backslash
     raised an error (`\`) or was read as an escape sequence (`\n` gave a new
     line). It is now inserted as is. See [PR

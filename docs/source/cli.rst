@@ -191,6 +191,21 @@ option.
     $ echo "hello, world!" | phonemize --preserve-punctuation --strip --punctuation-marks '!?'
     həloʊ wɜːld!
 
+Most marks, such as commas and periods, end an utterance: the words on both
+sides are phonemized apart. Quotes and brackets do not: the words on both sides
+are pronounced together, as without punctuation (since phonemizer-3.6). Here
+the liaison of *les* is kept:
+
+.. code-block:: shell
+
+    $ echo "les (amis) et « les amis »" | phonemize -l fr-fr --preserve-punctuation --strip --quiet
+    lez (ami) e « lez ami »
+
+The words around quotes and brackets are then phonemized twice, once alone to
+place the marks and once together. When a backend joins words across a mark,
+such as espeak with *do not* in English, the mark cannot be placed for sure in
+the joined words, and the words on both sides are phonemized apart.
+
 A comma or a period between two digits is a decimal or thousands separator,
 not a punctuation mark: numbers such as ``19,99`` or ``3.14`` are kept whole
 (since phonemizer-3.4).

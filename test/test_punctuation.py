@@ -69,7 +69,9 @@ def test_preserve(inp):
 
 @pytest.mark.parametrize(
     'text, expected_restore, expected_output', [
-        (['hi; hi,"'], ['hi; hi," '], ['haɪ; haɪ, ']),
+        # a final chunk is restored as is: phonemized, it ends with a word
+        # separator, or is empty and the mark before is followed by one
+        (['hi; hi,"'], ['hi; hi,"'], ['haɪ; haɪ, ']),
         (['hi; "hi,'], ['hi; "hi, '], ['haɪ; haɪ, '] if ESPEAK_149 else ['haɪ;  haɪ, ']),
         (['"hi; hi,'], ['"hi; hi, '], ['haɪ; haɪ, '] if ESPEAK_149 else [' haɪ; haɪ, '])])
 def test_preserve_2(text, expected_restore, expected_output):
@@ -318,18 +320,95 @@ def test_empty_marks():
     punct = Punctuation('')
     assert punct.marks == ''
     assert punct.remove('hello, world') == 'hello, world'
-    assert punct.preserve(['hello, world']) == (['hello, world'], [])
+    assert punct.preserve(['hello, world']) == (['hello, world'], [[0]])
     assert phonemize('hello world', punctuation_marks='') == 'həloʊ wɜːld '
     assert phonemize(
         'hello world', punctuation_marks=re.compile('')) == 'həloʊ wɜːld '
 
 
-def test_preserve_lines():
-    text = ['hello, my world!', '...', 'ok']
-    chunks, marks, lines = Punctuation().preserve_lines(text)
-    assert (chunks, marks) == Punctuation().preserve(text)
-    assert chunks == ['hello', 'my world', 'ok']
-    assert lines == [0, 0, 2]
+def test_preserve_parts():
+    text = ['hello, my world!', '...', 'ok', '"a (b) c", d']
+    chunks, lines = Punctuation().preserve(text)
+    assert chunks == ['hello', 'my world', 'ok', 'a', 'b', 'c', 'd']
+    assert lines == [
+        [0, ', ', 1, '!'], ['...'], [2], ['"', 3, ' (', 4, ') ', 5, '", ', 6]]
+
+    # the chunks separated by quotes or brackets only
+    assert Punctuation().inline_groups(lines) == [[3, 4, 5]]
+
+
+@pytest.mark.parametrize('mark, inline', [
+    ('(', True), (' « ', True), ('") ', True), (', ', False), ('", ', False),
+    ('-', False), (' ', False), ('', False)])
+def test_is_inline(mark, inline):
+    assert Punctuation().is_inline(mark) is inline
+
+
+@pytest.mark.parametrize('context, expected', [
+    # no context, or the words cannot be aligned with the chunks
+    (None, ['a (b c) ']),
+    ('x y ', ['a (b c) ']),
+    ('x y z w ', ['a (b c) ']),
+    ('', ['a (b c) ']),
+    # aligned: the mark goes after the words of the first chunk
+    ('x y z ', ['x (y z) ']),
+    ('x  y z ', ['x (y z) ']),
+])
+def test_restore_context(context, expected):
+    chunks, lines = Punctuation().preserve(['a (b c)'])
+    phonemized = ['a ', 'b c ']
+    context = [([0, 1], context)] if context else None
+    assert Punctuation.restore(
+        phonemized, lines, default_separator, False, context) == expected
+
+    # the words cannot be counted without a word separator
+    assert Punctuation.restore(
+        ['a', 'bc'], lines, Separator(word='', phone='-'), False,
+        [([0, 1], 'xyz')]) == ['a(bc)']
+    assert Punctuation.restore(
+        ['a|', 'b|c|'], lines, Separator(word='|', phone=' | '), False,
+        [([0, 1], 'x|y|z|')]) == ['a|(b|c)|']
+
+
+@pytest.mark.parametrize('lang, text, expected', [
+    # pronounced as without punctuation, in context
+    ('fr-fr', 'les (amis)', 'lez (ami) '),
+    ('fr-fr', 'les « amis » de « mes amis »', 'lez « ami » də « mez ami » '),
+    ('en-us', 'an (apple)', 'ɐn (æpəl) '),
+    ('en-us', '"hello" world, (an) apple.', '"həloʊ" wɜːld, (ɐn) æpəl. '),
+    # espeak joins "do not" in a single word, the marks are placed as when
+    # phonemizing each chunk alone
+    ('en-us', 'I do (not) know', 'aɪ duː (nɑːt) noʊ '),
+    ('en-us', 'not (a) dog', 'nɑːt (eɪ) dɑːɡ '),
+])
+def test_espeak_context(lang, text, expected):
+    assert phonemize(text, language=lang, preserve_punctuation=True) == expected
+
+
+@pytest.mark.parametrize('lang, text', [
+    ('en-us', ['to "the" house', '(a) [b] {c}', 'he said "it is (a lot)"']),
+    ('fr-fr', ['les (amis) de « mes amis »', "c'est (un) [ami]"]),
+])
+def test_espeak_context_as_without_punctuation(lang, text):
+    # with quotes and brackets only, the phonemes are the same as without
+    # punctuation, when no words are joined across a mark
+    marks = re.compile('[' + re.escape('"«»()[]{}') + ']')
+    preserved = phonemize(text, language=lang, preserve_punctuation=True)
+    removed = phonemize(text, language=lang)
+    assert [' '.join(marks.sub(' ', line).split()) for line in preserved] \
+        == [' '.join(line.split()) for line in removed]
+
+
+@pytest.mark.parametrize('njobs', [1, 2])
+def test_marks_alone_on_lines(njobs):
+    # a line made of marks only used to merge with the next ones, or to remove
+    # the word separator ending the next line
+    assert phonemize(
+        ['a', '!', '?'], preserve_punctuation=True, njobs=njobs) == \
+        ['eɪ ', '! ', '? ']
+    assert phonemize(
+        ['!', 'hello', 'a.'], preserve_punctuation=True, njobs=njobs) == \
+        ['! ', 'həloʊ ', 'eɪ. ']
 
 
 def test_restore_many_lines():
@@ -360,7 +439,6 @@ def test_restore_backslash_separator(word):
         text, preserve_punctuation=True,
         separator=Separator(word=word)) == expected
 
-    # marks left alone when nothing has been phonemized
-    _, marks = Punctuation().preserve('a, b !')
-    assert Punctuation.restore([], marks, Separator(word=word), True) == [
-        f',{word}{word}!']
+    # a line made of marks only
+    assert Punctuation.restore(
+        [], [['! ?']], Separator(word=word), True) == [f'!{word}?']

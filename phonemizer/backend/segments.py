@@ -32,6 +32,8 @@ class SegmentsBackend(BaseBackend):
     unknown morpheme.
 
     """
+    # each word is phonemized alone, see BaseBackend
+    _punctuation_context = False
 
     def __init__(self, language: str,
                  punctuation_marks: Optional[Union[str, Pattern]] = None,

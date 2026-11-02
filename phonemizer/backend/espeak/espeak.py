@@ -146,8 +146,10 @@ class EspeakBackend(BaseEspeakBackend):
         # each punctuation mark. Words are counted on the input lines, not on
         # the chunks, so that the mismatched lines are the ones processed.
         if self._preserve_punctuation:
-            chunks, punctuation_marks, lines = self._punctuator.preserve_lines(
-                text)
+            chunks, punctuation_marks = self._punctuator.preserve(text)
+            lines = [
+                num for num, parts in enumerate(punctuation_marks)
+                for part in parts if isinstance(part, int)]
         else:
             chunks, punctuation_marks, lines = (
                 self._punctuator.remove(text), [], None)
@@ -155,14 +157,20 @@ class EspeakBackend(BaseEspeakBackend):
         self._words_mismatch.count_text(chunks, lines, len(text))
         return chunks, punctuation_marks
 
-    def _phonemize_postprocess(self, phonemized, punctuation_marks, separator: Separator, strip: bool):
+    def _phonemize_postprocess(self, phonemized, punctuation_marks,
+                               separator: Separator, strip: bool,
+                               context: List[List[int]]):
         text = phonemized[0]
-        switches = phonemized[1]
+        # the chunks phonemized in context are not counted, they are
+        # phonemized alone as well
+        nchunks = len(text) - len(context)
+        switches = [num for num in phonemized[1] if num <= nchunks]
 
-        self._words_mismatch.count_phonemized(text, separator)
+        self._words_mismatch.count_phonemized(text[:nchunks], separator)
         self._lang_switch.warning(switches)
 
-        phonemized = super()._phonemize_postprocess(text, punctuation_marks, separator, strip)
+        phonemized = super()._phonemize_postprocess(
+            text, punctuation_marks, separator, strip, context)
         return self._words_mismatch.process(phonemized)
 
     @staticmethod
