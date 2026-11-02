@@ -132,7 +132,6 @@ def test_twice():
     assert wrapper1._espeak._tempdir != wrapper2._espeak._tempdir
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="not supported on Windows")
 def test_deletion():
     # pylint: disable=protected-access
     wrapper = EspeakWrapper()
@@ -209,4 +208,34 @@ def test_pickle_library_and_data_path(tmp_path):
     # pylint: disable=protected-access
     wrapper = pickle.loads(dump)
     assert wrapper.library_path == library.resolve()
-    assert wrapper._espeak_data_path == default.data_path
+    assert wrapper._data_path_override == str(default.data_path)
+
+
+def test_pickle_from_older_version():
+    # wrappers pickled by phonemizer<3.5 have no library and data path
+    # overrides, they must load with the default espeak
+    wrapper = EspeakWrapper()
+    wrapper.set_voice("en-us")
+    state = wrapper.__getstate__()
+    del state["library_override"], state["data_path_override"]
+
+    wrapper2 = EspeakWrapper.__new__(EspeakWrapper)
+    wrapper2.__setstate__(state)
+    assert wrapper2.library_path == wrapper.library_path
+    assert wrapper2.voice == wrapper.voice
+
+
+def test_failed_load_removes_tempdir(monkeypatch, tmp_path):
+    # the copy of the library is made in a temporary directory, which must be
+    # removed if the copy cannot be made or loaded (e.g. on a noexec /tmp)
+    from phonemizer.backend.espeak import api  # pylint: disable=import-outside-toplevel
+    monkeypatch.setattr(api.tempfile, "mkdtemp", lambda: str(tmp_path / "copy"))
+    (tmp_path / "copy").mkdir()
+
+    def failing_copy(*args, **kwargs):
+        raise OSError("cannot copy")
+
+    monkeypatch.setattr(api.shutil, "copy", failing_copy)
+    with pytest.raises(OSError):
+        api.EspeakAPI(EspeakWrapper.library(), None)
+    assert not (tmp_path / "copy").exists()

@@ -84,15 +84,20 @@ class EspeakWrapper:
         self._data_path = None
         self._voice = None
 
-        self._load(self.library(), self.data_path)
+        self._load(self._ESPEAK_LIBRARY, self._ESPEAK_DATA_PATH)
 
     def _load(self, library, data_path):
-        """Loads the espeak API from `library` and `data_path`"""
-        # The data path given to espeak, None for its default one. It is kept
-        # to load the same library and data when unpickled in a parallel job,
-        # where set_library() and set_data_path() have not been called.
-        self._espeak_data_path = data_path
-        self._espeak = EspeakAPI(library, data_path)
+        """Loads the espeak API
+
+        `library` and `data_path` are the values given to set_library() and
+        set_data_path() when the wrapper is created, None for the default
+        lookup. They are kept to load the same espeak when unpickled in a
+        parallel job, where set_library() and set_data_path() are not called.
+
+        """
+        self._library_override = library
+        self._data_path_override = data_path
+        self._espeak = EspeakAPI(library or self.library(), self.data_path)
 
         # lazy loading of attributes only required for the synthetize method
         self._libc_ = None
@@ -120,8 +125,8 @@ class EspeakWrapper:
     def __getstate__(self):
         """For pickling, when phonemizing on multiple jobs"""
         return {
-            "library": self._espeak.library_path,
-            "espeak_data_path": self._espeak_data_path,
+            "library_override": self._library_override,
+            "data_path_override": self._data_path_override,
             "version": self._version,
             "data_path": self._data_path,
             "voice": self._voice,
@@ -129,7 +134,10 @@ class EspeakWrapper:
 
     def __setstate__(self, state: Dict):
         """For unpickling, when phonemizing on multiple jobs"""
-        self._load(state["library"], state["espeak_data_path"])
+        # the overrides are missing from states pickled by phonemizer<3.5
+        self._data_path = None
+        self._load(
+            state.get("library_override"), state.get("data_path_override"))
         self._version = state["version"]
         self._data_path = state["data_path"]
         self._voice = state["voice"]
@@ -255,10 +263,11 @@ class EspeakWrapper:
         RuntimeError if the specified data path is not a readable directory
 
         """
-        if self._ESPEAK_DATA_PATH:
-            data_path = pathlib.Path(self._ESPEAK_DATA_PATH)
-            if not (data_path.is_dir() and os.access(self._ESPEAK_DATA_PATH, os.R_OK)):
-                raise RuntimeError(f'{self._ESPEAK_DATA_PATH} is not a readable directory')
+        if self._data_path_override:
+            data_path = pathlib.Path(self._data_path_override)
+            if not (data_path.is_dir() and os.access(data_path, os.R_OK)):
+                raise RuntimeError(
+                    f'{self._data_path_override} is not a readable directory')
             self._data_path = data_path.resolve()
         elif 'PHONEMIZER_ESPEAK_DATA_PATH' in os.environ:
             data_path = pathlib.Path(os.environ['PHONEMIZER_ESPEAK_DATA_PATH'])

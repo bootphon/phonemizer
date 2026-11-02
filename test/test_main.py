@@ -67,6 +67,23 @@ def test_list_languages(capsys):
     assert 'None' not in out
 
 
+def test_list_languages_missing_backend(monkeypatch):
+    # an optional backend not installed must not hide the others
+    class Backends(dict):
+        def __getitem__(self, key):
+            if key == 'segments':
+                raise ImportError('segments is not installed')
+            return super().__getitem__(key)
+
+    backends = Backends(main.BACKENDS.items())
+    monkeypatch.setattr(main, 'BACKENDS', backends)
+    out = main.list_languages(None)
+    assert 'supported languages for espeak are:' in out
+    assert 'segments backend is not installed' in out
+    with pytest.raises(ImportError):
+        main.list_languages('segments')
+
+
 def test_readme():
     _test('hello world', 'həloʊ wɜːld ', '--verbose')
     _test('hello world', 'həloʊ wɜːld ', '--quiet')

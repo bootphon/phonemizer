@@ -131,6 +131,12 @@ class FestivalBackend(BaseBackend):
         return Path(executable).resolve()
 
     @classmethod
+    def _installation(cls) -> tuple:
+        return (
+            cls._FESTIVAL_EXECUTABLE,
+            os.environ.get('PHONEMIZER_FESTIVAL_EXECUTABLE'))
+
+    @classmethod
     def is_available(cls):
         """True if the festival executable is available, False otherwise"""
         try:

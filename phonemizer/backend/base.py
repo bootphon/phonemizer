@@ -132,6 +132,17 @@ class BaseBackend(abc.ABC):
         """Return a dict of language codes -> name supported by the backend"""
 
     @classmethod
+    def _installation(cls) -> tuple:
+        """Returns the configuration of the backend installation in use
+
+        This is part of the key of the backends cached by phonemize(), so
+        that a backend is reloaded when its installation changes. To be
+        overloaded in child classes that can be configured.
+
+        """
+        return ()
+
+    @classmethod
     def is_supported_language(cls, language: str):
         """Returns True if `language` is supported by the backend"""
         return language in cls.supported_languages()

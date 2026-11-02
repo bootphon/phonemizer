@@ -34,6 +34,11 @@ unreleased
     never terminated nor unloaded when the backend was deleted. See `issue
     #153 <https://github.com/bootphon/phonemizer/issues/153>`__.
 
+  * On Windows, the temporary copies of the espeak library are now removed
+    when the backend is deleted, instead of at the end of the Python
+    process. They are also removed when the library fails to load. See
+    `issue #147 <https://github.com/bootphon/phonemizer/issues/147>`__.
+
   * With ``njobs > 1``, the espeak library and data path set with
     ``set_library()`` and ``set_data_path()`` were ignored by the parallel
     jobs, which used the default espeak installation.

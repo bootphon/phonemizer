@@ -15,6 +15,7 @@
 """Base class of espeak backends for the phonemizer"""
 
 import abc
+import os
 from logging import Logger
 from typing import Optional, Union, Pattern
 
@@ -58,6 +59,15 @@ class BaseEspeakBackend(BaseBackend):
 
         """
         EspeakWrapper.set_library(library)
+
+    @classmethod
+    def _installation(cls) -> tuple:
+        # pylint: disable=protected-access
+        return (
+            EspeakWrapper._ESPEAK_LIBRARY,
+            EspeakWrapper._ESPEAK_DATA_PATH,
+            os.environ.get('PHONEMIZER_ESPEAK_LIBRARY'),
+            os.environ.get('PHONEMIZER_ESPEAK_DATA_PATH'))
 
     @classmethod
     def library(cls):

@@ -28,11 +28,10 @@ from typing import Optional, Union, List, Pattern
 
 from typing_extensions import Literal
 
-from phonemizer.backend import BACKENDS, FestivalBackend
+from phonemizer.backend import BACKENDS
 from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.espeak.language_switch import LanguageSwitch
 from phonemizer.backend.espeak.words_mismatch import WordMismatch
-from phonemizer.backend.espeak.wrapper import EspeakWrapper
 from phonemizer.logger import default_logger
 from phonemizer.punctuation import Punctuation
 from phonemizer.separator import default_separator, Separator
@@ -258,7 +257,8 @@ def phonemize(  # pylint: disable=too-many-arguments
     # initialize the phonemization backend, reusing a cached instance when
     # this exact configuration has been used before. The logger is part of
     # the key because backends hold on to it.
-    installation = _installation(backend)
+    # pylint: disable=protected-access
+    installation = BACKENDS[backend]._installation()
     if backend == 'espeak':
         key = (backend, language, str(punctuation_marks), preserve_punctuation,
                with_stress, tie, language_switch, words_mismatch, logger,
@@ -288,29 +288,6 @@ def phonemize(  # pylint: disable=too-many-arguments
 
     # do the phonemization
     return _phonemize(phonemizer, text, separator, strip, njobs, prepend_text, preserve_empty_lines)
-
-
-def _installation(backend: str) -> tuple:
-    """Returns the installation in use by the `backend`
-
-    This is the espeak library and data path, or the festival executable. It
-    is part of the backends cache key, so that a call to set_library(),
-    set_data_path() or set_executable(), or a change of the corresponding
-    environment variables, is taken into account.
-
-    """
-    # pylint: disable=protected-access
-    if backend in ('espeak', 'espeak-mbrola'):
-        return (
-            EspeakWrapper._ESPEAK_LIBRARY,
-            EspeakWrapper._ESPEAK_DATA_PATH,
-            os.environ.get('PHONEMIZER_ESPEAK_LIBRARY'),
-            os.environ.get('PHONEMIZER_ESPEAK_DATA_PATH'))
-    if backend == 'festival':
-        return (
-            FestivalBackend._FESTIVAL_EXECUTABLE,
-            os.environ.get('PHONEMIZER_FESTIVAL_EXECUTABLE'))
-    return ()
 
 
 def _check_arguments(  # pylint: disable=too-many-arguments

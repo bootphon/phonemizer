@@ -320,3 +320,13 @@ def test_empty_marks():
     assert punct.remove('hello, world') == 'hello, world'
     assert punct.preserve(['hello, world']) == (['hello, world'], [])
     assert phonemize('hello world', punctuation_marks='') == 'həloʊ wɜːld '
+    assert phonemize(
+        'hello world', punctuation_marks=re.compile('')) == 'həloʊ wɜːld '
+
+
+def test_preserve_lines():
+    text = ['hello, my world!', '...', 'ok']
+    chunks, marks, lines = Punctuation().preserve_lines(text)
+    assert (chunks, marks) == Punctuation().preserve(text)
+    assert chunks == ['hello', 'my world', 'ok']
+    assert lines == [0, 0, 2]

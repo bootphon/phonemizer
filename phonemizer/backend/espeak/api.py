@@ -14,7 +14,6 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Low-level bindings to the espeak API"""
 
-import atexit
 import ctypes
 import pathlib
 import shutil
@@ -67,43 +66,36 @@ class EspeakAPI:
 
         # will be automatically destroyed after use
         self._tempdir = tempfile.mkdtemp()
-        espeak_copy = pathlib.Path(self._tempdir) / library_path.name
-        shutil.copy(library_path, espeak_copy, follow_symlinks=False)
-
-        # finally load the library copy and initialize it. 0x02 is
-        # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
-        self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
         try:
-            if self._library.espeak_Initialize(0x02, 0, data_path, 0) <= 0:
-                raise RuntimeError(  # pragma: nocover
-                    'failed to initialize espeak shared library')
-        except (AttributeError, RuntimeError) as error:  # pragma: nocover
-            self._unload(self._library)
-            shutil.rmtree(self._tempdir)
-            if isinstance(error, RuntimeError):
-                raise
-            raise RuntimeError(
-                'failed to load espeak library') from None
+            espeak_copy = pathlib.Path(self._tempdir) / library_path.name
+            shutil.copy(library_path, espeak_copy, follow_symlinks=False)
+
+            # finally load the library copy and initialize it. 0x02 is
+            # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
+            self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
+            try:
+                if self._library.espeak_Initialize(0x02, 0, data_path, 0) <= 0:
+                    raise RuntimeError(  # pragma: nocover
+                        'failed to initialize espeak shared library')
+            except AttributeError:  # pragma: nocover
+                raise RuntimeError(
+                    'failed to load espeak library') from None
+        except BaseException:
+            # do not leave the library copy behind
+            if self._library is not None:
+                self._unload(self._library)
+            shutil.rmtree(self._tempdir, ignore_errors=True)
+            raise
 
         # properly exit when the wrapper object is destroyed (see
         # https://docs.python.org/3/library/weakref.html#comparing-finalizers-with-del-methods).
         # This is registered once the library is loaded, so that the finalizer
-        # gets it. On Windows the cleanup is registered with atexit, so all the
-        # temporary directories created by EspeakAPI instances remain on disk
-        # until the Python process exit.
-        if sys.platform == 'win32':  # pragma: nocover
-            atexit.register(self._delete_win32)
-        else:
-            weakref.finalize(self, self._delete, self._library, self._tempdir)
+        # gets it.
+        weakref.finalize(self, self._delete, self._library, self._tempdir)
 
         # the path to the original one (the copy is considered an
         # implementation detail and is not exposed)
         self._library_path = library_path
-
-    def _delete_win32(self):  # pragma: nocover
-        # Windows does not support static methods with ctypes libraries
-        # (library == None) so we use a proxy method...
-        self._delete(self._library, self._tempdir)
 
     @staticmethod
     def _delete(library, tempdir):
