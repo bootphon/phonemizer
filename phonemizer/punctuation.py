@@ -131,7 +131,8 @@ class Punctuation:
             return aux(text)
         return [aux(line) for line in text]
 
-    def is_inline(self, mark: str) -> bool:
+    @staticmethod
+    def is_inline(mark: str) -> bool:
         """Returns True if `mark` does not break the utterance
 
         Quotes and brackets are inline marks: the words on both sides of them
@@ -202,6 +203,17 @@ class Punctuation:
         return groups
 
     @staticmethod
+    def can_align(sep: Separator) -> bool:
+        """Returns True if the inline marks can be placed in context with `sep`
+
+        The marks are placed by counting the phonemized words, split on the
+        word separator. It must not be empty nor found in the other separators.
+
+        """
+        return bool(sep.word) and not any(
+            sep.word in other for other in (sep.phone, sep.syllable))
+
+    @staticmethod
     def _words(text: str, sep: Separator) -> List[str]:
         """The words of a phonemized `text`, split on the word separator"""
         return [word for word in text.split(sep.word) if word]
@@ -220,11 +232,14 @@ class Punctuation:
         phonemized alone, which are then known to be the same words: a mark
         is placed after the words of the chunks before it.
 
+        This cannot detect two changes that cancel out in a group, such as two
+        words joined across a mark along with a word split in context only.
+        The words themselves cannot be compared: in context, a backend changes
+        them on purpose (liaisons, weak forms or stresses), and not only next
+        to the marks. No such case was found in tests on espeak and festival.
+
         """
-        # the words cannot be counted when the word separator is empty or
-        # found in the other separators
-        if not sep.word or any(
-                sep.word in other for other in (sep.phone, sep.syllable)):
+        if not cls.can_align(sep):
             return None
 
         counts = [len(cls._words(text[chunk], sep)) for chunk in group]
@@ -271,20 +286,29 @@ class Punctuation:
         """
         text = str2list(text)
 
-        # the parts of each group phonemized in context, by first chunk
-        groups = {}
+        # the chunks of the groups phonemized in context, replacing the chunks
+        # phonemized alone, when their marks can be placed
+        position = {
+            part: (num, pos) for num, parts in enumerate(lines)
+            for pos, part in enumerate(parts) if isinstance(part, int)}
+        in_context = {}
         for group, phonemized in context or []:
+            # the chunks of a group are separated by a single inline mark
+            places = [position.get(chunk) for chunk in group]
+            if None in places or any(
+                    second != (first[0], first[1] + 2)
+                    or not cls.is_inline(lines[first[0]][first[1] + 1])
+                    for first, second in zip(places, places[1:])):
+                continue
             parts = cls._context(text, group, phonemized, sep)
             if parts is not None:
-                groups[group[0]] = parts
+                in_context.update(zip(group, parts))
 
         punctuated_text = []
         for line in lines:
             punctuated = ''
             mark = None
-            num = 0
-            while num < len(line):
-                part = line[num]
+            for part in line:
                 if isinstance(part, str):
                     # remove the last word separator before the mark, and
                     # replace its internal spaces with the word separator
@@ -292,24 +316,12 @@ class Punctuation:
                         punctuated = punctuated[:-len(sep.word)]
                     mark = part.replace(' ', sep.word)
                     punctuated += mark
-                    num += 1
-                elif part in groups:
-                    # the chunks of the group, separated by its inline marks
-                    for pos, chunk in enumerate(groups[part]):
-                        if pos:
-                            if sep.word and punctuated.endswith(sep.word):
-                                punctuated = punctuated[:-len(sep.word)]
-                            punctuated += line[num + 2 * pos - 1].replace(
-                                ' ', sep.word)
-                        punctuated += chunk
-                    num += 2 * len(groups[part]) - 1
-                    mark = None
                 else:
+                    chunk = in_context.get(part, text[part])
                     # a chunk phonemized as nothing does not follow the mark
-                    if text[part]:
-                        punctuated += text[part]
+                    if chunk:
+                        punctuated += chunk
                         mark = None
-                    num += 1
 
             # a final mark is followed by a word separator, if not stripped
             if mark is not None and not strip and not mark.endswith(sep.word):

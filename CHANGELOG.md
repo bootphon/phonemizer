@@ -23,7 +23,9 @@ Version numbers follow [semantic versioning](https://semver.org).
     list of `_MarkIndex` it returned before, and `Punctuation.restore()`
     takes these parts. `Punctuation.preserve_lines()` is removed. The new
     `Punctuation.is_inline()` and `Punctuation.inline_groups()` tell which
-    chunks are pronounced together.
+    chunks are pronounced together, and `Punctuation.can_align()` whether
+    the marks can be placed in context with a given separator (not with an
+    empty word separator, for instance).
 - **improvements**
   - Creating an espeak backend is about 3 times faster (from 28 to 8 ms on
     Linux): the espeak library found on the system is now looked up once per

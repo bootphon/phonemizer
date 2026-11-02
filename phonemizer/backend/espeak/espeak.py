@@ -157,21 +157,30 @@ class EspeakBackend(BaseEspeakBackend):
         self._words_mismatch.count_text(chunks, lines, len(text))
         return chunks, punctuation_marks
 
-    def _phonemize_postprocess(self, phonemized, punctuation_marks,
-                               separator: Separator, strip: bool,
-                               context: List[List[int]]):
+    def _phonemize_postprocess(self, phonemized, punctuation_marks, separator: Separator, strip: bool):
         text = phonemized[0]
-        # the chunks phonemized in context are not counted, they are
-        # phonemized alone as well
-        nchunks = len(text) - len(context)
-        switches = [num for num in phonemized[1] if num <= nchunks]
+        switches = phonemized[1]
 
-        self._words_mismatch.count_phonemized(text[:nchunks], separator)
+        self._words_mismatch.count_phonemized(text, separator)
         self._lang_switch.warning(switches)
 
-        phonemized = super()._phonemize_postprocess(
-            text, punctuation_marks, separator, strip, context)
+        phonemized = super()._phonemize_postprocess(text, punctuation_marks, separator, strip)
         return self._words_mismatch.process(phonemized)
+
+    @staticmethod
+    def _split_context(phonemized, context):
+        """Specialization of BaseBackend._split_context for the espeak backend
+
+        The phonemized text comes with the numbers of the lines with a
+        language switch: the ones of the groups are dropped, as the switches
+        are detected in their chunks phonemized alone as well.
+
+        """
+        text, switches = phonemized
+        nchunks = len(text) - len(context)
+        return (
+            (text[:nchunks], [num for num in switches if num <= nchunks]),
+            list(zip(context, text[nchunks:])))
 
     @staticmethod
     def _flatten(phonemized) -> List:

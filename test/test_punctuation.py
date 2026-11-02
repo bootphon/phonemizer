@@ -442,3 +442,86 @@ def test_restore_backslash_separator(word):
     # a line made of marks only
     assert Punctuation.restore(
         [], [['! ?']], Separator(word=word), True) == [f'!{word}?']
+
+
+def test_restore_context_not_a_group():
+    # the chunks of a group must be separated by a single inline mark in a
+    # line, else the group is ignored
+    chunks, lines = Punctuation().preserve(['a (b), c'])
+    phonemized = ['a ', 'b ', 'c ']
+    expected = ['a (b), c ']
+    for group in ([0, 2], [1, 2], [0, 5]):
+        assert Punctuation.restore(
+            phonemized, lines, default_separator, False,
+            [(group, 'x y ')]) == expected
+
+
+@pytest.mark.parametrize('njobs', [1, 2])
+def test_espeak_context_njobs(njobs):
+    text = ['les (amis)', 'hello, world', 'an (apple) and "the" tree'] * 3
+    assert EspeakBackend('en-us', preserve_punctuation=True).phonemize(
+        text[1:2] + text[2:3], njobs=njobs) == [
+            'həloʊ, wɜːld ', 'ɐn (æpəl) ænd "ðə" tɹiː ']
+    assert phonemize(
+        text, language='fr-fr', preserve_punctuation=True, njobs=njobs,
+        language_switch='remove-flags')[:2] == [
+            'lez (ami) ', 'ɛlo, wɜːld ']
+
+
+@pytest.mark.skipif(
+    not FestivalBackend.is_available(), reason="festival not installed")
+def test_festival_context():
+    # weak form of "an" before a vowel, in context
+    assert FestivalBackend('en-us', preserve_punctuation=True).phonemize(
+        ['an (apple) a day']) == ['axn (aepaxl) ax dey ']
+
+
+@pytest.mark.skipif(
+    not EspeakBackend.is_espeak_ng(),
+    reason='language switch only exists for espeak-ng')
+def test_espeak_context_language_switch(caplog):
+    # the switches of the groups phonemized in context are not reported, they
+    # are on the chunks phonemized alone as well
+    out = EspeakBackend('fr-fr', preserve_punctuation=True).phonemize(
+        ['le (football) et le weekend', 'le football'])
+    assert out == [
+        'lə ((en)fʊtbɔːl(fr)) e lə (en)wiːkɛnd(fr) ',
+        'lə (en)fʊtbɔːl(fr) ']
+    messages = [msg[2] for msg in caplog.record_tuples]
+    assert (
+        '3 utterances containing language switches on lines 2, 3, 4'
+        in messages)
+
+
+def test_context_with_old_postprocess():
+    # a backend overloading _phonemize_postprocess() with its signature of
+    # previous releases still works
+    class Backend(EspeakBackend):
+        def _phonemize_postprocess(self, phonemized, punctuation_marks,
+                                   separator, strip):
+            return super()._phonemize_postprocess(
+                phonemized, punctuation_marks, separator, strip)
+
+    assert Backend('en-us', preserve_punctuation=True).phonemize(
+        ['an (apple)']) == ['ɐn (æpəl) ']
+
+
+@pytest.mark.parametrize('separator, context', [
+    (Separator(word=' ', phone='-'), True),
+    (Separator(word='', phone='-'), False),
+    (Separator(word='|', phone='|-'), False),
+])
+def test_context_separator(separator, context):
+    # the groups are not phonemized in context when their marks cannot be
+    # placed with this separator
+    backend = EspeakBackend('en-us', preserve_punctuation=True)
+    phonemized = []
+    phonemize_aux = backend._phonemize_aux
+
+    def spy(text, *args):
+        phonemized.extend(text)
+        return phonemize_aux(text, *args)
+
+    backend._phonemize_aux = spy
+    backend.phonemize(['an (apple)'], separator=separator)
+    assert phonemized == ['an', 'apple'] + (['an apple'] if context else [])

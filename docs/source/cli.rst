@@ -193,7 +193,7 @@ option.
 
 Most marks, such as commas and periods, end an utterance: the words on both
 sides are phonemized apart. Quotes and brackets do not: the words on both sides
-are pronounced together, as without punctuation (since phonemizer-3.6). Here
+are pronounced together, as without punctuation. Here
 the liaison of *les* is kept:
 
 .. code-block:: shell
