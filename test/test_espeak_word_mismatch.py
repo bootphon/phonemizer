@@ -5,8 +5,6 @@
 
 import pytest
 
-import re
-
 from phonemizer import phonemize
 from phonemizer.backend.espeak.words_mismatch import Ignore
 from phonemizer.separator import Separator, default_separator
@@ -18,9 +16,10 @@ def text():
 
 
 def test_count_words():
-    # pylint: disable=protected-access
-    count_words = lambda phn: Ignore._count_words(
-        phn, wordsep=default_separator.word)
+    def count_words(phn):
+        # pylint: disable=protected-access
+        return Ignore._count_words(phn, wordsep=default_separator.word)
+
     assert count_words(['']) == [0]
     assert count_words(['a']) == [1]
     assert count_words(['aaa']) == [1]

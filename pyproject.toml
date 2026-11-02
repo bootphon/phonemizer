@@ -96,7 +96,8 @@ skip_covered = true
 
 # pixi configuration. If you are a pixi user, you can install phonemizer with
 # pixi by running `pixi install`, then run tests with `pixi run test` or e.g.
-# `pixi run -e py310 test` to run the tests on Python-3.10.
+# `pixi run -e py310 test` to run the tests on Python-3.10. Check the code
+# with `pixi run lint`.
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
@@ -126,6 +127,9 @@ ipython = ">=9.11.0,<10"
 
 [tool.pixi.feature.test.tasks]
 test = { cmd = "pytest", default-environment = "test" }
+
+[tool.pixi.feature.dev.tasks]
+lint = { cmd = "ruff check phonemizer test", default-environment = "dev" }
 
 
 [tool.pixi.feature.py310.dependencies]
