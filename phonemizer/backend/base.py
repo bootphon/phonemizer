@@ -16,13 +16,12 @@
 
 import abc
 import itertools
-import re
 from logging import Logger
 from typing import Optional, List, Any, Dict, Tuple, Union, Pattern
 
 import joblib
 
-from phonemizer.logger import get_logger
+from phonemizer.logger import default_logger
 from phonemizer.punctuation import Punctuation
 from phonemizer.separator import Separator, default_separator
 from phonemizer.utils import chunks
@@ -70,7 +69,7 @@ class BaseBackend(abc.ABC):
             punctuation_marks = Punctuation.default_marks()
 
         if logger is None:
-            logger = get_logger()
+            logger = default_logger()
 
         # ensure the backend is installed on the system
         if not self.is_available():
@@ -131,6 +130,17 @@ class BaseBackend(abc.ABC):
     @abc.abstractmethod
     def supported_languages() -> Dict[str, str]:
         """Return a dict of language codes -> name supported by the backend"""
+
+    @classmethod
+    def _installation(cls) -> tuple:
+        """Returns the configuration of the backend installation in use
+
+        This is part of the key of the backends cached by phonemize(), so
+        that a backend is reloaded when its installation changes. To be
+        overloaded in child classes that can be configured.
+
+        """
+        return ()
 
     @classmethod
     def is_supported_language(cls, language: str):

@@ -18,12 +18,32 @@ import logging
 import sys
 from logging import Logger
 
+# As recommended for libraries, the phonemizer logger has no output on its own:
+# the messages are handled by the logging configuration of the application.
+logging.getLogger('phonemizer').addHandler(logging.NullHandler())
+
+
+def default_logger() -> Logger:
+    """Returns the logger used when none is given to the phonemizer
+
+    This is the 'phonemizer' logger, it is never configured by the phonemizer
+    itself. Its messages propagate to the logging configuration of the
+    application, which can set its level or handlers as usual, for instance
+    ``logging.getLogger('phonemizer').setLevel(logging.ERROR)``.
+
+    """
+    return logging.getLogger('phonemizer')
+
 
 def get_logger(verbosity: str = 'quiet', name: str = 'phonemizer') -> Logger:
     """Returns a configured logging.Logger instance
 
     The logger is configured to output messages on the standard error stream
-    (stderr).
+    (stderr). Its messages are not propagated to the logging configuration of
+    the application, so that 'quiet' does not display anything. The returned
+    logger is a child of `name` dedicated to the given `verbosity`, so that
+    calling this function does not alter the configuration of the logger
+    `name` itself.
 
     Parameters
     ----------
@@ -44,7 +64,8 @@ def get_logger(verbosity: str = 'quiet', name: str = 'phonemizer') -> Logger:
             f'verbosity is {verbosity} but must be in '
             f'{", ".join(valid_verbosity)}')
 
-    logger = logging.getLogger(name)
+    logger = logging.getLogger(f'{name}.{verbosity}')
+    logger.propagate = False
 
     # setup output to stderr
     logger.handlers = []

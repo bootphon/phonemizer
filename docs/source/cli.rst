@@ -17,8 +17,8 @@ See the installed backends with the ``--version`` option:
 .. code:: shell
 
    $ phonemize --version
-   phonemizer-3.0
-   available backends: espeak-ng-1.50, espeak-mbrola, festival-2.5.0, segments-2.1.3
+   phonemizer-3.4.1
+   available backends: espeak-ng-1.52.0, espeak-mbrola, festival-2.5.0, segments-2.4.0
 
 Input/output examples
 ---------------------
@@ -91,14 +91,14 @@ Backends
       $ echo "bonjour le monde" | phonemize -b espeak-mbrola -l mb-fr1 -p ' ' -w '/w '
       b o~ Z u R l @ m o~ d
 
--  In Japanese, using **segments**
+-  In Japanese, using **segments** (requires ``pip install phonemizer[segments]``)
 
    .. code:: shell
 
       $ echo 'konnichiwa' | phonemize -b segments -l japanese
       konnitʃiwa
 
-      $ echo 'konnichiwa' | phonemize -b segments -l ./phonemizer/share/japanese.g2p
+      $ echo 'konnichiwa' | phonemize -b segments -l ./phonemizer/share/segments/japanese.g2p
       konnitʃiwa
 
 Supported languages
@@ -182,22 +182,32 @@ by the **espeak-mbrola** backend):
    $ echo "hello, world!" | phonemize --preserve-punctuation --strip
    həloʊ, wɜːld!
 
-The default punctuation marks are each of the following characters: ``;:,.!?¡¿—…"«»“”``.
-These can be overridden by the ``--punctuation-marks`` option.
+The default punctuation marks are each of the following characters:
+``;:,.!?¡¿—…"«»“”(){}[]``. These can be overridden by the ``--punctuation-marks``
+option.
 
 .. code-block:: shell
 
     $ echo "hello, world!" | phonemize --preserve-punctuation --strip --punctuation-marks '!?'
     həloʊ wɜːld!
 
-The punctuation marks can be specified as a regular expression by additionally using the
-``--punctuation-marks-is-regex`` option. For example, to preserve the default punctuation marks
-except for commas and periods in the middle of numbers, the following will work:
+A comma or a period between two digits is a decimal or thousands separator,
+not a punctuation mark: numbers such as ``19,99`` or ``3.14`` are kept whole
+(since phonemizer-3.4).
 
 .. code-block:: shell
 
-    $ echo "1,000, or so." | phonemize --preserve-punctuation --strip --punctuation-marks '[;:!?¡¿—…"«»“”]|[,.](?!\d)' --punctuation-marks-is-regex
-    wʌn θaʊzənd, ɔːɹ soʊ.
+    $ echo "ça coûte 19,99 euros." | phonemize -l fr-fr --preserve-punctuation --strip --quiet
+    sa kut diznœf viʁɡyl katʁəvɛ̃diznœf øʁo.
+
+The punctuation marks can be specified as a regular expression by additionally
+using the ``--punctuation-marks-is-regex`` option. A regular expression is used
+as is, so it also splits numbers on their separators:
+
+.. code-block:: shell
+
+    $ echo "ça coûte 19,99 euros." | phonemize -l fr-fr --preserve-punctuation --strip --punctuation-marks '[;:,.!?]' --punctuation-marks-is-regex
+    sa kut diznœf,katʁəvɛ̃diznœf øʁo.
 
 
 Espeak specific options
@@ -226,19 +236,20 @@ Espeak specific options
     .. code:: shell
 
       $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch keep-flags
-      [WARNING] fount 1 utterances containing language switches on lines 1
+      [WARNING] 1 utterances containing language switches on lines 1
       [WARNING] extra phones may appear in the "fr-fr" phoneset
       [WARNING] language switch flags have been kept (applying "keep-flags" policy)
-      ʒɛm lə- (en)fʊtbɔːl(fr)
+      ʒɛm lə (en)fʊtbɔːl(fr)
 
       $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch remove-flags
-      [WARNING] fount 1 utterances containing language switches on lines 1
+      [WARNING] 1 utterances containing language switches on lines 1
       [WARNING] extra phones may appear in the "fr-fr" phoneset
       [WARNING] language switch flags have been removed (applying "remove-flags" policy)
-      ʒɛm lə- fʊtbɔːl
+      ʒɛm lə fʊtbɔːl
 
       $ echo "j'aime le football" | phonemize -l fr-fr -b espeak --language-switch remove-utterance
       [WARNING] removed 1 utterances containing language switches (applying "remove-utterance" policy)
+      [WARNING] words count mismatch on 100.0% of the lines (1/1)
 
 .. warning::
     The espeak backend sometimes **merge words together** in
@@ -249,4 +260,13 @@ Espeak specific options
       $ echo "that's it, words are merged" | phonemize -l en-us -b espeak
       [WARNING] words count mismatch on 100.0% of the lines (1/1)
       ðætsɪt wɜːdz ɑːɹ mɜːdʒd
+
+      $ echo "that's it, words are merged" | phonemize -l en-us -b espeak --words-mismatch warn
+      [WARNING] words count mismatch on line 1 (expected 5 words but get 4)
+      [WARNING] words count mismatch on 100.0% of the lines (1/1)
+      ðætsɪt wɜːdz ɑːɹ mɜːdʒd
+
+      $ echo "that's it, words are merged" | phonemize -l en-us -b espeak --words-mismatch remove
+      [WARNING] words count mismatch on 100.0% of the lines (1/1)
+      [WARNING] removing the mismatched lines
 

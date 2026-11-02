@@ -51,7 +51,7 @@ dependencies = [
 # and festival backends do not need. Install with "pip install phonemizer[segments]"
 segments = ["segments"]
 test = ["pytest>=6.0", "pytest-cov", "coverage[toml]", "segments"]
-doc = ["sphinx", "sphinx_rtd_theme"]
+doc = ["sphinx", "sphinx_rtd_theme", "myst-parser", "segments"]
 
 [project.scripts]
 phonemize = "phonemizer.main:main"
@@ -60,7 +60,7 @@ phonemize = "phonemizer.main:main"
 Documentation = "https://bootphon.github.io/phonemizer/"
 Repository = "https://github.com/bootphon/phonemizer"
 Issues = "https://github.com/bootphon/phonemizer"
-Changelog = "https://github.com/bootphon/phonemizer/blob/master/docs/source/changelog.rst"
+Changelog = "https://github.com/bootphon/phonemizer/blob/master/CHANGELOG.md"
 
 [tool.setuptools.packages]
 find = {}
@@ -96,7 +96,8 @@ skip_covered = true
 
 # pixi configuration. If you are a pixi user, you can install phonemizer with
 # pixi by running `pixi install`, then run tests with `pixi run test` or e.g.
-# `pixi run -e py310 test` to run the tests on Python-3.10.
+# `pixi run -e py310 test` to run the tests on Python-3.10. Check the code
+# with `pixi run lint`.
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
@@ -111,8 +112,8 @@ test = { features = ["test"] }
 dev = { features = ["test", "dev"] }
 # test the first, the second-to-last, and the last supported version
 py310 = ["py310", "test"]
-py313 = ["py313", "test"]
 py314 = ["py314", "test"]
+py315 = ["py315", "test"]
 
 [tool.pixi.feature.test.pypi-dependencies]
 phonemizer = { path = ".", editable = true, extras = ["test", "segments"] }
@@ -127,12 +128,15 @@ ipython = ">=9.11.0,<10"
 [tool.pixi.feature.test.tasks]
 test = { cmd = "pytest", default-environment = "test" }
 
+[tool.pixi.feature.dev.tasks]
+lint = { cmd = "ruff check phonemizer test", default-environment = "dev" }
+
 
 [tool.pixi.feature.py310.dependencies]
 python = "3.10.*"
 
-[tool.pixi.feature.py313.dependencies]
-python = "3.13.*"
-
 [tool.pixi.feature.py314.dependencies]
 python = "3.14.*"
+
+[tool.pixi.feature.py315.dependencies]
+python = "3.15.*"

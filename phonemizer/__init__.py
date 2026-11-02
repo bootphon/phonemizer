@@ -14,7 +14,7 @@
 # along with phonologizer. If not, see <http://www.gnu.org/licenses/>.
 """Multilingual text to phones converter"""
 
-from .phonemize import phonemize  # pylint: disable=unused-import
+from .phonemize import phonemize as phonemize  # explicit re-export
 
 
 __version__ = '3.4.1'

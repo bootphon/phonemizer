@@ -14,7 +14,6 @@
 # along with phonemizer. If not, see <http://www.gnu.org/licenses/>.
 """Low-level bindings to the espeak API"""
 
-import atexit
 import ctypes
 import pathlib
 import shutil
@@ -44,9 +43,6 @@ class EspeakAPI:
         # set to None to avoid an AttributeError in _delete if the __init__
         # method raises, will be properly initialized below
         self._library = None
-        
-        if data_path is not None:
-            data_path = str(data_path).encode('utf-8')
 
         # Because the library is not designed to be wrapped nor to be used in
         # multithreaded/multiprocess contexts (massive use of global variables)
@@ -67,60 +63,108 @@ class EspeakAPI:
 
         # will be automatically destroyed after use
         self._tempdir = tempfile.mkdtemp()
+        try:
+            espeak_copy = pathlib.Path(self._tempdir) / library_path.name
+            shutil.copy(library_path, espeak_copy, follow_symlinks=False)
+
+            # finally load the library copy and initialize it. 0x02 is
+            # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
+            self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
+            try:
+                if data_path is not None:
+                    data_path = self._data_path_argument(
+                        data_path, self._version())
+                if self._library.espeak_Initialize(0x02, 0, data_path, 0) <= 0:
+                    raise RuntimeError(  # pragma: nocover
+                        'failed to initialize espeak shared library')
+            except AttributeError:  # pragma: nocover
+                raise RuntimeError(
+                    'failed to load espeak library') from None
+        except BaseException:
+            # do not leave the library copy behind
+            if self._library is not None:
+                self._unload(self._library)
+            shutil.rmtree(self._tempdir, ignore_errors=True)
+            raise
 
         # properly exit when the wrapper object is destroyed (see
         # https://docs.python.org/3/library/weakref.html#comparing-finalizers-with-del-methods).
-        # But... weakref implementation does not work on windows so we register
-        # the cleanup with atexit. This means that, on Windows, all the
-        # temporary directories created by EspeakAPI instances will remain on
-        # disk until the Python process exit.
-        if sys.platform == 'win32':  # pragma: nocover
-            atexit.register(self._delete_win32)
-        else:
-            weakref.finalize(self, self._delete, self._library, self._tempdir)
-
-        espeak_copy = pathlib.Path(self._tempdir) / library_path.name
-        shutil.copy(library_path, espeak_copy, follow_symlinks=False)
-
-        # finally load the library copy and initialize it. 0x02 is
-        # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
-        self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
-        try:
-            if self._library.espeak_Initialize(0x02, 0, data_path, 0) <= 0:
-                raise RuntimeError(  # pragma: nocover
-                    'failed to initialize espeak shared library')
-        except AttributeError:  # pragma: nocover
-            raise RuntimeError(
-                'failed to load espeak library') from None
+        # This is registered once the library is loaded, so that the finalizer
+        # gets it.
+        weakref.finalize(self, self._delete, self._library, self._tempdir)
 
         # the path to the original one (the copy is considered an
         # implementation detail and is not exposed)
         self._library_path = library_path
 
-    def _delete_win32(self):  # pragma: nocover
-        # Windows does not support static methods with ctypes libraries
-        # (library == None) so we use a proxy method...
-        self._delete(self._library, self._tempdir)
+    def _version(self):
+        """The espeak version as a tuple (major, minor)
+
+        Available before espeak_Initialize() is called.
+
+        """
+        f_info = self._library.espeak_Info
+        f_info.restype = ctypes.c_char_p
+        version = f_info(ctypes.byref(ctypes.c_char_p()))
+        # espeak-1.48 appends the release date to the version number
+        version = version.decode().strip().split(' ')[0].replace('-dev', '')
+        return tuple(int(v) for v in version.split('.')[:2])
+
+    @staticmethod
+    def _data_path_argument(data_path, version) -> bytes:
+        """Returns the data path to give to espeak_Initialize()
+
+        `data_path` is the espeak data directory, containing the phontab file.
+        espeak-ng accepts it as is, or its parent directory. espeak<1.49
+        expects the directory containing it, which must be named espeak-data.
+
+        Raises a RuntimeError if espeak cannot read its data from `data_path`:
+        espeak would exit the whole process instead.
+
+        """
+        data_path = pathlib.Path(data_path)
+        if version < (1, 49):
+            if data_path.name == 'espeak-data':
+                data_path = data_path.parent
+            valid = (data_path / 'espeak-data' / 'phontab').is_file()
+        else:
+            valid = (
+                (data_path / 'phontab').is_file()
+                or (data_path / 'espeak-ng-data' / 'phontab').is_file())
+
+        if not valid:
+            raise RuntimeError(f'no espeak data found in {data_path}')
+        return str(data_path).encode('utf-8')
 
     @staticmethod
     def _delete(library, tempdir):
+        # The library is always loaded here: the finalizer is registered once
+        # it is. An error is reported by the finalizer, it must not prevent
+        # the removal of the tempdir.
         try:
             # clean up the espeak library allocated memory
             library.espeak_Terminate()
-        except AttributeError:  # library not loaded
-            pass
 
-        # on Windows it is required to unload the library or the .dll file
-        # cannot be erased from the temporary directory
+            # Unload the library copy, or it stays mapped in memory along with
+            # the espeak data it allocated (several MB for each instance). On
+            # Windows this is also required or the .dll file cannot be erased
+            # from the temporary directory.
+            EspeakAPI._unload(library)
+        finally:
+            # clean up the tempdir containing the copy of the library
+            shutil.rmtree(tempdir, ignore_errors=True)
+
+    @staticmethod
+    def _unload(library):
+        """Unloads the shared `library` from memory"""
+        # pylint: disable=import-outside-toplevel
+        # pylint: disable=protected-access
+        # pylint: disable=no-member
+        import _ctypes
         if sys.platform == 'win32':  # pragma: nocover
-            # pylint: disable=import-outside-toplevel
-            # pylint: disable=protected-access
-            # pylint: disable=no-member
-            import _ctypes
             _ctypes.FreeLibrary(library._handle)
-
-        # clean up the tempdir containing the copy of the library
-        shutil.rmtree(tempdir)
+        else:
+            _ctypes.dlclose(library._handle)
 
     @property
     def library_path(self):

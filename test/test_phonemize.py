@@ -18,12 +18,14 @@
 
 import concurrent.futures
 import os
+import shutil
 import pytest
 
 from phonemizer.phonemize import (
     phonemize, clear_backends_cache, _thread_cache)
 from phonemizer.separator import Separator
 from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend, FestivalBackend
+from phonemizer.backend.espeak.wrapper import EspeakWrapper
 
 
 def test_bad_backend():
@@ -343,3 +345,25 @@ def test_clear_backends_cache_threads():
         assert executor.submit(backend).result() is first
         clear_backends_cache()
         assert executor.submit(backend).result() is not first
+
+
+def test_cache_set_library(tmp_path):
+    # pylint: disable=protected-access
+    # a backend loaded before set_library() must not be reused after it
+    clear_backends_cache()
+    phonemize('a')
+    default = next(iter(_thread_cache().values()))
+    library = tmp_path / default._espeak.library_path.name
+    shutil.copy(default._espeak.library_path, library)
+    previous = EspeakWrapper._ESPEAK_LIBRARY
+    try:
+        EspeakBackend.set_library(str(library))
+        phonemize('a')
+        backend = next(reversed(_thread_cache().values()))
+        assert backend is not default
+        assert backend._espeak.library_path == library.resolve()
+    finally:
+        EspeakBackend.set_library(previous)
+
+    phonemize('a')
+    assert next(reversed(_thread_cache().values())) is default

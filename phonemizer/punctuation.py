@@ -61,15 +61,17 @@ class Punctuation:
     @property
     def marks(self):
         """The punctuation marks as a string"""
-        if self._marks:
+        if self._marks is not None:
             return self._marks
         raise ValueError('punctuation initialized from regex, cannot access marks as a string')
 
     @marks.setter
     def marks(self, value: Union[str, Pattern]):
         if isinstance(value, Pattern):
-            # catch the pattern surrounded by zero or more spaces on either side
-            self._marks_re = re.compile(r'((' + value.pattern + r')|\s)+')
+            # catch the pattern surrounded by zero or more spaces on either
+            # side. An empty pattern matches nothing rather than empty strings.
+            self._marks_re = re.compile(
+                r'((' + value.pattern + r')|\s)+' if value.pattern else r'(?!)')
             self._marks = None
         elif isinstance(value, str):
             self._marks = ''.join(set(value))
@@ -98,8 +100,10 @@ class Punctuation:
                 alternatives.append(f'(?<![0-9])[{escaped}]')
                 alternatives.append(f'[{escaped}](?![0-9])')
 
+            # with no marks at all, match nothing rather than empty strings
             self._marks_re = re.compile(
-                fr'(\s*(?:{"|".join(alternatives)})+\s*)+')
+                fr'(\s*(?:{"|".join(alternatives)})+\s*)+'
+                if alternatives else r'(?!)')
         else:
             raise ValueError('punctuation marks must be defined as a string or re.Pattern')
 
@@ -127,15 +131,33 @@ class Punctuation:
             'hello, my world!' -> ['hello', 'my world'], [',', '!']
 
         """
+        chunks, marks, _ = self.preserve_lines(text)
+        return chunks, marks
+
+    def preserve_lines(self, text: Union[List[str], str]) \
+            -> Tuple[List[str], List[_MarkIndex], List[int]]:
+        """Same as Punctuation.preserve(), along with the line of each chunk
+
+        Returns the punctuated chunks, the punctuation marks and, for each
+        chunk, the index of the line of `text` it comes from:
+
+            ['hello, my world!', 'ok'] -> ['hello', 'my world', 'ok'],
+                [',', '!'], [0, 0, 1]
+
+        """
         text: List[str] = str2list(text)
         preserved_text = []
         preserved_marks = []
+        lines = []
 
         for num, line in enumerate(text):
-            line, marks = self._preserve_line(line, num)
-            preserved_text += line
+            chunks, marks = self._preserve_line(line, num)
+            for chunk in chunks:
+                if chunk:
+                    preserved_text.append(chunk)
+                    lines.append(num)
             preserved_marks += marks
-        return [line for line in preserved_text if line], preserved_marks
+        return preserved_text, preserved_marks, lines
 
     def _preserve_line(self, line: str, num: int) -> Tuple[List[str], List[_MarkIndex]]:
         """Auxiliary method for Punctuation.preserve()"""

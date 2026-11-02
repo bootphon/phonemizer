@@ -32,7 +32,7 @@ from phonemizer.backend import BACKENDS
 from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.espeak.language_switch import LanguageSwitch
 from phonemizer.backend.espeak.words_mismatch import WordMismatch
-from phonemizer.logger import get_logger
+from phonemizer.logger import default_logger
 from phonemizer.punctuation import Punctuation
 from phonemizer.separator import default_separator, Separator
 from phonemizer.utils import list2str, str2list
@@ -41,10 +41,8 @@ Backend = Literal['espeak', 'espeak-mbrola', 'festival', 'segments']
 
 # Backend instances are expensive to build: initializing the espeak shared
 # library takes on the order of 200ms, which dominates the cost of
-# phonemizing short texts. Because phonemize() builds a backend on every
-# call, repeated calls pay that cost every time. The instances are stateless
-# with respect to the text being phonemized, so they are cached here and
-# reused across calls with identical parameters.
+# phonemizing short texts. They are therefore cached here and reused across
+# calls to phonemize() with identical parameters.
 #
 # The cache is local to each thread. A backend must never be shared between
 # threads: the espeak library relies on global C state (this is why each
@@ -109,7 +107,7 @@ def phonemize(  # pylint: disable=too-many-arguments
         language_switch: LanguageSwitch = 'keep-flags',
         words_mismatch: WordMismatch = 'ignore',
         njobs: int = 1,
-        logger: Logger = get_logger()):
+        logger: Optional[Logger] = None):
     """Multilingual text to phonemes converter
 
     Return a phonemized version of an input `text`, given its `language` and a
@@ -119,10 +117,11 @@ def phonemize(  # pylint: disable=too-many-arguments
     ----
 
     To improve the processing speed it is better to minimize the calls to this
-    function: provide the input text as a list and call phonemize() a single
-    time is much more efficient than calling it on each element of the list.
-    Indeed the initialization of the phonemization backend can be expensive,
-    especially for espeak. In one example,
+    function: providing the input text as a list and calling phonemize() a
+    single time is more efficient than calling it on each element of the
+    list. The phonemization backend is cached between calls with the same
+    parameters, but each call still has a cost, and the `njobs` option can
+    only parallelize the lines of a single call.
 
     Do this:
 
@@ -158,8 +157,9 @@ def phonemize(  # pylint: disable=too-many-arguments
         words, default to separator.default_separator. Syllable separator is
         considered only for the festival backend. Word separator is ignored by
         the 'espeak-mbrola' backend. Initialize it as follows:
-            >>> from phonemizer.separator import Separator
-            >>> separator = Separator(phone='-', word=' ')
+
+        >>> from phonemizer.separator import Separator
+        >>> separator = Separator(phone='-', word=' ')
 
     strip: bool, optional
         If True, don't output the last word and phone
@@ -221,15 +221,16 @@ def phonemize(  # pylint: disable=too-many-arguments
         outputs are finally collapsed.
 
     logger: logging.Logger
-        the logging instance where to send messages. If
-        not specified, use the default system logger.
+        the logging instance where to send messages. If not specified, use the
+        'phonemizer' logger, whose messages are handled by the logging
+        configuration of the application.
 
     Returns
     -------
     phonemized text: str or list of str
         The input ``text`` phonemized for the
         given ``language`` and ``backend``. The returned value has the same type of
-        the input text (either a list or a string), excepted if ``prepend_input``
+        the input text (either a list or a string), excepted if ``prepend_text``
         is True where the output is forced as a list of pairs (input_text,
         phonemized text).
 
@@ -240,6 +241,9 @@ def phonemize(  # pylint: disable=too-many-arguments
         if the ``language`` is not supported by the ``backend``, if any incompatible options are used.
 
     """
+    if logger is None:
+        logger = default_logger()
+
     # ensure the arguments are valid
     _check_arguments(
         backend, with_stress, tie, separator, language_switch, words_mismatch)
@@ -253,9 +257,12 @@ def phonemize(  # pylint: disable=too-many-arguments
     # initialize the phonemization backend, reusing a cached instance when
     # this exact configuration has been used before. The logger is part of
     # the key because backends hold on to it.
+    # pylint: disable=protected-access
+    installation = BACKENDS[backend]._installation()
     if backend == 'espeak':
         key = (backend, language, str(punctuation_marks), preserve_punctuation,
-               with_stress, tie, language_switch, words_mismatch, logger)
+               with_stress, tie, language_switch, words_mismatch, logger,
+               installation)
         phonemizer = _cached_backend(key, lambda: BACKENDS[backend](
             language,
             punctuation_marks=punctuation_marks,
@@ -266,13 +273,13 @@ def phonemize(  # pylint: disable=too-many-arguments
             words_mismatch=words_mismatch,
             logger=logger))
     elif backend == 'espeak-mbrola':
-        key = (backend, language, logger)
+        key = (backend, language, logger, installation)
         phonemizer = _cached_backend(key, lambda: BACKENDS[backend](
             language,
             logger=logger))
     else:  # festival or segments
         key = (backend, language, str(punctuation_marks), preserve_punctuation,
-               logger)
+               logger, installation)
         phonemizer = _cached_backend(key, lambda: BACKENDS[backend](
             language,
             punctuation_marks=punctuation_marks,
@@ -379,6 +386,6 @@ def _phonemize(  # pylint: disable=too-many-arguments
     # expected by the parameters
     if prepend_text:
         return list(zip(text, phonemized))
-    if text_type == str:
+    if text_type is str:
         return list2str(phonemized)
     return phonemized

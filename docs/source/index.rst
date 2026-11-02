@@ -25,13 +25,69 @@ Welcome to Phonemizer's documentation!
     boundaries.
 
   * `festival <http://www.cstr.ed.ac.uk/projects/festival>`_ is another
-    Tex-to-Speech engine. Its phonemizer backend currently supports only
-    American English. It uses a [custom phoneset][festival-phoneset], but it
-    allows tokenization at the syllable level.
+    Text-to-Speech engine. Its phonemizer backend currently supports only
+    American English. It uses a `custom phoneset
+    <http://www.festvox.org/bsv/c4711.html>`_, but it allows tokenization at
+    the syllable level.
 
   * `segments <https://github.com/cldf/segments>`_ is a Unicode tokenizer that
     build a phonemization from a grapheme to phoneme mapping provided as a file
     by the user.
+
+.. list-table::
+   :header-rows: 1
+   :stub-columns: 1
+
+   * -
+     - espeak
+     - espeak-mbrola
+     - festival
+     - segments
+   * - phone set
+     - `IPA <https://en.wikipedia.org/wiki/International_Phonetic_Alphabet>`_
+     - `SAMPA <https://en.wikipedia.org/wiki/SAMPA>`_
+     - custom
+     - user defined
+   * - supported languages
+     - `100+ <https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md>`_
+     - `35 <https://github.com/numediart/MBROLA-voices>`_
+     - US English
+     - user defined
+   * - processing speed
+     - fast
+     - slow
+     - very slow
+     - fast
+   * - phone tokens
+     - yes
+     - yes
+     - yes
+     - yes
+   * - syllable tokens
+     - no
+     - no
+     - yes
+     - no
+   * - word tokens
+     - yes
+     - no
+     - yes
+     - yes
+   * - punctuation preservation
+     - yes
+     - no
+     - yes
+     - yes
+   * - stressed phones
+     - yes
+     - no
+     - no
+     - no
+   * - `tie <https://en.wikipedia.org/wiki/Tie_(typography)#International_Phonetic_Alphabet>`_
+     - yes
+     - no
+     - no
+     - no
 
 To reference ``phonemizer`` in your own work, please cite the following
 `JOSS paper <https://joss.theoj.org/papers/10.21105/joss.03958>`_.

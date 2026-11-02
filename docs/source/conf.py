@@ -22,6 +22,11 @@ project = 'Phonemizer'
 copyright = '2022, CoML'
 author = 'Mathieu Bernard, Hadrien Titeux'
 
+# the version of the documented phonemizer
+import phonemizer  # noqa: E402
+release = phonemizer.__version__
+version = release
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -30,7 +35,8 @@ author = 'Mathieu Bernard, Hadrien Titeux'
 extensions = [
     "sphinx_rtd_theme",
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'myst_parser',
 ]
 # Napoleon settings
 napoleon_google_docstring = True
@@ -54,4 +60,4 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []
