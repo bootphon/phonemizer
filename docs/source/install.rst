@@ -109,7 +109,9 @@ or with environment variables:
     export PHONEMIZER_ESPEAK_DATA_PATH=/path/to/espeak-ng-data
     export PHONEMIZER_FESTIVAL_EXECUTABLE=/path/to/festival
 
-The values set from Python take precedence over the environment variables.
+The data path is the espeak data directory, containing the ``phontab`` file
+(with espeak<1.49 it must be named ``espeak-data``). The values set from Python
+take precedence over the environment variables.
 From the command line, use the ``--espeak-library`` and
 ``--festival-executable`` options.
 

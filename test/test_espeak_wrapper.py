@@ -316,3 +316,45 @@ def test_mbrola_voice_listed_first(wrapper, monkeypatch):
     monkeypatch.setattr(wrapper, "available_voices", lambda: [mbrola] + voices)
     wrapper.set_voice("en-us")
     assert not wrapper.voice.identifier.startswith("mb/")
+
+
+def _data_dir(path):
+    path.mkdir(parents=True)
+    (path / "phontab").touch()
+    return path
+
+
+@pytest.mark.parametrize("version", [(1, 48), (1, 51)])
+def test_data_path_argument(tmp_path, version):
+    # espeak<1.49 expects the parent of the data directory, named espeak-data;
+    # espeak-ng accepts the data directory or its parent (if the data
+    # directory is named espeak-ng-data). Otherwise espeak exits the process.
+    from phonemizer.backend.espeak.api import EspeakAPI  # pylint: disable=import-outside-toplevel
+    # pylint: disable=protected-access
+    argument = EspeakAPI._data_path_argument
+
+    name = "espeak-data" if version < (1, 49) else "espeak-ng-data"
+    data = _data_dir(tmp_path / name)
+    expected = tmp_path if version < (1, 49) else data
+    assert argument(data, version) == str(expected).encode()
+    assert argument(tmp_path, version) == str(tmp_path).encode()
+
+    other = _data_dir(tmp_path / "other")
+    if version < (1, 49):
+        with pytest.raises(RuntimeError, match="no espeak data found"):
+            argument(other, version)
+    else:
+        assert argument(other, version) == str(other).encode()
+
+    with pytest.raises(RuntimeError, match="no espeak data found"):
+        argument(tmp_path / "missing", version)
+
+
+def test_data_path_without_data(tmp_path):
+    # a directory without espeak data raises an error instead of exiting
+    EspeakWrapper.set_data_path(str(tmp_path))
+    try:
+        with pytest.raises(RuntimeError, match="no espeak data found"):
+            EspeakWrapper()
+    finally:
+        EspeakWrapper.set_data_path(None)

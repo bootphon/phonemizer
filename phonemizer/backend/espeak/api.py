@@ -43,9 +43,6 @@ class EspeakAPI:
         # set to None to avoid an AttributeError in _delete if the __init__
         # method raises, will be properly initialized below
         self._library = None
-        
-        if data_path is not None:
-            data_path = str(data_path).encode('utf-8')
 
         # Because the library is not designed to be wrapped nor to be used in
         # multithreaded/multiprocess contexts (massive use of global variables)
@@ -74,6 +71,9 @@ class EspeakAPI:
             # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
             self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
             try:
+                if data_path is not None:
+                    data_path = self._data_path_argument(
+                        data_path, self._version())
                 if self._library.espeak_Initialize(0x02, 0, data_path, 0) <= 0:
                     raise RuntimeError(  # pragma: nocover
                         'failed to initialize espeak shared library')
@@ -96,6 +96,45 @@ class EspeakAPI:
         # the path to the original one (the copy is considered an
         # implementation detail and is not exposed)
         self._library_path = library_path
+
+    def _version(self):
+        """The espeak version as a tuple (major, minor)
+
+        Available before espeak_Initialize() is called.
+
+        """
+        f_info = self._library.espeak_Info
+        f_info.restype = ctypes.c_char_p
+        version = f_info(ctypes.byref(ctypes.c_char_p()))
+        # espeak-1.48 appends the release date to the version number
+        version = version.decode().strip().split(' ')[0].replace('-dev', '')
+        return tuple(int(v) for v in version.split('.')[:2])
+
+    @staticmethod
+    def _data_path_argument(data_path, version) -> bytes:
+        """Returns the data path to give to espeak_Initialize()
+
+        `data_path` is the espeak data directory, containing the phontab file.
+        espeak-ng accepts it as is, or its parent directory. espeak<1.49
+        expects the directory containing it, which must be named espeak-data.
+
+        Raises a RuntimeError if espeak cannot read its data from `data_path`:
+        espeak would exit the whole process instead.
+
+        """
+        data_path = pathlib.Path(data_path)
+        if version < (1, 49):
+            if data_path.name == 'espeak-data':
+                data_path = data_path.parent
+            valid = (data_path / 'espeak-data' / 'phontab').is_file()
+        else:
+            valid = (
+                (data_path / 'phontab').is_file()
+                or (data_path / 'espeak-ng-data' / 'phontab').is_file())
+
+        if not valid:
+            raise RuntimeError(f'no espeak data found in {data_path}')
+        return str(data_path).encode('utf-8')
 
     @staticmethod
     def _delete(library, tempdir):

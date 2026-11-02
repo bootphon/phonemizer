@@ -34,6 +34,11 @@ Version numbers follow [semantic versioning](https://semver.org).
   - `punctuation_marks=''` made espeak spell out every letter, it now
     disables the punctuation processing.
   - `phonemize --list-languages` printed `None` at the end.
+  - With espeak<1.49, a data path set with `set_data_path()` or
+    `PHONEMIZER_ESPEAK_DATA_PATH` made espeak exit the Python process, as it
+    expects the parent of the data directory. The data directory is now
+    accepted by all espeak versions, and a path without espeak data raises a
+    `RuntimeError`.
 
 ## phonemizer-3.4.1
 

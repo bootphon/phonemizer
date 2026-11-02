@@ -23,7 +23,8 @@ import pytest
 from phonemizer import phonemize
 from phonemizer.logger import default_logger, get_logger
 
-# a text yielding a language switch warning
+# a text yielding warnings: a language switch with espeak-ng, a words count
+# mismatch with espeak-1.48
 TEXT = ["j'aime le football"]
 
 
@@ -57,8 +58,7 @@ def test_quiet(caplog, capsys):
 def test_normal(caplog, capsys):
     phonemize(TEXT, language='fr-fr', logger=get_logger('normal'))
     assert not caplog.records
-    assert '[WARNING] 1 utterances containing language switches' in (
-        capsys.readouterr().err)
+    assert capsys.readouterr().err.startswith('[WARNING] ')
 
 
 def test_get_logger_leaves_default_untouched():
