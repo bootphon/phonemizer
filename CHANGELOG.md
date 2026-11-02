@@ -4,6 +4,13 @@ Version numbers follow [semantic versioning](https://semver.org).
 
 ## unreleased
 
+- **improvements**
+  - Creating an espeak backend is about 3 times faster (from 28 to 8 ms on
+    Linux): the espeak library found on the system is now looked up once per
+    process instead of at each creation. `set_library()` and
+    `PHONEMIZER_ESPEAK_LIBRARY` still apply at any time, but an espeak
+    library installed or removed after the first lookup is not seen until the
+    process restarts.
 - **bug fixes**
   - Restoring the punctuation (`preserve_punctuation=True`) took a time
     quadratic in the number of lines: about 11 seconds for 20,000 lines, now
