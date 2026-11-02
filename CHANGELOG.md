@@ -2,13 +2,13 @@
 
 Version numbers follow [semantic versioning](https://semver.org).
 
-## unreleased
+## phonemizer-3.6.0
 
 This release makes the espeak backend faster and, with
 `preserve_punctuation=True`, pronounces the words around quotes and brackets
 in context, which changes the output of such lines.
 
-- **breaking changes**
+- **behaviour changes**
   - With `preserve_punctuation=True`, the words on both sides of quotes and
     brackets (`"«»“”‘’„‹›()[]{}`) are pronounced together, as without
     punctuation. They used to be phonemized apart, as at the end of a

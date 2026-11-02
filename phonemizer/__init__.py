@@ -17,5 +17,5 @@
 from .phonemize import phonemize as phonemize  # explicit re-export
 
 
-__version__ = '3.5.0'
+__version__ = '3.6.0'
 """Phonemizer version"""
