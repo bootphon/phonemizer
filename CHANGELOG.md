@@ -10,12 +10,12 @@ Version numbers follow [semantic versioning](https://semver.org).
     process instead of at each creation. `set_library()` and
     `PHONEMIZER_ESPEAK_LIBRARY` still apply at any time, but an espeak
     library installed or removed after the first lookup is not seen until the
-    process restarts.
+    process restarts. See [PR #232](https://github.com/bootphon/phonemizer/pull/232).
 - **bug fixes**
   - Restoring the punctuation (`preserve_punctuation=True`) took a time
     quadratic in the number of lines: about 11 seconds for 20,000 lines, now
     40 milliseconds. `Punctuation.restore()` no longer modifies the list it
-    is given.
+    is given. See [PR #232](https://github.com/bootphon/phonemizer/pull/232).
 
 ## phonemizer-3.5.0
 
