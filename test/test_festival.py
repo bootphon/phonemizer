@@ -19,12 +19,21 @@
 import os
 import pathlib
 import shutil
+import sys
 
 import pytest
 
 from phonemizer import phonemize
 from phonemizer.backend import FestivalBackend
 from phonemizer.separator import Separator
+
+
+# festival-2.5 syllabifies 'hello' as hh-ax|l-ow, festival-2.4 as hh-ax-l|ow
+# (see issue #221). Older versions are not tested.
+HELLO = (
+    (["hh", "ax"], ["l", "ow"])
+    if not FestivalBackend.is_available() or FestivalBackend.version() >= (2, 5)
+    else (["hh", "ax", "l"], ["ow"]))
 
 
 def _test(text, separator=Separator(word=" ", syllable="|", phone="-")):
@@ -34,13 +43,14 @@ def _test(text, separator=Separator(word=" ", syllable="|", phone="-")):
 
 
 @pytest.mark.skipif(
-    not FestivalBackend.is_available() or FestivalBackend.version() <= (2, 1),
-    reason="festival not installed or is festival-2.1 (gives different results than further versions "
+    not FestivalBackend.is_available() or FestivalBackend.version() < (2, 4),
+    reason="festival not installed or older than 2.4 (gives different results "
     "for syllable boundaries)",
 )
 def test_hello():
-    assert _test(["hello world"]) == ["hh-ax|l-ow w-er-l-d"]
-    assert _test(["hello", "world"]) == ["hh-ax|l-ow", "w-er-l-d"]
+    hello = "|".join("-".join(syllable) for syllable in HELLO)
+    assert _test(["hello world"]) == [f"{hello} w-er-l-d"]
+    assert _test(["hello", "world"]) == [hello, "w-er-l-d"]
 
 
 @pytest.mark.skipif(not FestivalBackend.is_available(), reason="festival not installed")
@@ -94,7 +104,7 @@ def test_path_good():
 def test_path_bad():
     try:
         # corrupt the default espeak path, try to use python executable instead
-        binary = shutil.which("python")
+        binary = sys.executable
         FestivalBackend.set_executable(binary)
 
         with pytest.raises(RuntimeError):
@@ -117,7 +127,7 @@ def test_path_bad():
 )
 def test_path_venv():
     try:
-        os.environ["PHONEMIZER_FESTIVAL_EXECUTABLE"] = shutil.which("python") or ""
+        os.environ["PHONEMIZER_FESTIVAL_EXECUTABLE"] = sys.executable
         with pytest.raises(RuntimeError):
             FestivalBackend("en-us").phonemize(["hello"])
         with pytest.raises(RuntimeError):

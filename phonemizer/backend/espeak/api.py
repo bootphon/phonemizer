@@ -15,6 +15,7 @@
 """Low-level bindings to the espeak API"""
 
 import ctypes
+import os
 import pathlib
 import shutil
 import sys
@@ -29,6 +30,15 @@ from phonemizer.backend.espeak.voice import EspeakVoice
 if sys.platform != 'win32':
     # cause a crash on Windows
     import dlinfo
+
+
+# Where to look for the espeak library when its path cannot be retrieved from
+# the loaded library
+_LIBRARY_DIRECTORIES = ('/usr/local/lib', '/usr/lib', '/lib')
+
+# Size of the buffer storing the path to the espeak data directory, from
+# speech.h in the espeak and espeak-ng sources
+_N_PATH_HOME = 230 if sys.platform == 'win32' else 160
 
 
 class EspeakAPI:
@@ -71,9 +81,17 @@ class EspeakAPI:
             # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
             self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
             try:
+                # older versions are not supported, they crash on
+                # phonemization (see issue #180)
+                version = self._version()
+                if version < (1, 48):
+                    raise RuntimeError(
+                        f'espeak-{".".join(str(v) for v in version)} is not '
+                        f'supported, phonemizer requires espeak>=1.48')
+
                 if data_path is not None:
                     data_path = self._data_path_argument(
-                        data_path, self._version())
+                        data_path, version, self._tempdir)
                 if self._library.espeak_Initialize(0x02, 0, data_path, 0) <= 0:
                     raise RuntimeError(  # pragma: nocover
                         'failed to initialize espeak shared library')
@@ -111,12 +129,17 @@ class EspeakAPI:
         return tuple(int(v) for v in version.split('.')[:2])
 
     @staticmethod
-    def _data_path_argument(data_path, version) -> bytes:
+    def _data_path_argument(data_path, version, tempdir=None) -> bytes:
         """Returns the data path to give to espeak_Initialize()
 
         `data_path` is the espeak data directory, containing the phontab file.
         espeak-ng accepts it as is, or its parent directory. espeak<1.49
         expects the directory containing it, which must be named espeak-data.
+
+        espeak stores the path of its data directory in a buffer of
+        _N_PATH_HOME bytes and silently uses its default data when the path
+        is longer. In that case a link to the data is made in `tempdir` and
+        its shorter path is given to espeak instead.
 
         Raises a RuntimeError if espeak cannot read its data from `data_path`:
         espeak would exit the whole process instead.
@@ -126,14 +149,30 @@ class EspeakAPI:
         if version < (1, 49):
             if data_path.name == 'espeak-data':
                 data_path = data_path.parent
-            valid = (data_path / 'espeak-data' / 'phontab').is_file()
+            data = data_path / 'espeak-data'
+        elif (data_path / 'phontab').is_file():
+            data = data_path
         else:
-            valid = (
-                (data_path / 'phontab').is_file()
-                or (data_path / 'espeak-ng-data' / 'phontab').is_file())
+            data = data_path / 'espeak-ng-data'
 
-        if not valid:
+        if not (data / 'phontab').is_file():
             raise RuntimeError(f'no espeak data found in {data_path}')
+
+        if len(str(data).encode('utf-8')) >= _N_PATH_HOME:
+            # the link name is the one espeak looks for in the given directory
+            link = pathlib.Path(tempdir or '') / (
+                'espeak-data' if version < (1, 49) else 'espeak-ng-data')
+            try:
+                if tempdir is None:
+                    raise OSError('no directory for the link')
+                os.symlink(data, link, target_is_directory=True)
+            except OSError as error:
+                raise RuntimeError(
+                    f'the path to the espeak data is too long for espeak '
+                    f'({_N_PATH_HOME - 1} bytes at most) and a shorter link to '
+                    f'it cannot be made: {error}') from None
+            data_path = link.parent
+
         return str(data_path).encode('utf-8')
 
     @staticmethod
@@ -187,9 +226,19 @@ class EspeakAPI:
         try:
             # Linux or MacOS only, ImportError on Windows
             return pathlib.Path(dlinfo.DLInfo(library).path).resolve()
-        except (Exception, ImportError):  # pragma: nocover
-            raise RuntimeError(
-                f'failed to retrieve the path to {library} library') from None
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
+
+        # dlinfo is not supported everywhere (e.g. on FreeBSD, see issue
+        # #209), where the library name given by ctypes.util.find_library()
+        # is not a path. Look for it in the standard directories.
+        for directory in _LIBRARY_DIRECTORIES:
+            path = pathlib.Path(directory) / library._name
+            if path.is_file():
+                return path.resolve()
+
+        raise RuntimeError(
+            f'failed to retrieve the path to {library} library')
 
     def info(self):
         """Bindings to espeak_Info

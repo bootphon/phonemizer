@@ -57,6 +57,28 @@ Version numbers follow [semantic versioning](https://semver.org).
     for them, as the espeak backend does: `phonemize(['hello', '()'],
     backend='festival')` gives `['hhaxlow ', '']` instead of `['hhaxlow ']`.
   - The festival executable can be in a directory whose name has spaces.
+  - An espeak data directory with a path longer than 159 bytes (229 on
+    Windows) was silently ignored by espeak, which then looked for its data
+    elsewhere. Such a path is now given to espeak through a shorter link. See
+    [issue #196](https://github.com/bootphon/phonemizer/issues/196).
+  - espeak versions older than 1.48, which crash on phonemization, are
+    refused with a clear error. See [issue
+    #180](https://github.com/bootphon/phonemizer/issues/180).
+  - The espeak library is looked for in the standard directories when its
+    path cannot be retrieved from the loaded library (e.g. on FreeBSD), and
+    `phonemize --version` works for a renamed distribution of phonemizer or
+    when running from sources. See [issue
+    #209](https://github.com/bootphon/phonemizer/issues/209).
+- **documentation**
+  - The installation of festival and mbrola on MacOS is documented, the
+    setup script formerly suggested no longer works. See [issue
+    #203](https://github.com/bootphon/phonemizer/issues/203).
+- **tests**
+  - The festival tests expect the syllables of the installed festival
+    version, they no longer fail on festival-2.4. The tests no longer depend
+    on a `python` executable nor on the transcription of a given espeak
+    build. See [issue #221](https://github.com/bootphon/phonemizer/issues/221)
+    and [issue #209](https://github.com/bootphon/phonemizer/issues/209).
 
 ## phonemizer-3.4.1
 
