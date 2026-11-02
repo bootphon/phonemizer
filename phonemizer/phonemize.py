@@ -176,7 +176,9 @@ def phonemize(  # pylint: disable=too-many-arguments
     preserve_punctuation: bool, optional
         When True, will keep the punctuation
         in the phonemized output. Not supported by the 'espeak-mbrola' backend.
-        Default to False and remove all the punctuation.
+        Default to False and remove all the punctuation. The words around
+        quotes and brackets are pronounced together, as without punctuation,
+        whereas the other marks end an utterance.
 
     punctuation_marks: str or re.Pattern, optional
         The punctuation marks to consider when dealing with punctuation,

@@ -28,6 +28,9 @@ from phonemizer.separator import Separator
 
 class EspeakMbrolaBackend(BaseEspeakBackend):
     """Espeak-mbrola backend for the phonemizer"""
+    # no word separation in output, see BaseBackend
+    _punctuation_context = False
+
     # this will be initialized once, at the first call to supported_languages()
     _supported_languages = None
 

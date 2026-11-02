@@ -59,6 +59,10 @@ class BaseBackend(abc.ABC):
         if the backend is not available of if the `language` cannot be initialized.
 
     """
+    # When preserving the punctuation, phonemize the words on both sides of
+    # quotes or brackets in context. Disabled in the backends that phonemize
+    # each word alone, or with no word separation.
+    _punctuation_context = True
 
     def __init__(self, language: str,
                  punctuation_marks: Optional[Union[str, Pattern]] = None,
@@ -230,6 +234,17 @@ class BaseBackend(abc.ABC):
 
         text, punctuation_marks = self._phonemize_preprocess(text)
 
+        # When preserving the punctuation, the chunks separated by inline marks
+        # (quotes or brackets) are phonemized as a whole as well, appended to
+        # the text, so that their words are pronounced in context.
+        context = (
+            self._punctuator.inline_groups(punctuation_marks)
+            if (self._preserve_punctuation and self._punctuation_context
+                and Punctuation.can_align(separator))
+            else [])
+        text = text + [
+            ' '.join(text[chunk] for chunk in group) for group in context]
+
         if njobs == 1:
             # phonemize the text forced as a string
             phonemized = self._phonemize_aux(text, 0, separator, strip)
@@ -248,7 +263,25 @@ class BaseBackend(abc.ABC):
             # flatten them in a single list
             phonemized = self._flatten(phonemized)
 
-        return self._phonemize_postprocess(phonemized, punctuation_marks, separator, strip)
+        phonemized, context = self._split_context(phonemized, context)
+        if self._preserve_punctuation:
+            punctuation_marks = (punctuation_marks, context)
+        return self._phonemize_postprocess(
+            phonemized, punctuation_marks, separator, strip)
+
+    @staticmethod
+    def _split_context(phonemized: List[str], context: List[List[int]]) \
+            -> Tuple[List[str], List[Tuple[List[int], str]]]:
+        """Splits the phonemized chunks from the groups phonemized in context
+
+        The last lines of `phonemized` are the groups of chunks in `context`,
+        phonemized as a whole. Returns the phonemized chunks and the pairs
+        (group, phonemized group). This method may be overloaded in child
+        classes, along with _phonemize_aux() (see espeak backend).
+
+        """
+        nchunks = len(phonemized) - len(context)
+        return phonemized[:nchunks], list(zip(context, phonemized[nchunks:]))
 
     @staticmethod
     def _flatten(phonemized: List[List[Any]]):
@@ -281,7 +314,7 @@ class BaseBackend(abc.ABC):
 
         """
         if self._preserve_punctuation:
-            # a tuple (text, punctuation marks)
+            # a tuple (chunks, parts of each line)
             return self._punctuator.preserve(text)
         return self._punctuator.remove(text), []
 
@@ -291,9 +324,14 @@ class BaseBackend(abc.ABC):
                                strip: bool):
         """Postprocess the raw phonemized output
 
-        Restores the punctuation as needed.
+        Restores the punctuation as needed. When preserving the punctuation,
+        `punctuation_marks` is the parts of each line, as returned by
+        _phonemize_preprocess(), along with the groups phonemized in context
+        as returned by _split_context().
 
         """
         if self._preserve_punctuation:
-            return self._punctuator.restore(phonemized, punctuation_marks, separator, strip)
+            lines, context = punctuation_marks
+            return self._punctuator.restore(
+                phonemized, lines, separator, strip, context)
         return phonemized

@@ -146,8 +146,10 @@ class EspeakBackend(BaseEspeakBackend):
         # each punctuation mark. Words are counted on the input lines, not on
         # the chunks, so that the mismatched lines are the ones processed.
         if self._preserve_punctuation:
-            chunks, punctuation_marks, lines = self._punctuator.preserve_lines(
-                text)
+            chunks, punctuation_marks = self._punctuator.preserve(text)
+            lines = [
+                num for num, parts in enumerate(punctuation_marks)
+                for part in parts if isinstance(part, int)]
         else:
             chunks, punctuation_marks, lines = (
                 self._punctuator.remove(text), [], None)
@@ -164,6 +166,21 @@ class EspeakBackend(BaseEspeakBackend):
 
         phonemized = super()._phonemize_postprocess(text, punctuation_marks, separator, strip)
         return self._words_mismatch.process(phonemized)
+
+    @staticmethod
+    def _split_context(phonemized, context):
+        """Specialization of BaseBackend._split_context for the espeak backend
+
+        The phonemized text comes with the numbers of the lines with a
+        language switch: the ones of the groups are dropped, as the switches
+        are detected in their chunks phonemized alone as well.
+
+        """
+        text, switches = phonemized
+        nchunks = len(text) - len(context)
+        return (
+            (text[:nchunks], [num for num in switches if num <= nchunks]),
+            list(zip(context, text[nchunks:])))
 
     @staticmethod
     def _flatten(phonemized) -> List:
