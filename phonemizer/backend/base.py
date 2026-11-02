@@ -16,7 +16,6 @@
 
 import abc
 import itertools
-import re
 from logging import Logger
 from typing import Optional, List, Any, Dict, Tuple, Union, Pattern
 

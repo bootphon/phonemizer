@@ -409,6 +409,6 @@ def _phonemize(  # pylint: disable=too-many-arguments
     # expected by the parameters
     if prepend_text:
         return list(zip(text, phonemized))
-    if text_type == str:
+    if text_type is str:
         return list2str(phonemized)
     return phonemized

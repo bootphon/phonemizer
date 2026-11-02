@@ -16,7 +16,6 @@
 
 import ctypes
 import ctypes.util
-import functools
 import os
 import pathlib
 import sys
