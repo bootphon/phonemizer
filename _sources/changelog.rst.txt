@@ -5,6 +5,16 @@ Changelog
 Version numbers follow `semantic versioning <https://semver.org>`__.
 
 
+unreleased
+----------
+
+* **breaking changes**
+
+  * Python 3.8 and 3.9, which have reached their end of life, are no longer
+    supported. The phonemizer now requires ``python>=3.10``. Users of older
+    Python versions are served the phonemizer-3.4 release by pip.
+
+
 phonemizer-3.4.1
 -----------------
 
