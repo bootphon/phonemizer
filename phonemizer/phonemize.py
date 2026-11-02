@@ -20,7 +20,6 @@ To use it in your own code, type:
 
 """
 
-import os
 import threading
 from collections import OrderedDict
 from logging import Logger
@@ -359,7 +358,7 @@ def _phonemize(  # pylint: disable=too-many-arguments
     text_type = type(text)
 
     # force the text as a list
-    text = [line.strip(os.linesep) for line in str2list(text)]
+    text = [line.strip('\r\n') for line in str2list(text)]
 
     # if preserving empty lines, note the index of each empty line
     if preserve_empty_lines:

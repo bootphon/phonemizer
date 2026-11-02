@@ -16,7 +16,6 @@
 """Command-line phonemizer tool, have a 'phonemizer --help' to get in"""
 
 import argparse
-import os
 import sys
 import re
 
@@ -430,12 +429,13 @@ def main():
 
     if out and input_output_separator:
         streamout.write(
-            os.linesep.join(
+            '\n'.join(
                 f'{line[0]} {input_output_separator} {line[1]}'
                 for line in out)
-            + os.linesep)
+            + '\n')
     elif out:
-        streamout.write(os.linesep.join(out) + os.linesep)
+        # the stream is opened in text mode, '\n' is the platform line separator
+        streamout.write('\n'.join(out) + '\n')
 
 
 if __name__ == '__main__':  # pragma: nocover
