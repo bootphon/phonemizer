@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Phonemizer  documentation</title>
+  <title>Changelog &mdash; Phonemizer 3.4.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/documentation_options.js?v=149be4c9"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -89,7 +89,7 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Changelog</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/changelog.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/changelog.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -108,6 +108,40 @@
 <li><p>Python 3.8 and 3.9, which have reached their end of life, are no longer
 supported. The phonemizer now requires <code class="docutils literal notranslate"><span class="pre">python&gt;=3.10</span></code>. Users of older
 Python versions are served the phonemizer-3.4 release by pip.</p></li>
+<li><p>The phonemizer no longer configures the <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> logger. By default
+its messages are handled by the logging configuration of the application,
+which can tune it as usual, for instance with
+<code class="docutils literal notranslate"><span class="pre">logging.getLogger('phonemizer').setLevel(logging.ERROR)</span></code>. The level was
+previously forced to <code class="docutils literal notranslate"><span class="pre">WARNING</span></code>, so an application logging at the
+<code class="docutils literal notranslate"><span class="pre">INFO</span></code> or <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> level now gets the phonemizer messages of that
+level. The loggers returned by <code class="docutils literal notranslate"><span class="pre">get_logger()</span></code> no longer propagate to the
+application, so <code class="docutils literal notranslate"><span class="pre">get_logger('quiet')</span></code> is actually quiet. See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/154">issue #154</a>.</p></li>
+</ul>
+</li>
+<li><p><strong>bug fixes</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">words_mismatch='remove'</span></code> with <code class="docutils literal notranslate"><span class="pre">preserve_punctuation=True</span></code> removed
+the wrong lines or raised an <code class="docutils literal notranslate"><span class="pre">IndexError</span></code>. See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/181">issue #181</a>.</p></li>
+<li><p>Each espeak backend leaked about 5 MB of memory: the espeak library was
+never terminated nor unloaded when the backend was deleted. See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/153">issue
+#153</a>.</p></li>
+<li><p>On Windows, the temporary copies of the espeak library are now removed
+when the backend is deleted, instead of at the end of the Python
+process. They are also removed when the library fails to load. See
+<a class="reference external" href="https://github.com/bootphon/phonemizer/issues/147">issue #147</a>.</p></li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">njobs</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, the espeak library and data path set with
+<code class="docutils literal notranslate"><span class="pre">set_library()</span></code> and <code class="docutils literal notranslate"><span class="pre">set_data_path()</span></code> were ignored by the parallel
+jobs, which used the default espeak installation.</p></li>
+<li><p>The backends cached by <code class="docutils literal notranslate"><span class="pre">phonemize()</span></code> were reused after a call to
+<code class="docutils literal notranslate"><span class="pre">set_library()</span></code>, <code class="docutils literal notranslate"><span class="pre">set_data_path()</span></code> or <code class="docutils literal notranslate"><span class="pre">set_executable()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">punctuation_marks=''</span></code> made espeak spell out every letter, it now
+disables the punctuation processing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">phonemize</span> <span class="pre">--list-languages</span></code> printed <code class="docutils literal notranslate"><span class="pre">None</span></code> at the end.</p></li>
+<li><p>With espeak&lt;1.49, a data path set with <code class="docutils literal notranslate"><span class="pre">set_data_path()</span></code> or
+<code class="docutils literal notranslate"><span class="pre">PHONEMIZER_ESPEAK_DATA_PATH</span></code> made espeak exit the Python process, as it
+expects the parent of the data directory. The data directory is now
+accepted by all espeak versions, and a path without espeak data raises a
+<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>.</p></li>
 </ul>
 </li>
 </ul>
@@ -124,8 +158,7 @@ one chunk. <code class="docutils literal notranslate"><span class="pre">see</spa
 which cause lots of EspeakWrapper being created when using multi threads,
 that makes a bunch of folder created under /tmp, finally cause the fd run out
 and program panics. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/224">PR #224</a>.</p></li>
-<li><p>The festival backend failed with <code class="docutils literal notranslate"><span class="pre">AttributeError:</span> <span class="pre">module</span> <span class="pre">'importlib'</span> <span class="pre">has</span>
-<span class="pre">no</span> <span class="pre">attribute</span> <span class="pre">'resources'</span></code> outside of pytest, including from the
+<li><p>The festival backend failed with <code class="docutils literal notranslate"><span class="pre">AttributeError:</span> <span class="pre">module</span> <span class="pre">'importlib'</span> <span class="pre">has</span> <span class="pre">no</span> <span class="pre">attribute</span> <span class="pre">'resources'</span></code> outside of pytest, including from the
 <code class="docutils literal notranslate"><span class="pre">phonemize</span></code> command (regression in 3.4.0).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">phonemize()</span></code> is thread-safe again: the backend cache introduced in
 3.4.0 shared a single espeak instance between threads, yielding wrong
@@ -158,7 +191,7 @@ that shadows the plain espeak voice, which made such languages unusable
 when the mbrola binary is absent. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/215">PR #215</a>.</p></li>
 <li><p>The espeak library is now also looked up under its <code class="docutils literal notranslate"><span class="pre">lib</span></code>-prefixed names,
 so a stock espeak-ng installation on Windows is found. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/214">PR #214</a>.</p></li>
-<li><p>Tests related to <cite>festival</cite> backend are now skipped when <cite>festival</cite> is not installed on the system.</p></li>
+<li><p>Tests related to <span class="title-ref">festival</span> backend are now skipped when <span class="title-ref">festival</span> is not installed on the system.</p></li>
 <li><p>Improved espeak library lookup on macos.</p></li>
 <li><p>Unusable mbrola voices are filtered out on Windows.</p></li>
 <li><p>Make the segments backend an optional dependency. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/211">PR #211</a>.</p></li>
@@ -168,10 +201,8 @@ so a stock espeak-ng installation on Windows is found. See <a class="reference e
 </section>
 <section id="phonemizer-3-3-0">
 <h2>phonemizer-3.3.0<a class="headerlink" href="#phonemizer-3-3-0" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>This version depends on python&gt;=3.8 (was 3.6 in previous versions). Tests now</dt><dd><p>requires pytest&gt;=6.0**</p>
-</dd>
-</dl>
+<p><strong>This version depends on python&gt;=3.8 (was 3.6 in previous versions). Tests now
+requires pytest&gt;=6.0</strong></p>
 <ul class="simple">
 <li><p><strong>improvements</strong></p>
 <ul>
@@ -503,7 +534,7 @@ Windows, see
 instead of IPA, available for espeak-ng only.</p></li>
 <li><p>new <code class="docutils literal notranslate"><span class="pre">--with-stress</span></code> option to use with <code class="docutils literal notranslate"><span class="pre">espeak</span></code> backend to not
 remove the stresses on phonemized output. For instance:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ echo "hello world" | phonemize
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ echo "hello world" | phonemize
 həloʊ wɜːld
 $ echo "hello world" | phonemize --with-stress
 həlˈoʊ wˈɜːld

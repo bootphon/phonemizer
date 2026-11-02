@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Common Issues &mdash; Phonemizer  documentation</title>
+  <title>Common Issues &mdash; Phonemizer 3.4.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/documentation_options.js?v=149be4c9"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -48,7 +48,10 @@
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python_examples.html">Python Examples</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Common Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#espeak-not-installed-on-your-system">espeak not installed on your system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemization-is-slow">Phonemization is slow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-disable-the-warnings">How to disable the warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#threads-and-parallel-jobs">Threads and parallel jobs</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
@@ -81,33 +84,92 @@
              
   <section id="common-issues">
 <h1>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h1>
+<section id="espeak-not-installed-on-your-system">
+<span id="espeak-not-installed"></span><h2>espeak not installed on your system<a class="headerlink" href="#espeak-not-installed-on-your-system" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">espeak</span> <span class="pre">not</span> <span class="pre">installed</span> <span class="pre">on</span> <span class="pre">your</span> <span class="pre">system</span></code> means that <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code>
+cannot load the espeak shared library. This happens when espeak is not
+installed, or when it is installed in a place where the library is not found
+automatically (this is often the case on Windows and MacOS, or within a
+virtual environment).</p>
+<p>Give the path to the library explicitly, either from Python (before calling
+<a class="reference internal" href="api_reference.html#phonemizer.phonemize" title="phonemizer.phonemize"><code class="xref py py-func docutils literal notranslate"><span class="pre">phonemizer.phonemize()</span></code></a>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.backend.espeak.wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">EspeakWrapper</span>
+
+<span class="c1"># on Windows</span>
+<span class="n">EspeakWrapper</span><span class="o">.</span><span class="n">set_library</span><span class="p">(</span><span class="sa">r</span><span class="s1">'C:\Program Files\eSpeak NG\libespeak-ng.dll'</span><span class="p">)</span>
+<span class="c1"># on MacOS with brew</span>
+<span class="n">EspeakWrapper</span><span class="o">.</span><span class="n">set_library</span><span class="p">(</span><span class="s1">'/opt/homebrew/lib/libespeak-ng.dylib'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or with the <code class="docutils literal notranslate"><span class="pre">PHONEMIZER_ESPEAK_LIBRARY</span></code> environment variable. For example,
+within a conda environment have a:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>config<span class="w"> </span>vars<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="nv">PHONEMIZER_ESPEAK_LIBRARY</span><span class="o">=</span><span class="s2">"C:\Program Files\eSpeak NG\libespeak-ng.dll"</span>
+</pre></div>
+</div>
+<p>If the espeak data directory (containing the <code class="docutils literal notranslate"><span class="pre">phontab</span></code> file) is not found
+either, set it with <code class="docutils literal notranslate"><span class="pre">EspeakWrapper.set_data_path()</span></code> or the
+<code class="docutils literal notranslate"><span class="pre">PHONEMIZER_ESPEAK_DATA_PATH</span></code> environment variable. See
+<a class="reference internal" href="install.html#custom-installation"><span class="std std-ref">Custom espeak and festival installations</span></a> for details.</p>
+</section>
 <section id="phonemization-is-slow">
 <h2>Phonemization is slow<a class="headerlink" href="#phonemization-is-slow" title="Link to this heading"></a></h2>
-<p>You may have realized that large number of calls to <a class="reference internal" href="api_reference.html#phonemizer.phonemize" title="phonemizer.phonemize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">phonemizer.phonemize()</span></code></a>
-makes for a very slow execution. It is much more efficient to minimize the number of calls to the phonemize function.
-Indeed the initialization of the phonemization backend can be expensive, especially for espeak.
-It’s much more efficient to either:</p>
-<ul class="simple">
-<li><p>group all the calls into one using a list of strings</p></li>
-<li><p>“manually” instantiate your backend of choice, then call its own <code class="xref py py-meth docutils literal notranslate"><span class="pre">phonemizer.backends.BaseBackend.phonemize()</span></code></p></li>
-</ul>
+<p>Each call to <a class="reference internal" href="api_reference.html#phonemizer.phonemize" title="phonemizer.phonemize"><code class="xref py py-func docutils literal notranslate"><span class="pre">phonemizer.phonemize()</span></code></a> has a cost: the phonemization
+backend is cached between calls with the same parameters, but the text is
+processed line by line. It is more efficient to group many lines in a single
+call, which can then also be parallelized with <code class="docutils literal notranslate"><span class="pre">njobs</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer</span><span class="w"> </span><span class="kn">import</span> <span class="n">phonemize</span>
 
 <span class="n">text</span> <span class="o">=</span> <span class="p">[</span><span class="n">line1</span><span class="p">,</span> <span class="n">line2</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 
 <span class="c1"># Do this:</span>
-<span class="n">phonemized</span> <span class="o">=</span> <span class="n">phonemize</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">phonemized</span> <span class="o">=</span> <span class="n">phonemize</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">njobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
 <span class="c1"># Not this:</span>
-<span class="n">phonemized</span> <span class="o">=</span> <span class="p">[</span><span class="n">phonemize</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">]</span>
-
-<span class="c1"># An alternative is to directly instanciate the backend and to call the</span>
-<span class="c1"># phonemize function from it:</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">EspeakBackend</span>
-<span class="n">backend</span> <span class="o">=</span> <span class="n">EspeakBackend</span><span class="p">(</span><span class="s1">'en-us'</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
-<span class="n">phonemized</span> <span class="o">=</span> <span class="p">[</span><span class="n">backend</span><span class="o">.</span><span class="n">phonemize</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">]</span>
+<span class="n">phonemized</span> <span class="o">=</span> <span class="p">[</span><span class="n">phonemize</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">]</span>
 </pre></div>
 </div>
+<p>An alternative is to instantiate the backend of your choice and to call its
+<a class="reference internal" href="api_reference.html#phonemizer.backend.base.BaseBackend.phonemize" title="phonemizer.backend.base.BaseBackend.phonemize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">phonemize()</span></code></a> method. This method
+expects a list of lines and returns a list:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">EspeakBackend</span>
+
+<span class="n">backend</span> <span class="o">=</span> <span class="n">EspeakBackend</span><span class="p">(</span><span class="s1">'en-us'</span><span class="p">)</span>
+<span class="n">phonemized</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">phonemize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="how-to-disable-the-warnings">
+<h2>How to disable the warnings<a class="headerlink" href="#how-to-disable-the-warnings" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> sends its messages (for instance on language switches or words
+count mismatches) to the <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> logger of the standard <code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code>
+module. By default they are handled by the logging configuration of your
+application. To hide the warnings, raise the level of that logger:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">'phonemizer'</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also give your own logger to <a class="reference internal" href="api_reference.html#phonemizer.phonemize" title="phonemizer.phonemize"><code class="xref py py-func docutils literal notranslate"><span class="pre">phonemizer.phonemize()</span></code></a> or to a
+backend with the <code class="docutils literal notranslate"><span class="pre">logger</span></code> argument, or use the one returned by
+<a class="reference internal" href="api_reference.html#phonemizer.logger.get_logger" title="phonemizer.logger.get_logger"><code class="xref py py-func docutils literal notranslate"><span class="pre">phonemizer.logger.get_logger()</span></code></a>, which writes to the standard error
+stream and does not propagate to your application:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer</span><span class="w"> </span><span class="kn">import</span> <span class="n">phonemize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="n">phonemize</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">'quiet'</span><span class="p">))</span>  <span class="c1"># or 'normal', 'verbose'</span>
+</pre></div>
+</div>
+<p>From the command line, use the <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> option.</p>
+</section>
+<section id="threads-and-parallel-jobs">
+<h2>Threads and parallel jobs<a class="headerlink" href="#threads-and-parallel-jobs" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="api_reference.html#phonemizer.phonemize" title="phonemizer.phonemize"><code class="xref py py-func docutils literal notranslate"><span class="pre">phonemizer.phonemize()</span></code></a> can be called concurrently from several
+threads: each thread uses its own backends. A backend instance (for instance
+an <a class="reference internal" href="api_reference.html#phonemizer.backend.espeak.espeak.EspeakBackend" title="phonemizer.backend.espeak.espeak.EspeakBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">EspeakBackend</span></code></a>) must not be
+shared between threads, create one per thread instead.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">njobs</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> the lines of the text are phonemized in parallel processes.
+The espeak library and data path chosen with <code class="docutils literal notranslate"><span class="pre">EspeakWrapper.set_library()</span></code>
+and <code class="docutils literal notranslate"><span class="pre">EspeakWrapper.set_data_path()</span></code> are used by those processes as well.</p>
 </section>
 </section>
 

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; Phonemizer  documentation</title>
+  <title>Installation &mdash; Phonemizer 3.4.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/documentation_options.js?v=149be4c9"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -46,15 +46,16 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#on-debian-unbuntu">On Debian/Unbuntu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#on-debian-ubuntu">On Debian/Ubuntu</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#on-centos-fedora">On CentOS/Fedora</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#on-macos">On MacOS</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#on-windows">On Windows</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-espeak-and-festival-installations">Custom espeak and festival installations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer">Phonemizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#docker-image">Docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development">Development</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Examples</a></li>
@@ -93,23 +94,23 @@
 <section id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
 <p><strong>You need python&gt;=3.10.</strong> If you are using an older python version, use the
-<code class="docutils literal notranslate"><span class="pre">phonemizer-3.4</span></code> release. If you really need to use python2, use the
-<code class="docutils literal notranslate"><span class="pre">phonemizer-1.0</span></code> release.</p>
+<code class="docutils literal notranslate"><span class="pre">phonemizer-3.4</span></code> release, pip selects it automatically. If you really need
+to use python2, use the <code class="docutils literal notranslate"><span class="pre">phonemizer-1.0</span></code> release.</p>
 <p>You need to install
 <a class="reference external" href="http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation">festival</a>,
 <a class="reference external" href="https://github.com/espeak-ng/espeak-ng#espeak-ng-text-to-speech">espeak-ng</a>
 and/or <a class="reference external" href="https://github.com/numediart/MBROLA">mbrola</a> in order to use the
-corresponding <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> backends.
+corresponding <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> backends. The <strong>segments</strong> backend is a Python
+package, installed with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">phonemizer[segments]</span></code> (see below).
 Follow instructions for your system below.</p>
-<section id="on-debian-unbuntu">
-<h3>On Debian/Unbuntu<a class="headerlink" href="#on-debian-unbuntu" title="Link to this heading"></a></h3>
+<section id="on-debian-ubuntu">
+<h3>On Debian/Ubuntu<a class="headerlink" href="#on-debian-ubuntu" title="Link to this heading"></a></h3>
 <p>To install dependencies, simply run</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>festival<span class="w"> </span>espeak-ng<span class="w"> </span>mbrola
 </pre></div>
 </div>
 <p>When using the <strong>espeak-mbrola</strong> backend, additional mbrola voices must be
-installed (see
-<a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)">here</a>. List
+installed (see the <a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md">espeak-ng documentation on mbrola</a>). List
 the installable voices with</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>apt<span class="w"> </span>search<span class="w"> </span>mbrola
 </pre></div>
@@ -122,14 +123,13 @@ the installable voices with</p>
 </pre></div>
 </div>
 <p>When using the <strong>espeak-mbrola</strong> backend, the mbrola binary and additional
-mbrola voices must be installed (see
-<a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)">here</a>).</p>
+mbrola voices must be installed (see the <a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md">espeak-ng documentation on mbrola</a>).</p>
 </section>
 <section id="on-macos">
 <h3>On MacOS<a class="headerlink" href="#on-macos" title="Link to this heading"></a></h3>
-<p><strong>espeak-ng</strong> is available on brew at version 1.52.0: <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">espeak-ng</span></code>.
-To install <strong>festival</strong>, <strong>mbrola</strong> and additional mbrola voices, use the script
-provided <a class="reference external" href="https://github.com/pettarin/setup-festival-mbrola">here</a>.</p>
+<p><strong>espeak-ng</strong> is available on brew: <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">espeak-ng</span></code>. To install
+<strong>festival</strong>, <strong>mbrola</strong> and additional mbrola voices, use the <a class="reference external" href="https://github.com/pettarin/setup-festival-mbrola">setup script</a> (it may be outdated, see
+<a class="reference external" href="https://github.com/bootphon/phonemizer/issues/203">issue #203</a>).</p>
 </section>
 <section id="on-windows">
 <h3>On Windows<a class="headerlink" href="#on-windows" title="Link to this heading"></a></h3>
@@ -137,62 +137,73 @@ provided <a class="reference external" href="https://github.com/pettarin/setup-f
 <a class="reference external" href="https://github.com/espeak-ng/espeak-ng/releases">espeak releases</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>On Windows the installation of espeak can cause issues (see <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/44">here</a>).</p>
+<p>On Windows the installation of espeak can cause issues (see <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/44">issue #44</a>).</p>
 <p>Make sure you install the correct <cite>.msi</cite> file for your platform. It exists
 for two architectures: X64 and X86. Most today’s machines are X64 so, if you
 don’t know which one to choose, you should start trying with
 <code class="docutils literal notranslate"><span class="pre">espeak-ng-X64.msi</span></code>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> fails with a message <code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">espeak</span> <span class="pre">not</span> <span class="pre">installed</span>
-<span class="pre">on</span> <span class="pre">your</span> <span class="pre">system</span></code>, it means the <code class="docutils literal notranslate"><span class="pre">libespeak-ng.dll</span></code> library file is not
-found by <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code>. You can specify it’s path from Python (before
-calling the phonemize function):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.backend.espeak.wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">EspeakWrapper</span>
-
-<span class="n">EspeakWrapper</span><span class="o">.</span><span class="n">set_library</span><span class="p">(</span><span class="s1">'C:\Program Files\eSpeak NG\libespeak-ng.dll'</span><span class="p">)</span>
-</pre></div>
+<span class="pre">on</span> <span class="pre">your</span> <span class="pre">system</span></code>, see <a class="reference internal" href="common_issues.html#espeak-not-installed"><span class="std std-ref">espeak not installed on your system</span></a>.</p>
 </div>
-<p>An alternative is to define the environment variable
-<code class="docutils literal notranslate"><span class="pre">PHONEMIZER_ESPEAK_LIBRARY</span></code> to the absolute path to the DLL. For example
-if using conda have a:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>config<span class="w"> </span>vars<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="nv">PHONEMIZER_ESPEAK_LIBRARY</span><span class="o">=</span><span class="s2">"C:\Program Files\eSpeak NG\libespeak-ng.dll"</span>
-</pre></div>
-</div>
-</div>
-<p><strong>festival</strong> must be compiled from sources (see
-<a class="reference external" href="https://github.com/festvox/festival/blob/master/INSTALL">here</a> and
-<a class="reference external" href="https://www.eguidedog.net/doc/doc_build_win_festival.php)">here</a>.
+<p><strong>festival</strong> must be compiled from sources (see the <a class="reference external" href="https://github.com/festvox/festival/blob/master/INSTALL">festival install guide</a> and <a class="reference external" href="https://www.eguidedog.net/doc/doc_build_win_festival.php">this
+tutorial</a>).
 <strong>mbrola</strong> is not available for Windows.</p>
 </section>
+</section>
+<section id="custom-espeak-and-festival-installations">
+<span id="custom-installation"></span><h2>Custom espeak and festival installations<a class="headerlink" href="#custom-espeak-and-festival-installations" title="Link to this heading"></a></h2>
+<p>By default <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> uses the espeak library, the espeak data and the
+festival program found on the system. You can choose others from Python,
+before calling <a class="reference internal" href="api_reference.html#phonemizer.phonemize" title="phonemizer.phonemize"><code class="xref py py-func docutils literal notranslate"><span class="pre">phonemizer.phonemize()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">FestivalBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">phonemizer.backend.espeak.wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">EspeakWrapper</span>
+
+<span class="n">EspeakWrapper</span><span class="o">.</span><span class="n">set_library</span><span class="p">(</span><span class="s1">'/path/to/libespeak-ng.so'</span><span class="p">)</span>
+<span class="n">EspeakWrapper</span><span class="o">.</span><span class="n">set_data_path</span><span class="p">(</span><span class="s1">'/path/to/espeak-ng-data'</span><span class="p">)</span>
+<span class="n">FestivalBackend</span><span class="o">.</span><span class="n">set_executable</span><span class="p">(</span><span class="s1">'/path/to/festival'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or with environment variables:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PHONEMIZER_ESPEAK_LIBRARY</span><span class="o">=</span>/path/to/libespeak-ng.so
+<span class="nb">export</span><span class="w"> </span><span class="nv">PHONEMIZER_ESPEAK_DATA_PATH</span><span class="o">=</span>/path/to/espeak-ng-data
+<span class="nb">export</span><span class="w"> </span><span class="nv">PHONEMIZER_FESTIVAL_EXECUTABLE</span><span class="o">=</span>/path/to/festival
+</pre></div>
+</div>
+<p>The data path is the espeak data directory, containing the <code class="docutils literal notranslate"><span class="pre">phontab</span></code> file
+(with espeak&lt;1.49 it must be named <code class="docutils literal notranslate"><span class="pre">espeak-data</span></code>). The values set from Python
+take precedence over the environment variables.
+From the command line, use the <code class="docutils literal notranslate"><span class="pre">--espeak-library</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--festival-executable</span></code> options.</p>
 </section>
 <section id="phonemizer">
 <h2>Phonemizer<a class="headerlink" href="#phonemizer" title="Link to this heading"></a></h2>
 <ul>
 <li><p>The simplest way is using pip:</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>phonemizer
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>phonemizer
 </pre></div>
 </div>
-</div></blockquote>
+<p>To use the <strong>segments</strong> backend, install the optional dependencies with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>phonemizer<span class="o">[</span>segments<span class="o">]</span>
+</pre></div>
+</div>
 </li>
 <li><p><strong>OR</strong> install it from sources with:</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/bootphon/phonemizer
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/bootphon/phonemizer
 <span class="nb">cd</span><span class="w"> </span>phonemizer
-pip<span class="w"> </span>install<span class="w"> </span>.
-<span class="c1"># to run tests or build this documentation, have a</span>
-<span class="c1"># pip install .[test,doc]</span>
+pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>segments<span class="o">]</span>
 </pre></div>
 </div>
-<p>If you experiment an error such as <code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">setuptools</span></code>
-during installation, refer to <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/11">issue #11</a>.</p>
-</div></blockquote>
+<p>If you experience an error such as <code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span>
+<span class="pre">setuptools</span></code> during installation, refer to <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/11">issue #11</a>.</p>
 </li>
 </ul>
 </section>
 <section id="docker-image">
 <h2>Docker image<a class="headerlink" href="#docker-image" title="Link to this heading"></a></h2>
 <p>Alternatively you can run the phonemizer within docker, using the
-provided <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code>. To build the docker image, have a:</p>
+provided <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code>. The image includes espeak-ng, festival, mbrola with
+the French voice, and runs the tests at build time. To build the docker image,
+have a:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/bootphon/phonemizer
 <span class="nb">cd</span><span class="w"> </span>phonemizer
 sudo<span class="w"> </span>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>phonemizer<span class="w"> </span>.
@@ -203,12 +214,24 @@ sudo<span class="w"> </span>docker<span class="w"> </span>build<span class="w"> 
 </pre></div>
 </div>
 </section>
-<section id="testing">
-<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
-<p>When installed from sources or whithin a Docker image, you can run the tests
-suite from the root <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> folder (once you installed <code class="docutils literal notranslate"><span class="pre">pytest</span></code>):</p>
+<section id="development">
+<h2>Development<a class="headerlink" href="#development" title="Link to this heading"></a></h2>
+<p>When installed from sources, you can run the tests suite from the root
+<code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> folder:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>test<span class="o">]</span><span class="w">  </span><span class="c1"># this installs pytest</span>
 pytest
+</pre></div>
+</div>
+<p>To build this documentation, have a:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>doc<span class="o">]</span>
+make<span class="w"> </span>--directory<span class="o">=</span>docs<span class="w"> </span>html
+</pre></div>
+</div>
+<p>If you are a <a class="reference external" href="https://pixi.sh">pixi</a> user, the development environments are
+already configured:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pixi<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w">              </span><span class="c1"># run the tests</span>
+pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>py310<span class="w"> </span><span class="nb">test</span><span class="w">     </span><span class="c1"># run the tests on python-3.10</span>
+pixi<span class="w"> </span>run<span class="w"> </span>lint<span class="w">              </span><span class="c1"># check the code with ruff</span>
 </pre></div>
 </div>
 </section>

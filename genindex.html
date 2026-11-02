@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; Phonemizer  documentation</title>
+  <title>Index &mdash; Phonemizer 3.4.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/documentation_options.js?v=149be4c9"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -77,12 +77,17 @@
 
 <div class="genindex-jumpbox">
  <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
@@ -96,14 +101,38 @@
   </ul></td>
 </tr></table>
 
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#phonemizer.phonemize.clear_backends_cache">clear_backends_cache() (in module phonemizer.phonemize)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#phonemizer.backend.espeak.wrapper.EspeakWrapper.data_path">data_path (phonemizer.backend.espeak.wrapper.EspeakWrapper property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#phonemizer.logger.default_logger">default_logger() (in module phonemizer.logger)</a>
+</li>
+      <li><a href="api_reference.html#phonemizer.punctuation.Punctuation.default_marks">default_marks() (phonemizer.punctuation.Punctuation static method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#phonemizer.backend.espeak.espeak.EspeakBackend">EspeakBackend (class in phonemizer.backend.espeak.espeak)</a>
 </li>
+      <li><a href="api_reference.html#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend">EspeakMbrolaBackend (class in phonemizer.backend.espeak.mbrola)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference.html#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend">EspeakMbrolaBackend (class in phonemizer.backend.espeak.mbrola)</a>
+      <li><a href="api_reference.html#phonemizer.backend.espeak.wrapper.EspeakWrapper">EspeakWrapper (class in phonemizer.backend.espeak.wrapper)</a>
 </li>
       <li><a href="api_reference.html#phonemizer.backend.festival.festival.FestivalBackend.executable">executable() (phonemizer.backend.festival.festival.FestivalBackend class method)</a>
 </li>
@@ -114,6 +143,14 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#phonemizer.backend.festival.festival.FestivalBackend">FestivalBackend (class in phonemizer.backend.festival.festival)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#phonemizer.logger.get_logger">get_logger() (in module phonemizer.logger)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -130,11 +167,17 @@
 </li>
         <li><a href="api_reference.html#phonemizer.backend.festival.festival.FestivalBackend.is_available">(phonemizer.backend.festival.festival.FestivalBackend class method)</a>
 </li>
+        <li><a href="api_reference.html#phonemizer.backend.segments.SegmentsBackend.is_available">(phonemizer.backend.segments.SegmentsBackend class method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#phonemizer.backend.base.BaseBackend.is_supported_language">is_supported_language() (phonemizer.backend.base.BaseBackend class method)</a>
+
+      <ul>
+        <li><a href="api_reference.html#phonemizer.backend.segments.SegmentsBackend.is_supported_language">(phonemizer.backend.segments.SegmentsBackend class method)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -143,9 +186,21 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#phonemizer.backend.base.BaseBackend.language">language (phonemizer.backend.base.BaseBackend property)</a>
 </li>
+      <li><a href="api_reference.html#phonemizer.backend.espeak.wrapper.EspeakWrapper.library">library() (phonemizer.backend.espeak.wrapper.EspeakWrapper class method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#phonemizer.backend.espeak.wrapper.EspeakWrapper.library_path">library_path (phonemizer.backend.espeak.wrapper.EspeakWrapper property)</a>
+</li>
       <li><a href="api_reference.html#phonemizer.backend.base.BaseBackend.logger">logger (phonemizer.backend.base.BaseBackend property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#phonemizer.punctuation.Punctuation.marks">marks (phonemizer.punctuation.Punctuation property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -162,6 +217,8 @@
 </li>
         <li><a href="api_reference.html#phonemizer.backend.festival.festival.FestivalBackend.name">(phonemizer.backend.festival.festival.FestivalBackend static method)</a>
 </li>
+        <li><a href="api_reference.html#phonemizer.backend.segments.SegmentsBackend.name">(phonemizer.backend.segments.SegmentsBackend static method)</a>
+</li>
       </ul></li>
   </ul></td>
 </tr></table>
@@ -171,11 +228,31 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#phonemizer.separator.Separator.phone">phone (phonemizer.separator.Separator property)</a>
 </li>
+      <li><a href="api_reference.html#phonemizer.phonemize">phonemize() (in module phonemizer)</a>
+
+      <ul>
+        <li><a href="api_reference.html#phonemizer.backend.base.BaseBackend.phonemize">(phonemizer.backend.base.BaseBackend method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference.html#phonemizer.phonemize">phonemize (class in phonemizer)</a>
+      <li><a href="api_reference.html#phonemizer.punctuation.Punctuation.preserve">preserve() (phonemizer.punctuation.Punctuation method)</a>
 </li>
-      <li><a href="api_reference.html#phonemizer.backend.base.BaseBackend.phonemize">phonemize() (phonemizer.backend.base.BaseBackend method)</a>
+      <li><a href="api_reference.html#phonemizer.punctuation.Punctuation.preserve_lines">preserve_lines() (phonemizer.punctuation.Punctuation method)</a>
+</li>
+      <li><a href="api_reference.html#phonemizer.punctuation.Punctuation">Punctuation (class in phonemizer.punctuation)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#phonemizer.punctuation.Punctuation.remove">remove() (phonemizer.punctuation.Punctuation method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#phonemizer.punctuation.Punctuation.restore">restore() (phonemizer.punctuation.Punctuation class method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -183,10 +260,18 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#phonemizer.backend.segments.SegmentsBackend">SegmentsBackend (class in phonemizer.backend.segments)</a>
+</li>
       <li><a href="api_reference.html#phonemizer.separator.Separator">Separator (class in phonemizer.separator)</a>
+</li>
+      <li><a href="api_reference.html#phonemizer.backend.espeak.wrapper.EspeakWrapper.set_data_path">set_data_path() (phonemizer.backend.espeak.wrapper.EspeakWrapper class method)</a>
 </li>
       <li><a href="api_reference.html#phonemizer.backend.festival.festival.FestivalBackend.set_executable">set_executable() (phonemizer.backend.festival.festival.FestivalBackend class method)</a>
 </li>
+      <li><a href="api_reference.html#phonemizer.backend.espeak.wrapper.EspeakWrapper.set_library">set_library() (phonemizer.backend.espeak.wrapper.EspeakWrapper class method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#phonemizer.backend.base.BaseBackend.supported_languages">supported_languages() (phonemizer.backend.base.BaseBackend static method)</a>
 
       <ul>
@@ -196,9 +281,9 @@
 </li>
         <li><a href="api_reference.html#phonemizer.backend.festival.festival.FestivalBackend.supported_languages">(phonemizer.backend.festival.festival.FestivalBackend static method)</a>
 </li>
+        <li><a href="api_reference.html#phonemizer.backend.segments.SegmentsBackend.supported_languages">(phonemizer.backend.segments.SegmentsBackend static method)</a>
+</li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#phonemizer.separator.Separator.syllable">syllable (phonemizer.separator.Separator property)</a>
 </li>
   </ul></td>
@@ -207,10 +292,14 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#phonemizer.backend.espeak.wrapper.EspeakWrapper.version">version (phonemizer.backend.espeak.wrapper.EspeakWrapper property)</a>
+</li>
       <li><a href="api_reference.html#phonemizer.backend.base.BaseBackend.version">version() (phonemizer.backend.base.BaseBackend class method)</a>
 
       <ul>
         <li><a href="api_reference.html#phonemizer.backend.festival.festival.FestivalBackend.version">(phonemizer.backend.festival.festival.FestivalBackend class method)</a>
+</li>
+        <li><a href="api_reference.html#phonemizer.backend.segments.SegmentsBackend.version">(phonemizer.backend.segments.SegmentsBackend class method)</a>
 </li>
       </ul></li>
   </ul></td>

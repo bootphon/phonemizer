@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Phonemizer’s documentation! &mdash; Phonemizer  documentation</title>
+  <title>Welcome to Phonemizer’s documentation! &mdash; Phonemizer 3.4.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/documentation_options.js?v=149be4c9"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -92,15 +92,81 @@ Alphabet) output.</p></li>
 uses the SAMPA phonetic alphabet instead of IPA but does not preserve word
 boundaries.</p></li>
 <li><p><a class="reference external" href="http://www.cstr.ed.ac.uk/projects/festival">festival</a> is another
-Tex-to-Speech engine. Its phonemizer backend currently supports only
-American English. It uses a [custom phoneset][festival-phoneset], but it
-allows tokenization at the syllable level.</p></li>
+Text-to-Speech engine. Its phonemizer backend currently supports only
+American English. It uses a <a class="reference external" href="http://www.festvox.org/bsv/c4711.html">custom phoneset</a>, but it allows tokenization at
+the syllable level.</p></li>
 <li><p><a class="reference external" href="https://github.com/cldf/segments">segments</a> is a Unicode tokenizer that
 build a phonemization from a grapheme to phoneme mapping provided as a file
 by the user.</p></li>
 </ul>
 </li>
 </ul>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head stub"></th>
+<th class="head"><p>espeak</p></th>
+<th class="head"><p>espeak-mbrola</p></th>
+<th class="head"><p>festival</p></th>
+<th class="head"><p>segments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><p>phone set</p></th>
+<td><p><a class="reference external" href="https://en.wikipedia.org/wiki/International_Phonetic_Alphabet">IPA</a></p></td>
+<td><p><a class="reference external" href="https://en.wikipedia.org/wiki/SAMPA">SAMPA</a></p></td>
+<td><p>custom</p></td>
+<td><p>user defined</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>supported languages</p></th>
+<td><p><a class="reference external" href="https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md">100+</a></p></td>
+<td><p><a class="reference external" href="https://github.com/numediart/MBROLA-voices">35</a></p></td>
+<td><p>US English</p></td>
+<td><p>user defined</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>processing speed</p></th>
+<td><p>fast</p></td>
+<td><p>slow</p></td>
+<td><p>very slow</p></td>
+<td><p>fast</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>phone tokens</p></th>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>syllable tokens</p></th>
+<td><p>no</p></td>
+<td><p>no</p></td>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>word tokens</p></th>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>punctuation preservation</p></th>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>stressed phones</p></th>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference external" href="https://en.wikipedia.org/wiki/Tie_(typography)#International_Phonetic_Alphabet">tie</a></p></th>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+</tr>
+</tbody>
+</table>
 <p>To reference <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> in your own work, please cite the following
 <a class="reference external" href="https://joss.theoj.org/papers/10.21105/joss.03958">JOSS paper</a>.</p>
 <div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@article</span><span class="p">{</span><span class="nl">Bernard2021</span><span class="p">,</span>
@@ -122,9 +188,10 @@ by the user.</p></li>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="install.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#custom-espeak-and-festival-installations">Custom espeak and festival installations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install.html#phonemizer">Phonemizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install.html#docker-image">Docker image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#development">Development</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Examples</a><ul>
@@ -142,12 +209,17 @@ by the user.</p></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="common_issues.html">Common Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="common_issues.html#espeak-not-installed-on-your-system">espeak not installed on your system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="common_issues.html#phonemization-is-slow">Phonemization is slow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common_issues.html#how-to-disable-the-warnings">How to disable the warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common_issues.html#threads-and-parallel-jobs">Threads and parallel jobs</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api_reference.html#toplevel-api">Toplevel API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_reference.html#backends">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#espeak-library">Espeak library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#logging">Logging</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
