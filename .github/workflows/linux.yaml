@@ -6,12 +6,11 @@ on: [push, pull_request]
 
 jobs:
   python-version:
-    # python-3.8 is not available on ubuntu>=26.04
-    runs-on: ${{ matrix.python-version == '3.8' && 'ubuntu-24.04' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: ['3.8', '3.13', '3.14']
+        python-version: ['3.10', '3.13', '3.14']
 
     steps:
       - name: Checkout phonemizer
