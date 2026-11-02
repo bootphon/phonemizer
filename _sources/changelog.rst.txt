@@ -5,8 +5,8 @@ Changelog
 Version numbers follow `semantic versioning <https://semver.org>`__.
 
 
-unreleased
-----------
+phonemizer-3.4.1
+-----------------
 
 * **bug fixes**
 
