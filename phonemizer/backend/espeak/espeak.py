@@ -46,7 +46,7 @@ class EspeakBackend(BaseEspeakBackend):
             language, punctuation_marks=punctuation_marks,
             preserve_punctuation=preserve_punctuation, logger=logger)
 
-        self._espeak.set_voice(language)
+        self._espeak.set_voice(self.language)
         self._with_stress = with_stress
         self._tie = self._init_tie(tie)
         self._lang_switch: BaseLanguageSwitch = get_language_switch_processor(

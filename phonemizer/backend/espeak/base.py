@@ -91,11 +91,17 @@ class BaseEspeakBackend(BaseBackend):
 
     @classmethod
     def is_available(cls) -> bool:
+        return cls._unavailable_reason() is None
+
+    @classmethod
+    def _unavailable_reason(cls) -> Optional[str]:
+        # the error tells why the library cannot be loaded, for instance a
+        # missing dependency of the library or a wrong path
         try:
             EspeakWrapper()
-        except RuntimeError:  # pragma: nocover
-            return False
-        return True
+        except RuntimeError as error:
+            return str(error)
+        return None
 
     @classmethod
     def is_espeak_ng(cls) -> bool:
