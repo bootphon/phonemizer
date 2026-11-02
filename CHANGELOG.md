@@ -16,6 +16,18 @@ Version numbers follow [semantic versioning](https://semver.org).
     `INFO` or `DEBUG` level now gets the phonemizer messages of that
     level. The loggers returned by `get_logger()` no longer propagate to the
     application, so `get_logger('quiet')` is actually quiet. See [issue #154](https://github.com/bootphon/phonemizer/issues/154).
+  - Lines are separated by `\n` on every platform. On Windows, a string
+    given to `phonemize()` is now split on `\n` (it was split on `\r\n`
+    only), and a string output is joined with `\n` (it was `\r\n`). The
+    `phonemize` command writes its output in text mode, so its files still
+    use the native line ending (they had `\r\r\n` on Windows).
+- **improvements**
+  - When a backend cannot be loaded, the error tells why after the usual
+    `espeak not installed on your system` message, for instance the library
+    path or a missing dependency of the espeak library. See [issue
+    #189](https://github.com/bootphon/phonemizer/issues/189).
+  - Language codes are case insensitive: `en-US` is accepted as `en-us`. See
+    [issue #200](https://github.com/bootphon/phonemizer/issues/200).
 - **bug fixes**
   - `words_mismatch='remove'` with `preserve_punctuation=True` removed
     the wrong lines or raised an `IndexError`. See [issue #181](https://github.com/bootphon/phonemizer/issues/181).
@@ -39,6 +51,11 @@ Version numbers follow [semantic versioning](https://semver.org).
     expects the parent of the data directory. The data directory is now
     accepted by all espeak versions, and a path without espeak data raises a
     `RuntimeError`.
+  - The festival backend dropped the lines it could not phonemize (empty
+    once cleaned, or without words), shifting the next lines with respect to
+    the input, for instance with `prepend_text`. It now outputs an empty line
+    for them.
+  - The festival executable can be in a directory whose name has spaces.
 
 ## phonemizer-3.4.1
 
