@@ -358,3 +358,47 @@ def test_data_path_without_data(tmp_path):
             EspeakWrapper()
     finally:
         EspeakWrapper.set_data_path(None)
+
+
+# from https://github.com/bootphon/phonemizer/issues/196
+@pytest.mark.skipif(sys.platform == "win32", reason="symlinks need privileges")
+def test_data_path_too_long(tmp_path):
+    # espeak silently ignores a data path longer than its 160 bytes buffer and
+    # uses its default data instead
+    data_path = EspeakWrapper().data_path
+    # a real directory (the path is resolved by EspeakWrapper), with links to
+    # the files of the espeak data to save copying them
+    long_path = tmp_path / ("d" * 170) / "espeak-data"
+    long_path.mkdir(parents=True)
+    for child in data_path.iterdir():
+        (long_path / child.name).symlink_to(child)
+    assert len(str(long_path)) > 160
+
+    EspeakWrapper.set_data_path(str(long_path))
+    try:
+        wrapper = EspeakWrapper()
+    finally:
+        EspeakWrapper.set_data_path(None)
+
+    # pylint: disable=protected-access
+    # espeak uses a short link to the data, in the tempdir of the library
+    _, path_home = wrapper._espeak.info()
+    assert path_home.decode().startswith(wrapper._espeak._tempdir)
+    assert pathlib.Path(path_home.decode()).resolve() == long_path.resolve()
+    wrapper.set_voice("en-us")
+    assert wrapper.text_to_phonemes("hello").strip()
+
+
+def test_data_path_too_long_without_link(tmp_path, monkeypatch):
+    from phonemizer.backend.espeak.api import EspeakAPI  # pylint: disable=import-outside-toplevel
+    # pylint: disable=protected-access
+    data = _data_dir(tmp_path / ("d" * 170) / "espeak-ng-data")
+    with pytest.raises(RuntimeError, match="too long for espeak"):
+        EspeakAPI._data_path_argument(data, (1, 52))
+
+    def failing_symlink(*args, **kwargs):
+        raise OSError("symbolic link privilege not held")
+
+    monkeypatch.setattr(os, "symlink", failing_symlink)
+    with pytest.raises(RuntimeError, match="privilege not held"):
+        EspeakAPI._data_path_argument(data, (1, 52), tmp_path)
