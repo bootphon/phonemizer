@@ -16,6 +16,7 @@
 
 import ctypes
 import ctypes.util
+import functools
 import os
 import pathlib
 import sys
@@ -52,6 +53,31 @@ def _find_library(libname: str) -> Optional[str]:
                     return full_path
 
     return ctypes.util.find_library(libname)
+
+
+@functools.lru_cache(maxsize=1)
+def _default_library() -> str:
+    """Returns the espeak library found on the system
+
+    The lookup is cached as ctypes.util.find_library() runs a subprocess on
+    Linux, which used to be most of the time taken to create a backend. A
+    failed lookup raises and so is not cached.
+
+    """
+    library = (
+        _find_library("espeak-ng")
+        or _find_library("espeak")
+        # The official espeak-ng Windows installer ships the DLL as
+        # "libespeak-ng.dll". ctypes.util.find_library does not add a
+        # "lib" prefix on Windows (unlike Linux, where it resolves
+        # "espeak-ng" to "libespeak-ng.so"), so the two names above miss
+        # a perfectly normal installation that is already on PATH.
+        or _find_library("libespeak-ng")
+        or _find_library("libespeak")
+    )
+    if not library:  # pragma: nocover
+        raise RuntimeError("failed to find espeak library")
+    return library
 
 
 class EspeakWrapper:
@@ -206,20 +232,7 @@ class EspeakWrapper:
                 )
             return library.resolve()
 
-        library = (
-            _find_library("espeak-ng")
-            or _find_library("espeak")
-            # The official espeak-ng Windows installer ships the DLL as
-            # "libespeak-ng.dll". ctypes.util.find_library does not add a
-            # "lib" prefix on Windows (unlike Linux, where it resolves
-            # "espeak-ng" to "libespeak-ng.so"), so the two names above miss
-            # a perfectly normal installation that is already on PATH.
-            or _find_library("libespeak-ng")
-            or _find_library("libespeak")
-        )
-        if not library:  # pragma: nocover
-            raise RuntimeError("failed to find espeak library")
-        return library
+        return _default_library()
 
     def _fetch_version_and_path(self):
         """Initializes version and dapa path from the espeak library"""
