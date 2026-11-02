@@ -20,7 +20,6 @@ from typing import Optional, Union, Pattern
 
 from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
-from phonemizer.logger import get_logger
 from phonemizer.punctuation import Punctuation
 from phonemizer.separator import Separator
 

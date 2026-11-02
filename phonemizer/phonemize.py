@@ -32,7 +32,7 @@ from phonemizer.backend import BACKENDS
 from phonemizer.backend.base import BaseBackend
 from phonemizer.backend.espeak.language_switch import LanguageSwitch
 from phonemizer.backend.espeak.words_mismatch import WordMismatch
-from phonemizer.logger import get_logger
+from phonemizer.logger import default_logger
 from phonemizer.punctuation import Punctuation
 from phonemizer.separator import default_separator, Separator
 from phonemizer.utils import list2str, str2list
@@ -109,7 +109,7 @@ def phonemize(  # pylint: disable=too-many-arguments
         language_switch: LanguageSwitch = 'keep-flags',
         words_mismatch: WordMismatch = 'ignore',
         njobs: int = 1,
-        logger: Logger = get_logger()):
+        logger: Optional[Logger] = None):
     """Multilingual text to phonemes converter
 
     Return a phonemized version of an input `text`, given its `language` and a
@@ -221,8 +221,9 @@ def phonemize(  # pylint: disable=too-many-arguments
         outputs are finally collapsed.
 
     logger: logging.Logger
-        the logging instance where to send messages. If
-        not specified, use the default system logger.
+        the logging instance where to send messages. If not specified, use the
+        'phonemizer' logger, whose messages are handled by the logging
+        configuration of the application.
 
     Returns
     -------
@@ -240,6 +241,9 @@ def phonemize(  # pylint: disable=too-many-arguments
         if the ``language`` is not supported by the ``backend``, if any incompatible options are used.
 
     """
+    if logger is None:
+        logger = default_logger()
+
     # ensure the arguments are valid
     _check_arguments(
         backend, with_stress, tie, separator, language_switch, words_mismatch)

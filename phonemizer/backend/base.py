@@ -22,7 +22,7 @@ from typing import Optional, List, Any, Dict, Tuple, Union, Pattern
 
 import joblib
 
-from phonemizer.logger import get_logger
+from phonemizer.logger import default_logger
 from phonemizer.punctuation import Punctuation
 from phonemizer.separator import Separator, default_separator
 from phonemizer.utils import chunks
@@ -70,7 +70,7 @@ class BaseBackend(abc.ABC):
             punctuation_marks = Punctuation.default_marks()
 
         if logger is None:
-            logger = get_logger()
+            logger = default_logger()
 
         # ensure the backend is installed on the system
         if not self.is_available():
