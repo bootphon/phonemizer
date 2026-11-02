@@ -26,6 +26,7 @@ import sys
 import pytest
 
 from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend
+from phonemizer.backend.espeak.voice import EspeakVoice
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
 
 
@@ -256,3 +257,62 @@ def test_deletion_error_removes_tempdir(monkeypatch, tmp_path):
     with pytest.raises(OSError):
         api.EspeakAPI._delete(Library(), str(tmp_path))
     assert not tmp_path.exists()
+
+
+def test_failed_init_unloads_library(monkeypatch, tmp_path):
+    # a library that loads but cannot be initialized must be unloaded and its
+    # tempdir removed
+    from phonemizer.backend.espeak import api  # pylint: disable=import-outside-toplevel
+
+    class NotEspeak:  # pylint: disable=too-few-public-methods
+        """A shared library without the espeak_Initialize function"""
+
+    loaded = []
+    load_library = api.ctypes.cdll.LoadLibrary
+
+    def fake_load_library(path):
+        # the first call loads the original library to find its path, the
+        # second one loads the copy
+        loaded.append(path)
+        return load_library(path) if len(loaded) == 1 else NotEspeak()
+
+    unloaded = []
+    monkeypatch.setattr(api.ctypes.cdll, "LoadLibrary", fake_load_library)
+    monkeypatch.setattr(
+        api.EspeakAPI, "_unload", staticmethod(unloaded.append))
+    monkeypatch.setattr(api.tempfile, "mkdtemp", lambda: str(tmp_path / "copy"))
+    (tmp_path / "copy").mkdir()
+
+    with pytest.raises(RuntimeError, match="failed to load espeak library"):
+        api.EspeakAPI(EspeakWrapper.library(), None)
+    assert len(unloaded) == 1 and isinstance(unloaded[0], NotEspeak)
+    assert not (tmp_path / "copy").exists()
+
+
+def test_data_path_not_a_directory(tmp_path):
+    EspeakWrapper.set_data_path(str(tmp_path / "missing"))
+    try:
+        with pytest.raises(RuntimeError, match="not a readable directory"):
+            EspeakWrapper()
+    finally:
+        EspeakWrapper.set_data_path(None)
+
+
+def test_data_path_from_environment(monkeypatch, tmp_path):
+    data_path = EspeakWrapper().data_path
+    monkeypatch.setenv("PHONEMIZER_ESPEAK_DATA_PATH", str(data_path))
+    assert EspeakWrapper().data_path == data_path
+
+    monkeypatch.setenv("PHONEMIZER_ESPEAK_DATA_PATH", str(tmp_path / "missing"))
+    with pytest.raises(RuntimeError, match="not a readable directory"):
+        EspeakWrapper()
+
+
+def test_mbrola_voice_listed_first(wrapper, monkeypatch):
+    # on Windows, mbrola voices can be listed before the plain espeak voice of
+    # the same language: they must be skipped
+    voices = wrapper.available_voices()
+    mbrola = EspeakVoice(name="mbrola", language="en-us", identifier="mb/mb-us1")
+    monkeypatch.setattr(wrapper, "available_voices", lambda: [mbrola] + voices)
+    wrapper.set_voice("en-us")
+    assert not wrapper.voice.identifier.startswith("mb/")
