@@ -59,8 +59,8 @@ class EspeakWrapper:
 
     The aim of this wrapper is not to be exhaustive but to encapsulate the
     espeak functions required for phonemization. It relies on a espeak shared
-    library (*.so on Linux, *.dylib on Mac and *.dll on Windows) that must be
-    installed on the system.
+    library (``*.so`` on Linux, ``*.dylib`` on Mac and ``*.dll`` on Windows)
+    that must be installed on the system.
 
     Use the function `EspeakWrapper.set_library()` before instanciation to
     customize the library to use.

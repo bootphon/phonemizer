@@ -6,18 +6,19 @@ Dependencies
 ------------
 
 **You need python>=3.10.** If you are using an older python version, use the
-``phonemizer-3.4`` release. If you really need to use python2, use the
-``phonemizer-1.0`` release.
+``phonemizer-3.4`` release, pip selects it automatically. If you really need
+to use python2, use the ``phonemizer-1.0`` release.
 
 You need to install
 `festival <http://www.festvox.org/docs/manual-2.4.0/festival_6.html#Installation>`_,
 `espeak-ng <https://github.com/espeak-ng/espeak-ng#espeak-ng-text-to-speech>`_
 and/or `mbrola <https://github.com/numediart/MBROLA>`_ in order to use the
-corresponding ``phonemizer`` backends.
+corresponding ``phonemizer`` backends. The **segments** backend is a Python
+package, installed with ``pip install phonemizer[segments]`` (see below).
 Follow instructions for your system below.
 
-On Debian/Unbuntu
-~~~~~~~~~~~~~~~~~
+On Debian/Ubuntu
+~~~~~~~~~~~~~~~~
 
 To install dependencies, simply run
 
@@ -26,14 +27,13 @@ To install dependencies, simply run
     sudo apt-get install festival espeak-ng mbrola
 
 When using the **espeak-mbrola** backend, additional mbrola voices must be
-installed (see
-`here <https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)>`_. List
+installed (see the `espeak-ng documentation on mbrola
+<https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md>`__). List
 the installable voices with
 
 .. code-block:: bash
 
     apt search mbrola
-
 
 
 On CentOS/Fedora
@@ -46,16 +46,17 @@ To install dependencies, simply run
     sudo yum install festival espeak-ng
 
 When using the **espeak-mbrola** backend, the mbrola binary and additional
-mbrola voices must be installed (see
-`here <https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md)>`_).
+mbrola voices must be installed (see the `espeak-ng documentation on mbrola
+<https://github.com/espeak-ng/espeak-ng/blob/master/docs/mbrola.md>`__).
 
 
 On MacOS
-~~~~~~~~~
+~~~~~~~~
 
-**espeak-ng** is available on brew at version 1.52.0: ``brew install espeak-ng``.
-To install **festival**, **mbrola** and additional mbrola voices, use the script
-provided `here <https://github.com/pettarin/setup-festival-mbrola>`_.
+**espeak-ng** is available on brew: ``brew install espeak-ng``. To install
+**festival**, **mbrola** and additional mbrola voices, use the `setup script
+<https://github.com/pettarin/setup-festival-mbrola>`__ (it may be outdated, see
+`issue #203 <https://github.com/bootphon/phonemizer/issues/203>`__).
 
 On Windows
 ~~~~~~~~~~
@@ -65,8 +66,8 @@ Install **espeak-ng** with the `.msi` Windows installer provided with
 
 .. warning::
 
-    On Windows the installation of espeak can cause issues (see `here
-    <https://github.com/bootphon/phonemizer/issues/44>`_).
+    On Windows the installation of espeak can cause issues (see `issue #44
+    <https://github.com/bootphon/phonemizer/issues/44>`__).
 
     Make sure you install the correct `.msi` file for your platform. It exists
     for two architectures: X64 and X86. Most today's machines are X64 so, if you
@@ -74,28 +75,43 @@ Install **espeak-ng** with the `.msi` Windows installer provided with
     ``espeak-ng-X64.msi``.
 
     If ``phonemizer`` fails with a message ``RuntimeError: espeak not installed
-    on your system``, it means the ``libespeak-ng.dll`` library file is not
-    found by ``phonemizer``. You can specify it's path from Python (before
-    calling the phonemize function):
+    on your system``, see :ref:`espeak-not-installed`.
 
-    .. code-block:: python
-
-        from phonemizer.backend.espeak.wrapper import EspeakWrapper
-
-        EspeakWrapper.set_library('C:\Program Files\eSpeak NG\libespeak-ng.dll')
-
-    An alternative is to define the environment variable
-    ``PHONEMIZER_ESPEAK_LIBRARY`` to the absolute path to the DLL. For example
-    if using conda have a:
-
-    .. code-block:: bash
-
-       conda env config vars set PHONEMIZER_ESPEAK_LIBRARY="C:\Program Files\eSpeak NG\libespeak-ng.dll"
-
-**festival** must be compiled from sources (see
-`here <https://github.com/festvox/festival/blob/master/INSTALL>`_ and
-`here <https://www.eguidedog.net/doc/doc_build_win_festival.php)>`_.
+**festival** must be compiled from sources (see the `festival install guide
+<https://github.com/festvox/festival/blob/master/INSTALL>`__ and `this
+tutorial <https://www.eguidedog.net/doc/doc_build_win_festival.php>`__).
 **mbrola** is not available for Windows.
+
+
+.. _custom-installation:
+
+Custom espeak and festival installations
+----------------------------------------
+
+By default ``phonemizer`` uses the espeak library, the espeak data and the
+festival program found on the system. You can choose others from Python,
+before calling :py:func:`phonemizer.phonemize`:
+
+.. code-block:: python
+
+    from phonemizer.backend import FestivalBackend
+    from phonemizer.backend.espeak.wrapper import EspeakWrapper
+
+    EspeakWrapper.set_library('/path/to/libespeak-ng.so')
+    EspeakWrapper.set_data_path('/path/to/espeak-ng-data')
+    FestivalBackend.set_executable('/path/to/festival')
+
+or with environment variables:
+
+.. code-block:: bash
+
+    export PHONEMIZER_ESPEAK_LIBRARY=/path/to/libespeak-ng.so
+    export PHONEMIZER_ESPEAK_DATA_PATH=/path/to/espeak-ng-data
+    export PHONEMIZER_FESTIVAL_EXECUTABLE=/path/to/festival
+
+The values set from Python take precedence over the environment variables.
+From the command line, use the ``--espeak-library`` and
+``--festival-executable`` options.
 
 
 Phonemizer
@@ -103,29 +119,36 @@ Phonemizer
 
 * The simplest way is using pip:
 
-    .. code-block:: bash
+  .. code-block:: bash
 
-        pip install phonemizer
+      pip install phonemizer
+
+  To use the **segments** backend, install the optional dependencies with:
+
+  .. code-block:: bash
+
+      pip install phonemizer[segments]
 
 * **OR** install it from sources with:
 
-    .. code-block:: bash
+  .. code-block:: bash
 
-        git clone https://github.com/bootphon/phonemizer
-        cd phonemizer
-        pip install .
-        # to run tests or build this documentation, have a
-        # pip install .[test,doc]
+      git clone https://github.com/bootphon/phonemizer
+      cd phonemizer
+      pip install .[segments]
 
-    If you experiment an error such as ``ImportError: No module named setuptools``
-    during installation, refer to `issue #11 <https://github.com/bootphon/phonemizer/issues/11>`_.
+  If you experience an error such as ``ImportError: No module named
+  setuptools`` during installation, refer to `issue #11
+  <https://github.com/bootphon/phonemizer/issues/11>`__.
 
 
 Docker image
 ------------
 
 Alternatively you can run the phonemizer within docker, using the
-provided ``Dockerfile``. To build the docker image, have a:
+provided ``Dockerfile``. The image includes espeak-ng, festival, mbrola with
+the French voice, and runs the tests at build time. To build the docker image,
+have a:
 
 .. code-block:: bash
 
@@ -140,13 +163,29 @@ Then run an interactive session with:
     sudo docker run -it phonemizer /bin/bash
 
 
-Testing
--------
+Development
+-----------
 
-When installed from sources or whithin a Docker image, you can run the tests
-suite from the root ``phonemizer`` folder (once you installed ``pytest``):
+When installed from sources, you can run the tests suite from the root
+``phonemizer`` folder:
 
 .. code-block:: bash
 
     pip install .[test]  # this installs pytest
     pytest
+
+To build this documentation, have a:
+
+.. code-block:: bash
+
+    pip install .[doc]
+    make --directory=docs html
+
+If you are a `pixi <https://pixi.sh>`_ user, the development environments are
+already configured:
+
+.. code-block:: bash
+
+    pixi run test              # run the tests
+    pixi run -e py310 test     # run the tests on python-3.10
+    pixi run lint              # check the code with ruff

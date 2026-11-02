@@ -51,7 +51,7 @@ dependencies = [
 # and festival backends do not need. Install with "pip install phonemizer[segments]"
 segments = ["segments"]
 test = ["pytest>=6.0", "pytest-cov", "coverage[toml]", "segments"]
-doc = ["sphinx", "sphinx_rtd_theme", "myst-parser"]
+doc = ["sphinx", "sphinx_rtd_theme", "myst-parser", "segments"]
 
 [project.scripts]
 phonemize = "phonemizer.main:main"
