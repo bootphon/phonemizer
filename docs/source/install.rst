@@ -54,10 +54,32 @@ mbrola voices must be installed (see the `espeak-ng documentation on mbrola
 On MacOS
 ~~~~~~~~
 
-**espeak-ng** is available on brew: ``brew install espeak-ng``. To install
-**festival**, **mbrola** and additional mbrola voices, use the `setup script
-<https://github.com/pettarin/setup-festival-mbrola>`__ (it may be outdated, see
-`issue #203 <https://github.com/bootphon/phonemizer/issues/203>`__).
+**espeak-ng** is available on brew:
+
+.. code-block:: bash
+
+    brew install espeak-ng
+
+**festival** and **mbrola** are not packaged for MacOS (neither by brew nor
+by MacPorts) and must be compiled from sources. Note that ``phonemizer`` is not
+tested with them on MacOS.
+
+* **mbrola**: follow the compilation instructions of the `MBROLA repository
+  <https://github.com/numediart/MBROLA>`__, then copy the ``Bin/mbrola``
+  executable to a folder in your ``PATH``. The voices are available from the
+  `MBROLA-voices repository <https://github.com/numediart/MBROLA-voices>`__,
+  copy them to the ``mbrola`` folder of the espeak-ng data directory (as given
+  by ``espeak-ng --version``).
+
+* **festival**: follow the `festival install guide
+  <https://github.com/festvox/festival/blob/master/INSTALL>`__ (compile the
+  speech tools, then festival with its English lexicons and voices), then give
+  the path to the festival executable to ``phonemizer`` (see
+  :ref:`custom-installation`).
+
+The `setup-festival-mbrola <https://github.com/pettarin/setup-festival-mbrola>`__
+script formerly suggested here is archived and no longer works (see `issue #203
+<https://github.com/bootphon/phonemizer/issues/203>`__).
 
 On Windows
 ~~~~~~~~~~
