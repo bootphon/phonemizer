@@ -45,7 +45,9 @@ def test_hello():
 @pytest.mark.skipif(not FestivalBackend.is_available(), reason="festival not installed")
 @pytest.mark.parametrize("text", ["", " ", "  ", "(", "()", '"', "'"])
 def test_bad_input(text):
-    assert _test(text) == []
+    # nothing to phonemize gives an empty line, keeping the lines aligned
+    assert _test([text]) == [""]
+    assert _test([]) == []
 
 
 @pytest.mark.skipif(not FestivalBackend.is_available(), reason="festival not installed")
@@ -120,3 +122,40 @@ def test_path_venv():
             del os.environ["PHONEMIZER_FESTIVAL_EXECUTABLE"]
         except KeyError:
             pass
+
+
+@pytest.mark.skipif(not FestivalBackend.is_available(), reason="festival not installed")
+def test_empty_lines_kept():
+    # a line emptied by the cleaning must not shift the next lines in output
+    hello, world = _test(["hello", "world"])
+    assert _test(["hello", "'", '"()"', "world"]) == [hello, "", "", world]
+    assert _test(["'", "()"]) == ["", ""]
+
+
+def test_postprocess_no_word():
+    # festival outputs '(nil nil nil)' for an utterance without word
+    # pylint: disable=protected-access
+    sep = Separator(word=" ", syllable="|", phone="-")
+    tree = FestivalBackend._postprocess("(nil nil nil)\n(nil nil nil)\n", sep, True)
+    assert tree == ["", ""]
+
+
+@pytest.mark.skipif(
+    not FestivalBackend.is_available() or os.name == "nt",
+    reason="festival not installed or not a POSIX shell")
+def test_executable_with_spaces(tmp_path):
+    # a festival executable in a directory with spaces in its name
+    directory = tmp_path / "my festival"
+    directory.mkdir()
+    executable = directory / "festival"
+    executable.write_text(
+        f'#!/bin/sh\nexec "{FestivalBackend.executable()}" "$@"\n')
+    executable.chmod(0o755)
+
+    expected = _test(["hello"])
+    try:
+        FestivalBackend.set_executable(str(executable))
+        assert FestivalBackend.executable() == executable.resolve()
+        assert _test(["hello"]) == expected
+    finally:
+        FestivalBackend.set_executable(None)
