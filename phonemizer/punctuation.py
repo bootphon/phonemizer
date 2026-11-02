@@ -61,7 +61,7 @@ class Punctuation:
     @property
     def marks(self):
         """The punctuation marks as a string"""
-        if self._marks:
+        if self._marks is not None:
             return self._marks
         raise ValueError('punctuation initialized from regex, cannot access marks as a string')
 
@@ -98,8 +98,10 @@ class Punctuation:
                 alternatives.append(f'(?<![0-9])[{escaped}]')
                 alternatives.append(f'[{escaped}](?![0-9])')
 
+            # with no marks at all, match nothing rather than empty strings
             self._marks_re = re.compile(
-                fr'(\s*(?:{"|".join(alternatives)})+\s*)+')
+                fr'(\s*(?:{"|".join(alternatives)})+\s*)+'
+                if alternatives else r'(?!)')
         else:
             raise ValueError('punctuation marks must be defined as a string or re.Pattern')
 

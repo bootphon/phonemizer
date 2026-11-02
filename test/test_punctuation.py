@@ -311,3 +311,12 @@ def test_decimal_separator_preserve_restore(text):
     preserved, marks = punctuation.preserve([text])
     restored = punctuation.restore(preserved, marks, default_separator, True)
     assert restored == [text]
+
+
+def test_empty_marks():
+    # no marks means no punctuation processing, not a match on every char
+    punct = Punctuation('')
+    assert punct.marks == ''
+    assert punct.remove('hello, world') == 'hello, world'
+    assert punct.preserve(['hello, world']) == (['hello, world'], [])
+    assert phonemize('hello world', punctuation_marks='') == 'həloʊ wɜːld '
