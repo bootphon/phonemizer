@@ -141,6 +141,18 @@ def test_deletion():
     assert not path.exists()
 
 
+# from https://github.com/bootphon/phonemizer/issues/153
+@pytest.mark.skipif(
+    not sys.platform.startswith("linux"), reason="requires /proc/self/maps")
+def test_deletion_unloads_library():
+    # pylint: disable=protected-access
+    wrapper = EspeakWrapper()
+    path = wrapper._espeak._tempdir
+    assert path in pathlib.Path("/proc/self/maps").read_text()
+    del wrapper
+    assert path not in pathlib.Path("/proc/self/maps").read_text()
+
+
 @pytest.mark.parametrize("language", ["ar", "cs", "el", "hi", "ja", "ms"])
 def test_mbrola_does_not_shadow_plain_voice(wrapper, language):
     """A language with mbrola variants must still resolve to a usable voice.
