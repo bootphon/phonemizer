@@ -98,12 +98,15 @@ def test_readme_festival():
 
 
 @pytest.mark.skipif(
-    not FestivalBackend.is_available() or backend.FestivalBackend.version() <= (2, 1),
-    reason='festival not installed or is festival-2.1 (gives different results than further versions '
+    not FestivalBackend.is_available() or backend.FestivalBackend.version() < (2, 4),
+    reason='festival not installed or older than 2.4 (gives different results '
     'for syllable boundaries)')
 def test_readme_festival_syll():
+    # pylint: disable=import-outside-toplevel
+    from test.test_festival import HELLO
+    hello = ''.join(' '.join(syllable) + ' ;esyll ' for syllable in HELLO)
     _test('hello world',
-          'hh ax ;esyll l ow ;esyll ;eword w er l d ;esyll ;eword ',
+          f'{hello};eword w er l d ;esyll ;eword ',
           "-p ' ' -s ';esyll ' -w ';eword ' -b festival -l en-us")
 
 

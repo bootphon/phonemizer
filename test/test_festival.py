@@ -27,6 +27,14 @@ from phonemizer.backend import FestivalBackend
 from phonemizer.separator import Separator
 
 
+# festival-2.5 syllabifies 'hello' as hh-ax|l-ow, festival-2.4 as hh-ax-l|ow
+# (see issue #221). Older versions are not tested.
+HELLO = (
+    (["hh", "ax"], ["l", "ow"])
+    if not FestivalBackend.is_available() or FestivalBackend.version() >= (2, 5)
+    else (["hh", "ax", "l"], ["ow"]))
+
+
 def _test(text, separator=Separator(word=" ", syllable="|", phone="-")):
     backend = FestivalBackend("en-us")
     # pylint: disable=protected-access
@@ -34,13 +42,14 @@ def _test(text, separator=Separator(word=" ", syllable="|", phone="-")):
 
 
 @pytest.mark.skipif(
-    not FestivalBackend.is_available() or FestivalBackend.version() <= (2, 1),
-    reason="festival not installed or is festival-2.1 (gives different results than further versions "
+    not FestivalBackend.is_available() or FestivalBackend.version() < (2, 4),
+    reason="festival not installed or older than 2.4 (gives different results "
     "for syllable boundaries)",
 )
 def test_hello():
-    assert _test(["hello world"]) == ["hh-ax|l-ow w-er-l-d"]
-    assert _test(["hello", "world"]) == ["hh-ax|l-ow", "w-er-l-d"]
+    hello = "|".join("-".join(syllable) for syllable in HELLO)
+    assert _test(["hello world"]) == [f"{hello} w-er-l-d"]
+    assert _test(["hello", "world"]) == [hello, "w-er-l-d"]
 
 
 @pytest.mark.skipif(not FestivalBackend.is_available(), reason="festival not installed")
