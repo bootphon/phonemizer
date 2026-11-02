@@ -88,7 +88,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend"><code class="docutils literal notranslate"><span class="pre">EspeakMbrolaBackend</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.is_available"><code class="docutils literal notranslate"><span class="pre">EspeakMbrolaBackend.is_available()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.name"><code class="docutils literal notranslate"><span class="pre">EspeakMbrolaBackend.name()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.supported_languages"><code class="docutils literal notranslate"><span class="pre">EspeakMbrolaBackend.supported_languages()</span></code></a></li>
 </ul>
@@ -437,6 +436,7 @@ messages. If not specified, use the default system logger.</p></li>
 <dt class="sig sig-object py" id="phonemizer.backend.base.BaseBackend.is_supported_language">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_supported_language</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.base.BaseBackend.is_supported_language" title="Link to this definition"></a></dt>
 <dd><p>Returns True if <cite>language</cite> is supported by the backend</p>
+<p>Language codes are case insensitive: ‘en-US’ is supported as ‘en-us’.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -527,12 +527,6 @@ backend and the outputs are finally collapsed.</p></li>
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">phonemizer.backend.espeak.mbrola.</span></span><span class="sig-name descname"><span class="pre">EspeakMbrolaBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend" title="Link to this definition"></a></dt>
 <dd><p>Espeak-mbrola backend for the phonemizer</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.is_available">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.is_available" title="Link to this definition"></a></dt>
-<dd><p>Mbrola backend is available for espeak&gt;=1.49</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.name">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#phonemizer.backend.espeak.mbrola.EspeakMbrolaBackend.name" title="Link to this definition"></a></dt>
 <dd><p>The name of the backend</p>
@@ -562,6 +556,7 @@ unknown morpheme.</p>
 <dt class="sig sig-object py" id="phonemizer.backend.segments.SegmentsBackend.is_supported_language">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_supported_language</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#phonemizer.backend.segments.SegmentsBackend.is_supported_language" title="Link to this definition"></a></dt>
 <dd><p>Returns True if <cite>language</cite> is supported by the backend</p>
+<p>Language codes are case insensitive: ‘en-US’ is supported as ‘en-us’.</p>
 </dd></dl>
 
 <dl class="py method">
