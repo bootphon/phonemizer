@@ -16,6 +16,8 @@
 
 # pylint: disable=missing-docstring
 
+import re
+
 import pytest
 
 from phonemizer import backend
@@ -68,8 +70,9 @@ def test_module_getattr():
 
 
 # from https://github.com/bootphon/phonemizer/issues/189
-def test_unavailable_espeak_tells_why():
-    EspeakBackend.set_library('/nonexistent/libespeak-ng.so')
+def test_unavailable_espeak_tells_why(tmp_path):
+    library = tmp_path / 'libespeak-ng.so'  # does not exist
+    EspeakBackend.set_library(str(library))
     try:
         with pytest.raises(RuntimeError) as err:
             EspeakBackend('en-us')
@@ -77,15 +80,18 @@ def test_unavailable_espeak_tells_why():
         EspeakBackend.set_library(None)
     assert str(err.value).startswith(
         'espeak not installed on your system: failed to load espeak library')
-    assert '/nonexistent/libespeak-ng.so' in str(err.value)
+    # the OS error names the library, its exact form depends on the platform
+    assert library.name in str(err.value)
 
 
-def test_unavailable_festival_tells_why(monkeypatch):
-    monkeypatch.setenv('PHONEMIZER_FESTIVAL_EXECUTABLE', '/nonexistent/festival')
+def test_unavailable_festival_tells_why(monkeypatch, tmp_path):
+    executable = tmp_path / 'festival'  # does not exist
+    monkeypatch.setenv('PHONEMIZER_FESTIVAL_EXECUTABLE', str(executable))
     assert not FestivalBackend.is_available()
-    with pytest.raises(RuntimeError, match=(
+    with pytest.raises(RuntimeError, match=re.escape(
             'festival not installed on your system: '
-            'PHONEMIZER_FESTIVAL_EXECUTABLE=/nonexistent/festival')):
+            f'PHONEMIZER_FESTIVAL_EXECUTABLE={executable} '
+            'is not an executable file')):
         FestivalBackend('en-us')
 
 
