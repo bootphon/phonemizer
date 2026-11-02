@@ -12,10 +12,13 @@ jobs:
 
     steps:
       - name: Checkout phonemizer
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
+        with:
+          # the latest python release, rather than the runner's default one
+          python-version: '3.x'
 
       - name: Install system dependencies
         run: |

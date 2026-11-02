@@ -1,10 +1,14 @@
-# build the sphinx documentation and pushes it to a doc branch, then used by github pages
+# build the sphinx documentation and pushes it to a doc branch, then used by github pages.
+# On pull requests the documentation is only built, to catch errors and warnings
+# before merging.
 
 name: Doc
 
 on:
   push:
     branches: [ master ]
+
+  pull_request:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -17,9 +21,9 @@ jobs:
       matrix:
         python-version: [ 3.12 ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install
@@ -28,10 +32,12 @@ jobs:
           pip install .[doc]
       - name: Build documentation
         run: |
-          make --directory=docs html
+          # fail on warnings (broken references, docstring errors...)
+          make --directory=docs html SPHINXOPTS="-W --keep-going"
           touch ./docs/build/html/.nojekyll
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        if: github.event_name != 'pull_request'
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/build/html

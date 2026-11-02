@@ -1,0 +1,29 @@
+# Check the code and the tests with ruff, as `pixi run lint` does
+
+name: Lint
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout phonemizer
+        uses: actions/checkout@v7
+
+      - name: Setup python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+
+      - name: Install ruff
+        # same version constraint as the pixi dev environment (pyproject.toml)
+        run: pip install "ruff>=0.15.5,<0.16"
+
+      - name: Check phonemizer
+        run: ruff check phonemizer test
