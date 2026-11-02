@@ -19,7 +19,7 @@ from numbers import Number
 from pathlib import Path
 from typing import Union, List, Tuple, Iterable
 
-import importlib
+import importlib.resources
 
 
 def cumsum(iterable: Iterable[Number]) -> List[Number]:

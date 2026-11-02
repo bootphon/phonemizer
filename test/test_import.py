@@ -12,3 +12,15 @@ def test_relative():
 def test_absolute():
     from phonemizer.phonemize import phonemize
     assert phonemize('a') == 'eɪ '
+
+
+def test_package_resource_without_pytest():
+    # pytest imports importlib.resources itself, so a missing import in
+    # phonemizer only shows up in a fresh interpreter
+    import subprocess
+    import sys
+    subprocess.run(
+        [sys.executable, '-c',
+         'from phonemizer.utils import get_package_resource; '
+         'get_package_resource("festival/phonemize.scm")'],
+        check=True)

@@ -22,6 +22,7 @@ To use it in your own code, type:
 
 import os
 import sys
+import threading
 from collections import OrderedDict
 from logging import Logger
 from typing import Optional, Union, List, Pattern
@@ -45,21 +46,39 @@ Backend = Literal['espeak', 'espeak-mbrola', 'festival', 'segments']
 # call, repeated calls pay that cost every time. The instances are stateless
 # with respect to the text being phonemized, so they are cached here and
 # reused across calls with identical parameters.
-_BACKENDS_CACHE: 'OrderedDict[tuple, BaseBackend]' = OrderedDict()
+#
+# The cache is local to each thread. A backend must never be shared between
+# threads: the espeak library relies on global C state (this is why each
+# EspeakAPI instance loads its own copy of the library) and backends hold
+# per-call state (e.g. words count for the words mismatch policy).
+_BACKENDS_CACHE = threading.local()
+
+# Incremented by clear_backends_cache() so that every thread drops its cached
+# backends on its next call to phonemize().
+_CACHE_GENERATION = 0
 
 _CACHE_MAX_SIZE = 8
-"""Maximum number of backend instances kept alive simultaneously"""
+"""Maximum number of backend instances kept alive simultaneously per thread"""
+
+
+def _thread_cache() -> 'OrderedDict[tuple, BaseBackend]':
+    """Return the backends cache of the calling thread"""
+    if getattr(_BACKENDS_CACHE, 'generation', None) != _CACHE_GENERATION:
+        _BACKENDS_CACHE.backends = OrderedDict()
+        _BACKENDS_CACHE.generation = _CACHE_GENERATION
+    return _BACKENDS_CACHE.backends
 
 
 def _cached_backend(key, factory):
     """Return a backend for `key`, building it with `factory` if needed"""
+    cache = _thread_cache()
     try:
-        backend = _BACKENDS_CACHE.pop(key)
+        backend = cache.pop(key)
     except KeyError:
         backend = factory()
-        if len(_BACKENDS_CACHE) >= _CACHE_MAX_SIZE:
-            _BACKENDS_CACHE.popitem(last=False)
-    _BACKENDS_CACHE[key] = backend
+        if len(cache) >= _CACHE_MAX_SIZE:
+            cache.popitem(last=False)
+    cache[key] = backend
     return backend
 
 
@@ -67,10 +86,13 @@ def clear_backends_cache():
     """Free the backend instances cached by phonemize()
 
     Called for its side effect only. The cache is repopulated on the next
-    call to phonemize().
+    call to phonemize(). The backends cached by other threads are freed on
+    their next call to phonemize().
 
     """
-    _BACKENDS_CACHE.clear()
+    global _CACHE_GENERATION  # pylint: disable=global-statement
+    _CACHE_GENERATION += 1
+    _thread_cache()
 
 
 def phonemize(  # pylint: disable=too-many-arguments

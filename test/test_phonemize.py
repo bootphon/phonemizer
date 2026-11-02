@@ -16,10 +16,12 @@
 
 # pylint: disable=missing-docstring
 
+import concurrent.futures
 import os
 import pytest
 
-from phonemizer.phonemize import phonemize
+from phonemizer.phonemize import (
+    phonemize, clear_backends_cache, _thread_cache)
 from phonemizer.separator import Separator
 from phonemizer.backend import EspeakBackend, EspeakMbrolaBackend, FestivalBackend
 
@@ -320,3 +322,24 @@ def test_empty_input(backend, empty_lines, punctuation, text, expected):
     assert expected == phonemize(
         text, language=language, backend=backend,
         preserve_punctuation=punctuation, preserve_empty_lines=empty_lines)
+
+
+def test_threads():
+    # concurrent calls must not share a cached backend between threads
+    text = [f'the quick brown fox number {i}' for i in range(20)]
+    expected = phonemize(text)
+    with concurrent.futures.ThreadPoolExecutor(4) as executor:
+        results = list(executor.map(lambda _: phonemize(text), range(16)))
+    assert all(result == expected for result in results)
+
+
+def test_clear_backends_cache_threads():
+    def backend():
+        phonemize('a')
+        return next(iter(_thread_cache().values()))
+
+    with concurrent.futures.ThreadPoolExecutor(1) as executor:
+        first = executor.submit(backend).result()
+        assert executor.submit(backend).result() is first
+        clear_backends_cache()
+        assert executor.submit(backend).result() is not first
