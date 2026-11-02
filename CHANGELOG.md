@@ -54,7 +54,8 @@ Version numbers follow [semantic versioning](https://semver.org).
   - The festival backend dropped the lines it could not phonemize (empty
     once cleaned, or without words), shifting the next lines with respect to
     the input, for instance with `prepend_text`. It now outputs an empty line
-    for them.
+    for them, as the espeak backend does: `phonemize(['hello', '()'],
+    backend='festival')` gives `['hhaxlow ', '']` instead of `['hhaxlow ']`.
   - The festival executable can be in a directory whose name has spaces.
 
 ## phonemizer-3.4.1

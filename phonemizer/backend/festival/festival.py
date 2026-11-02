@@ -206,15 +206,13 @@ class FestivalBackend(BaseBackend):
         cleaned, or for which festival finds no word, gives an empty line.
 
         """
-        cleaned = [self._cleaned(line) for line in text]
-
-        # only the non-empty lines are given to festival, the others are
-        # empty in output
-        indices = [num for num, line in enumerate(cleaned) if line]
+        # only the lines not empty once cleaned are given to festival (as
+        # _preprocess() does), the others are empty in output
+        indices = [num for num, line in enumerate(text) if self._cleaned(line)]
         phonemized = [''] * len(text)
         if indices:
-            tree = self._process('\n'.join(
-                self._double_quoted(cleaned[num]) for num in indices))
+            tree = self._process(
+                self._preprocess([text[num] for num in indices]))
             for num, line in zip(
                     indices, self._postprocess(tree, separator, strip)):
                 phonemized[num] = line
@@ -236,6 +234,21 @@ class FestivalBackend(BaseBackend):
         # remove forbidden characters (reserved for scheme, ie festival
         # scripting language)
         return line.replace('"', '').replace('(', '').replace(')', '').strip()
+
+    @classmethod
+    def _preprocess(cls, text: List[str]):
+        """Returns the contents of `text` formatted for festival input
+
+        This function adds double quotes to begining and end of each
+        line in text, if not already presents. The returned result is
+        a multiline string. Empty lines in inputs are ignored.
+
+        """
+        cleaned_text = (
+            cls._cleaned(line) for line in text if line != '')
+
+        return '\n'.join(
+            cls._double_quoted(line) for line in cleaned_text if line != '')
 
     def _process(self, text: str):
         """Return the raw phonemization of `text`

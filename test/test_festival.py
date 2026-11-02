@@ -22,6 +22,7 @@ import shutil
 
 import pytest
 
+from phonemizer import phonemize
 from phonemizer.backend import FestivalBackend
 from phonemizer.separator import Separator
 
@@ -45,9 +46,18 @@ def test_hello():
 @pytest.mark.skipif(not FestivalBackend.is_available(), reason="festival not installed")
 @pytest.mark.parametrize("text", ["", " ", "  ", "(", "()", '"', "'"])
 def test_bad_input(text):
-    # nothing to phonemize gives an empty line, keeping the lines aligned
-    assert _test([text]) == [""]
+    # nothing to give to festival, as before phonemizer-3.5
+    # pylint: disable=protected-access
+    assert FestivalBackend._preprocess([text]) == ""
     assert _test([]) == []
+
+    # the phonemized string is empty, as before phonemizer-3.5
+    assert phonemize(text, backend="festival", language="en-us") == ""
+
+    # changed in phonemizer-3.5: each input line gives an output line, as
+    # with espeak. Before, the line was dropped, so the next lines were
+    # paired with the wrong input (see test_empty_lines_kept).
+    assert _test([text]) == [""]
 
 
 @pytest.mark.skipif(not FestivalBackend.is_available(), reason="festival not installed")
