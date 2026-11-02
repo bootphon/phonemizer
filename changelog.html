@@ -111,6 +111,12 @@ one chunk. <code class="docutils literal notranslate"><span class="pre">see</spa
 which cause lots of EspeakWrapper being created when using multi threads,
 that makes a bunch of folder created under /tmp, finally cause the fd run out
 and program panics. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/224">PR #224</a>.</p></li>
+<li><p>The festival backend failed with <code class="docutils literal notranslate"><span class="pre">AttributeError:</span> <span class="pre">module</span> <span class="pre">'importlib'</span> <span class="pre">has</span>
+<span class="pre">no</span> <span class="pre">attribute</span> <span class="pre">'resources'</span></code> outside of pytest, including from the
+<code class="docutils literal notranslate"><span class="pre">phonemize</span></code> command (regression in 3.4.0).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">phonemize()</span></code> is thread-safe again: the backend cache introduced in
+3.4.0 shared a single espeak instance between threads, yielding wrong
+outputs or errors. Backends are now cached per thread.</p></li>
 </ul>
 </li>
 </ul>
