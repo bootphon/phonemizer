@@ -4,6 +4,10 @@ Version numbers follow [semantic versioning](https://semver.org).
 
 ## unreleased
 
+This release makes the espeak backend faster and, with
+`preserve_punctuation=True`, pronounces the words around quotes and brackets
+in context, which changes the output of such lines.
+
 - **breaking changes**
   - With `preserve_punctuation=True`, the words on both sides of quotes and
     brackets (`"«»“”‘’„‹›()[]{}`) are pronounced together, as without
@@ -55,6 +59,10 @@ Version numbers follow [semantic versioning](https://semver.org).
     #232](https://github.com/bootphon/phonemizer/pull/232).
 
 ## phonemizer-3.5.0
+
+This release requires Python 3.10 or later, leaves the `phonemizer` logger to the
+application, and fixes many bugs, among them a memory leak of the espeak
+backend and installation issues on Windows, macOS and FreeBSD.
 
 - **breaking changes**
   - Python 3.8 and 3.9, which have reached their end of life, are no longer
@@ -134,6 +142,9 @@ Version numbers follow [semantic versioning](https://semver.org).
 
 ## phonemizer-3.4.1
 
+This release fixes two regressions of 3.4.0: `phonemize()` is thread-safe
+again and the festival backend works outside of the tests.
+
 - **bug fixes**
   - A sentence-final period no longer splits a decimal point that the
     punctuation matcher already kept, so `3.14 is pi.` and `1.5.` stay
@@ -149,6 +160,10 @@ Version numbers follow [semantic versioning](https://semver.org).
     outputs or errors. Backends are now cached per thread.
 
 ## phonemizer-3.4.0
+
+This release makes `phonemize()` reuse its backends across calls, lets you
+choose the espeak data directory, and keeps decimal numbers such as `19,99`
+whole when processing the punctuation.
 
 - **improvements**
   - The espeak data directory can now be chosen with
