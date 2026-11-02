@@ -207,63 +207,65 @@ class Punctuation:
             ['hello', 'my world'], [',', '!'] -> ['hello, my world!']
 
         """
-        text = str2list(text)
+        # A copy, as the chunks are modified in place. The remaining chunks are
+        # text[i:] and the remaining marks are marks[j:], walked by index
+        # rather than sliced, which would make the restoration quadratic.
+        text = list(str2list(text))
         punctuated_text = []
         pos = 0
+        i = 0
+        j = 0
 
-        while text or marks:
+        while i < len(text) or j < len(marks):
 
-            if not marks:
-                for line in text:
+            if j == len(marks):
+                for line in text[i:]:
                     # if strip is False, ensure the final word ends with a word separator
                     if not strip and sep.word and not line.endswith(sep.word):
                         line = line + sep.word
                     punctuated_text.append(line)
-                text = []
-            elif not text:
+                i = len(text)
+            elif i == len(text):
                 # nothing has been phonemized, returns the marks alone, with internal
                 # spaces replaced by the word separator
-                punctuated_text.append(re.sub(' ', sep.word, ''.join(m.mark for m in marks)))
-                marks = []
+                punctuated_text.append(re.sub(' ', sep.word, ''.join(m.mark for m in marks[j:])))
+                j = len(marks)
 
             else:
-                current_mark = marks[0]
+                current_mark = marks[j]
                 if current_mark.index == pos:
 
                     # place the current mark here
-                    mark = marks[0]
-                    marks = marks[1:]
+                    j += 1
                     # replace internal spaces in the current mark with the word separator
-                    mark = re.sub(' ', sep.word, mark.mark)
+                    mark = re.sub(' ', sep.word, current_mark.mark)
 
                     # remove the word last separator from the current word
-                    if sep.word and text[0].endswith(sep.word):
-                        text[0] = text[0][:-len(sep.word)]
+                    if sep.word and text[i].endswith(sep.word):
+                        text[i] = text[i][:-len(sep.word)]
 
                     if current_mark.position == 'B':
-                        text[0] = mark + text[0]
+                        text[i] = mark + text[i]
                     elif current_mark.position == 'E':
-                        punctuated_text.append(text[0] + mark + ('' if strip or mark.endswith(sep.word) else sep.word))
-                        text = text[1:]
+                        punctuated_text.append(text[i] + mark + ('' if strip or mark.endswith(sep.word) else sep.word))
+                        i += 1
                         pos = pos + 1
                     elif current_mark.position == 'A':
                         punctuated_text.append(mark + ('' if strip or mark.endswith(sep.word) else sep.word))
                         pos = pos + 1
                     else:
                         # position == 'I'
-                        if len(text) == 1:  # pragma: nocover
+                        if i == len(text) - 1:  # pragma: nocover
                             # a corner case where the final part of an intermediate
                             # mark (I) has not been phonemized
-                            text[0] = text[0] + mark
+                            text[i] = text[i] + mark
                         else:
-                            first_word = text[0]
-                            text = text[1:]
-                            text[0] = first_word + mark + text[0]
+                            text[i + 1] = text[i] + mark + text[i + 1]
+                            i += 1
 
                 else:
-                    punctuated_text.append(text[0])
-                    text = text[1:]
+                    punctuated_text.append(text[i])
+                    i += 1
                     pos = pos + 1
-
 
         return punctuated_text

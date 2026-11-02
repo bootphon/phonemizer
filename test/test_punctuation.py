@@ -330,3 +330,19 @@ def test_preserve_lines():
     assert (chunks, marks) == Punctuation().preserve(text)
     assert chunks == ['hello', 'my world', 'ok']
     assert lines == [0, 0, 2]
+
+
+def test_restore_many_lines():
+    # restore() used to slice its lists at each mark, taking minutes on a few
+    # tens of thousands of lines
+    text = [f'hello, my world {i}!' for i in range(50000)]
+    punct = Punctuation()
+    chunks, marks = punct.preserve(text)
+    assert punct.restore(chunks, marks, default_separator, True) == text
+
+
+def test_restore_keeps_input():
+    chunks, marks = Punctuation().preserve(['a, b!'])
+    phonemized = [c + ' ' for c in chunks]
+    Punctuation.restore(phonemized, marks, default_separator, False)
+    assert phonemized == ['a ', 'b ']
