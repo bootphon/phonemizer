@@ -1,0 +1,10 @@
+# keep the docker build context small, these are not needed in the image
+.git
+.pixi
+.pytest_cache
+.coverage
+build
+dist
+docs/build
+*.egg-info
+**/__pycache__
