@@ -99,17 +99,21 @@ class EspeakAPI:
 
     @staticmethod
     def _delete(library, tempdir):
-        # clean up the espeak library allocated memory
-        library.espeak_Terminate()
+        # The library is always loaded here: the finalizer is registered once
+        # it is. An error is reported by the finalizer, it must not prevent
+        # the removal of the tempdir.
+        try:
+            # clean up the espeak library allocated memory
+            library.espeak_Terminate()
 
-        # Unload the library copy, or it stays mapped in memory along with the
-        # espeak data it allocated (several MB for each instance). On Windows
-        # this is also required or the .dll file cannot be erased from the
-        # temporary directory.
-        EspeakAPI._unload(library)
-
-        # clean up the tempdir containing the copy of the library
-        shutil.rmtree(tempdir)
+            # Unload the library copy, or it stays mapped in memory along with
+            # the espeak data it allocated (several MB for each instance). On
+            # Windows this is also required or the .dll file cannot be erased
+            # from the temporary directory.
+            EspeakAPI._unload(library)
+        finally:
+            # clean up the tempdir containing the copy of the library
+            shutil.rmtree(tempdir, ignore_errors=True)
 
     @staticmethod
     def _unload(library):

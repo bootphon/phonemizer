@@ -239,3 +239,20 @@ def test_failed_load_removes_tempdir(monkeypatch, tmp_path):
     with pytest.raises(OSError):
         api.EspeakAPI(EspeakWrapper.library(), None)
     assert not (tmp_path / "copy").exists()
+
+
+def test_deletion_error_removes_tempdir(monkeypatch, tmp_path):
+    # an error while freeing the library must not leave the tempdir behind
+    from phonemizer.backend.espeak import api  # pylint: disable=import-outside-toplevel
+
+    class Library:  # pylint: disable=too-few-public-methods
+        def espeak_Terminate(self):  # pylint: disable=invalid-name
+            pass
+
+    def failing_unload(_):
+        raise OSError("cannot unload")
+
+    monkeypatch.setattr(api.EspeakAPI, "_unload", staticmethod(failing_unload))
+    with pytest.raises(OSError):
+        api.EspeakAPI._delete(Library(), str(tmp_path))
+    assert not tmp_path.exists()
