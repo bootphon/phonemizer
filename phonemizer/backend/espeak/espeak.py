@@ -142,9 +142,21 @@ class EspeakBackend(BaseEspeakBackend):
         return out_line, has_switch
 
     def _phonemize_preprocess(self, text: List[str]) -> Tuple[Union[str, List[str]], List]:
-        text, punctuation_marks = super()._phonemize_preprocess(text)
-        self._words_mismatch.count_text(text)
-        return text, punctuation_marks
+        chunks, punctuation_marks = super()._phonemize_preprocess(text)
+
+        # When preserving the punctuation, the lines are split in chunks at
+        # each punctuation mark. Words are counted on the input lines, not on
+        # the chunks, so that the mismatched lines are the ones processed.
+        lines = None
+        if self._preserve_punctuation:
+            # pylint: disable=protected-access
+            lines = [
+                num for num, line in enumerate(text)
+                for chunk in self._punctuator._preserve_line(line, num)[0]
+                if chunk]
+
+        self._words_mismatch.count_text(chunks, lines, len(text))
+        return chunks, punctuation_marks
 
     def _phonemize_postprocess(self, phonemized, punctuation_marks, separator: Separator, strip: bool):
         text = phonemized[0]

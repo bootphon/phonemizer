@@ -77,3 +77,18 @@ def test_custom_separator(caplog):
     assert phn == 't ɹ aɪ |'
     messages = [msg[2] for msg in caplog.record_tuples]
     assert len(messages) == 0
+
+
+# from https://github.com/bootphon/phonemizer/issues/181
+@pytest.mark.parametrize('text, expected', [
+    (['Fine, I have been busy', 'Hello', 'Good morning'],
+     ['', 'həloʊ ', 'ɡʊd mɔːɹnɪŋ ']),
+    (['Hello, how are you?', 'I have been busy'],
+     ['həloʊ, haʊ ɑːɹ juː? ', '']),
+    (['Hello, how are you?', '!!', 'Good morning.'],
+     ['həloʊ, haʊ ɑːɹ juː? ', '!! ', 'ɡʊd mɔːɹnɪŋ. '])])
+def test_remove_preserve_punctuation(text, expected):
+    phn = phonemize(
+        text, backend='espeak', language='en-us', words_mismatch='remove',
+        preserve_punctuation=True)
+    assert phn == expected

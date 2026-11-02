@@ -17,14 +17,14 @@
 import abc
 import re
 from logging import Logger
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from typing_extensions import TypeAlias, Literal, Union
 
 from phonemizer.separator import Separator
 
 
-WordMismatch: TypeAlias = Literal["warn", "ignore"]
+WordMismatch: TypeAlias = Literal["warn", "ignore", "remove"]
 
 
 def get_words_mismatch_processor(mode: WordMismatch, logger: Logger) -> 'BaseWordsMismatch':
@@ -59,6 +59,8 @@ class BaseWordsMismatch(abc.ABC):
         self._logger = logger
         self._count_txt = []
         self._count_phn = []
+        self._lines = None
+        self._nlines = 0
 
     @classmethod
     def _count_words(
@@ -98,13 +100,34 @@ class BaseWordsMismatch(abc.ABC):
                 'words count mismatch on %s%% of the lines (%s/%s)',
                 round(nmismatch / nlines, 2) * 100, nmismatch, nlines)
 
-    def count_text(self, text: List[str]):
-        """Stores the number of words in each input line"""
-        self._count_txt = self._count_words(text)
+    def _per_line(self, counts: List[int]) -> List[int]:
+        """Sums the words counts of the chunks of each input line"""
+        if self._lines is None:
+            return counts
+
+        per_line = [0] * self._nlines
+        for line, count in zip(self._lines, counts):
+            per_line[line] += count
+        return per_line
+
+    def count_text(self, text: List[str],
+                   lines: Optional[List[int]] = None,
+                   nlines: int = 0):
+        """Stores the number of words in each input line
+
+        When the punctuation is preserved, the input lines are split in
+        chunks. `text` is then the list of chunks, `lines` the index of the
+        input line of each chunk and `nlines` the number of input lines.
+
+        """
+        self._lines = lines
+        self._nlines = nlines
+        self._count_txt = self._per_line(self._count_words(text))
 
     def count_phonemized(self, text: List[str], separator: Separator):
         """Stores the number of words in each output line"""
-        self._count_phn = self._count_words(text, separator.word)
+        self._count_phn = self._per_line(
+            self._count_words(text, separator.word))
 
     @abc.abstractmethod
     def process(self, text: List[str]) -> List[str]:
@@ -145,7 +168,8 @@ class Remove(BaseWordsMismatch):
     def process(self, text: List[str]) -> List[str]:
         mismatch = [line[0] for line in self._mismatched_lines()]
         self._resume(len(mismatch), len(text))
-        self._logger.warning('removing the mismatched lines')
+        if mismatch:
+            self._logger.warning('removing the mismatched lines')
 
         for index in mismatch:
             text[index] = ''
