@@ -402,3 +402,14 @@ def test_data_path_too_long_without_link(tmp_path, monkeypatch):
     monkeypatch.setattr(os, "symlink", failing_symlink)
     with pytest.raises(RuntimeError, match="privilege not held"):
         EspeakAPI._data_path_argument(data, (1, 52), tmp_path)
+
+
+# from https://github.com/bootphon/phonemizer/issues/180
+def test_espeak_too_old(monkeypatch):
+    from phonemizer.backend.espeak import api  # pylint: disable=import-outside-toplevel
+    monkeypatch.setattr(api.EspeakAPI, "_version", lambda self: (1, 47))
+    with pytest.raises(RuntimeError, match=r"espeak-1\.47 is not supported"):
+        EspeakWrapper()
+    assert not EspeakBackend.is_available()
+    with pytest.raises(RuntimeError, match="espeak not installed on your system"):
+        EspeakBackend("en-us")

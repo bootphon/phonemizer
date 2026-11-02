@@ -15,7 +15,8 @@ You need to install
 and/or `mbrola <https://github.com/numediart/MBROLA>`_ in order to use the
 corresponding ``phonemizer`` backends. The **segments** backend is a Python
 package, installed with ``pip install phonemizer[segments]`` (see below).
-Follow instructions for your system below.
+The **espeak** backend requires espeak>=1.48 or espeak-ng (the **espeak-mbrola**
+backend requires espeak-ng). Follow instructions for your system below.
 
 On Debian/Ubuntu
 ~~~~~~~~~~~~~~~~

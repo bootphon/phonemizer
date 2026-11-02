@@ -77,9 +77,17 @@ class EspeakAPI:
             # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
             self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
             try:
+                # older versions are not supported, they crash on
+                # phonemization (see issue #180)
+                version = self._version()
+                if version < (1, 48):
+                    raise RuntimeError(
+                        f'espeak-{".".join(str(v) for v in version)} is not '
+                        f'supported, phonemizer requires espeak>=1.48')
+
                 if data_path is not None:
                     data_path = self._data_path_argument(
-                        data_path, self._version(), self._tempdir)
+                        data_path, version, self._tempdir)
                 if self._library.espeak_Initialize(0x02, 0, data_path, 0) <= 0:
                     raise RuntimeError(  # pragma: nocover
                         'failed to initialize espeak shared library')
