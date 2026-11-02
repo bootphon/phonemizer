@@ -68,6 +68,15 @@ class BaseWordsMismatch(abc.ABC):
             text: List[str],
             wordsep: Union[str, re.Pattern] = _RE_SPACES) -> List[int]:
         """Return the number of words contained in each line of `text`"""
+        # str.split() is much faster than re.split() and gives the same words:
+        # with no argument it splits on the same whitespaces as \s+.
+        if wordsep is cls._RE_SPACES:
+            return [len(line.split()) for line in text]
+        if isinstance(wordsep, str) and wordsep:
+            return [
+                len([w for w in line.strip().split(wordsep) if w])
+                for line in text]
+
         if not isinstance(wordsep, re.Pattern):
             wordsep = re.escape(wordsep)
 

@@ -3,6 +3,8 @@
 # pylint: disable=missing-docstring
 # pylint: disable=redefined-outer-name
 
+import re
+
 import pytest
 
 from phonemizer import phonemize
@@ -25,6 +27,25 @@ def test_count_words():
     assert count_words(['aaa']) == [1]
     assert count_words([' aaa  ']) == [1]
     assert count_words([' a  a \taa  ']) == [3]
+
+
+def test_count_words_whitespaces():
+    # pylint: disable=protected-access
+    text = ['', ' a ', 'a　b\tc', ' a b  c ']
+    assert Ignore._count_words(text) == [0, 1, 3, 3]
+
+
+@pytest.mark.parametrize('wordsep, expected', [
+    (' | ', [0, 1, 1, 2]),
+    ('|', [0, 1, 3, 3]),
+    # an empty separator splits between each character
+    ('', [0, 1, 8, 9]),
+    (re.compile(r'\s*\|\s*'), [0, 1, 3, 3]),
+])
+def test_count_words_separators(wordsep, expected):
+    # pylint: disable=protected-access
+    text = ['', ' a ', ' a　| b |c\t', 'a | b|c | ']
+    assert Ignore._count_words(text, wordsep) == expected
 
 
 def test_bad():
