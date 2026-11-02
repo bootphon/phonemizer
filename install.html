@@ -102,7 +102,8 @@ to use python2, use the <code class="docutils literal notranslate"><span class="
 and/or <a class="reference external" href="https://github.com/numediart/MBROLA">mbrola</a> in order to use the
 corresponding <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> backends. The <strong>segments</strong> backend is a Python
 package, installed with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">phonemizer[segments]</span></code> (see below).
-Follow instructions for your system below.</p>
+The <strong>espeak</strong> backend requires espeak&gt;=1.48 or espeak-ng (the <strong>espeak-mbrola</strong>
+backend requires espeak-ng). Follow instructions for your system below.</p>
 <section id="on-debian-ubuntu">
 <h3>On Debian/Ubuntu<a class="headerlink" href="#on-debian-ubuntu" title="Link to this heading"></a></h3>
 <p>To install dependencies, simply run</p>
@@ -127,9 +128,26 @@ mbrola voices must be installed (see the <a class="reference external" href="htt
 </section>
 <section id="on-macos">
 <h3>On MacOS<a class="headerlink" href="#on-macos" title="Link to this heading"></a></h3>
-<p><strong>espeak-ng</strong> is available on brew: <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">espeak-ng</span></code>. To install
-<strong>festival</strong>, <strong>mbrola</strong> and additional mbrola voices, use the <a class="reference external" href="https://github.com/pettarin/setup-festival-mbrola">setup script</a> (it may be outdated, see
-<a class="reference external" href="https://github.com/bootphon/phonemizer/issues/203">issue #203</a>).</p>
+<p><strong>espeak-ng</strong> is available on brew:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>espeak-ng
+</pre></div>
+</div>
+<p><strong>festival</strong> and <strong>mbrola</strong> are not packaged for MacOS (neither by brew nor
+by MacPorts) and must be compiled from sources. Note that <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> is not
+tested with them on MacOS.</p>
+<ul class="simple">
+<li><p><strong>mbrola</strong>: follow the compilation instructions of the <a class="reference external" href="https://github.com/numediart/MBROLA">MBROLA repository</a>, then copy the <code class="docutils literal notranslate"><span class="pre">Bin/mbrola</span></code>
+executable to a folder in your <code class="docutils literal notranslate"><span class="pre">PATH</span></code>. The voices are available from the
+<a class="reference external" href="https://github.com/numediart/MBROLA-voices">MBROLA-voices repository</a>,
+copy them to the <code class="docutils literal notranslate"><span class="pre">mbrola</span></code> folder of the espeak-ng data directory (as given
+by <code class="docutils literal notranslate"><span class="pre">espeak-ng</span> <span class="pre">--version</span></code>).</p></li>
+<li><p><strong>festival</strong>: follow the <a class="reference external" href="https://github.com/festvox/festival/blob/master/INSTALL">festival install guide</a> (compile the
+speech tools, then festival with its English lexicons and voices), then give
+the path to the festival executable to <code class="docutils literal notranslate"><span class="pre">phonemizer</span></code> (see
+<a class="reference internal" href="#custom-installation"><span class="std std-ref">Custom espeak and festival installations</span></a>).</p></li>
+</ul>
+<p>The <a class="reference external" href="https://github.com/pettarin/setup-festival-mbrola">setup-festival-mbrola</a>
+script formerly suggested here is archived and no longer works (see <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/203">issue #203</a>).</p>
 </section>
 <section id="on-windows">
 <h3>On Windows<a class="headerlink" href="#on-windows" title="Link to this heading"></a></h3>

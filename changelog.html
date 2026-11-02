@@ -162,6 +162,34 @@ once cleaned, or without words), shifting the next lines with respect to
 the input, for instance with <code class="docutils literal notranslate"><span class="pre">prepend_text</span></code>. It now outputs an empty line
 for them, as the espeak backend does: <code class="docutils literal notranslate"><span class="pre">phonemize(['hello',</span> <span class="pre">'()'],</span> <span class="pre">backend='festival')</span></code> gives <code class="docutils literal notranslate"><span class="pre">['hhaxlow</span> <span class="pre">',</span> <span class="pre">'']</span></code> instead of <code class="docutils literal notranslate"><span class="pre">['hhaxlow</span> <span class="pre">']</span></code>.</p></li>
 <li><p>The festival executable can be in a directory whose name has spaces.</p></li>
+<li><p>An espeak data directory with a path longer than 159 bytes (229 on
+Windows) was silently ignored by espeak, which then looked for its data
+elsewhere. Such a path is now given to espeak through a shorter link. See
+<a class="reference external" href="https://github.com/bootphon/phonemizer/issues/196">issue #196</a>.</p></li>
+<li><p>espeak versions older than 1.48, which crash on phonemization, are
+refused with a clear error. See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/180">issue
+#180</a>.</p></li>
+<li><p>The espeak library is looked for in the standard directories when its
+path cannot be retrieved from the loaded library (e.g. on FreeBSD), and
+<code class="docutils literal notranslate"><span class="pre">phonemize</span> <span class="pre">--version</span></code> works for a renamed distribution of phonemizer or
+when running from sources. See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/209">issue
+#209</a>.</p></li>
+</ul>
+</li>
+<li><p><strong>documentation</strong></p>
+<ul>
+<li><p>The installation of festival and mbrola on MacOS is documented, the
+setup script formerly suggested no longer works. See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/203">issue
+#203</a>.</p></li>
+</ul>
+</li>
+<li><p><strong>tests</strong></p>
+<ul>
+<li><p>The festival tests expect the syllables of the installed festival
+version, they no longer fail on festival-2.4. The tests no longer depend
+on a <code class="docutils literal notranslate"><span class="pre">python</span></code> executable nor on the transcription of a given espeak
+build. See <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/221">issue #221</a>
+and <a class="reference external" href="https://github.com/bootphon/phonemizer/issues/209">issue #209</a>.</p></li>
 </ul>
 </li>
 </ul>
