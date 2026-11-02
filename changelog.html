@@ -49,6 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="common_issues.html">Common Issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unreleased">unreleased</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-5-0">phonemizer-3.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-4-1">phonemizer-3.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#phonemizer-3-4-0">phonemizer-3.4.0</a></li>
@@ -100,6 +101,37 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
 <p>Version numbers follow <a class="reference external" href="https://semver.org">semantic versioning</a>.</p>
+<section id="unreleased">
+<h2>unreleased<a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>improvements</strong></p>
+<ul>
+<li><p>Creating an espeak backend is about 3 times faster (from 28 to 8 ms on
+Linux): the espeak library found on the system is now looked up once per
+process instead of at each creation. <code class="docutils literal notranslate"><span class="pre">set_library()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">PHONEMIZER_ESPEAK_LIBRARY</span></code> still apply at any time, but an espeak
+library installed or removed after the first lookup is not seen until the
+process restarts. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/232">PR #232</a>.</p></li>
+<li><p>The espeak backend is about 12% faster: the post-processing of espeak
+output is 2.5 times faster, and the words are counted with <code class="docutils literal notranslate"><span class="pre">str.split()</span></code>
+rather than regular expressions. The outputs are unchanged. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/232">PR
+#232</a>.</p></li>
+</ul>
+</li>
+<li><p><strong>bug fixes</strong></p>
+<ul>
+<li><p>Restoring the punctuation (<code class="docutils literal notranslate"><span class="pre">preserve_punctuation=True</span></code>) took a time
+quadratic in the number of lines: about 11 seconds for 20,000 lines, now
+40 milliseconds. <code class="docutils literal notranslate"><span class="pre">Punctuation.restore()</span></code> no longer modifies the list it
+is given. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/232">PR #232</a>.</p></li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">preserve_punctuation=True</span></code>, a word separator containing a backslash
+raised an error (<code class="docutils literal notranslate"><span class="pre">\</span></code>) or was read as an escape sequence (<code class="docutils literal notranslate"><span class="pre">\n</span></code> gave a new
+line). It is now inserted as is. See <a class="reference external" href="https://github.com/bootphon/phonemizer/pull/232">PR
+#232</a>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
 <section id="phonemizer-3-5-0">
 <h2>phonemizer-3.5.0<a class="headerlink" href="#phonemizer-3-5-0" title="Link to this heading"></a></h2>
 <ul class="simple">
