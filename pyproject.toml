@@ -112,8 +112,8 @@ test = { features = ["test"] }
 dev = { features = ["test", "dev"] }
 # test the first, the second-to-last, and the last supported version
 py310 = ["py310", "test"]
-py313 = ["py313", "test"]
 py314 = ["py314", "test"]
+py315 = ["py315", "test"]
 
 [tool.pixi.feature.test.pypi-dependencies]
 phonemizer = { path = ".", editable = true, extras = ["test", "segments"] }
@@ -135,8 +135,8 @@ lint = { cmd = "ruff check phonemizer test", default-environment = "dev" }
 [tool.pixi.feature.py310.dependencies]
 python = "3.10.*"
 
-[tool.pixi.feature.py313.dependencies]
-python = "3.13.*"
-
 [tool.pixi.feature.py314.dependencies]
 python = "3.14.*"
+
+[tool.pixi.feature.py315.dependencies]
+python = "3.15.*"
